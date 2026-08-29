@@ -33,7 +33,7 @@ function doGet(){return json({ok:true,service:"LIWO Finance Tracker"})}
 function doPost(e){try{let r=JSON.parse(e.postData.contents||"{}");switch(r.action){
 case"login":return json(login(r));case"registerFinance":return json(registerFinance(r));case"dashboard":return json(withAuth(r,dashboard));
 case"addPayment":return json(withAuth(r,addPayment));case"addExpense":return json(withAuth(r,addExpense));case"listUsers":return json(withAuth(r,listUsers));
-case"upsertUser":return json(withAuth(r,upsertUser));case"deactivateUser":return json(withAuth(r,deactivateUser));case"listTools":return json(withAuth(r,listTools));case"addTool":return json(withAuth(r,addTool));case"updateTool":return json(withAuth(r,updateTool));case"cashBalances":return json(withAuth(r,cashBalances));case"updateCashBalance":return json(withAuth(r,updateCashBalance));case"reactivateUser":return json(withAuth(r,reactivateUser));case"deleteUser":return json(withAuth(r,deleteUser));case"changeInvite":return json(withAuth(r,changeInvite));case"reopenRegistration":return json(withAuth(r,reopenRegistration));case"upsertClient":return json(withAuth(r,upsertClient));case"archiveClient":return json(withAuth(r,archiveClient));case"restoreClient":return json(withAuth(r,restoreClient));case"deleteClient":return json(withAuth(r,deleteClient));case"listReceipts":return json(withAuth(r,listReceipts));case"notifications":return json(withAuth(r,notifications));case"deletePayment":return json(withAuth(r,deletePayment));case"deleteExpense":return json(withAuth(r,deleteExpense));case"deactivateUser":return json(withAuth(r,deactivateUser));
+case"upsertUser":return json(withAuth(r,upsertUser));case"deactivateUser":return json(withAuth(r,deactivateUser));case"setUserActive":return json(withAuth(r,setUserActive));case"listTools":return json(withAuth(r,listTools));case"addTool":return json(withAuth(r,addTool));case"updateTool":return json(withAuth(r,updateTool));case"cashBalances":return json(withAuth(r,cashBalances));case"updateCashBalance":return json(withAuth(r,updateCashBalance));case"reactivateUser":return json(withAuth(r,reactivateUser));case"deleteUser":return json(withAuth(r,deleteUser));case"changeInvite":return json(withAuth(r,changeInvite));case"reopenRegistration":return json(withAuth(r,reopenRegistration));case"upsertClient":return json(withAuth(r,upsertClient));case"archiveClient":return json(withAuth(r,archiveClient));case"restoreClient":return json(withAuth(r,restoreClient));case"deleteClient":return json(withAuth(r,deleteClient));case"listReceipts":return json(withAuth(r,listReceipts));case"notifications":return json(withAuth(r,notifications));case"deletePayment":return json(withAuth(r,deletePayment));case"deleteExpense":return json(withAuth(r,deleteExpense));case"deactivateUser":return json(withAuth(r,deactivateUser));
 default:return json({ok:false,error:"Unknown action"})}}catch(x){return json({ok:false,error:String(x.message||x)})}}
 function json(o){return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON)}
 function ensureHeaders_(sh,headers){if(sh.getLastRow()===0){sh.getRange(1,1,1,headers.length).setValues([headers]);return}let existing=sh.getRange(1,1,1,Math.max(sh.getLastColumn(),1)).getValues()[0].map(String);if(existing.length<headers.length){sh.getRange(1,existing.length+1,1,headers.length-existing.length).setValues([headers.slice(existing.length)]);}}
@@ -222,6 +222,22 @@ function deactivateUser(r,u){
   sh.getRange(i+2,7).setValue(new Date());
   audit("DEACTIVATE_USER",u,String(row[0])+" | "+String(row[1]));
   return{ok:true,message:"User deactivated."};
+}
+
+
+function setUserActive(r,u){
+  adminOnly(u);
+  if(!r.username)throw Error("Username is required.");
+  if(String(r.username).toLowerCase()===String(u.username).toLowerCase())
+    throw Error("You cannot change your own administrator account status.");
+  let sh=ss().getSheetByName("users"),v=sh.getDataRange().getValues();
+  let i=v.slice(1).findIndex(x=>String(x[0]).toLowerCase()===String(r.username).toLowerCase());
+  if(i<0)throw Error("User not found.");
+  let row=v[i+1],active=String(r.active).toLowerCase()==="true";
+  sh.getRange(i+2,5).setValue(active);
+  sh.getRange(i+2,7).setValue(new Date());
+  audit(active?"REACTIVATE_USER":"DEACTIVATE_USER",u,String(row[0])+" | "+String(row[1]));
+  return{ok:true};
 }
 
 function reactivateUser(r,u){

@@ -699,11 +699,117 @@ textarea{min-height:82px;resize:vertical}
 .user-action-btn:hover{box-shadow:0 4px 12px rgba(15,42,66,.10);transform:translateY(-1px)}
 @media(max-width:760px){.user-actions{display:grid;grid-template-columns:1fr 1fr}.user-action-btn{min-height:38px}}
 </style>
+
+<style id="liwo-receipts-page-final-fix">
+#receiptsPage{display:none}
+#receiptsPage.active{display:block}
+#receiptsPage .receipt-toolbar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:end}
+#receiptsPage .receipt-toolbar>div{min-width:0}
+#receiptsPage .receipt-toolbar select{width:100%}
+#receiptsPage .receipt-actions a{display:inline-flex;align-items:center;justify-content:center}
+@media(max-width:760px){
+  #receiptsPage .receipt-toolbar{grid-template-columns:1fr}
+  #receiptsPage .receipt-toolbar button{width:100%}
+}
+</style>
+
+<style id="liwo-receipt-input-compact">
+#expenseReceiptFile{
+  display:block!important;
+  width:100%!important;
+  max-width:100%!important;
+  height:42px!important;
+  min-height:42px!important;
+  padding:7px 10px!important;
+  box-sizing:border-box!important;
+  font-size:13px!important;
+  line-height:26px!important;
+  font-weight:500!important;
+  border:1px solid #d5dee7!important;
+  border-radius:10px!important;
+  background:#fff!important;
+  color:#526577!important;
+}
+#expenseReceiptFile::file-selector-button{
+  height:28px!important;
+  margin-right:10px!important;
+  padding:4px 11px!important;
+  border:1px solid #cbd7e1!important;
+  border-radius:7px!important;
+  background:#f7f9fb!important;
+  color:#123451!important;
+  font-size:12px!important;
+  font-weight:700!important;
+  cursor:pointer!important;
+}
+@media(max-width:760px){
+  #expenseReceiptFile{height:44px!important;min-height:44px!important;font-size:12px!important}
+  #expenseReceiptFile::file-selector-button{font-size:11px!important}
+}
+</style>
+
+<style id="liwo-user-actions-polished">
+.user-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.user-actions .btn-small{min-height:34px;padding:7px 11px}
+.user-actions .btn-danger{color:#b32626}
+@media(max-width:760px){
+  .user-actions{display:grid;grid-template-columns:1fr 1fr}
+  .user-actions .btn-small{width:100%;min-height:38px}
+}
+</style>
+
+<style id="liwo-period-report-polish">
+.report-period-note{
+  margin:12px 0;padding:11px 14px;border:1px solid #dfe7ee;border-radius:10px;
+  background:#f8fafc;color:#516578;font-size:12px;
+}
+#reportPeriodLabel{display:block;font-size:12px;font-weight:800;color:#123451;margin-top:3px}
+</style>
+
+<script id="liwo-initial-loader">
+(function(){
+  function bootLoader(){
+    var el=document.getElementById("liwoLoadingOverlay");
+    if(!el)return;
+    el.classList.add("show");
+    el.setAttribute("aria-hidden","false");
+    var txt=el.querySelector(".lw-loader-text");
+    if(txt)txt.textContent="Preparing LIWO Finance…";
+    window.setTimeout(function(){
+      if(window.sessionStorage && sessionStorage.getItem("cf_session")){
+        /* The restored session will keep the loader visible through the API call. */
+      }else{
+        el.classList.remove("show");
+        el.setAttribute("aria-hidden","true");
+      }
+    },900);
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bootLoader,{once:true});
+  else bootLoader();
+})();
+</script>
+
+<style id="liwo-loader-fallback">
+.lw-loader-gif{background:transparent}
+.lw-loader-gif.is-missing{display:none}
+.lw-loader-machine{
+  width:150px;height:120px;margin:0 auto 14px;position:relative;display:none;
+}
+.lw-loader-machine.show{display:block}
+.lw-loader-machine .cab{position:absolute;left:52px;top:35px;width:52px;height:38px;border:5px solid #123451;border-radius:8px 8px 3px 3px}
+.lw-loader-machine .body{position:absolute;left:37px;top:70px;width:82px;height:20px;border-radius:10px;background:#123451}
+.lw-loader-machine .arm{position:absolute;left:83px;top:22px;width:48px;height:8px;background:#123451;transform:rotate(-28deg);transform-origin:left center;animation:lwArm 1s ease-in-out infinite}
+.lw-loader-machine .bucket{position:absolute;left:125px;top:2px;width:24px;height:20px;border:5px solid #123451;border-top:0;transform:rotate(12deg);animation:lwBucket 1s ease-in-out infinite}
+.lw-loader-machine .wheel{position:absolute;top:87px;width:23px;height:23px;border:5px solid #123451;border-radius:50%;background:#fff}
+.lw-loader-machine .wheel.a{left:42px}.lw-loader-machine .wheel.b{left:91px}
+@keyframes lwArm{0%,100%{transform:rotate(-28deg)}50%{transform:rotate(4deg)}}
+@keyframes lwBucket{0%,100%{transform:rotate(12deg)}50%{transform:rotate(35deg)}}
+</style>
 </head>
 <body>
 <div id="liwoLoadingOverlay" aria-hidden="true">
   <div class="lw-loader-card">
-    <img class="lw-loader-gif" src="data.gif" alt="LIWO Finance loading">
+    <img class="lw-loader-gif" src="data.gif" alt="LIWO Finance loading"><div class="lw-loader-machine" id="liwoLoaderMachine" aria-hidden="true"><div class="arm"></div><div class="bucket"></div><div class="cab"></div><div class="body"></div><div class="wheel a"></div><div class="wheel b"></div></div>
     <div class="lw-loader-title">Preparing your dashboard</div>
     <div class="lw-loader-text">Please wait while LIWO Finance loads your data.</div>
     <div class="lw-loader-bar"><span></span></div>
@@ -806,6 +912,7 @@ textarea{min-height:82px;resize:vertical}
 <button data-page="clients" id="clientsNav">Clients / Projects</button>
 <button data-page="tools"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m14.7 6.3 3-3a5 5 0 0 0 0 7.1l-8.4 8.4a2.1 2.1 0 1 1-3-3l8.4-8.4a5 5 0 0 0 7.1 0l-3 3"/><path d="m5 5 4 4"/><path d="m4 4 1 1"/></svg></span><span>Construction Tools</span></button>
 <button type="button" data-page="cash">💰 <span>Cash Position</span></button>
+<button type="button" data-page="receipts" id="receiptsNav"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Z"/><path d="M9 7h6M9 11h6M9 15h4"/></svg></span><span>Receipts</span></button>
 <button data-page="reports" id="reportsNav">Reports / Export</button>
 <button data-page="users" id="usersNav" class="hidden">User Management</button>
 </div></div>
@@ -873,7 +980,7 @@ textarea{min-height:82px;resize:vertical}
 <label>Category<select name="category"><option>Materials</option><option>Labor</option><option>Equipment</option><option>Transport</option><option>Permits</option><option>Subcontractor</option><option>Utilities</option><option>Meals</option><option>Office</option><option>Other</option></select></label>
 <label>Payee / Supplier<input name="payee"></label><label class="wide">Description<input name="description" required></label><label>Amount<input name="amount" type="number" min="0" step=".01" required></label>
 <label>Payment Method<select name="method"><option>Cash</option><option>Bank Transfer</option><option>Check</option><option>GCash</option><option>Maya</option><option>Other</option></select></label><label>Receipt / Reference<input name="reference" placeholder="Optional"></label><label>Approved By<input name="approvedBy"></label>
-<label class="wide">Receipt Photo / File<div class="receipt-file"><input id="receiptInput" name="receiptFile" type="file" accept="image/*,.pdf" capture="environment"></div><div id="receiptFileName" class="receipt-help">Optional — you can take a photo or upload a receipt. No receipt is also allowed.</div></label>
+<label class="wide">Receipt Photo / File<div class="receipt-file"><input id="receiptInput" name="receiptFile" type="file" accept="image/*,.pdf" capture="environment" id="expenseReceiptFile"></div><div id="receiptFileName" class="receipt-help">Optional — you can take a photo or upload a receipt. No receipt is also allowed.</div></label>
 <label class="wide">Notes<textarea name="notes"></textarea></label>
 <div class="wide"><button class="primary">Save Transaction</button></div>
 </form></div>
@@ -909,8 +1016,9 @@ textarea{min-height:82px;resize:vertical}
 
 <section id="reportsPage" class="page hidden">
 <div class="panel"><div class="panel-head"><div><h3>Reports / Export</h3><span class="muted">Generate a printable financial summary for the selected client / project.</span></div></div>
-<div class="grid report-controls"><label>Client / Project<select id="reportClient"></select></label><label>Report Period<select id="reportPeriod"><option value="all">All available records</option><option value="month">Current month</option><option value="week">Current week</option></select></label><div class="wide report-actions"><button id="printReportBtn" class="primary" type="button">🖨 Print Report</button><button id="saveReportBtn" class="secondary" type="button">📄 Save / Print as PDF</button><button id="exportReportBtn" class="secondary" type="button">⬇ Export CSV</button></div></div></div>
-<div id="reportPreview" class="report-preview"><div class="report-header"><div><h2>LIWO ENGINEERING CONSULTANCY</h2><p>Financial Report</p></div><div class="report-meta"><strong id="reportDate"></strong><span id="reportProject"></span></div></div>
+<div class="grid report-controls"><label>Client / Project<select id="reportClient"></select></label><label>Report Period<select id="reportPeriod"><option value="all">All available records</option><option value="week">This Week — Weekly Money Report</option><option value="month">This Month — Monthly Money Report</option></select></label><div class="wide report-actions"><button id="printReportBtn" class="primary" type="button">🖨 Print Report</button><button id="saveReportBtn" class="secondary" type="button">📄 Save / Print as PDF</button><button id="exportReportBtn" class="secondary" type="button">⬇ Export CSV</button></div></div></div>
+<div class="report-period-note" id="reportPeriodNote"><strong>Weekly / Monthly Reports:</strong> Select <b>This Week</b> or <b>This Month</b> above to generate a money report using the transactions recorded for that period.</div>
+<div id="reportPreview" class="report-preview"><div class="report-header"><div><h2>LIWO ENGINEERING CONSULTANCY</h2><p>Financial Report</p></div><div class="report-meta"><strong id="reportDate"></strong><span id="reportPeriodLabel"></span><span id="reportProject"></span></div></div>
 <div class="report-summary-grid"><div><span>Contract Budget</span><strong id="rContract">₱0.00</strong></div><div><span>Total Payments</span><strong id="rPayments">₱0.00</strong></div><div><span>Total Expenses</span><strong id="rExpenses">₱0.00</strong></div><div><span>Funds Available</span><strong id="rAvailable">₱0.00</strong></div><div><span>Uncollected Balance</span><strong id="rBalance">₱0.00</strong></div><div><span>Cash Position</span><strong id="rNet">₱0.00</strong></div></div>
 <div class="report-section"><h3>Expense Summary</h3><div class="table-wrap"><table><thead><tr><th>Date</th><th>Type</th><th>Category</th><th>Payee / Supplier</th><th>Description</th><th>Payment Method</th><th>Receipt</th><th>Entered By</th><th>Amount</th></tr></thead><tbody id="reportExpensesBody"></tbody></table></div></div>
 <div class="report-section"><h3>Client Payments</h3><div class="table-wrap"><table><thead><tr><th>Date</th><th>Reference</th><th>Description / Milestone</th><th>Method</th><th>Entered By</th><th>Amount Paid</th></tr></thead><tbody id="reportPaymentsBody"></tbody></table></div></div>
@@ -1014,6 +1122,35 @@ textarea{min-height:82px;resize:vertical}
   </div>
 </section>
 
+<section class="page hidden" id="receiptsPage" data-page-section="receipts">
+  <div class="page-heading">
+    <div>
+      <h2>Receipts</h2>
+      <div class="muted">View attached receipts by project or browse the complete receipt library.</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="receipt-toolbar" style="padding:15px">
+      <div>
+        <label>Project / Receipt Folder</label>
+        <select id="receiptProjectFilter">
+          <option value="">All Projects — All Receipts</option>
+        </select>
+      </div>
+      <button class="secondary" type="button" id="refreshReceiptsBtn">Refresh Receipts</button>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top:12px">
+    <div class="panel-head">
+      <h3 id="receiptCount">Receipts</h3>
+    </div>
+    <div class="receipt-grid" id="receiptGrid">
+      <div class="receipt-empty" style="grid-column:1/-1">Loading receipts...</div>
+    </div>
+  </div>
+</section>
 </main>
 <div class="mobile-nav">
   <button data-page="dashboard" class="active"><span>⌂</span><small>Home</small></button>
@@ -1022,7 +1159,6 @@ textarea{min-height:82px;resize:vertical}
   <button data-page="activity"><span>▤</span><small>Activity</small></button>
   <button data-page="clients"><span>♙</span><small>Clients</small></button>
   <button data-page="tools"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m14.7 6.3 3-3a5 5 0 0 0 0 7.1l-8.4 8.4a2.1 2.1 0 1 1-3-3l8.4-8.4a5 5 0 0 0 7.1 0l-3 3"/><path d="m5 5 4 4"/><path d="m4 4 1 1"/></svg></span><small>Tools</small></button>
-<button data-page="receipts"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Z"/><path d="M9 7h6M9 11h6M9 15h4"/></svg></span><small>Receipts</small></button>
 <button data-page="reports"><span>▤</span><small>Reports</small></button>
   <button data-page="users" id="mobileUsersNav" class="hidden"><span>♧</span><small>Users</small></button>
 </div>
@@ -1063,7 +1199,36 @@ function fileToDataUrl(file,maxWidth=1600,quality=.82){return new Promise((resol
 async function expensePayload(form){let payload=formObj(form),file=$("receiptInput")?.files?.[0];if(file){if(file.size>8*1024*1024)throw new Error("Please choose a receipt file smaller than 8 MB.");payload.receiptData=await fileToDataUrl(file);payload.receiptName=file.name||"receipt"}return payload}
 const today=()=>new Date().toISOString().slice(0,10);
 function toast(m){let t=$("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2500)}
-async function api(action,payload={}){let r=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({...payload,action})});let o=await r.json();if(!o.ok)throw Error(o.error||"Request failed");return o}
+let liwoLoadingCount=0,liwoLoadingTimer=null,liwoLoadingStarted=0;
+function showLIWOLoader(text){
+  const el=$("liwoLoadingOverlay");if(!el)return;
+  liwoLoadingCount++;
+  liwoLoadingStarted=Date.now();
+  if(text){const t=el.querySelector(".lw-loader-text");if(t)t.textContent=text}
+  clearTimeout(liwoLoadingTimer);
+  el.classList.add("show");
+  el.setAttribute("aria-hidden","false");
+}
+function hideLIWOLoader(){
+  if(liwoLoadingCount>0)liwoLoadingCount--;
+  if(liwoLoadingCount>0)return;
+  const wait=Math.max(250,650-(Date.now()-liwoLoadingStarted));
+  clearTimeout(liwoLoadingTimer);
+  liwoLoadingTimer=setTimeout(()=>{
+    if(liwoLoadingCount===0){
+      const el=$("liwoLoadingOverlay");if(el){el.classList.remove("show");el.setAttribute("aria-hidden","true")}
+    }
+  },wait);
+}
+async function api(action,payload={}){
+  showLIWOLoader(action==="login"?"Signing you in…":"Updating LIWO Finance…");
+  try{
+    let r=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({...payload,action})});
+    let o=await r.json();
+    if(!o.ok)throw Error(o.error||"Request failed");
+    return o;
+  }finally{hideLIWOLoader()}
+}
 function tabs(reg){$("loginForm").classList.toggle("hidden",reg);$("registerForm").classList.toggle("hidden",!reg);$("loginTab").classList.toggle("active",!reg);$("registerTab").classList.toggle("active",reg)}
 async function login(e){e.preventDefault();$("loginError").textContent="";try{let o=await api("login",{username:$("loginUsername").value.trim(),password:$("loginPassword").value});session={token:o.token,user:o.user};sessionStorage.setItem("cf_session",JSON.stringify(session));showApp();await refresh();await loadServerNotifications()}catch(x){$("loginError").textContent=x.message}}
 async function register(e){e.preventDefault();$("registerError").textContent="";if($("regPassword").value!==$("regConfirm").value){$("registerError").textContent="Passwords do not match.";return}try{await api("registerFinance",{name:$("regName").value.trim(),username:$("regUsername").value.trim(),password:$("regPassword").value,inviteCode:$("regInvite").value});toast("Account created. You can now sign in.");$("loginUsername").value=$("regUsername").value;tabs(false);$("registerForm").reset()}catch(x){$("registerError").textContent=x.message}}
@@ -1136,9 +1301,21 @@ function render(){
  if(data.clients){$("clientsBody").innerHTML=data.clients.map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.reference||"—")}</td><td>${peso(x.budget)}</td><td>${peso(x.additionalDesignFee||0)}</td><td><strong>${peso(x.totalContract||x.budget||0)}</strong></td><td><span class="${x.active?"status-open":"status-closed"}">${x.active?"Active":"Inactive"}</span></td><td><button type="button" class="secondary edit-client-btn" data-client-id="${esc(x.id)}">Edit</button></td></tr>`).join("")||`<tr><td colspan="7" class="empty">No clients/projects yet. Add the first one above.</td></tr>`}
 }
 async function save(action,form){let btn=form.querySelector("button");btn.disabled=true;try{let payload=action==="addExpense"?await expensePayload(form):formObj(form);await api(action,{token:session.token,...payload});if(action==="upsertClient")resetClientForm();else form.reset();let d=form.querySelector('[name="date"]');if(d)d.value=today();if($("receiptFileName"))$("receiptFileName").textContent="Optional — you can take a photo or upload a receipt. No receipt is also allowed.";toast(action==="addExpense"?(payload.receiptData?"Transaction and receipt saved.":"Transaction saved without a receipt."):"Saved successfully");await refresh()}catch(x){toast(x.message)}finally{btn.disabled=false}}
-function reportRecords(){let id=$("reportClient")?.value||selectedClientId,period=$("reportPeriod")?.value||"all",client=(data.clients||[]).find(c=>String(c.id)===String(id));let payments=(data.payments||[]).filter(x=>!id||String(x.clientId||x.clientID||"")===String(id)),expenses=(data.expenses||[]).filter(x=>!id||String(x.clientId||x.clientID||"")===String(id));if(id&&payments.length===0&&expenses.length===0){payments=data.payments||[];expenses=data.expenses||[]}if(period==="month"){let d=new Date(),ym=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");payments=payments.filter(x=>String(x.date||"").slice(0,7)===ym);expenses=expenses.filter(x=>String(x.date||"").slice(0,7)===ym)}let totalPayments=payments.reduce((a,x)=>a+Number(x.amount||0),0),totalExpenses=expenses.filter(x=>x.type==="Expense"||!x.type).reduce((a,x)=>a+Number(x.amount||0),0),refunds=expenses.filter(x=>x.type==="Refund").reduce((a,x)=>a+Number(x.amount||0),0),income=expenses.filter(x=>x.type==="Other Income").reduce((a,x)=>a+Number(x.amount||0),0),contract=Number(client?.totalContract??client?.budget??data.summary?.contractAmount??0),available=totalPayments-totalExpenses+refunds+income,budget=(data.budget||[]).map(x=>{let actual=expenses.filter(y=>y.category===x.category&&y.type==="Expense").reduce((a,y)=>a+Number(y.amount||0),0),b=Number(x.budget||0);return{...x,actual,variance:b-actual,used:b?actual/b:0,remaining:Math.max(0,b-actual)}});return{client,payments,expenses,totalPayments,totalExpenses,contract,available,balance:Math.max(0,contract-totalPayments),net:available-totalExpenses,budget}}
+function reportRecords(){let id=$("reportClient")?.value||selectedClientId,period=$("reportPeriod")?.value||"all",client=(data.clients||[]).find(c=>String(c.id)===String(id));let payments=(data.payments||[]).filter(x=>!id||String(x.clientId||x.clientID||"")===String(id)),expenses=(data.expenses||[]).filter(x=>!id||String(x.clientId||x.clientID||"")===String(id));if(id&&payments.length===0&&expenses.length===0){payments=data.payments||[];expenses=data.expenses||[]}if(period==="month"){
+  let d=new Date(),ym=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
+  payments=payments.filter(x=>String(x.date||"").slice(0,7)===ym);
+  expenses=expenses.filter(x=>String(x.date||"").slice(0,7)===ym);
+}
+if(period==="week"){
+  let now=new Date(),day=now.getDay(),diff=(day===0?-6:1-day);
+  let start=new Date(now);start.setHours(0,0,0,0);start.setDate(now.getDate()+diff);
+  let end=new Date(start);end.setDate(start.getDate()+7);
+  const inWeek=x=>{let d=new Date(x);return !isNaN(d)&&d>=start&&d<end};
+  payments=payments.filter(x=>inWeek(new Date(x.date)));
+  expenses=expenses.filter(x=>inWeek(new Date(x.date)));
+}let totalPayments=payments.reduce((a,x)=>a+Number(x.amount||0),0),totalExpenses=expenses.filter(x=>x.type==="Expense"||!x.type).reduce((a,x)=>a+Number(x.amount||0),0),refunds=expenses.filter(x=>x.type==="Refund").reduce((a,x)=>a+Number(x.amount||0),0),income=expenses.filter(x=>x.type==="Other Income").reduce((a,x)=>a+Number(x.amount||0),0),contract=Number(client?.totalContract??client?.budget??data.summary?.contractAmount??0),available=totalPayments-totalExpenses+refunds+income,budget=(data.budget||[]).map(x=>{let actual=expenses.filter(y=>y.category===x.category&&y.type==="Expense").reduce((a,y)=>a+Number(y.amount||0),0),b=Number(x.budget||0);return{...x,actual,variance:b-actual,used:b?actual/b:0,remaining:Math.max(0,b-actual)}});return{client,payments,expenses,totalPayments,totalExpenses,contract,available,balance:Math.max(0,contract-totalPayments),net:available-totalExpenses,budget}}
 function reportClientOptions(){let cs=data.clients||[],el=$("reportClient");if(!el)return;el.innerHTML=cs.length?cs.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}${c.reference?" — "+esc(c.reference):""}</option>`).join(""):"<option value=\"\">No clients/projects</option>";if(selectedClientId)el.value=selectedClientId}
-function renderReport(){reportClientOptions();let r=reportRecords();$("reportDate").textContent=new Date().toLocaleDateString();$("reportProject").textContent=r.client?.name||data.summary?.projectName||"All Clients / Projects";$("rContract").textContent=peso(r.contract);$("rPayments").textContent=peso(r.totalPayments);$("rExpenses").textContent=peso(r.totalExpenses);$("rAvailable").textContent=peso(r.available);$("rBalance").textContent=peso(r.balance);$("rNet").textContent=peso(r.net);$("reportPreparedBy").textContent=session?.user?.name?`Prepared by ${session.user.name}`:"";$("reportExpensesBody").innerHTML=r.expenses.map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.type||"Expense")}</td><td>${esc(x.category)}</td><td>${esc(x.payee)}</td><td>${esc(x.description)}</td><td>${esc(x.method)}</td><td>${x.receiptUrl?`<a class="receipt-link" href="${esc(x.receiptUrl)}" target="_blank" rel="noopener">View</a>`:"—"}</td><td>${esc(x.enteredBy)}</td><td>${peso(x.amount)}</td></tr>`).join("")||`<tr><td colspan="9" class="empty">No expenses for this report.</td></tr>`;$("reportPaymentsBody").innerHTML=r.payments.map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.reference)}</td><td>${esc(x.description)}</td><td>${esc(x.method)}</td><td>${esc(x.enteredBy)}</td><td>${peso(x.amount)}</td></tr>`).join("")||`<tr><td colspan="6" class="empty">No payments for this report.</td></tr>`;$("reportBudgetBody").innerHTML=r.budget.map(x=>`<tr><td>${esc(x.category)}</td><td>${peso(x.budget)}</td><td>${peso(x.actual)}</td><td>${peso(x.variance)}</td><td>${(Number(x.used||0)*100).toFixed(1)}%</td><td>${peso(x.remaining)}</td></tr>`).join("")||`<tr><td colspan="6" class="empty">No budget data.</td></tr>`}
+function renderReport(){reportClientOptions();let r=reportRecords();let rp=$("reportPeriod")?.value||"all";$("reportPeriodLabel").textContent=rp==="week"?"Weekly Money Report":rp==="month"?"Monthly Money Report":"Complete Financial Report";$("reportDate").textContent=new Date().toLocaleDateString();$("reportProject").textContent=r.client?.name||data.summary?.projectName||"All Clients / Projects";$("rContract").textContent=peso(r.contract);$("rPayments").textContent=peso(r.totalPayments);$("rExpenses").textContent=peso(r.totalExpenses);$("rAvailable").textContent=peso(r.available);$("rBalance").textContent=peso(r.balance);$("rNet").textContent=peso(r.net);$("reportPreparedBy").textContent=session?.user?.name?`Prepared by ${session.user.name}`:"";$("reportExpensesBody").innerHTML=r.expenses.map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.type||"Expense")}</td><td>${esc(x.category)}</td><td>${esc(x.payee)}</td><td>${esc(x.description)}</td><td>${esc(x.method)}</td><td>${x.receiptUrl?`<a class="receipt-link" href="${esc(x.receiptUrl)}" target="_blank" rel="noopener">View</a>`:"—"}</td><td>${esc(x.enteredBy)}</td><td>${peso(x.amount)}</td></tr>`).join("")||`<tr><td colspan="9" class="empty">No expenses for this report.</td></tr>`;$("reportPaymentsBody").innerHTML=r.payments.map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.reference)}</td><td>${esc(x.description)}</td><td>${esc(x.method)}</td><td>${esc(x.enteredBy)}</td><td>${peso(x.amount)}</td></tr>`).join("")||`<tr><td colspan="6" class="empty">No payments for this report.</td></tr>`;$("reportBudgetBody").innerHTML=r.budget.map(x=>`<tr><td>${esc(x.category)}</td><td>${peso(x.budget)}</td><td>${peso(x.actual)}</td><td>${peso(x.variance)}</td><td>${(Number(x.used||0)*100).toFixed(1)}%</td><td>${peso(x.remaining)}</td></tr>`).join("")||`<tr><td colspan="6" class="empty">No budget data.</td></tr>`}
 function printReport(){renderReport();window.print()}
 function exportReportCSV(){let r=reportRecords(),lines=[];const q=v=>`"${String(v??"").replace(/"/g,'""')}"`;lines.push(["LIWO ENGINEERING & CONSULTANCY","Financial Report"].map(q).join(","));lines.push(["Client / Project",r.client?.name||data.summary?.projectName||"All"].map(q).join(","));lines.push([]);lines.push(["SUMMARY","Amount"].map(q).join(","));[["Contract Budget",r.contract],["Total Payments",r.totalPayments],["Total Expenses",r.totalExpenses],["Funds Available",r.available],["Uncollected Balance",r.balance],["Cash Position",r.net]].forEach(x=>lines.push(x.map(q).join(",")));lines.push([]);lines.push(["EXPENSES"].map(q).join(","));lines.push(["Date","Type","Category","Payee / Supplier","Description","Payment Method","Entered By","Amount"].map(q).join(","));r.expenses.forEach(x=>lines.push([x.date,x.type||"Expense",x.category,x.payee,x.description,x.method,x.enteredBy,x.amount].map(q).join(",")));lines.push([]);lines.push(["CLIENT PAYMENTS"].map(q).join(","));lines.push(["Date","Reference","Description / Milestone","Method","Entered By","Amount Paid"].map(q).join(","));r.payments.forEach(x=>lines.push([x.date,x.reference,x.description,x.method,x.enteredBy,x.amount].map(q).join(",")));let blob=new Blob(["\ufeff"+lines.join("\n")],{type:"text/csv;charset=utf-8;"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`LIWO-Finance-${(r.client?.name||"Report").replace(/[^a-z0-9]+/gi,"-")}.csv`;a.click();URL.revokeObjectURL(a.href);toast("Report CSV saved.")}
 function switchPage(p){document.querySelectorAll(".page").forEach(x=>x.classList.add("hidden"));$(p+"Page").classList.remove("hidden");document.querySelectorAll(".nav button,.mobile-nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===p));$("pageTitle").textContent={dashboard:"Dashboard",payments:"Client Payments",expenses:"Fund Transactions",budget:"Budget vs Actual",activity:"Activity Log",clients:"Clients / Projects",tools:"Construction Tools",cash:"Cash Position",receipts:"Receipts",reports:"Reports / Export",users:"User Management"}[p]||"Dashboard";if(p==="users")loadUsers();if(p==="reports")renderReport();if(p==="tools")loadTools();if(p==="cash")loadCash();if(p==="receipts")loadReceipts()}
@@ -1266,7 +1443,7 @@ document.addEventListener("DOMContentLoaded",()=>{
       return `<tr>
         <td>${safe(u.username)}</td>
         <td>${safe(u.name)}</td>
-        <td>${safe(u.role)}</td>
+        <td>${safe(u.role==="Finance"?"LIWO Executive":u.role)}</td>
         <td>${active?"<span class='status active'>Active</span>":"<span class='status inactive'>Inactive</span>"}</td>
         <td>
           <div class="user-actions">
@@ -1298,9 +1475,11 @@ document.addEventListener("DOMContentLoaded",()=>{
 
     try{
       if(action==="delete"){
-        await window.api("deleteUser",{username});
+        await window.api("deleteUser",{token:session.token,username});
+      }else if(action==="deactivate"){
+        await window.api("deactivateUser",{token:session.token,username});
       }else{
-        await window.api("setUserActive",{username,active:action==="reactivate"});
+        await window.api("reactivateUser",{token:session.token,username});
       }
 
       if(typeof window.refresh==="function")await window.refresh();
@@ -1369,58 +1548,6 @@ document.addEventListener("DOMContentLoaded",()=>{
 </script>
 
 <script>setInterval(()=>{if(session?.token)loadServerNotifications()},30000);</script>
-<script id="liwo-user-action-script">
-(function(){
-  const escUser=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
-  window.renderLIWOUserActions=function(users,currentUsername){
-    const table=document.querySelector("#usersPage table")||document.querySelector('[data-page-section="users"] table')||Array.from(document.querySelectorAll("table")).find(t=>/Current Users/i.test(t.parentElement?.parentElement?.innerText||""));
-    if(!table)return;
-    const body=table.querySelector("tbody"); if(!body)return;
-    const rows=Array.from(body.querySelectorAll("tr"));
-    (users||[]).forEach((u,i)=>{
-      let tr=rows[i];
-      if(!tr || tr.children.length<4)return;
-      let cell=tr.querySelector(".user-action-cell");
-      if(!cell){
-        cell=document.createElement("td");cell.className="user-action-cell";tr.appendChild(cell);
-      }
-      const self=String(u.username).toLowerCase()===String(currentUsername||"").toLowerCase();
-      if(self){
-        cell.innerHTML='<span class="muted">Current account</span>';
-      }else if(u.active===false){
-        cell.innerHTML=`<div class="user-action-wrap">
-          <button type="button" class="user-action-btn reactivate" data-user-action="reactivate" data-username="${escUser(u.username)}">Reactivate</button>
-          <button type="button" class="user-action-btn delete" data-user-action="delete" data-username="${escUser(u.username)}">Delete</button>
-        </div>`;
-      }else{
-        cell.innerHTML=`<div class="user-action-wrap">
-          <button type="button" class="user-action-btn deactivate" data-user-action="deactivate" data-username="${escUser(u.username)}">Deactivate</button>
-          <button type="button" class="user-action-btn delete" data-user-action="delete" data-username="${escUser(u.username)}">Delete</button>
-        </div>`;
-      }
-    });
-  };
-
-  document.addEventListener("click",async e=>{
-    const b=e.target.closest("[data-user-action]"); if(!b)return;
-    const action=b.dataset.userAction, username=b.dataset.username;
-    let msg=action==="delete"
-      ? `Permanently delete "${username}"?\\n\\nTheir login account will be removed, but existing payment, expense and audit history will remain.`
-      : action==="deactivate"
-        ? `Deactivate "${username}"? They will no longer be able to log in.`
-        : `Reactivate "${username}"?`;
-    if(!confirm(msg))return;
-    try{
-      if(typeof window.api!=="function")throw Error("API is not available.");
-      const result=await window.api(action==="delete"?"deleteUser":action==="deactivate"?"deactivateUser":"reactivateUser",{token:window.getLIWOSession?.()?.token,username});
-      if(result && result.ok===false)throw Error(result.error||"Action failed.");
-      if(typeof window.loadUsers==="function")await window.loadUsers();
-      else if(typeof window.refresh==="function")await window.refresh();
-      alert(action==="delete"?"User deleted.":action==="deactivate"?"User deactivated.":"User reactivated.");
-    }catch(err){alert(err.message||String(err))}
-  });
-})();
-</script>
 
 <script id="liwo-user-load-hook">
 (function(){
@@ -1435,38 +1562,6 @@ document.addEventListener("DOMContentLoaded",()=>{
       return result;
     };
   }
-})();
-</script>
-
-<script id="liwo-user-action-fallback">
-(function(){
-  function patch(){
-    const tables=Array.from(document.querySelectorAll("table"));
-    const t=tables.find(x=>/Username/i.test(x.innerText||"")&&/Current Users/i.test(x.closest(".page")?.innerText||""));
-    if(!t)return;
-    const head=t.querySelector("thead tr");
-    if(head && !Array.from(head.children).some(x=>/Actions/i.test(x.textContent||""))){
-      const th=document.createElement("th");th.textContent="Actions";head.appendChild(th);
-    }
-    const current=window.session?.user?.username||"";
-    t.querySelectorAll("tbody tr").forEach(tr=>{
-      if(tr.querySelector(".user-action-cell") || tr.querySelector("[data-user-action]"))return;
-      const cells=tr.children;if(cells.length<4)return;
-      const username=(cells[0].textContent||"").trim();
-      if(!username)return;
-      const active=/^yes$/i.test((cells[3].textContent||"").trim());
-      const td=document.createElement("td");td.className="user-action-cell";
-      if(username.toLowerCase()===current.toLowerCase())td.innerHTML='<span class="muted">Current account</span>';
-      else td.innerHTML=`<div class="user-action-wrap">${active
-        ? `<button type="button" class="user-action-btn deactivate" data-user-action="deactivate" data-username="${escUser(username)}">Deactivate</button>`
-        : `<button type="button" class="user-action-btn reactivate" data-user-action="reactivate" data-username="${escUser(username)}">Reactivate</button>`}
-        <button type="button" class="user-action-btn delete" data-user-action="delete" data-username="${escUser(username)}">Delete</button></div>`;
-      tr.appendChild(td);
-    });
-  }
-  const escUser=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
-  new MutationObserver(patch).observe(document.body,{childList:true,subtree:true});
-  setTimeout(patch,500);
 })();
 </script>
 
@@ -1556,35 +1651,43 @@ document.addEventListener("DOMContentLoaded",()=>{
   };
 })();
 </script>
+
+<script id="liwo-receipts-navigation-final">
+(function(){
+  const originalShow=window.showLIWOPage;
+  window.showLIWOPage=function(page){
+    document.querySelectorAll(".page").forEach(p=>{
+      const id=p.id||"";
+      const isReceipt=id==="receiptsPage";
+      if(isReceipt){
+        p.classList.toggle("hidden",page!=="receipts");
+        p.classList.toggle("active",page==="receipts");
+        p.style.display=page==="receipts"?"block":"none";
+      }
+    });
+    if(page==="receipts" && typeof window.loadReceipts==="function"){
+      window.loadReceipts();
+    }
+    if(typeof originalShow==="function" && originalShow!==window.showLIWOPage){
+      return originalShow(page);
+    }
+  };
+})();
+</script>
+
+<script id="liwo-loader-fallback-js">
+(function(){
+  function checkLoaderImage(){
+    var img=document.querySelector(".lw-loader-gif"),machine=document.getElementById("liwoLoaderMachine");
+    if(!img||!machine)return;
+    img.addEventListener("error",function(){img.classList.add("is-missing");machine.classList.add("show")},{once:true});
+    if(img.complete && img.naturalWidth===0){img.classList.add("is-missing");machine.classList.add("show")}
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",checkLoaderImage,{once:true});
+  else checkLoaderImage();
+})();
+</script>
 </body></html
-<section class="page hidden" id="receiptsPage" data-page-section="receipts">
-  <div class="page-heading">
-    <div>
-      <h2>Receipts</h2>
-      <div class="muted">View attached receipts by project or browse the complete receipt library.</div>
-    </div>
-  </div>
 
-  <div class="panel">
-    <div class="receipt-toolbar" style="padding:15px">
-      <div>
-        <label>Project / Receipt Folder</label>
-        <select id="receiptProjectFilter">
-          <option value="">All Projects — All Receipts</option>
-        </select>
-      </div>
-      <button class="secondary" type="button" id="refreshReceiptsBtn">Refresh Receipts</button>
-    </div>
-  </div>
-
-  <div class="panel" style="margin-top:12px">
-    <div class="panel-head">
-      <h3 id="receiptCount">Receipts</h3>
-    </div>
-    <div class="receipt-grid" id="receiptGrid">
-      <div class="receipt-empty" style="grid-column:1/-1">Loading receipts...</div>
-    </div>
-  </div>
-</section>
 
 >
