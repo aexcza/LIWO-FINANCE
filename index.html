@@ -316,9 +316,95 @@ textarea{min-height:82px;resize:vertical}
 .report-controls{grid-template-columns:1fr 220px 1fr}.report-actions{display:flex;gap:10px;align-items:end}.report-preview{background:#fff;border:1px solid var(--line);border-radius:12px;padding:28px;box-shadow:var(--shadow);margin-bottom:30px}.report-header{display:flex;justify-content:space-between;gap:20px;border-bottom:2px solid var(--navy);padding-bottom:16px;margin-bottom:18px}.report-header h2{margin:0;font-size:20px}.report-header p{margin:4px 0 0;color:var(--muted)}.report-meta{text-align:right;font-size:12px}.report-meta span{display:block;color:var(--muted);margin-top:4px}.report-summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px}.report-summary-grid>div{border:1px solid var(--line);border-radius:9px;padding:13px}.report-summary-grid span{display:block;color:var(--muted);font-size:11px;margin-bottom:5px}.report-summary-grid strong{font-size:16px}.report-section{margin-top:22px}.report-section h3{font-size:14px;margin:0 0 9px}.report-preview table{width:100%;border-collapse:collapse;font-size:11px}.report-preview th,.report-preview td{padding:8px;border-bottom:1px solid #e8edf2;text-align:left;vertical-align:top}.report-preview th{font-weight:800;background:#f7f9fb}.report-preview td:last-child,.report-preview th:last-child{text-align:right}.report-footer{display:flex;justify-content:space-between;border-top:1px solid var(--line);margin-top:25px;padding-top:12px;color:var(--muted);font-size:10px}@media(max-width:900px){.report-controls{grid-template-columns:1fr}.report-actions{flex-wrap:wrap}.report-summary-grid{grid-template-columns:1fr 1fr}.report-preview{padding:16px;overflow:auto}}@media print{body{background:#fff}.sidebar,.topbar,.top,.mobile-nav,.report-controls,#reportsPage>.panel{display:none!important}.main{margin:0;padding:0}.page{display:none!important}.report-preview{display:block!important;border:0;box-shadow:none;padding:0;margin:0}.report-preview table{font-size:9px}.report-preview th,.report-preview td{padding:5px}.report-section{break-inside:avoid}}
 
 .receipt-help{font-size:11px;color:var(--muted);margin-top:5px}.receipt-file{display:flex;align-items:center;gap:8px}.receipt-file input{padding:8px}.receipt-link{color:var(--blue);font-weight:700;text-decoration:none}.receipt-link:hover{text-decoration:underline}
+
+/* Construction-themed loading screen */
+#loadingOverlay{
+  position:fixed;
+  inset:0;
+  z-index:999999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(245,248,251,.88);
+  backdrop-filter:blur(3px);
+  opacity:1;
+  visibility:visible;
+  transition:opacity .22s ease,visibility .22s ease;
+}
+#loadingOverlay.hidden{
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+}
+.loading-card{
+  width:min(430px,calc(100vw - 36px));
+  box-sizing:border-box;
+  padding:24px 26px 22px;
+  text-align:center;
+  background:#fff;
+  border:1px solid #e1e8ef;
+  border-radius:18px;
+  box-shadow:0 22px 60px rgba(15,42,66,.20);
+}
+.loading-art{
+  display:block;
+  width:min(290px,78vw);
+  height:190px;
+  object-fit:contain;
+  margin:0 auto 8px;
+}
+.loading-title{
+  margin:2px 0 5px;
+  color:#102f4a;
+  font-size:24px;
+  line-height:1.2;
+  font-weight:800;
+}
+.loading-message{
+  margin:0 0 17px;
+  color:#687b8f;
+  font-size:13px;
+}
+.loading-track{
+  width:100%;
+  height:7px;
+  overflow:hidden;
+  border-radius:999px;
+  background:#e7edf3;
+}
+.loading-bar{
+  width:34%;
+  height:100%;
+  border-radius:999px;
+  background:linear-gradient(90deg,#173b59,#2f78ad,#173b59);
+  animation:constructionLoading 1.15s ease-in-out infinite;
+}
+@keyframes constructionLoading{
+  0%{transform:translateX(-120%)}
+  50%{transform:translateX(170%)}
+  100%{transform:translateX(300%)}
+}
+@media(max-width:520px){
+  .loading-card{padding:20px 18px 19px}
+  .loading-art{height:155px}
+  .loading-title{font-size:21px}
+}
+
 </style>
 </head>
 <body>
+
+<!-- data.gif embedded below as a base64 GIF; no separate image file is required. -->
+<div id="loadingOverlay" aria-live="polite" aria-busy="true">
+  <div class="loading-card">
+    <!-- Place data.gif in the same folder as this HTML file. -->
+    <img class="loading-art" src="data.gif" alt="LIWO construction loading animation">
+    <h3 class="loading-title">Loading...</h3>
+    <p class="loading-message" id="loadingMessage">Please wait while we prepare your data</p>
+    <div class="loading-track" aria-hidden="true"><div class="loading-bar"></div></div>
+  </div>
+</div>
+
 
 <div id="loginView" class="auth">
   <div class="auth-architectural-bg" aria-hidden="true">
@@ -575,7 +661,24 @@ function fileToDataUrl(file,maxWidth=1600,quality=.82){return new Promise((resol
 async function expensePayload(form){let payload=formObj(form),file=$("receiptInput")?.files?.[0];if(file){if(file.size>8*1024*1024)throw new Error("Please choose a receipt file smaller than 8 MB.");payload.receiptData=await fileToDataUrl(file);payload.receiptName=file.name||"receipt"}return payload}
 const today=()=>new Date().toISOString().slice(0,10);
 function toast(m){let t=$("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2500)}
-async function api(action,payload={}){let r=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({...payload,action})});let o=await r.json();if(!o.ok)throw Error(o.error||"Request failed");return o}
+async function apiRaw(action,payload={}){
+  let r=await fetch(API_URL,{
+    method:"POST",
+    headers:{"Content-Type":"text/plain;charset=utf-8"},
+    body:JSON.stringify({...payload,action})
+  });
+  let o=await r.json();
+  if(!o.ok)throw Error(o.error||"Request failed");
+  return o
+}
+async function api(action,payload={}){
+  showLoading("Syncing with LIWO Finance...");
+  try{
+    return await apiRaw(action,payload);
+  }finally{
+    hideLoading();
+  }
+}
 function tabs(reg){$("loginForm").classList.toggle("hidden",reg);$("registerForm").classList.toggle("hidden",!reg);$("loginTab").classList.toggle("active",!reg);$("registerTab").classList.toggle("active",reg)}
 async function login(e){e.preventDefault();$("loginError").textContent="";try{let o=await api("login",{username:$("loginUsername").value.trim(),password:$("loginPassword").value});session={token:o.token,user:o.user};sessionStorage.setItem("cf_session",JSON.stringify(session));showApp();await refresh()}catch(x){$("loginError").textContent=x.message}}
 async function register(e){e.preventDefault();$("registerError").textContent="";if($("regPassword").value!==$("regConfirm").value){$("registerError").textContent="Passwords do not match.";return}try{await api("registerFinance",{name:$("regName").value.trim(),username:$("regUsername").value.trim(),password:$("regPassword").value,inviteCode:$("regInvite").value});toast("Account created. You can now sign in.");$("loginUsername").value=$("regUsername").value;tabs(false);$("registerForm").reset()}catch(x){$("registerError").textContent=x.message}}
@@ -643,6 +746,22 @@ function printReport(){renderReport();window.print()}
 function exportReportCSV(){let r=reportRecords(),lines=[];const q=v=>`"${String(v??"").replace(/"/g,'""')}"`;lines.push(["LIWO ENGINEERING & CONSULTANCY","Financial Report"].map(q).join(","));lines.push(["Client / Project",r.client?.name||data.summary?.projectName||"All"].map(q).join(","));lines.push([]);lines.push(["SUMMARY","Amount"].map(q).join(","));[["Contract Budget",r.contract],["Total Payments",r.totalPayments],["Total Expenses",r.totalExpenses],["Funds Available",r.available],["Uncollected Balance",r.balance],["Cash Position",r.net]].forEach(x=>lines.push(x.map(q).join(",")));lines.push([]);lines.push(["EXPENSES"].map(q).join(","));lines.push(["Date","Type","Category","Payee / Supplier","Description","Payment Method","Entered By","Amount"].map(q).join(","));r.expenses.forEach(x=>lines.push([x.date,x.type||"Expense",x.category,x.payee,x.description,x.method,x.enteredBy,x.amount].map(q).join(",")));lines.push([]);lines.push(["CLIENT PAYMENTS"].map(q).join(","));lines.push(["Date","Reference","Description / Milestone","Method","Entered By","Amount Paid"].map(q).join(","));r.payments.forEach(x=>lines.push([x.date,x.reference,x.description,x.method,x.enteredBy,x.amount].map(q).join(",")));let blob=new Blob(["\ufeff"+lines.join("\n")],{type:"text/csv;charset=utf-8;"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`LIWO-Finance-${(r.client?.name||"Report").replace(/[^a-z0-9]+/gi,"-")}.csv`;a.click();URL.revokeObjectURL(a.href);toast("Report CSV saved.")}
 function switchPage(p){document.querySelectorAll(".page").forEach(x=>x.classList.add("hidden"));$(p+"Page").classList.remove("hidden");document.querySelectorAll(".nav button,.mobile-nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===p));$("pageTitle").textContent={dashboard:"Dashboard",payments:"Client Payments",expenses:"Fund Transactions",budget:"Budget vs Actual",activity:"Activity Log",clients:"Clients / Projects",reports:"Reports / Export",users:"User Management"}[p]||"Dashboard";if(p==="users")loadUsers();if(p==="reports")renderReport()}
 async function loadUsers(){try{let o=await api("listUsers",{token:session.token});data.users=o.users;data.financeCount=o.financeCount;data.financeRegistrationOpen=o.financeRegistrationOpen;data.clients=o.clients;render()}catch(x){toast(x.message)}}
+
+function showLoading(message){
+  const overlay=document.getElementById("loadingOverlay");
+  if(!overlay)return;
+  const msg=document.getElementById("loadingMessage");
+  if(msg)msg.textContent=message||"Please wait while we prepare your data";
+  overlay.classList.remove("hidden");
+  overlay.setAttribute("aria-busy","true");
+}
+function hideLoading(){
+  const overlay=document.getElementById("loadingOverlay");
+  if(!overlay)return;
+  overlay.classList.add("hidden");
+  overlay.setAttribute("aria-busy","false");
+}
+
 document.addEventListener("DOMContentLoaded",()=>{
 $("loginTab").onclick=()=>tabs(false);$("registerTab").onclick=()=>tabs(true);$("loginForm").onsubmit=login;$("registerForm").onsubmit=register;$("logoutBtn").onclick=logout;$("menuLogoutBtn").onclick=logout;$("refreshBtn").onclick=refresh;$("printReportBtn").onclick=printReport;$("saveReportBtn").onclick=printReport;$("exportReportBtn").onclick=exportReportCSV;$("reportClient").onchange=()=>{selectedClientId=$("reportClient").value;renderReport()};$("reportPeriod").onchange=renderReport;$("notificationBtn").onclick=toggleNotificationMenu;$("userMenuBtn").onclick=toggleUserMenu;$("markNotificationsRead").onclick=markNotificationsRead;$("profileMenuBtn").onclick=openProfile;$("profileCloseBtn").onclick=closeProfile;$("profileDoneBtn").onclick=closeProfile;$("profilePhotoInput").onchange=e=>saveProfilePhoto(e.target.files[0]);$("removeProfilePhotoBtn").onclick=removeProfilePhoto;$("profileModal").onclick=e=>{if(e.target.id==="profileModal")closeProfile()};document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeHeaderMenus();closeProfile()}});document.addEventListener("click",e=>{if(!e.target.closest(".top-user"))closeHeaderMenus()});
 document.querySelectorAll(".nav button,.mobile-nav button").forEach(b=>b.onclick=()=>switchPage(b.dataset.page));
@@ -652,7 +771,10 @@ $("expenseClient").onchange=()=>{selectedClientId=$("expenseClient").value};
 $("paymentForm").onsubmit=e=>{e.preventDefault();save("addPayment",e.target)};$("expenseForm").onsubmit=e=>{e.preventDefault();save("addExpense",e.target)};$("receiptInput").onchange=e=>{let f=e.target.files[0];if($("receiptFileName"))$("receiptFileName").textContent=f?`${f.name} selected`:`Optional — you can take a photo or upload a receipt. No receipt is also allowed.`};$("userForm").onsubmit=e=>{e.preventDefault();save("upsertUser",e.target)};$("clientForm").onsubmit=e=>{e.preventDefault();save("upsertClient",e.target)};$("inviteForm").onsubmit=e=>{e.preventDefault();save("changeInvite",e.target)};
 $("reopenBtn").onclick=async()=>{try{await api("reopenRegistration",{token:session.token});toast("Finance registration reopened.");await loadUsers()}catch(x){toast(x.message)}};
 document.querySelectorAll('[name="date"]').forEach(x=>x.value=today());
-let old=sessionStorage.getItem("cf_session");if(old){try{session=JSON.parse(old);showApp();refresh()}catch{}}});
+let old=sessionStorage.getItem("cf_session");if(old){try{session=JSON.parse(old);showApp();refresh().finally(hideLoading)}catch{hideLoading()}}else{hideLoading()}});
+
+setTimeout(()=>hideLoading(),20000);
+
 </script>
 <script>
 /* LIWO login UI helpers */
