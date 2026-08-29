@@ -1229,6 +1229,8 @@ async function api(action,payload={}){
     return o;
   }finally{hideLIWOLoader()}
 }
+window.api=api;
+
 function tabs(reg){$("loginForm").classList.toggle("hidden",reg);$("registerForm").classList.toggle("hidden",!reg);$("loginTab").classList.toggle("active",!reg);$("registerTab").classList.toggle("active",reg)}
 async function login(e){e.preventDefault();$("loginError").textContent="";try{let o=await api("login",{username:$("loginUsername").value.trim(),password:$("loginPassword").value});session={token:o.token,user:o.user};sessionStorage.setItem("cf_session",JSON.stringify(session));showApp();await refresh();await loadServerNotifications()}catch(x){$("loginError").textContent=x.message}}
 async function register(e){e.preventDefault();$("registerError").textContent="";if($("regPassword").value!==$("regConfirm").value){$("registerError").textContent="Passwords do not match.";return}try{await api("registerFinance",{name:$("regName").value.trim(),username:$("regUsername").value.trim(),password:$("regPassword").value,inviteCode:$("regInvite").value});toast("Account created. You can now sign in.");$("loginUsername").value=$("regUsername").value;tabs(false);$("registerForm").reset()}catch(x){$("registerError").textContent=x.message}}
@@ -1297,7 +1299,7 @@ function render(){
  $("expensesBody").innerHTML=(data.expenses||[]).map(x=>`<tr><td>${esc(x.clientName)}</td><td>${esc(x.date)}</td><td>${esc(x.type)}</td><td>${esc(x.category)}</td><td>${esc(x.payee)}</td><td>${esc(x.description)}</td><td>${peso(x.amount)}</td><td>${x.receiptUrl?`<a class="receipt-link" href="${esc(x.receiptUrl)}" target="_blank" rel="noopener">View</a>`:"—"}</td><td>${esc(x.enteredBy)}</td></tr>`).join("")||'<tr><td colspan="9" class="empty">No fund transactions yet.</td></tr>';
  $("budgetBody").innerHTML=(data.budget||[]).map(x=>`<tr><td>${esc(x.category)}</td><td>${peso(x.budget)}</td><td>${peso(x.actual)}</td><td>${peso(x.variance)}</td><td>${(Number(x.used||0)*100).toFixed(1)}%</td><td>${peso(x.remaining)}</td></tr>`).join("");
  $("activityBody").innerHTML=(data.activity||[]).map(x=>`<tr><td>${esc(x.time)}</td><td>${esc(x.action)}</td><td>${esc(x.username)}</td><td>${esc(x.name)}</td><td>${esc(x.details)}</td></tr>`).join("")||'<tr><td colspan="5" class="empty">No activity yet.</td></tr>';
- if(session.user.role==="Admin"&&data.users){$("usersBody").innerHTML=data.users.map(x=>`<tr><td>${esc(x.username)}</td><td>${esc(x.name)}</td><td>${esc(x.role)}</td><td>${x.active?"Yes":"No"}</td><td><div class="user-actions">${String(x.username).toLowerCase()===String(session.user.username).toLowerCase()?`<span class="muted">Current account</span>`:x.active?`<button type="button" class="user-action-btn deactivate" data-user-action="deactivate" data-username="${esc(x.username)}">Deactivate</button>`:`<button type="button" class="user-action-btn reactivate" data-user-action="reactivate" data-username="${esc(x.username)}">Reactivate</button>`}<button type="button" class="user-action-btn delete" data-user-action="delete" data-username="${esc(x.username)}">Delete</button></div></td></tr>`).join("");$("registrationStatus").textContent=data.financeRegistrationOpen?`OPEN (${data.financeCount}/3)`:`CLOSED (${data.financeCount}/3)`;$("adminFinanceCount").textContent=`${data.financeCount} / 3`;$("adminRegStatus").textContent=data.financeRegistrationOpen?"OPEN":"CLOSED";$("adminActivityCount").textContent=data.activity.length}
+ if(session.user.role==="Admin"&&data.users){$("usersBody").innerHTML=data.users.map(x=>`<tr><td>${esc(x.username)}</td><td>${esc(x.name)}</td><td>${esc(x.role==="Finance"?"LIWO Executive":x.role)}</td><td>${x.active?"Yes":"No"}</td><td><div class="user-actions">${String(x.username).toLowerCase()===String(session.user.username).toLowerCase()?`<span class="muted">Current account</span>`:x.active?`<button type="button" class="user-action-btn deactivate" data-user-action="deactivate" data-username="${esc(x.username)}">Deactivate</button>`:`<button type="button" class="user-action-btn reactivate" data-user-action="reactivate" data-username="${esc(x.username)}">Reactivate</button>`}<button type="button" class="user-action-btn delete" data-user-action="delete" data-username="${esc(x.username)}">Delete</button></div></td></tr>`).join("");$("registrationStatus").textContent=data.financeRegistrationOpen?`OPEN (${data.financeCount}/3)`:`CLOSED (${data.financeCount}/3)`;$("adminFinanceCount").textContent=`${data.financeCount} / 3`;$("adminRegStatus").textContent=data.financeRegistrationOpen?"OPEN":"CLOSED";$("adminActivityCount").textContent=data.activity.length}
  if(data.clients){$("clientsBody").innerHTML=data.clients.map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.reference||"—")}</td><td>${peso(x.budget)}</td><td>${peso(x.additionalDesignFee||0)}</td><td><strong>${peso(x.totalContract||x.budget||0)}</strong></td><td><span class="${x.active?"status-open":"status-closed"}">${x.active?"Active":"Inactive"}</span></td><td><button type="button" class="secondary edit-client-btn" data-client-id="${esc(x.id)}">Edit</button></td></tr>`).join("")||`<tr><td colspan="7" class="empty">No clients/projects yet. Add the first one above.</td></tr>`}
 }
 async function save(action,form){let btn=form.querySelector("button");btn.disabled=true;try{let payload=action==="addExpense"?await expensePayload(form):formObj(form);await api(action,{token:session.token,...payload});if(action==="upsertClient")resetClientForm();else form.reset();let d=form.querySelector('[name="date"]');if(d)d.value=today();if($("receiptFileName"))$("receiptFileName").textContent="Optional — you can take a photo or upload a receipt. No receipt is also allowed.";toast(action==="addExpense"?(payload.receiptData?"Transaction and receipt saved.":"Transaction saved without a receipt."):"Saved successfully");await refresh()}catch(x){toast(x.message)}finally{btn.disabled=false}}
@@ -1475,15 +1477,15 @@ document.addEventListener("DOMContentLoaded",()=>{
 
     try{
       if(action==="delete"){
-        await window.api("deleteUser",{token:session.token,username});
+        await api("deleteUser",{token:session.token,username});
       }else if(action==="deactivate"){
-        await window.api("deactivateUser",{token:session.token,username});
+        await api("deactivateUser",{token:session.token,username});
       }else{
-        await window.api("reactivateUser",{token:session.token,username});
+        await api("reactivateUser",{token:session.token,username});
       }
 
-      if(typeof window.refresh==="function")await window.refresh();
-      else if(typeof window.loadUsers==="function")await window.loadUsers();
+      if(typeof refresh==="function")await refresh();
+      if(typeof loadUsers==="function")await loadUsers();
       alert(action==="delete"?"User deleted successfully.":action==="deactivate"?"User deactivated successfully.":"User reactivated successfully.");
     }catch(err){
       alert(err.message||String(err));
