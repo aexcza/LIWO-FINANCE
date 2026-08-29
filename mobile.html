@@ -1122,6 +1122,162 @@ th{background:#f3f7f9;color:#4e6678;letter-spacing:.045em;text-transform:upperca
   #mobileShell{display:none!important}
 }
 </style>
+
+<style id="liwo-mobile-final-header">
+@media (max-width:900px){
+  /* Only the dedicated LIWO shell header is shown on phones. */
+  .mobile-shell{display:block!important;position:relative!important;width:100%!important}
+  .mobile-shell .mobile-header{
+    position:sticky!important;
+    top:0!important;
+    z-index:9999!important;
+    height:68px!important;
+    min-height:68px!important;
+    margin:0 -14px 16px!important;
+    padding:10px 14px!important;
+    box-sizing:border-box!important;
+    display:flex!important;
+    align-items:center!important;
+    gap:12px!important;
+    background:linear-gradient(105deg,#071a2d,#0d3657)!important;
+    border:0!important;
+    border-bottom:1px solid rgba(255,255,255,.08)!important;
+    box-shadow:0 4px 16px rgba(5,24,42,.20)!important;
+  }
+
+  .mobile-shell .mobile-menu-btn{
+    flex:0 0 40px!important;
+    width:40px!important;
+    height:40px!important;
+    margin:0!important;
+    border:1px solid rgba(255,255,255,.16)!important;
+    border-radius:11px!important;
+    background:rgba(255,255,255,.035)!important;
+    display:flex!important;
+    flex-direction:column!important;
+    justify-content:center!important;
+    align-items:center!important;
+    gap:4px!important;
+  }
+  .mobile-shell .mobile-menu-btn span{
+    display:block!important;
+    width:19px!important;
+    height:2px!important;
+    border-radius:2px!important;
+    background:#e8f0f5!important;
+  }
+
+  .mobile-shell .mobile-brand{
+    min-width:0!important;
+    flex:1 1 auto!important;
+    display:flex!important;
+    align-items:center!important;
+    gap:9px!important;
+    overflow:hidden!important;
+  }
+  .mobile-shell .mobile-brand-mark{display:none!important}
+  .mobile-shell .mobile-brand > div:last-child{
+    min-width:0!important;
+    display:flex!important;
+    align-items:center!important;
+    gap:9px!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+  }
+  .mobile-shell .mobile-brand strong{
+    display:inline-block!important;
+    color:#fff!important;
+    font-size:17px!important;
+    font-weight:800!important;
+    line-height:1!important;
+    flex:0 0 auto!important;
+  }
+  .mobile-shell .mobile-brand strong:after{
+    content:""!important;
+    display:inline-block!important;
+    width:1px!important;
+    height:18px!important;
+    margin-left:9px!important;
+    vertical-align:-4px!important;
+    background:rgba(255,255,255,.45)!important;
+  }
+  .mobile-shell .mobile-brand span{
+    display:inline-block!important;
+    margin:0!important;
+    color:#c4d1dc!important;
+    font-size:13px!important;
+    line-height:1!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+
+  .mobile-shell .mobile-header-actions{
+    flex:0 0 auto!important;
+    display:flex!important;
+    align-items:center!important;
+    gap:8px!important;
+  }
+  .mobile-shell .mobile-icon-btn{
+    width:40px!important;
+    height:40px!important;
+    padding:0!important;
+    border:0!important;
+    background:transparent!important;
+    color:#eef5fa!important;
+    font-size:27px!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+  }
+  .mobile-shell .mobile-icon-btn b{
+    top:2px!important;
+    right:2px!important;
+    min-width:8px!important;
+    width:8px!important;
+    height:8px!important;
+    padding:0!important;
+    border-radius:50%!important;
+    background:#f4a21b!important;
+    font-size:0!important;
+    box-shadow:0 0 0 2px #0a2943!important;
+  }
+  .mobile-shell .mobile-avatar{
+    flex:0 0 40px!important;
+    width:40px!important;
+    height:40px!important;
+    border-radius:50%!important;
+    background:transparent!important;
+    border:1px solid rgba(255,255,255,.25)!important;
+    color:#fff!important;
+    font-size:15px!important;
+    font-weight:700!important;
+  }
+
+  /* Prevent the legacy topbar from ever appearing on mobile. */
+  .topbar{display:none!important}
+  #liwoMobileMenuButton,#liwoMobileBrand{display:none!important}
+}
+
+@media (max-width:430px){
+  .mobile-shell .mobile-header{
+    height:64px!important;
+    min-height:64px!important;
+    margin-left:-11px!important;
+    margin-right:-11px!important;
+    padding:8px 11px!important;
+    gap:9px!important;
+  }
+  .mobile-shell .mobile-menu-btn{
+    flex-basis:38px!important;width:38px!important;height:38px!important;
+  }
+  .mobile-shell .mobile-brand > div:last-child{gap:7px!important}
+  .mobile-shell .mobile-brand strong{font-size:16px!important}
+  .mobile-shell .mobile-brand strong:after{margin-left:7px!important;height:17px!important}
+  .mobile-shell .mobile-brand span{font-size:11px!important}
+  .mobile-shell .mobile-icon-btn{width:36px!important;height:36px!important;font-size:24px!important}
+  .mobile-shell .mobile-avatar{flex-basis:38px!important;width:38px!important;height:38px!important}
+}
+</style>
 </head>
 <body>
 <div id="liwoLoadingOverlay" aria-hidden="true">
@@ -2063,57 +2219,7 @@ document.addEventListener("DOMContentLoaded",()=>{
 </script>
 
 <div id="liwoMobileMenuBackdrop" aria-hidden="true"></div>
-<script id="liwo-hamburger-mobile-script">
-(function(){
-  function setup(){
-    const side=document.querySelector(".sidebar,.side-nav,.sidenav");
-    const header=document.querySelector(".topbar,header");
-    if(!side||!header)return;
-
-    let back=document.getElementById("liwoMobileMenuBackdrop");
-    let btn=document.getElementById("liwoMobileMenuButton");
-
-    if(!btn){
-      btn=document.createElement("button");
-      btn.type="button";
-      btn.id="liwoMobileMenuButton";
-      btn.setAttribute("aria-label","Open navigation");
-      btn.innerHTML='<svg class="lw-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg><svg class="lw-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg>';
-      header.prepend(btn);
-    }
-
-    if(!document.getElementById("liwoMobileBrand")){
-      const brand=document.createElement("div");
-      brand.id="liwoMobileBrand";
-      brand.innerHTML='<span class="brand-name">LIWO</span><span class="brand-page">Finance Tracking System</span>';
-      header.insertBefore(brand,btn.nextSibling);
-    }
-
-    function open(){
-      side.classList.add("lw-mobile-open");
-      btn.classList.add("open");
-      btn.setAttribute("aria-label","Close navigation");
-      back.classList.add("show");
-      document.body.style.overflow="hidden";
-    }
-    function close(){
-      side.classList.remove("lw-mobile-open");
-      btn.classList.remove("open");
-      btn.setAttribute("aria-label","Open navigation");
-      back.classList.remove("show");
-      document.body.style.overflow="";
-    }
-
-    btn.onclick=()=>side.classList.contains("lw-mobile-open")?close():open();
-    back.onclick=close;
-    side.querySelectorAll("[data-page]").forEach(x=>x.addEventListener("click",close));
-    document.addEventListener("keydown",e=>{if(e.key==="Escape")close()});
-  }
-
-  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",setup,{once:true});
-  else setup();
-})();
-</script>
+<!-- legacy mobile hamburger injection removed: dedicated mobile shell owns the header -->
 
 <script id="liwo-user-actions-handler">
 (function(){
