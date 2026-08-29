@@ -605,8 +605,111 @@ textarea{min-height:82px;resize:vertical}
 .receipt-empty{padding:35px;text-align:center;color:#7b8996}
 @media(max-width:760px){.receipt-toolbar{grid-template-columns:1fr}.receipt-grid{grid-template-columns:1fr 1fr;padding:10px;gap:9px}.receipt-thumb{height:130px}}
 @media(max-width:430px){.receipt-grid{grid-template-columns:1fr}}
-</style></head>
+</style>
+<style id="liwo-user-actions">
+.user-action-cell{white-space:nowrap}
+.user-action-wrap{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.user-action-btn{border:1px solid #dce4eb;background:#fff;border-radius:8px;padding:7px 10px;font-weight:700;font-size:11px;cursor:pointer}
+.user-action-btn:hover{box-shadow:0 4px 12px rgba(15,42,66,.08)}
+.user-action-btn.deactivate{color:#9b5b00}
+.user-action-btn.reactivate{color:#24723d}
+.user-action-btn.delete{color:#b32626;border-color:#efcaca}
+@media(max-width:760px){
+ .user-action-wrap{display:grid;grid-template-columns:1fr 1fr}
+ .user-action-btn{width:100%;min-height:38px}
+}
+</style>
+<style>@media(max-width:760px){#usersPage .table-wrap{overflow-x:auto}#usersPage table{min-width:760px}}</style>
+<style id="liwo-loading-premium">
+#liwoLoadingOverlay{
+  position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;
+  background:rgba(246,248,250,.94);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);
+}
+#liwoLoadingOverlay.show{display:flex}
+.lw-loader-card{width:min(360px,calc(100vw - 36px));padding:25px 24px 22px;border:1px solid #e5ebf0;
+  border-radius:22px;background:#fff;box-shadow:0 20px 55px rgba(12,35,55,.15);text-align:center}
+.lw-loader-gif{width:150px;height:150px;object-fit:contain;margin:0 auto 9px;display:block}
+.lw-loader-title{font-size:17px;font-weight:800;color:#123451}
+.lw-loader-text{font-size:11px;color:#718193;margin-top:5px}
+.lw-loader-bar{height:5px;background:#e8edf2;border-radius:99px;overflow:hidden;margin-top:17px}
+.lw-loader-bar span{display:block;height:100%;width:38%;border-radius:99px;background:#123451;animation:lwProgress 1.15s ease-in-out infinite}
+@keyframes lwProgress{0%{transform:translateX(-120%)}50%{transform:translateX(170%)}100%{transform:translateX(300%)}}
+@media(max-width:760px){.lw-loader-card{padding:21px 18px}.lw-loader-gif{width:125px;height:125px}}
+</style>
+
+<style id="liwo-cash-layout-fix">
+#cashPage .cash-update-copy{display:block!important;width:100%!important;max-width:none!important;grid-column:1/-1!important}
+#cashPage .cash-balance-actions{display:grid!important;grid-template-columns:minmax(170px,1fr) minmax(180px,1fr) minmax(220px,1.2fr) auto!important;gap:12px!important;align-items:end!important}
+#cashPage .cash-balance-actions .field{min-width:0!important;width:auto!important}
+#cashPage .cash-balance-actions .btn,#cashPage .cash-balance-actions button{min-height:44px!important;white-space:nowrap}
+@media(max-width:900px){
+ #cashPage .cash-balance-actions{grid-template-columns:1fr 1fr!important}
+ #cashPage .cash-balance-actions .field:nth-child(3){grid-column:1/-1}
+ #cashPage .cash-balance-actions button{grid-column:1/-1}
+}
+@media(max-width:520px){
+ #cashPage .cash-balance-actions{grid-template-columns:1fr!important}
+ #cashPage .cash-balance-actions .field:nth-child(3),#cashPage .cash-balance-actions button{grid-column:auto}
+}
+</style>
+
+<style id="liwo-receipt-click-fix">
+#receiptsPage{position:relative;z-index:2}
+#receiptsPage .receipt-card{cursor:pointer}
+#receiptsPage .receipt-actions a{position:relative;z-index:5;pointer-events:auto!important}
+#receiptsPage .receipt-thumb img{pointer-events:none}
+#receiptsPage .receipt-toolbar select,#receiptsPage .receipt-toolbar button{pointer-events:auto!important}
+</style>
+
+<style id="liwo-tools-receipts-icons">
+.nav-icon{
+  width:18px!important;height:18px!important;
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  flex:0 0 18px!important;
+}
+.nav-icon svg{width:18px!important;height:18px!important;display:block}
+@media(max-width:900px){
+  .mobile-nav .nav-icon{width:20px!important;height:20px!important;flex:0 0 20px!important}
+  .mobile-nav .nav-icon svg{width:20px!important;height:20px!important}
+}
+</style>
+
+<style id="liwo-executive-terminology">
+.executive-role-badge{
+  display:inline-flex;align-items:center;gap:5px;padding:4px 8px;border-radius:999px;
+  font-size:10px;font-weight:800;letter-spacing:.2px;background:#eef4f8;color:#123451;
+}
+</style>
+
+<style id="liwo-page-isolation-fix">
+.page[data-page-section="receipts"]{display:none}
+.page[data-page-section="receipts"].active{display:block}
+#receiptsPage .receipt-toolbar,#receiptsPage .receipt-grid,#receiptsPage .receipt-card,
+#receiptsPage #receiptProjectFilter,#receiptsPage #refreshReceiptsBtn,#receiptsPage #receiptGrid,#receiptsPage #receiptCount{
+  box-sizing:border-box;
+}
+</style>
+
+<style id="liwo-user-actions-final">
+.user-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.user-action-btn{border:1px solid #d8e1e8;background:#fff;border-radius:8px;padding:7px 10px;font-weight:800;font-size:11px;cursor:pointer}
+.user-action-btn.deactivate{color:#9a6500;border-color:#ead9ad}
+.user-action-btn.reactivate{color:#257044;border-color:#c8e3d2}
+.user-action-btn.delete{color:#b32626;border-color:#efcaca}
+.user-action-btn:hover{box-shadow:0 4px 12px rgba(15,42,66,.10);transform:translateY(-1px)}
+@media(max-width:760px){.user-actions{display:grid;grid-template-columns:1fr 1fr}.user-action-btn{min-height:38px}}
+</style>
+</head>
 <body>
+<div id="liwoLoadingOverlay" aria-hidden="true">
+  <div class="lw-loader-card">
+    <img class="lw-loader-gif" src="data.gif" alt="LIWO Finance loading">
+    <div class="lw-loader-title">Preparing your dashboard</div>
+    <div class="lw-loader-text">Please wait while LIWO Finance loads your data.</div>
+    <div class="lw-loader-bar"><span></span></div>
+  </div>
+</div>
+
 
 <div id="loginView" class="auth">
   <div class="auth-architectural-bg" aria-hidden="true">
@@ -630,7 +733,7 @@ textarea{min-height:82px;resize:vertical}
     <div class="auth-content">
       <div class="tabs auth-tabs">
         <button id="loginTab" class="tab active" type="button">Sign In</button>
-        <button id="registerTab" class="tab" type="button">Create Finance Account</button>
+        <button id="registerTab" class="tab" type="button">Create LIWO Executive Account</button>
       </div>
 
       <div id="loginIntro" class="form-intro">
@@ -663,11 +766,11 @@ textarea{min-height:82px;resize:vertical}
       </form>
 
       <div class="auth-or"><span>OR</span></div>
-      <button id="createAccountBtn" class="outline-action" type="button"><span>♙</span> Create Finance Account</button>
+      <button id="createAccountBtn" class="outline-action" type="button"><span>♙</span> Create LIWO Executive Account</button>
 
       <div class="security-note">
         <span class="shield">♢</span>
-        <p>Authorized finance staff only. You may create your own account. Registration closes automatically after 3 finance accounts are created.</p>
+        <p>Authorized finance staff only. You may create your own account. Registration closes automatically after 3 LIWO Executive accounts are created.</p>
       </div>
 
       <div class="auth-footer">© 2026 <strong>LIWO ENGINEERING CONSULTANCY.</strong> All rights reserved.</div>
@@ -677,13 +780,13 @@ textarea{min-height:82px;resize:vertical}
           <h2>Create finance account</h2>
           <p>Set your own username and password</p>
         </div>
-        <p class="notice">Authorized finance staff only. Registration automatically closes after the 3rd active Finance account.</p>
+        <p class="notice">Authorized finance staff only. Registration automatically closes after the 3rd active LIWO Executive account.</p>
         <label>Full Name<input id="regName" placeholder="Enter your full name" required></label>
         <label>Username<input id="regUsername" placeholder="Choose a username" required autocomplete="username"></label>
         <label>Password<input id="regPassword" type="password" placeholder="Create a password" minlength="8" required autocomplete="new-password"></label>
         <label>Confirm Password<input id="regConfirm" type="password" placeholder="Confirm your password" minlength="8" required autocomplete="new-password"></label>
         <label>Invitation Code<input id="regInvite" type="password" placeholder="Enter invitation code" required></label>
-        <button class="primary full auth-submit" type="submit"><span>♙</span> Create Finance Account</button>
+        <button class="primary full auth-submit" type="submit"><span>♙</span> Create LIWO Executive Account</button>
         <p id="registerError" class="error"></p>
         <button id="backToLogin" class="back-link" type="button">← Back to Sign In</button>
       </form>
@@ -701,9 +804,8 @@ textarea{min-height:82px;resize:vertical}
 <button data-page="budget">Budget vs Actual</button>
 <button data-page="activity">Activity Log</button>
 <button data-page="clients" id="clientsNav">Clients / Projects</button>
-<button data-page="tools">Construction Tools</button>
+<button data-page="tools"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m14.7 6.3 3-3a5 5 0 0 0 0 7.1l-8.4 8.4a2.1 2.1 0 1 1-3-3l8.4-8.4a5 5 0 0 0 7.1 0l-3 3"/><path d="m5 5 4 4"/><path d="m4 4 1 1"/></svg></span><span>Construction Tools</span></button>
 <button type="button" data-page="cash">💰 <span>Cash Position</span></button>
-<button data-page="receipts" id="receiptsNav">Receipts</button>
 <button data-page="reports" id="reportsNav">Reports / Export</button>
 <button data-page="users" id="usersNav" class="hidden">User Management</button>
 </div></div>
@@ -780,7 +882,7 @@ textarea{min-height:82px;resize:vertical}
 
 <section id="budgetPage" class="page hidden"><div class="panel"><div class="panel-head"><h3>Budget vs Actual</h3></div><div class="table-wrap"><table><thead><tr><th>Category</th><th>Budget</th><th>Actual</th><th>Variance</th><th>% Used</th><th>Remaining</th></tr></thead><tbody id="budgetBody"></tbody></table></div></div></section>
 
-<section id="activityPage" class="page hidden"><div class="panel"><div class="panel-head"><div><h3>Activity Log</h3><span class="muted">Visible to Admin and all Finance users</span></div></div><div class="table-wrap"><table><thead><tr><th>Time</th><th>Action</th><th>Username</th><th>Name</th><th>Details</th></tr></thead><tbody id="activityBody"></tbody></table></div></div></section>
+<section id="activityPage" class="page hidden"><div class="panel"><div class="panel-head"><div><h3>Activity Log</h3><span class="muted">Visible to Admin and all LIWO Executives</span></div></div><div class="table-wrap"><table><thead><tr><th>Time</th><th>Action</th><th>Username</th><th>Name</th><th>Details</th></tr></thead><tbody id="activityBody"></tbody></table></div></div></section>
 
 <section id="clientsPage" class="page hidden">
 <div class="panel">
@@ -815,12 +917,12 @@ textarea{min-height:82px;resize:vertical}
 <div class="report-section"><h3>Budget vs Actual</h3><div class="table-wrap"><table><thead><tr><th>Category</th><th>Budget</th><th>Actual</th><th>Variance</th><th>% Used</th><th>Remaining</th></tr></thead><tbody id="reportBudgetBody"></tbody></table></div></div>
 <div class="report-footer"><span>Prepared from LIWO Finance records</span><span id="reportPreparedBy"></span></div></div></section>
 
-<section id="usersPage" class="page hidden"><div class="panel"><div class="panel-head"><div><h3>User Management — Admin</h3><span class="muted">Manage accounts and finance registration</span></div><strong id="registrationStatus"></strong></div>
+<section id="usersPage" class="page hidden"><div class="panel"><div class="panel-head"><div><h3>User Management — Admin</h3><span class="muted">Manage accounts and LIWO Executive registration</span></div><strong id="registrationStatus"></strong></div>
 <form id="userForm" class="grid"><label>Username<input name="username" required></label><label>Full Name<input name="name" required></label><label>Password<input name="password" type="password" minlength="8" required></label><label>Role<select name="role"><option>Finance</option><option>Admin</option></select></label><label>Active<select name="active"><option value="TRUE">Yes</option><option value="FALSE">No</option></select></label><div><button class="primary">Create / Update User</button></div></form>
-<div class="panel-body" style="border-top:1px solid var(--line)"><strong>Finance Registration</strong><p class="muted">Registration closes automatically after 3 active Finance accounts. Change the invitation code to reopen registration with a new code.</p>
+<div class="panel-body" style="border-top:1px solid var(--line)"><strong>LIWO Executive Accounts</strong><p class="muted">Registration closes automatically after 3 active LIWO Executive accounts. Change the invitation code to reopen registration with a new code.</p>
 <form id="inviteForm" style="display:flex;gap:10px;max-width:650px"><input name="inviteCode" type="password" placeholder="New invitation code" minlength="8" required><button class="primary">Change & Reopen</button></form>
 <button id="reopenBtn" class="secondary" style="margin-top:10px">Re-open Registration</button></div></div>
-<div class="panel"><div class="panel-head"><h3>Current Users</h3></div><div class="table-wrap"><table><thead><tr><th>Username</th><th>Name</th><th>Role</th><th>Active</th></tr></thead><tbody id="usersBody"></tbody></table></div></div>
+<div class="panel"><div class="panel-head"><h3>Current Users</h3></div><div class="table-wrap"><table><thead><tr><th>Username</th><th>Name</th><th>Role</th><th>Active</th><th>Actions</th></tr></thead><tbody id="usersBody"></tbody></table></div></div>
 
 </section>
 
@@ -902,7 +1004,7 @@ textarea{min-height:82px;resize:vertical}
   </div>
   <div class="card">
     <h2>Update Actual Cash</h2>
-    <p class="muted">Admin can enter the actual balance shown by the bank account and physical cash count.</p>
+    <p class="muted cash-update-copy">LIWO Executives can enter the actual balance shown by the bank account and physical cash count.</p>
     <div class="cash-balance-actions">
       <div class="field"><label>Account</label><select id="cashAccount"><option value="bank">Bank</option><option value="onhand">Cash On Hand</option></select></div>
       <div class="field"><label>Current Balance</label><input id="cashBalanceInput" type="number" min="0" step="0.01" placeholder="0.00"></div>
@@ -919,8 +1021,8 @@ textarea{min-height:82px;resize:vertical}
   <button data-page="expenses"><span>↕</span><small>Funds</small></button>
   <button data-page="activity"><span>▤</span><small>Activity</small></button>
   <button data-page="clients"><span>♙</span><small>Clients</small></button>
-  <button data-page="tools"><span>🔧</span><small>Tools</small></button>
-<button data-page="receipts"><span>🧾</span><small>Receipts</small></button>
+  <button data-page="tools"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m14.7 6.3 3-3a5 5 0 0 0 0 7.1l-8.4 8.4a2.1 2.1 0 1 1-3-3l8.4-8.4a5 5 0 0 0 7.1 0l-3 3"/><path d="m5 5 4 4"/><path d="m4 4 1 1"/></svg></span><small>Tools</small></button>
+<button data-page="receipts"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Z"/><path d="M9 7h6M9 11h6M9 15h4"/></svg></span><small>Receipts</small></button>
 <button data-page="reports"><span>▤</span><small>Reports</small></button>
   <button data-page="users" id="mobileUsersNav" class="hidden"><span>♧</span><small>Users</small></button>
 </div>
@@ -965,7 +1067,7 @@ async function api(action,payload={}){let r=await fetch(API_URL,{method:"POST",h
 function tabs(reg){$("loginForm").classList.toggle("hidden",reg);$("registerForm").classList.toggle("hidden",!reg);$("loginTab").classList.toggle("active",!reg);$("registerTab").classList.toggle("active",reg)}
 async function login(e){e.preventDefault();$("loginError").textContent="";try{let o=await api("login",{username:$("loginUsername").value.trim(),password:$("loginPassword").value});session={token:o.token,user:o.user};sessionStorage.setItem("cf_session",JSON.stringify(session));showApp();await refresh();await loadServerNotifications()}catch(x){$("loginError").textContent=x.message}}
 async function register(e){e.preventDefault();$("registerError").textContent="";if($("regPassword").value!==$("regConfirm").value){$("registerError").textContent="Passwords do not match.";return}try{await api("registerFinance",{name:$("regName").value.trim(),username:$("regUsername").value.trim(),password:$("regPassword").value,inviteCode:$("regInvite").value});toast("Account created. You can now sign in.");$("loginUsername").value=$("regUsername").value;tabs(false);$("registerForm").reset()}catch(x){$("registerError").textContent=x.message}}
-function showApp(){$("loginView").classList.add("hidden");$("appView").classList.remove("hidden");const name=session.user.name||session.user.username;const role=session.user.role||"Finance";$("currentUser").textContent=name+" • "+session.user.username;$("currentRole").textContent=role;$("topName").textContent=name;$("topRole").textContent=role==="Admin"?"Administrator":"Finance Staff";$("topAvatar").textContent=initials(name);$("menuUserName").textContent=name;$("menuUserRole").textContent=role==="Admin"?"Administrator":"Finance Staff";applyProfilePhoto();if(session.user.role==="Admin"){$("usersNav").classList.remove("hidden");$("mobileUsersNav").classList.remove("hidden");$("adminDashboard").classList.remove("hidden")}}
+function showApp(){$("loginView").classList.add("hidden");$("appView").classList.remove("hidden");const name=session.user.name||session.user.username;const role=session.user.role||"Finance";$("currentUser").textContent=name+" • "+session.user.username;$("currentRole").textContent=role;$("topName").textContent=name;$("topRole").textContent=role==="Admin"?"Administrator":"LIWO Executives";$("topAvatar").textContent=initials(name);$("menuUserName").textContent=name;$("menuUserRole").textContent=role==="Admin"?"Administrator":"LIWO Executives";applyProfilePhoto();if(session.user.role==="Admin"){$("usersNav").classList.remove("hidden");$("mobileUsersNav").classList.remove("hidden");$("adminDashboard").classList.remove("hidden")}}
 function logout(){closeHeaderMenus();session=null;sessionStorage.removeItem("cf_session");$("appView").classList.add("hidden");$("loginView").classList.remove("hidden")}
 function closeHeaderMenus(){const n=$("notificationDropdown"),u=$("userDropdown");if(n){n.classList.add("hidden");$("notificationBtn")?.setAttribute("aria-expanded","false")}if(u){u.classList.add("hidden");$("userMenuBtn")?.setAttribute("aria-expanded","false")}}
 async function toggleNotificationMenu(){const n=$("notificationDropdown");if(!n)return;const opening=n.classList.contains("hidden");closeHeaderMenus();if(opening){await loadServerNotifications();n.classList.remove("hidden");$("notificationBtn").setAttribute("aria-expanded","true")}}
@@ -975,7 +1077,7 @@ function getReadNotificationIds(){try{return JSON.parse(localStorage.getItem(not
 function saveReadNotificationIds(ids){try{localStorage.setItem(notificationStorageKey(),JSON.stringify(ids.slice(-500)))}catch{}}
 function notificationId(x){return [x.time,x.action,x.username,x.name,x.details].map(v=>String(v??"")).join("|")}
 function formatNotificationTime(value){if(!value)return "";const d=new Date(value);if(Number.isNaN(d.getTime()))return String(value);const diff=Date.now()-d.getTime();if(diff<60000)return "Just now";if(diff<3600000)return Math.floor(diff/60000)+" min ago";if(diff<86400000)return Math.floor(diff/3600000)+" hr ago";return d.toLocaleString([], {month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})}
-function renderNotifications(){const list=$("notificationList"),badge=$("notificationBadge");if(!list||!badge)return;const activities=Array.isArray(data?.activity)?data.activity:[];const readIds=new Set(getReadNotificationIds());const notifications=activities.map((x,i)=>({x,id:notificationId(x),unread:!readIds.has(notificationId(x))})).reverse();const unread=notifications.filter(n=>n.unread).length;badge.textContent=unread;badge.classList.toggle("hidden",unread===0);if(!notifications.length){list.innerHTML='<div class="notification-item"><div><p>No finance activity yet.</p><small>New transactions and inputs will appear here.</small></div></div>';return}list.innerHTML=notifications.map(n=>{const x=n.x,title=x.action||"Finance activity",details=x.details||"A new input was recorded in LIWO Finance.",actor=x.name||x.username||"Finance user";return `<div class="notification-item ${n.unread?"unread":""}"><span class="notification-dot ${n.unread?"":"read-dot"}"></span><div><p><strong>${esc(title)}</strong> — ${esc(details)}</p><small>${esc(actor)}${x.time?" • "+esc(formatNotificationTime(x.time)):""}</small></div></div>`}).join("")}
+function renderNotifications(){const list=$("notificationList"),badge=$("notificationBadge");if(!list||!badge)return;const activities=Array.isArray(data?.activity)?data.activity:[];const readIds=new Set(getReadNotificationIds());const notifications=activities.map((x,i)=>({x,id:notificationId(x),unread:!readIds.has(notificationId(x))})).reverse();const unread=notifications.filter(n=>n.unread).length;badge.textContent=unread;badge.classList.toggle("hidden",unread===0);if(!notifications.length){list.innerHTML='<div class="notification-item"><div><p>No finance activity yet.</p><small>New transactions and inputs will appear here.</small></div></div>';return}list.innerHTML=notifications.map(n=>{const x=n.x,title=x.action||"Finance activity",details=x.details||"A new input was recorded in LIWO Finance.",actor=x.name||x.username||"LIWO Executive";return `<div class="notification-item ${n.unread?"unread":""}"><span class="notification-dot ${n.unread?"":"read-dot"}"></span><div><p><strong>${esc(title)}</strong> — ${esc(details)}</p><small>${esc(actor)}${x.time?" • "+esc(formatNotificationTime(x.time)):""}</small></div></div>`}).join("")}
 async function loadServerNotifications(){
   if(!session?.token)return;
   try{
@@ -996,7 +1098,7 @@ function applyProfilePhoto(){
 }
 function openProfile(){
   if(!session?.user)return;
-  const name=session.user.name||session.user.username,role=session.user.role==="Admin"?"Administrator":"Finance Staff";
+  const name=session.user.name||session.user.username,role=session.user.role==="Admin"?"Administrator":"LIWO Executives";
   $("profileModalName").textContent=name;$("profileModalRole").textContent=role;applyProfilePhoto();$("profileModal").classList.remove("hidden");closeHeaderMenus();
 }
 function closeProfile(){$("profileModal")?.classList.add("hidden");$("profilePhotoInput").value=""}
@@ -1030,7 +1132,7 @@ function render(){
  $("expensesBody").innerHTML=(data.expenses||[]).map(x=>`<tr><td>${esc(x.clientName)}</td><td>${esc(x.date)}</td><td>${esc(x.type)}</td><td>${esc(x.category)}</td><td>${esc(x.payee)}</td><td>${esc(x.description)}</td><td>${peso(x.amount)}</td><td>${x.receiptUrl?`<a class="receipt-link" href="${esc(x.receiptUrl)}" target="_blank" rel="noopener">View</a>`:"—"}</td><td>${esc(x.enteredBy)}</td></tr>`).join("")||'<tr><td colspan="9" class="empty">No fund transactions yet.</td></tr>';
  $("budgetBody").innerHTML=(data.budget||[]).map(x=>`<tr><td>${esc(x.category)}</td><td>${peso(x.budget)}</td><td>${peso(x.actual)}</td><td>${peso(x.variance)}</td><td>${(Number(x.used||0)*100).toFixed(1)}%</td><td>${peso(x.remaining)}</td></tr>`).join("");
  $("activityBody").innerHTML=(data.activity||[]).map(x=>`<tr><td>${esc(x.time)}</td><td>${esc(x.action)}</td><td>${esc(x.username)}</td><td>${esc(x.name)}</td><td>${esc(x.details)}</td></tr>`).join("")||'<tr><td colspan="5" class="empty">No activity yet.</td></tr>';
- if(session.user.role==="Admin"&&data.users){$("usersBody").innerHTML=data.users.map(x=>`<tr><td>${esc(x.username)}</td><td>${esc(x.name)}</td><td>${esc(x.role)}</td><td>${x.active?"Yes":"No"}</td></tr>`).join("");$("registrationStatus").textContent=data.financeRegistrationOpen?`OPEN (${data.financeCount}/3)`:`CLOSED (${data.financeCount}/3)`;$("adminFinanceCount").textContent=`${data.financeCount} / 3`;$("adminRegStatus").textContent=data.financeRegistrationOpen?"OPEN":"CLOSED";$("adminActivityCount").textContent=data.activity.length}
+ if(session.user.role==="Admin"&&data.users){$("usersBody").innerHTML=data.users.map(x=>`<tr><td>${esc(x.username)}</td><td>${esc(x.name)}</td><td>${esc(x.role)}</td><td>${x.active?"Yes":"No"}</td><td><div class="user-actions">${String(x.username).toLowerCase()===String(session.user.username).toLowerCase()?`<span class="muted">Current account</span>`:x.active?`<button type="button" class="user-action-btn deactivate" data-user-action="deactivate" data-username="${esc(x.username)}">Deactivate</button>`:`<button type="button" class="user-action-btn reactivate" data-user-action="reactivate" data-username="${esc(x.username)}">Reactivate</button>`}<button type="button" class="user-action-btn delete" data-user-action="delete" data-username="${esc(x.username)}">Delete</button></div></td></tr>`).join("");$("registrationStatus").textContent=data.financeRegistrationOpen?`OPEN (${data.financeCount}/3)`:`CLOSED (${data.financeCount}/3)`;$("adminFinanceCount").textContent=`${data.financeCount} / 3`;$("adminRegStatus").textContent=data.financeRegistrationOpen?"OPEN":"CLOSED";$("adminActivityCount").textContent=data.activity.length}
  if(data.clients){$("clientsBody").innerHTML=data.clients.map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.reference||"—")}</td><td>${peso(x.budget)}</td><td>${peso(x.additionalDesignFee||0)}</td><td><strong>${peso(x.totalContract||x.budget||0)}</strong></td><td><span class="${x.active?"status-open":"status-closed"}">${x.active?"Active":"Inactive"}</span></td><td><button type="button" class="secondary edit-client-btn" data-client-id="${esc(x.id)}">Edit</button></td></tr>`).join("")||`<tr><td colspan="7" class="empty">No clients/projects yet. Add the first one above.</td></tr>`}
 }
 async function save(action,form){let btn=form.querySelector("button");btn.disabled=true;try{let payload=action==="addExpense"?await expensePayload(form):formObj(form);await api(action,{token:session.token,...payload});if(action==="upsertClient")resetClientForm();else form.reset();let d=form.querySelector('[name="date"]');if(d)d.value=today();if($("receiptFileName"))$("receiptFileName").textContent="Optional — you can take a photo or upload a receipt. No receipt is also allowed.";toast(action==="addExpense"?(payload.receiptData?"Transaction and receipt saved.":"Transaction saved without a receipt."):"Saved successfully");await refresh()}catch(x){toast(x.message)}finally{btn.disabled=false}}
@@ -1039,8 +1141,8 @@ function reportClientOptions(){let cs=data.clients||[],el=$("reportClient");if(!
 function renderReport(){reportClientOptions();let r=reportRecords();$("reportDate").textContent=new Date().toLocaleDateString();$("reportProject").textContent=r.client?.name||data.summary?.projectName||"All Clients / Projects";$("rContract").textContent=peso(r.contract);$("rPayments").textContent=peso(r.totalPayments);$("rExpenses").textContent=peso(r.totalExpenses);$("rAvailable").textContent=peso(r.available);$("rBalance").textContent=peso(r.balance);$("rNet").textContent=peso(r.net);$("reportPreparedBy").textContent=session?.user?.name?`Prepared by ${session.user.name}`:"";$("reportExpensesBody").innerHTML=r.expenses.map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.type||"Expense")}</td><td>${esc(x.category)}</td><td>${esc(x.payee)}</td><td>${esc(x.description)}</td><td>${esc(x.method)}</td><td>${x.receiptUrl?`<a class="receipt-link" href="${esc(x.receiptUrl)}" target="_blank" rel="noopener">View</a>`:"—"}</td><td>${esc(x.enteredBy)}</td><td>${peso(x.amount)}</td></tr>`).join("")||`<tr><td colspan="9" class="empty">No expenses for this report.</td></tr>`;$("reportPaymentsBody").innerHTML=r.payments.map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.reference)}</td><td>${esc(x.description)}</td><td>${esc(x.method)}</td><td>${esc(x.enteredBy)}</td><td>${peso(x.amount)}</td></tr>`).join("")||`<tr><td colspan="6" class="empty">No payments for this report.</td></tr>`;$("reportBudgetBody").innerHTML=r.budget.map(x=>`<tr><td>${esc(x.category)}</td><td>${peso(x.budget)}</td><td>${peso(x.actual)}</td><td>${peso(x.variance)}</td><td>${(Number(x.used||0)*100).toFixed(1)}%</td><td>${peso(x.remaining)}</td></tr>`).join("")||`<tr><td colspan="6" class="empty">No budget data.</td></tr>`}
 function printReport(){renderReport();window.print()}
 function exportReportCSV(){let r=reportRecords(),lines=[];const q=v=>`"${String(v??"").replace(/"/g,'""')}"`;lines.push(["LIWO ENGINEERING & CONSULTANCY","Financial Report"].map(q).join(","));lines.push(["Client / Project",r.client?.name||data.summary?.projectName||"All"].map(q).join(","));lines.push([]);lines.push(["SUMMARY","Amount"].map(q).join(","));[["Contract Budget",r.contract],["Total Payments",r.totalPayments],["Total Expenses",r.totalExpenses],["Funds Available",r.available],["Uncollected Balance",r.balance],["Cash Position",r.net]].forEach(x=>lines.push(x.map(q).join(",")));lines.push([]);lines.push(["EXPENSES"].map(q).join(","));lines.push(["Date","Type","Category","Payee / Supplier","Description","Payment Method","Entered By","Amount"].map(q).join(","));r.expenses.forEach(x=>lines.push([x.date,x.type||"Expense",x.category,x.payee,x.description,x.method,x.enteredBy,x.amount].map(q).join(",")));lines.push([]);lines.push(["CLIENT PAYMENTS"].map(q).join(","));lines.push(["Date","Reference","Description / Milestone","Method","Entered By","Amount Paid"].map(q).join(","));r.payments.forEach(x=>lines.push([x.date,x.reference,x.description,x.method,x.enteredBy,x.amount].map(q).join(",")));let blob=new Blob(["\ufeff"+lines.join("\n")],{type:"text/csv;charset=utf-8;"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`LIWO-Finance-${(r.client?.name||"Report").replace(/[^a-z0-9]+/gi,"-")}.csv`;a.click();URL.revokeObjectURL(a.href);toast("Report CSV saved.")}
-function switchPage(p){document.querySelectorAll(".page").forEach(x=>x.classList.add("hidden"));$(p+"Page").classList.remove("hidden");document.querySelectorAll(".nav button,.mobile-nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===p));$("pageTitle").textContent={dashboard:"Dashboard",payments:"Client Payments",expenses:"Fund Transactions",budget:"Budget vs Actual",activity:"Activity Log",clients:"Clients / Projects",tools:"Construction Tools",cash:"Cash Position",reports:"Reports / Export",users:"User Management"}[p]||"Dashboard";if(p==="users")loadUsers();if(p==="reports")renderReport();if(p==="tools")loadTools();if(p==="cash")loadCash();if(p==="receipts")loadReceipts()}
-async function loadUsers(){try{let o=await api("listUsers",{token:session.token});data.users=o.users;data.financeCount=o.financeCount;data.financeRegistrationOpen=o.financeRegistrationOpen;data.clients=o.clients;render()}catch(x){toast(x.message)}}
+function switchPage(p){document.querySelectorAll(".page").forEach(x=>x.classList.add("hidden"));$(p+"Page").classList.remove("hidden");document.querySelectorAll(".nav button,.mobile-nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===p));$("pageTitle").textContent={dashboard:"Dashboard",payments:"Client Payments",expenses:"Fund Transactions",budget:"Budget vs Actual",activity:"Activity Log",clients:"Clients / Projects",tools:"Construction Tools",cash:"Cash Position",receipts:"Receipts",reports:"Reports / Export",users:"User Management"}[p]||"Dashboard";if(p==="users")loadUsers();if(p==="reports")renderReport();if(p==="tools")loadTools();if(p==="cash")loadCash();if(p==="receipts")loadReceipts()}
+async function __liwoOriginalLoadUsers(){try{let o=await api("listUsers",{token:session.token});data.users=o.users;data.financeCount=o.financeCount;data.financeRegistrationOpen=o.financeRegistrationOpen;data.clients=o.clients;render()}catch(x){toast(x.message)}}
 document.addEventListener("DOMContentLoaded",()=>{
 $("loginTab").onclick=()=>tabs(false);$("registerTab").onclick=()=>tabs(true);$("loginForm").onsubmit=login;$("registerForm").onsubmit=register;$("logoutBtn").onclick=logout;$("menuLogoutBtn").onclick=logout;$("refreshBtn").onclick=refresh;$("printReportBtn").onclick=printReport;$("saveReportBtn").onclick=printReport;$("exportReportBtn").onclick=exportReportCSV;$("reportClient").onchange=()=>{selectedClientId=$("reportClient").value;renderReport()};$("reportPeriod").onchange=renderReport;$("notificationBtn").onclick=toggleNotificationMenu;$("userMenuBtn").onclick=toggleUserMenu;$("markNotificationsRead").onclick=markNotificationsRead;$("profileMenuBtn").onclick=openProfile;$("profileCloseBtn").onclick=closeProfile;$("profileDoneBtn").onclick=closeProfile;$("profilePhotoInput").onchange=e=>saveProfilePhoto(e.target.files[0]);$("removeProfilePhotoBtn").onclick=removeProfilePhoto;$("profileModal").onclick=e=>{if(e.target.id==="profileModal")closeProfile()};document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeHeaderMenus();closeProfile()}});document.addEventListener("click",e=>{if(!e.target.closest(".top-user"))closeHeaderMenus()});
 document.querySelectorAll(".nav button,.mobile-nav button").forEach(b=>b.onclick=()=>switchPage(b.dataset.page));
@@ -1068,7 +1170,7 @@ $("saveCashBalanceBtn").onclick=async()=>{
   }catch(x){toast(x.message)}
 };
 $("clientForm").onsubmit=e=>{e.preventDefault();save("upsertClient",e.target)};$("inviteForm").onsubmit=e=>{e.preventDefault();save("changeInvite",e.target)};
-$("reopenBtn").onclick=async()=>{try{await api("reopenRegistration",{token:session.token});toast("Finance registration reopened.");await loadUsers()}catch(x){toast(x.message)}};
+$("reopenBtn").onclick=async()=>{try{await api("reopenRegistration",{token:session.token});toast("LIWO Executive registration reopened.");await loadUsers()}catch(x){toast(x.message)}};
 document.querySelectorAll('[name="date"]').forEach(x=>x.value=today());if($("toolBorrowedDate"))$("toolBorrowedDate").value=today();
 let old=sessionStorage.getItem("cf_session");if(old){try{session=JSON.parse(old);showApp();refresh()}catch{}}});
 
@@ -1157,7 +1259,7 @@ document.addEventListener("DOMContentLoaded",()=>{
   window.renderLIWOUsers=function(users){
     const body=q("usersTableBody")||q("userTableBody")||q("usersBody");
     if(!body)return;
-    const current=(window.session&&window.session.user)?window.session.user.username:"";
+    const current=window.getLIWOSession?.()?.user?.username||"";
     body.innerHTML=(users||[]).map(u=>{
       const active=u.active!==false;
       const self=String(u.username)===String(current);
@@ -1266,12 +1368,223 @@ document.addEventListener("DOMContentLoaded",()=>{
 });
 </script>
 
-<script>setInterval(()=>{if(session?.token)loadServerNotifications()},30000);</script></body></html<section class="page hidden" id="receiptsPage" data-page-section="receipts">
-<div class="page-heading"><div><h2>Receipts</h2><div class="muted">Browse attached receipts by project.</div></div></div>
-<div class="panel"><div class="receipt-toolbar" style="padding:15px">
-<div><label>Project / Receipt Folder</label><select id="receiptProjectFilter"><option value="">All Projects — All Receipts</option></select></div>
-<button class="secondary" type="button" id="refreshReceiptsBtn">Refresh Receipts</button>
-</div></div>
-<div class="panel" style="margin-top:12px"><div class="panel-head"><h3 id="receiptCount">Receipts</h3></div>
-<div class="receipt-grid" id="receiptGrid"><div class="receipt-empty">Loading receipts...</div></div></div></section>
+<script>setInterval(()=>{if(session?.token)loadServerNotifications()},30000);</script>
+<script id="liwo-user-action-script">
+(function(){
+  const escUser=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+  window.renderLIWOUserActions=function(users,currentUsername){
+    const table=document.querySelector("#usersPage table")||document.querySelector('[data-page-section="users"] table')||Array.from(document.querySelectorAll("table")).find(t=>/Current Users/i.test(t.parentElement?.parentElement?.innerText||""));
+    if(!table)return;
+    const body=table.querySelector("tbody"); if(!body)return;
+    const rows=Array.from(body.querySelectorAll("tr"));
+    (users||[]).forEach((u,i)=>{
+      let tr=rows[i];
+      if(!tr || tr.children.length<4)return;
+      let cell=tr.querySelector(".user-action-cell");
+      if(!cell){
+        cell=document.createElement("td");cell.className="user-action-cell";tr.appendChild(cell);
+      }
+      const self=String(u.username).toLowerCase()===String(currentUsername||"").toLowerCase();
+      if(self){
+        cell.innerHTML='<span class="muted">Current account</span>';
+      }else if(u.active===false){
+        cell.innerHTML=`<div class="user-action-wrap">
+          <button type="button" class="user-action-btn reactivate" data-user-action="reactivate" data-username="${escUser(u.username)}">Reactivate</button>
+          <button type="button" class="user-action-btn delete" data-user-action="delete" data-username="${escUser(u.username)}">Delete</button>
+        </div>`;
+      }else{
+        cell.innerHTML=`<div class="user-action-wrap">
+          <button type="button" class="user-action-btn deactivate" data-user-action="deactivate" data-username="${escUser(u.username)}">Deactivate</button>
+          <button type="button" class="user-action-btn delete" data-user-action="delete" data-username="${escUser(u.username)}">Delete</button>
+        </div>`;
+      }
+    });
+  };
+
+  document.addEventListener("click",async e=>{
+    const b=e.target.closest("[data-user-action]"); if(!b)return;
+    const action=b.dataset.userAction, username=b.dataset.username;
+    let msg=action==="delete"
+      ? `Permanently delete "${username}"?\\n\\nTheir login account will be removed, but existing payment, expense and audit history will remain.`
+      : action==="deactivate"
+        ? `Deactivate "${username}"? They will no longer be able to log in.`
+        : `Reactivate "${username}"?`;
+    if(!confirm(msg))return;
+    try{
+      if(typeof window.api!=="function")throw Error("API is not available.");
+      const result=await window.api(action==="delete"?"deleteUser":action==="deactivate"?"deactivateUser":"reactivateUser",{token:window.getLIWOSession?.()?.token,username});
+      if(result && result.ok===false)throw Error(result.error||"Action failed.");
+      if(typeof window.loadUsers==="function")await window.loadUsers();
+      else if(typeof window.refresh==="function")await window.refresh();
+      alert(action==="delete"?"User deleted.":action==="deactivate"?"User deactivated.":"User reactivated.");
+    }catch(err){alert(err.message||String(err))}
+  });
+})();
+</script>
+
+<script id="liwo-user-load-hook">
+(function(){
+  if(typeof __liwoOriginalLoadUsers==="function"){
+    window.loadUsers=async function(){
+      const result=await __liwoOriginalLoadUsers.apply(this,arguments);
+      try{
+        const users=(result&&result.users)||window.lastUsers||[];
+        const current=window.session?.user?.username||"";
+        if(typeof window.renderLIWOUserActions==="function")window.renderLIWOUserActions(users,current);
+      }catch(e){console.error(e)}
+      return result;
+    };
+  }
+})();
+</script>
+
+<script id="liwo-user-action-fallback">
+(function(){
+  function patch(){
+    const tables=Array.from(document.querySelectorAll("table"));
+    const t=tables.find(x=>/Username/i.test(x.innerText||"")&&/Current Users/i.test(x.closest(".page")?.innerText||""));
+    if(!t)return;
+    const head=t.querySelector("thead tr");
+    if(head && !Array.from(head.children).some(x=>/Actions/i.test(x.textContent||""))){
+      const th=document.createElement("th");th.textContent="Actions";head.appendChild(th);
+    }
+    const current=window.session?.user?.username||"";
+    t.querySelectorAll("tbody tr").forEach(tr=>{
+      if(tr.querySelector(".user-action-cell") || tr.querySelector("[data-user-action]"))return;
+      const cells=tr.children;if(cells.length<4)return;
+      const username=(cells[0].textContent||"").trim();
+      if(!username)return;
+      const active=/^yes$/i.test((cells[3].textContent||"").trim());
+      const td=document.createElement("td");td.className="user-action-cell";
+      if(username.toLowerCase()===current.toLowerCase())td.innerHTML='<span class="muted">Current account</span>';
+      else td.innerHTML=`<div class="user-action-wrap">${active
+        ? `<button type="button" class="user-action-btn deactivate" data-user-action="deactivate" data-username="${escUser(username)}">Deactivate</button>`
+        : `<button type="button" class="user-action-btn reactivate" data-user-action="reactivate" data-username="${escUser(username)}">Reactivate</button>`}
+        <button type="button" class="user-action-btn delete" data-user-action="delete" data-username="${escUser(username)}">Delete</button></div>`;
+      tr.appendChild(td);
+    });
+  }
+  const escUser=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+  new MutationObserver(patch).observe(document.body,{childList:true,subtree:true});
+  setTimeout(patch,500);
+})();
+</script>
+
+<script id="liwo-loading-script">
+(function(){
+  const overlay=document.getElementById("liwoLoadingOverlay");
+  window.showLIWOLoading=function(){
+    if(overlay){overlay.classList.add("show");overlay.setAttribute("aria-hidden","false");}
+  };
+  window.hideLIWOLoading=function(){
+    if(overlay){overlay.classList.remove("show");overlay.setAttribute("aria-hidden","true");}
+  };
+  window.withLIWOLoading=async function(fn){
+    showLIWOLoading();
+    try{return await fn();}finally{hideLIWOLoading();}
+  };
+  // Show while the initial document is loading.
+  if(document.readyState!=="complete")showLIWOLoading();
+  window.addEventListener("load",()=>setTimeout(hideLIWOLoading,180));
+})();
+</script>
+
+<script id="liwo-receipt-click-script">
+(function(){
+  const escR=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+  window.loadReceipts=async function(){
+    try{
+      if(typeof api!=="function")throw Error("API unavailable.");
+      const project=document.getElementById("receiptProjectFilter")?.value||"";
+      const o=await api("listReceipts",{token:session.token,project});
+      const sel=document.getElementById("receiptProjectFilter");
+      if(sel && sel.options.length===1){
+        (o.projects||[]).forEach(p=>{const op=document.createElement("option");op.value=p;op.textContent=p;sel.appendChild(op);});
+      }
+      const list=o.receipts||[],grid=document.getElementById("receiptGrid"),count=document.getElementById("receiptCount");
+      if(count)count.textContent=`Receipts (${list.length})`;
+      if(!grid)return;
+      if(!list.length){grid.innerHTML='<div class="receipt-empty" style="grid-column:1/-1">No receipts found for this selection.</div>';return;}
+      grid.innerHTML=list.map(x=>{
+        const isImg=/^image\\//i.test(x.mimeType||"");
+        const thumb=isImg?`<img src="${escR(x.url)}" alt="Receipt" loading="lazy">`:`<div class="receipt-file">📄</div>`;
+        return `<article class="receipt-card" data-receipt-url="${escR(x.url)}">
+          <div class="receipt-thumb">${thumb}</div><div class="receipt-info">
+          <div class="receipt-name" title="${escR(x.name)}">${escR(x.name)}</div>
+          <div class="receipt-project">${escR(x.project||"")}</div>
+          <div class="receipt-meta">${x.size?((Number(x.size)/1024/1024).toFixed(2)+" MB"):""} · ${escR(x.createdAt||"")}</div>
+          <div class="receipt-actions"><a class="primary" href="${escR(x.url)}" target="_blank" rel="noopener noreferrer">Open Receipt</a></div>
+          </div></article>`;
+      }).join("");
+    }catch(e){toast(e.message||String(e))}
+  };
+  document.addEventListener("click",e=>{
+    const card=e.target.closest("#receiptsPage .receipt-card");
+    if(card && !e.target.closest("a,button,select")){const url=card.getAttribute("data-receipt-url");if(url)window.open(url,"_blank","noopener,noreferrer");}
+  });
+  document.getElementById("receiptProjectFilter")?.addEventListener("change",loadReceipts);
+  document.getElementById("refreshReceiptsBtn")?.addEventListener("click",loadReceipts);
+})();
+</script>
+
+<script id="liwo-notification-sync">
+(function(){
+  window.syncLIWONotifications=async function(){
+    try{
+      if(typeof loadNotifications==="function")await loadNotifications();
+      else if(typeof refreshNotifications==="function")await refreshNotifications();
+    }catch(e){console.debug("Notification sync:",e)}
+  };
+  // Keep the bell synchronized with shared audit activity.
+  setInterval(window.syncLIWONotifications,30000);
+  document.addEventListener("visibilitychange",()=>{if(!document.hidden)window.syncLIWONotifications()});
+})();
+</script>
+
+<script id="liwo-page-isolation-script">
+(function(){
+  window.showLIWOPage=function(page){
+    document.querySelectorAll(".page").forEach(el=>{
+      const section=el.getAttribute("data-page-section")||el.id.replace(/^page-?|Page$/g,"").toLowerCase();
+      const active=section===page || el.id===page+"Page";
+      el.classList.toggle("active",active);
+      el.classList.toggle("hidden",!active);
+      el.style.display=active?"block":"none";
+    });
+    document.querySelectorAll("[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===page));
+    if(page==="receipts" && typeof window.loadReceipts==="function")window.loadReceipts();
+  };
+})();
+</script>
+</body></html
+<section class="page hidden" id="receiptsPage" data-page-section="receipts">
+  <div class="page-heading">
+    <div>
+      <h2>Receipts</h2>
+      <div class="muted">View attached receipts by project or browse the complete receipt library.</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="receipt-toolbar" style="padding:15px">
+      <div>
+        <label>Project / Receipt Folder</label>
+        <select id="receiptProjectFilter">
+          <option value="">All Projects — All Receipts</option>
+        </select>
+      </div>
+      <button class="secondary" type="button" id="refreshReceiptsBtn">Refresh Receipts</button>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top:12px">
+    <div class="panel-head">
+      <h3 id="receiptCount">Receipts</h3>
+    </div>
+    <div class="receipt-grid" id="receiptGrid">
+      <div class="receipt-empty" style="grid-column:1/-1">Loading receipts...</div>
+    </div>
+  </div>
+</section>
+
 >

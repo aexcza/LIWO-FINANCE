@@ -75,11 +75,11 @@ function login(r){let v=ss().getSheetByName("users").getDataRange().getValues(),
 function withAuth(r,f){let raw=CacheService.getScriptCache().get("session_"+String(r.token||""));if(!raw)return{ok:false,error:"Session expired. Please sign in again."};return f(r,JSON.parse(raw))}
 function adminOnly(u){if(u.role!=="Admin")throw Error("Administrator access required.")}
 function registerFinance(r){
- let sm=settingsMap();if(String(sm.RegistrationOpen).toLowerCase()==="false")return{ok:false,error:"Finance registration is closed. Ask the administrator to reopen it."};
+ let sm=settingsMap();if(String(sm.RegistrationOpen).toLowerCase()==="false")return{ok:false,error:"LIWO Executive registration is closed. Ask the administrator to reopen it."};
  if(!sm.InviteCodeHash||hash_(r.inviteCode||"")!==String(sm.InviteCodeHash))return{ok:false,error:"Invalid invitation code."};
  if(!r.name||!r.username||!r.password)throw Error("All fields are required.");if(String(r.password).length<8)throw Error("Password must be at least 8 characters.");
  let sh=ss().getSheetByName("users"),v=sh.getDataRange().getValues();if(v.slice(1).some(x=>String(x[0]).toLowerCase()===String(r.username).toLowerCase()))throw Error("Username already exists.");
- let count=v.slice(1).filter(x=>String(x[3])==="Finance"&&String(x[4]).toLowerCase()!=="false").length;if(count>=3){setSetting_("RegistrationOpen",false);return{ok:false,error:"The 3 finance accounts have already been registered. Registration is now closed."}}
+ let count=v.slice(1).filter(x=>String(x[3])==="Finance"&&String(x[4]).toLowerCase()!=="false").length;if(count>=3){setSetting_("RegistrationOpen",false);return{ok:false,error:"The 3 LIWO Executive accounts have already been registered. Registration is now closed."}}
  sh.appendRow([String(r.username),String(r.name),hash_(r.password),"Finance",true,new Date(),new Date()]);
  count++;if(count>=3)setSetting_("RegistrationOpen",false);return{ok:true};
 }
@@ -375,6 +375,6 @@ function updateCashBalance(r,u){
 }
 
 function changeInvite(r,u){adminOnly(u);if(!r.inviteCode||String(r.inviteCode).length<8)throw Error("Invitation code must be at least 8 characters.");setSetting_("InviteCodeHash",hash_(r.inviteCode));setSetting_("RegistrationOpen",true);audit("CHANGE_INVITE",u,"Invitation code changed and registration reopened");return{ok:true}}
-function reopenRegistration(r,u){adminOnly(u);let uv=rows("users"),fc=uv.filter(x=>String(x[3])==="Finance"&&String(x[4]).toLowerCase()!=="false").length;if(fc>=3)throw Error("There are already 3 active Finance accounts. Deactivate a Finance account first.");setSetting_("RegistrationOpen",true);audit("REOPEN_REGISTRATION",u,"Finance registration reopened");return{ok:true}}
+function reopenRegistration(r,u){adminOnly(u);let uv=rows("users"),fc=uv.filter(x=>String(x[3])==="Finance"&&String(x[4]).toLowerCase()!=="false").length;if(fc>=3)throw Error("There are already 3 active LIWO Executive accounts. Deactivate a Finance account first.");setSetting_("RegistrationOpen",true);audit("REOPEN_REGISTRATION",u,"LIWO Executive registration reopened");return{ok:true}}
 function setSetting_(key,value){let sh=ss().getSheetByName("settings"),v=sh.getDataRange().getValues(),i=v.findIndex(x=>x[0]===key);if(i<0)sh.appendRow([key,value]);else sh.getRange(i+1,2).setValue(value)}
 function audit(a,u,d){ss().getSheetByName("audit").appendRow([new Date(),a,u.username,u.name,d])}
