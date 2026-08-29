@@ -805,6 +805,221 @@ textarea{min-height:82px;resize:vertical}
 @keyframes lwArm{0%,100%{transform:rotate(-28deg)}50%{transform:rotate(4deg)}}
 @keyframes lwBucket{0%,100%{transform:rotate(12deg)}50%{transform:rotate(35deg)}}
 </style>
+
+<style id="liwo-hamburger-mobile">
+@media(max-width:760px){
+
+  /* Hide the old bottom navigation on phones */
+  .sidebar,.side-nav,.sidenav{
+    position:fixed!important;
+    top:0!important;
+    left:0!important;
+    bottom:auto!important;
+    width:min(290px,84vw)!important;
+    height:100dvh!important;
+    max-height:none!important;
+    padding:82px 13px 18px!important;
+    z-index:10020!important;
+    background:rgba(255,255,255,.98)!important;
+    border:0!important;
+    border-right:1px solid #e3eaf1!important;
+    box-shadow:18px 0 45px rgba(12,35,55,.16)!important;
+    transform:translateX(-105%)!important;
+    transition:transform .28s cubic-bezier(.22,.8,.25,1)!important;
+    overflow-y:auto!important;
+  }
+
+  .sidebar.lw-mobile-open,.side-nav.lw-mobile-open,.sidenav.lw-mobile-open{
+    transform:translateX(0)!important;
+  }
+
+  .sidebar nav,.side-nav nav,.sidenav nav,
+  .sidebar .nav,.side-nav .nav,.sidenav .nav{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:stretch!important;
+    justify-content:flex-start!important;
+    gap:5px!important;
+    overflow:visible!important;
+  }
+
+  .sidebar nav button,.side-nav nav button,.sidenav nav button,
+  .sidebar .nav button,.side-nav .nav button,.sidenav .nav button{
+    width:100%!important;
+    min-width:0!important;
+    min-height:48px!important;
+    flex:0 0 48px!important;
+    display:flex!important;
+    flex-direction:row!important;
+    align-items:center!important;
+    justify-content:flex-start!important;
+    gap:12px!important;
+    padding:10px 13px!important;
+    border-radius:12px!important;
+    font-size:13px!important;
+    text-align:left!important;
+  }
+
+  .sidebar nav button small,.side-nav nav button small,.sidenav nav button small{
+    display:block!important;
+    font-size:13px!important;
+    line-height:1!important;
+    font-weight:750!important;
+  }
+
+  .sidebar nav button .nav-icon,.side-nav nav button .nav-icon,.sidenav nav button .nav-icon{
+    width:22px!important;height:22px!important;flex:0 0 22px!important;
+  }
+  .sidebar nav button .nav-icon svg,.side-nav nav button .nav-icon svg,.sidenav nav button .nav-icon svg{
+    width:22px!important;height:22px!important;
+  }
+
+  /* Dimmed backdrop */
+  #liwoMobileMenuBackdrop{
+    position:fixed;
+    inset:0;
+    z-index:10010;
+    background:rgba(10,28,44,.42);
+    backdrop-filter:blur(3px);
+    -webkit-backdrop-filter:blur(3px);
+    opacity:0;
+    visibility:hidden;
+    transition:opacity .25s ease,visibility .25s ease;
+  }
+  #liwoMobileMenuBackdrop.show{
+    opacity:1;
+    visibility:visible;
+  }
+
+  /* Header becomes an elegant app bar */
+  .topbar,header{
+    position:sticky!important;
+    top:0!important;
+    z-index:10000!important;
+    min-height:64px!important;
+    height:64px!important;
+    padding:0 13px!important;
+    background:rgba(255,255,255,.92)!important;
+    border-bottom:1px solid #e6edf3!important;
+    box-shadow:0 5px 18px rgba(12,35,55,.05)!important;
+  }
+
+  #liwoMobileMenuButton{
+    width:42px!important;
+    height:42px!important;
+    min-height:42px!important;
+    padding:0!important;
+    border:1px solid #e0e8ef!important;
+    border-radius:12px!important;
+    background:#fff!important;
+    color:#123451!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    box-shadow:0 5px 14px rgba(12,35,55,.07)!important;
+    cursor:pointer;
+  }
+
+  #liwoMobileMenuButton svg{width:21px;height:21px}
+  #liwoMobileMenuButton .lw-close{display:none}
+  #liwoMobileMenuButton.open .lw-menu{display:none}
+  #liwoMobileMenuButton.open .lw-close{display:block}
+
+  #liwoMobileBrand{
+    display:flex!important;
+    align-items:center!important;
+    gap:8px!important;
+    min-width:0!important;
+    margin-right:auto!important;
+    margin-left:10px!important;
+  }
+  #liwoMobileBrand .brand-name{
+    font-weight:850!important;
+    color:#123451!important;
+    font-size:15px!important;
+    letter-spacing:.2px!important;
+  }
+  #liwoMobileBrand .brand-page{
+    color:#8291a0!important;
+    font-size:10px!important;
+    border-left:1px solid #dce4eb;
+    padding-left:8px;
+    white-space:nowrap;
+  }
+
+  #liwoMobileProfileButton{
+    width:40px!important;height:40px!important;min-height:40px!important;
+    padding:0!important;border-radius:50%!important;
+    overflow:hidden!important;
+  }
+
+  /* Main content: no bottom dock space */
+  main,.main,.content,.app-main{
+    padding:13px!important;
+    padding-bottom:24px!important;
+  }
+
+  /* Premium page cards */
+  .page-heading{margin-top:3px!important;margin-bottom:13px!important}
+  .page-heading h1,.page-heading h2{
+    font-size:21px!important;
+    font-weight:850!important;
+    letter-spacing:-.4px!important;
+  }
+
+  .panel,.card,.stat-card,.section-card{
+    border-radius:17px!important;
+    box-shadow:0 7px 24px rgba(16,47,74,.065)!important;
+  }
+
+  /* Floating menu header */
+  .sidebar::before,.side-nav::before,.sidenav::before{
+    content:"LIWO FINANCE";
+    position:absolute;
+    top:22px;
+    left:18px;
+    font-size:11px;
+    letter-spacing:1.4px;
+    font-weight:900;
+    color:#123451;
+  }
+
+  .sidebar::after,.side-nav::after,.sidenav::after{
+    content:"Finance Tracking System";
+    position:absolute;
+    top:39px;
+    left:18px;
+    font-size:9px;
+    color:#8795a3;
+    font-weight:600;
+  }
+
+  /* Mobile menu section labels */
+  .sidebar .menu-section,.side-nav .menu-section,.sidenav .menu-section{
+    margin:12px 9px 5px!important;
+    font-size:9px!important;
+    text-transform:uppercase;
+    letter-spacing:1.2px;
+    color:#9aa7b3;
+    font-weight:850;
+  }
+
+  /* Receipt cards */
+  #receiptsPage .receipt-grid{grid-template-columns:1fr 1fr!important}
+  #receiptsPage .receipt-card{border-radius:14px!important}
+
+  /* Keep loading card beautiful */
+  #liwoLoadingOverlay .lw-loader-card{
+    width:min(86vw,330px)!important;
+    border-radius:22px!important;
+  }
+}
+
+@media(max-width:390px){
+  .sidebar,.side-nav,.sidenav{width:84vw!important}
+  #receiptsPage .receipt-grid{grid-template-columns:1fr!important}
+}
+</style>
 </head>
 <body>
 <div id="liwoLoadingOverlay" aria-hidden="true">
@@ -1687,6 +1902,59 @@ document.addEventListener("DOMContentLoaded",()=>{
   }
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",checkLoaderImage,{once:true});
   else checkLoaderImage();
+})();
+</script>
+
+<div id="liwoMobileMenuBackdrop" aria-hidden="true"></div>
+<script id="liwo-hamburger-mobile-script">
+(function(){
+  function setup(){
+    const side=document.querySelector(".sidebar,.side-nav,.sidenav");
+    const header=document.querySelector(".topbar,header");
+    if(!side||!header)return;
+
+    let back=document.getElementById("liwoMobileMenuBackdrop");
+    let btn=document.getElementById("liwoMobileMenuButton");
+
+    if(!btn){
+      btn=document.createElement("button");
+      btn.type="button";
+      btn.id="liwoMobileMenuButton";
+      btn.setAttribute("aria-label","Open navigation");
+      btn.innerHTML='<svg class="lw-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg><svg class="lw-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></svg>';
+      header.prepend(btn);
+    }
+
+    if(!document.getElementById("liwoMobileBrand")){
+      const brand=document.createElement("div");
+      brand.id="liwoMobileBrand";
+      brand.innerHTML='<span class="brand-name">LIWO</span><span class="brand-page">Finance Tracking System</span>';
+      header.insertBefore(brand,btn.nextSibling);
+    }
+
+    function open(){
+      side.classList.add("lw-mobile-open");
+      btn.classList.add("open");
+      btn.setAttribute("aria-label","Close navigation");
+      back.classList.add("show");
+      document.body.style.overflow="hidden";
+    }
+    function close(){
+      side.classList.remove("lw-mobile-open");
+      btn.classList.remove("open");
+      btn.setAttribute("aria-label","Open navigation");
+      back.classList.remove("show");
+      document.body.style.overflow="";
+    }
+
+    btn.onclick=()=>side.classList.contains("lw-mobile-open")?close():open();
+    back.onclick=close;
+    side.querySelectorAll("[data-page]").forEach(x=>x.addEventListener("click",close));
+    document.addEventListener("keydown",e=>{if(e.key==="Escape")close()});
+  }
+
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",setup,{once:true});
+  else setup();
 })();
 </script>
 </body></html
