@@ -1335,7 +1335,7 @@ $("toolForm").onsubmit=async e=>{
     let p=formObj(e.target);p.token=session.token;
     await api("addTool",p);toast("Tool borrowing record saved.");e.target.reset();
     $("toolBorrowedDate").value=today();await loadTools();
-  }catch(x){toast(x.message)}
+  }catch(x){toast(x.message);const grid=$("receiptGrid");if(grid)grid.innerHTML='<div class="receipt-empty" style="grid-column:1/-1">Unable to load receipts: '+esc(x.message)+'</div>'}
 };
 $("toolClearBtn").onclick=()=>$("toolForm").reset();
 $("refreshToolsBtn").onclick=loadTools;$("receiptProjectFilter")?.addEventListener("change",loadReceipts);$("refreshReceiptsBtn")?.addEventListener("click",loadReceipts);
