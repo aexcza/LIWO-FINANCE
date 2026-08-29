@@ -33,7 +33,7 @@ function doGet(){return json({ok:true,service:"LIWO Finance Tracker"})}
 function doPost(e){try{let r=JSON.parse(e.postData.contents||"{}");switch(r.action){case"health":return json({ok:true,service:"LIWO Finance Tracker",version:"2026-08-29"});
 case"login":return json(login(r));case"registerFinance":return json(registerFinance(r));case"dashboard":return json(withAuth(r,dashboard));
 case"addPayment":return json(withAuth(r,addPayment));case"addExpense":return json(withAuth(r,addExpense));case"listUsers":return json(withAuth(r,listUsers));
-case"upsertUser":return json(withAuth(r,upsertUser));case"listTools":return json(withAuth(r,listTools));case"tools":return json(withAuth(r,listTools));case"constructionTools":return json(withAuth(r,listTools));case"listConstructionTools":return json(withAuth(r,listTools));case"getTools":return json(withAuth(r,listTools));case"addTool":return json(withAuth(r,addTool));case"updateTool":return json(withAuth(r,updateTool));case"cashBalances":return json(withAuth(r,cashBalances));case"cashPosition":return json(withAuth(r,cashBalances));case"getCashPosition":return json(withAuth(r,cashBalances));case"getCashBalances":return json(withAuth(r,cashBalances));case"updateCashBalance":return json(withAuth(r,updateCashBalance));case"changeInvite":return json(withAuth(r,changeInvite));case"reopenRegistration":return json(withAuth(r,reopenRegistration));case"upsertClient":return json(withAuth(r,upsertClient));case"archiveClient":return json(withAuth(r,archiveClient));case"restoreClient":return json(withAuth(r,restoreClient));case"deleteClient":return json(withAuth(r,deleteClient));case"notifications":return json(withAuth(r,notifications));case"deletePayment":return json(withAuth(r,deletePayment));case"deleteExpense":return json(withAuth(r,deleteExpense));
+case"upsertUser":return json(withAuth(r,upsertUser));case"listTools":return json(withAuth(r,listTools));case"tools":return json(withAuth(r,listTools));case"constructionTools":return json(withAuth(r,listTools));case"listConstructionTools":return json(withAuth(r,listTools));case"getTools":return json(withAuth(r,listTools));case"addTool":return json(withAuth(r,addTool));case"updateTool":return json(withAuth(r,updateTool));case"cashBalances":return json(withAuth(r,cashBalances));case"cashPosition":return json(withAuth(r,cashBalances));case"getCashPosition":return json(withAuth(r,cashBalances));case"getCashBalances":return json(withAuth(r,cashBalances));case"updateCashBalance":return json(withAuth(r,updateCashBalance));case"updateCashBalances":return json(withAuth(r,updateCashBalances));case"changeInvite":return json(withAuth(r,changeInvite));case"reopenRegistration":return json(withAuth(r,reopenRegistration));case"upsertClient":return json(withAuth(r,upsertClient));case"archiveClient":return json(withAuth(r,archiveClient));case"restoreClient":return json(withAuth(r,restoreClient));case"deleteClient":return json(withAuth(r,deleteClient));case"notifications":return json(withAuth(r,notifications));case"deletePayment":return json(withAuth(r,deletePayment));case"deleteExpense":return json(withAuth(r,deleteExpense));
 case"deleteUser":return json(withAuth(r,deleteUser));case"deactivateUser":return json(withAuth(r,deactivateUser));case"reactivateUser":return json(withAuth(r,reactivateUser));case"setUserActive":return json(withAuth(r,setUserActive));case"listReceipts":return json(withAuth(r,listReceipts));case"listReceipt":return json(withAuth(r,listReceipts));case"getReceipts":return json(withAuth(r,listReceipts));case"getReceiptList":return json(withAuth(r,listReceipts));case"receipts":return json(withAuth(r,listReceipts));case"receiptGallery":return json(withAuth(r,listReceipts));case"getReceiptGallery":return json(withAuth(r,listReceipts));case"loadReceipts":return json(withAuth(r,listReceipts));case"getReceiptLibrary":return json(withAuth(r,listReceipts));default:return json({ok:false,error:"Unknown action: "+String(r.action||"")})}}catch(x){return json({ok:false,error:String(x.message||x)})}}
 function json(o){return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON)}
 function ensureHeaders_(sh,headers){if(sh.getLastRow()===0){sh.getRange(1,1,1,headers.length).setValues([headers]);return}let existing=sh.getRange(1,1,1,Math.max(sh.getLastColumn(),1)).getValues()[0].map(String);if(existing.length<headers.length){sh.getRange(1,existing.length+1,1,headers.length-existing.length).setValues([headers.slice(existing.length)]);}}
@@ -280,6 +280,9 @@ function deactivateUser(r,u){
   if(String(r.username).toLowerCase()===String(u.username).toLowerCase())
     throw Error("You cannot deactivate your own administrator account.");
 
+  let lock=LockService.getScriptLock();
+  lock.waitLock(10000);
+  try{
   let sh=ss().getSheetByName("users"),v=sh.getDataRange().getValues();
   let i=v.slice(1).findIndex(x=>String(x[0]).toLowerCase()===String(r.username).toLowerCase());
   if(i<0)throw Error("User not found.");
@@ -288,7 +291,9 @@ function deactivateUser(r,u){
   sh.getRange(i+2,5).setValue(false);
   sh.getRange(i+2,7).setValue(new Date());
   audit("DEACTIVATE_USER",u,String(row[0])+" | "+String(row[1]));
+  SpreadsheetApp.flush();
   return{ok:true,message:"User deactivated."};
+  }finally{lock.releaseLock();}
 }
 
 
@@ -311,6 +316,9 @@ function reactivateUser(r,u){
   adminOnly(u);
   if(!r.username)throw Error("Username is required.");
 
+  let lock=LockService.getScriptLock();
+  lock.waitLock(10000);
+  try{
   let sh=ss().getSheetByName("users"),v=sh.getDataRange().getValues();
   let i=v.slice(1).findIndex(x=>String(x[0]).toLowerCase()===String(r.username).toLowerCase());
   if(i<0)throw Error("User not found.");
@@ -319,7 +327,9 @@ function reactivateUser(r,u){
   sh.getRange(i+2,5).setValue(true);
   sh.getRange(i+2,7).setValue(new Date());
   audit("REACTIVATE_USER",u,String(row[0])+" | "+String(row[1]));
+  SpreadsheetApp.flush();
   return{ok:true,message:"User reactivated."};
+  }finally{lock.releaseLock();}
 }
 
 function deleteUser(r,u){
@@ -328,6 +338,9 @@ function deleteUser(r,u){
   if(String(r.username).toLowerCase()===String(u.username).toLowerCase())
     throw Error("You cannot delete your own administrator account.");
 
+  let lock=LockService.getScriptLock();
+  lock.waitLock(10000);
+  try{
   let sh=ss().getSheetByName("users"),v=sh.getDataRange().getValues();
   let i=v.slice(1).findIndex(x=>String(x[0]).toLowerCase()===String(r.username).toLowerCase());
   if(i<0)throw Error("User not found.");
@@ -339,7 +352,9 @@ function deleteUser(r,u){
   sh.deleteRow(i+2);
 
   audit("DELETE_USER",u,String(row[0])+" | "+String(row[1])+" | Role: "+String(row[3]));
+  SpreadsheetApp.flush();
   return{ok:true,message:"User deleted. Existing transaction history was preserved."};
+  }finally{lock.releaseLock();}
 }
 
 
@@ -457,8 +472,29 @@ function updateCashBalance(r,u){
   return cashBalances(r,u);
 }
 
+function updateCashBalances(r,u){
+  adminOrFinance_(u);
+  let bank=Number(r.bankBalance),onHand=Number(r.cashOnHand);
+  if(!Number.isFinite(bank)||bank<0)throw Error("Enter a valid bank balance.");
+  if(!Number.isFinite(onHand)||onHand<0)throw Error("Enter a valid cash-on-hand balance.");
+  let lock=LockService.getScriptLock();
+  lock.waitLock(10000);
+  try{
+    let sh=ss().getSheetByName("cash_balances"),v=sh.getDataRange().getValues(),now=new Date();
+    function save_(account,label,balance){
+      let row=v.slice(1).findIndex(x=>String(x[0]||"").toLowerCase().replace(/\s+/g,"")===account);
+      if(row<0)sh.appendRow([label,balance,now,u.name,""]);
+      else sh.getRange(row+2,1,1,5).setValues([[label,balance,now,u.name,""]]);
+    }
+    save_("bank","Bank",bank);
+    save_("onhand","On Hand",onHand);
+    audit("UPDATE_CASH_BALANCES",u,"Bank: "+bank+" | On Hand: "+onHand);
+    SpreadsheetApp.flush();
+    return cashBalances({},u);
+  }finally{lock.releaseLock();}
+}
+
 function changeInvite(r,u){adminOnly(u);if(!r.inviteCode||String(r.inviteCode).length<8)throw Error("Invitation code must be at least 8 characters.");setSetting_("InviteCodeHash",hash_(r.inviteCode));setSetting_("RegistrationOpen",true);audit("CHANGE_INVITE",u,"Invitation code changed and registration reopened");return{ok:true}}
 function reopenRegistration(r,u){adminOnly(u);let uv=rows("users"),fc=uv.filter(x=>String(x[3])==="Finance"&&String(x[4]).toLowerCase()!=="false").length;if(fc>=3)throw Error("There are already 3 active LIWO Executive accounts. Deactivate a Finance account first.");setSetting_("RegistrationOpen",true);audit("REOPEN_REGISTRATION",u,"LIWO Executive registration reopened");return{ok:true}}
 function setSetting_(key,value){let sh=ss().getSheetByName("settings"),v=sh.getDataRange().getValues(),i=v.findIndex(x=>x[0]===key);if(i<0)sh.appendRow([key,value]);else sh.getRange(i+1,2).setValue(value)}
 function audit(a,u,d){ss().getSheetByName("audit").appendRow([new Date(),a,u.username,u.name,d])}
-

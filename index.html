@@ -1089,6 +1089,26 @@ th{background:#f3f7f9;color:#4e6678;letter-spacing:.045em;text-transform:upperca
 .toast{background:#092039;border:1px solid rgba(255,255,255,.14);box-shadow:0 16px 36px rgba(3,19,33,.24)}
 @media(max-width:900px){.page-heading h2::after{margin-top:6px;width:27px}.card:hover{transform:none}.sidebar .brand{padding-bottom:6px;border-bottom:0}.topbar{background:rgba(255,255,255,.92)!important}.mobile-nav button.active{background:#e8f3f8!important;color:#0a547e!important}}
 </style>
+<style id="liwo-desktop-executive">
+/* Desktop counterpart to the dedicated mobile app shell. */
+@media(min-width:901px){
+  body{background:radial-gradient(circle at 90% 0,rgba(183,215,226,.42),transparent 30rem),#f3f7f9}
+  .sidebar{width:278px;padding:24px 18px;background:linear-gradient(165deg,#061a2c 0%,#0b304c 62%,#0c3f5c 100%);border-right:0;box-shadow:8px 0 28px rgba(4,24,41,.12)}
+  .brand{padding:2px 8px 21px;border-bottom:1px solid rgba(255,255,255,.12)}.brand .brand-logo{box-shadow:none}.brand strong{color:#fff;font-size:15px;letter-spacing:.06em}.brand span{color:#a8c0d0;font-size:10px;letter-spacing:.025em}
+  .nav{margin-top:24px;gap:5px}.nav button{color:#d7e5ed;padding:12px 13px;border:1px solid transparent;border-radius:10px;font-size:13px}.nav button:hover{background:rgba(255,255,255,.09);color:#fff;transform:translateX(2px)}.nav button.active{background:linear-gradient(90deg,#1b6591,#267ba4);color:#fff;box-shadow:0 8px 18px rgba(0,0,0,.18)}
+  .profile{border-top-color:rgba(255,255,255,.12);color:#fff}.profile .muted{color:#a8c0d0}.link-btn{color:#9fd6f1}
+  .main{margin-left:278px;padding:0 38px 48px;max-width:1850px}.topbar{height:78px;margin:0 -38px 26px;padding:0 38px;background:rgba(255,255,255,.88);border-bottom:1px solid #dfe9ee;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+  .top{display:grid;grid-template-columns:minmax(0,1fr) minmax(340px,.85fr);align-items:end;gap:28px;padding:22px 24px;margin:0 0 22px;background:linear-gradient(112deg,#fff,#f6fbfd);border:1px solid #dce8ed;border-radius:16px;box-shadow:0 9px 24px rgba(11,46,70,.06)}
+  .top h2{margin:0;color:#153b58;font-size:24px;letter-spacing:-.6px}.top h2::before{content:"▥";display:inline-grid;place-items:center;width:35px;height:35px;margin-right:11px;border-radius:9px;background:#e4f1f8;color:#327aa8;font-size:18px;vertical-align:middle}.top .muted{margin:8px 0 0;color:#5e7486;font-size:12px}.top-actions{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:end}.client-picker{min-width:0;font-size:10px;letter-spacing:.045em;color:#637d90}.client-picker select{height:42px;padding:10px 34px 10px 12px;font-size:12px;background:#fff}.top-actions #refreshBtn{height:42px;white-space:nowrap}
+  .cards{gap:18px;margin-bottom:22px}.card{min-height:132px;border-radius:15px;padding:20px;box-shadow:0 8px 20px rgba(12,46,69,.055)}.card:hover{transform:translateY(-3px);box-shadow:0 16px 30px rgba(12,46,69,.11)}.card span{font-size:12px;color:#617789}.card strong{font-size:24px;color:#143b57}
+  .panel{border-radius:15px;border-color:#dce7ec;box-shadow:0 8px 22px rgba(12,46,69,.055)}.panel-head{padding:17px 20px;background:linear-gradient(180deg,#fff,#f8fbfc)}.panel-head h3{font-size:15px;color:#173e5a}.panel-head .muted{font-size:11px}
+  th{padding:13px 16px;background:#eff5f7;color:#557083;font-size:10px;letter-spacing:.06em}td{padding:13px 16px;font-size:12px}tbody tr:hover{background:#f2f8fa}
+  input,select,textarea{border-color:#d3e0e7;background:#fcfeff;border-radius:9px}input:focus,select:focus,textarea:focus{border-color:#4f91b7;box-shadow:0 0 0 4px rgba(48,124,166,.12)}
+  .primary,.btn{border-radius:9px;background:linear-gradient(135deg,#0a2a45,#155173)}.secondary{border-radius:9px}.grid{padding:20px;gap:15px}
+  #reportsPage .panel:first-child{border-color:#d7e7ef}#reportsPage .panel-head{background:linear-gradient(90deg,#f5faff,#fff)}#reportsPage .report-actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}.report-actions button{min-height:45px;text-align:left}.report-period-note{border-radius:11px;background:#f2fbf5;border:1px solid #d8efdf;color:#2d6245;box-shadow:none}
+  .receipt-grid{padding:18px;gap:16px}.receipt-card{border-radius:13px;box-shadow:0 5px 16px rgba(12,46,69,.06);transition:transform .18s ease,box-shadow .18s ease}.receipt-card:hover{transform:translateY(-2px);box-shadow:0 11px 24px rgba(12,46,69,.12)}
+}
+</style>
 <script id="liwo-desktop-mobile-routing">
 (function(){
   /* The desktop index remains desktop. Phones use the dedicated mobile.html frontend. */
@@ -1409,12 +1429,11 @@ th{background:#f3f7f9;color:#4e6678;letter-spacing:.045em;text-transform:upperca
   </div>
   <div class="card">
     <h2>Update Actual Cash</h2>
-    <p class="muted cash-update-copy">LIWO Executives can enter the actual balance shown by the bank account and physical cash count.</p>
+    <p class="muted cash-update-copy">Enter the actual money remaining in the bank and the physical cash on hand. These are tracked separately.</p>
     <div class="cash-balance-actions">
-      <div class="field"><label>Account</label><select id="cashAccount"><option value="bank">Bank</option><option value="onhand">Cash On Hand</option></select></div>
-      <div class="field"><label>Current Balance</label><input id="cashBalanceInput" type="number" min="0" step="0.01" placeholder="0.00"></div>
-      <div class="field"><label>Notes</label><input id="cashBalanceNotes" placeholder="Optional note"></div>
-      <button class="btn" type="button" id="saveCashBalanceBtn">Save Balance</button>
+      <div class="field"><label>Remaining Balance in Bank</label><input id="cashBankInput" type="number" min="0" step="0.01" placeholder="0.00"></div>
+      <div class="field"><label>Physical Cash On Hand</label><input id="cashOnHandInput" type="number" min="0" step="0.01" placeholder="0.00"></div>
+      <button class="btn" type="button" id="saveCashBalanceBtn">Update Cash Position</button>
     </div>
   </div>
 </section>
@@ -1630,7 +1649,7 @@ body{background:#fff!important;margin:0;padding:0;font-family:Arial,sans-serif;c
   setTimeout(()=>{w.print();},350);
 }
 function exportReportCSV(){let r=reportRecords(),lines=[];const q=v=>`"${String(v??"").replace(/"/g,'""')}"`;lines.push(["LIWO ENGINEERING & CONSULTANCY","Financial Report"].map(q).join(","));lines.push(["Client / Project",r.client?.name||data.summary?.projectName||"All"].map(q).join(","));lines.push([]);lines.push(["SUMMARY","Amount"].map(q).join(","));[["Contract Budget",r.contract],["Total Payments",r.totalPayments],["Total Expenses",r.totalExpenses],["Funds Available",r.available],["Uncollected Balance",r.balance],["Cash Position",r.net]].forEach(x=>lines.push(x.map(q).join(",")));lines.push([]);lines.push(["EXPENSES"].map(q).join(","));lines.push(["Date","Type","Category","Payee / Supplier","Description","Payment Method","Entered By","Amount"].map(q).join(","));r.expenses.forEach(x=>lines.push([x.date,x.type||"Expense",x.category,x.payee,x.description,x.method,x.enteredBy,x.amount].map(q).join(",")));lines.push([]);lines.push(["CLIENT PAYMENTS"].map(q).join(","));lines.push(["Date","Reference","Description / Milestone","Method","Entered By","Amount Paid"].map(q).join(","));r.payments.forEach(x=>lines.push([x.date,x.reference,x.description,x.method,x.enteredBy,x.amount].map(q).join(",")));let blob=new Blob(["\ufeff"+lines.join("\n")],{type:"text/csv;charset=utf-8;"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`LIWO-Finance-${(r.client?.name||"Report").replace(/[^a-z0-9]+/gi,"-")}.csv`;a.click();URL.revokeObjectURL(a.href);toast("Report CSV saved.")}
-function switchPage(p){document.querySelectorAll(".page").forEach(x=>x.classList.add("hidden"));$(p+"Page").classList.remove("hidden");document.querySelectorAll(".nav button,.mobile-nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===p));$("pageTitle").textContent={dashboard:"Dashboard",payments:"Client Payments",expenses:"Fund Transactions",budget:"Budget vs Actual",activity:"Activity Log",clients:"Clients / Projects",tools:"Construction Tools",cash:"Cash Position",receipts:"Receipts",reports:"Reports / Export",users:"User Management"}[p]||"Dashboard";if(p==="users")loadUsers();if(p==="reports")renderReport();if(p==="tools")loadTools();if(p==="cash")loadCash();if(p==="receipts")loadReceipts()}
+function switchPage(p){document.querySelectorAll(".page").forEach(x=>{let active=x.id===p+"Page";x.classList.toggle("hidden",!active);x.classList.toggle("active",active)});document.querySelectorAll(".nav button,.mobile-nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===p));$("pageTitle").textContent={dashboard:"Dashboard",payments:"Client Payments",expenses:"Fund Transactions",budget:"Budget vs Actual",activity:"Activity Log",clients:"Clients / Projects",tools:"Construction Tools",cash:"Cash Position",receipts:"Receipts",reports:"Reports / Export",users:"User Management"}[p]||"Dashboard";if(p==="users")loadUsers();if(p==="reports")renderReport();if(p==="tools")loadTools();if(p==="cash")loadCash();if(p==="receipts")loadReceipts()}
 async function __liwoOriginalLoadUsers(){try{let o=await api("listUsers",{token:session.token});data.users=o.users;data.financeCount=o.financeCount;data.financeRegistrationOpen=o.financeRegistrationOpen;data.clients=o.clients;render()}catch(x){toast(x.message)}}
 document.addEventListener("DOMContentLoaded",()=>{
 $("loginTab").onclick=()=>tabs(false);$("registerTab").onclick=()=>tabs(true);$("loginForm").onsubmit=login;$("registerForm").onsubmit=register;$("logoutBtn").onclick=logout;$("menuLogoutBtn").onclick=logout;$("refreshBtn").onclick=refresh;$("printReportBtn").onclick=printReport;$("saveReportBtn").onclick=printReport;$("exportReportBtn").onclick=exportReportCSV;$("reportClient").onchange=()=>{selectedClientId=$("reportClient").value;renderReport()};$("reportPeriod").onchange=renderReport;$("notificationBtn").onclick=toggleNotificationMenu;$("userMenuBtn").onclick=toggleUserMenu;$("markNotificationsRead").onclick=markNotificationsRead;$("profileMenuBtn").onclick=openProfile;$("profileCloseBtn").onclick=closeProfile;$("profileDoneBtn").onclick=closeProfile;$("profilePhotoInput").onchange=e=>saveProfilePhoto(e.target.files[0]);$("removeProfilePhotoBtn").onclick=removeProfilePhoto;$("profileModal").onclick=e=>{if(e.target.id==="profileModal")closeProfile()};document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeHeaderMenus();closeProfile()}});document.addEventListener("click",e=>{if(!e.target.closest(".top-user"))closeHeaderMenus()});
@@ -1803,6 +1822,8 @@ document.addEventListener("DOMContentLoaded",()=>{
   }
 
   document.addEventListener("click",function(e){
+    if(e.__liwoUserActionHandled)return;
+    e.__liwoUserActionHandled=true;
     const b=e.target.closest("[data-user-action]");
     if(!b)return;
     userAction(b.getAttribute("data-user-action"),b.getAttribute("data-username"));
@@ -2075,9 +2096,56 @@ document.addEventListener("DOMContentLoaded",()=>{
     finally{button.disabled=false;}
   }
   document.addEventListener("click",e=>{
+    if(e.__liwoUserActionHandled)return;
+    e.__liwoUserActionHandled=true;
     const b=e.target.closest("[data-user-action]");
     if(b)act(b);
   });
+})();
+</script>
+<script id="liwo-simple-cash-position">
+(function(){
+  function render(o){
+    if(!o)return;
+    const money=v=>new Intl.NumberFormat("en-PH",{style:"currency",currency:"PHP"}).format(Number(v||0));
+    const bank=Number(o.bankBalance||0),onHand=Number(o.cashOnHand||0);
+    document.getElementById("cashBankValue").textContent=money(bank);
+    document.getElementById("cashOnHandValue").textContent=money(onHand);
+    document.getElementById("cashTotalValue").textContent=money(Number(o.totalCash??bank+onHand));
+    document.getElementById("cashBankInput").value=bank||"";
+    document.getElementById("cashOnHandInput").value=onHand||"";
+  }
+  async function load(){if(!window.session?.token)return;try{render(await api("cashBalances",{token:session.token}));}catch(e){toast(e.message||String(e));}}
+  document.addEventListener("DOMContentLoaded",()=>{
+    const old=document.getElementById("saveCashBalanceBtn"),button=old.cloneNode(true);old.replaceWith(button);
+    button.addEventListener("click",async()=>{try{const bank=Number(document.getElementById("cashBankInput").value),onHand=Number(document.getElementById("cashOnHandInput").value);if(!Number.isFinite(bank)||bank<0||!Number.isFinite(onHand)||onHand<0)throw Error("Enter valid amounts for both Bank and Cash On Hand.");button.disabled=true;render(await api("updateCashBalances",{token:session.token,bankBalance:bank,cashOnHand:onHand}));toast("Bank and cash-on-hand balances updated.");}catch(e){toast(e.message||String(e));}finally{button.disabled=false;}});
+    window.loadCash=load;window.loadLIWOCash=load;
+  });
+})();
+</script>
+<script id="liwo-notification-interactions">
+/* Make activity notifications actionable, not merely decorative. */
+(function(){
+  function makeItemsInteractive(){
+    document.querySelectorAll("#notificationList .notification-item").forEach(item=>{
+      item.tabIndex=0;item.setAttribute("role","button");item.title="Open Activity Log";
+    });
+  }
+  const originalRender=window.renderNotifications;
+  if(typeof originalRender==="function"){
+    window.renderNotifications=function(){const result=originalRender.apply(this,arguments);makeItemsInteractive();return result;};
+  }
+  document.addEventListener("click",e=>{
+    const item=e.target.closest("#notificationList .notification-item");
+    if(!item)return;
+    if(typeof markNotificationsRead==="function")markNotificationsRead();
+    if(typeof switchPage==="function")switchPage("activity");
+    if(typeof closeHeaderMenus==="function")closeHeaderMenus();
+  });
+  document.addEventListener("keydown",e=>{
+    if((e.key==="Enter"||e.key===" ")&&e.target.closest("#notificationList .notification-item")){e.preventDefault();e.target.click();}
+  });
+  makeItemsInteractive();
 })();
 </script>
 </body></html>

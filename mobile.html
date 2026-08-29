@@ -1409,12 +1409,11 @@ th{background:#f3f7f9;color:#4e6678;letter-spacing:.045em;text-transform:upperca
   </div>
   <div class="card">
     <h2>Update Actual Cash</h2>
-    <p class="muted cash-update-copy">LIWO Executives can enter the actual balance shown by the bank account and physical cash count.</p>
+    <p class="muted cash-update-copy">Enter the actual money remaining in the bank and the physical cash on hand. These are tracked separately.</p>
     <div class="cash-balance-actions">
-      <div class="field"><label>Account</label><select id="cashAccount"><option value="bank">Bank</option><option value="onhand">Cash On Hand</option></select></div>
-      <div class="field"><label>Current Balance</label><input id="cashBalanceInput" type="number" min="0" step="0.01" placeholder="0.00"></div>
-      <div class="field"><label>Notes</label><input id="cashBalanceNotes" placeholder="Optional note"></div>
-      <button class="btn" type="button" id="saveCashBalanceBtn">Save Balance</button>
+      <div class="field"><label>Remaining Balance in Bank</label><input id="cashBankInput" type="number" min="0" step="0.01" placeholder="0.00"></div>
+      <div class="field"><label>Physical Cash On Hand</label><input id="cashOnHandInput" type="number" min="0" step="0.01" placeholder="0.00"></div>
+      <button class="btn" type="button" id="saveCashBalanceBtn">Update Cash Position</button>
     </div>
   </div>
 </section>
@@ -1670,7 +1669,7 @@ body{background:#fff!important;margin:0;padding:0;font-family:Arial,sans-serif;c
   setTimeout(()=>{w.print();},350);
 }
 function exportReportCSV(){let r=reportRecords(),lines=[];const q=v=>`"${String(v??"").replace(/"/g,'""')}"`;lines.push(["LIWO ENGINEERING & CONSULTANCY","Financial Report"].map(q).join(","));lines.push(["Client / Project",r.client?.name||data.summary?.projectName||"All"].map(q).join(","));lines.push([]);lines.push(["SUMMARY","Amount"].map(q).join(","));[["Contract Budget",r.contract],["Total Payments",r.totalPayments],["Total Expenses",r.totalExpenses],["Funds Available",r.available],["Uncollected Balance",r.balance],["Cash Position",r.net]].forEach(x=>lines.push(x.map(q).join(",")));lines.push([]);lines.push(["EXPENSES"].map(q).join(","));lines.push(["Date","Type","Category","Payee / Supplier","Description","Payment Method","Entered By","Amount"].map(q).join(","));r.expenses.forEach(x=>lines.push([x.date,x.type||"Expense",x.category,x.payee,x.description,x.method,x.enteredBy,x.amount].map(q).join(",")));lines.push([]);lines.push(["CLIENT PAYMENTS"].map(q).join(","));lines.push(["Date","Reference","Description / Milestone","Method","Entered By","Amount Paid"].map(q).join(","));r.payments.forEach(x=>lines.push([x.date,x.reference,x.description,x.method,x.enteredBy,x.amount].map(q).join(",")));let blob=new Blob(["\ufeff"+lines.join("\n")],{type:"text/csv;charset=utf-8;"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`LIWO-Finance-${(r.client?.name||"Report").replace(/[^a-z0-9]+/gi,"-")}.csv`;a.click();URL.revokeObjectURL(a.href);toast("Report CSV saved.")}
-function switchPage(p){document.querySelectorAll(".page").forEach(x=>x.classList.add("hidden"));$(p+"Page").classList.remove("hidden");document.querySelectorAll(".nav button,.mobile-nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===p));$("pageTitle").textContent={dashboard:"Dashboard",payments:"Client Payments",expenses:"Fund Transactions",budget:"Budget vs Actual",activity:"Activity Log",clients:"Clients / Projects",tools:"Construction Tools",cash:"Cash Position",receipts:"Receipts",reports:"Reports / Export",users:"User Management"}[p]||"Dashboard";if(p==="users")loadUsers();if(p==="reports")renderReport();if(p==="tools")loadTools();if(p==="cash")loadCash();if(p==="receipts")loadReceipts()}
+function switchPage(p){document.querySelectorAll(".page").forEach(x=>{let active=x.id===p+"Page";x.classList.toggle("hidden",!active);x.classList.toggle("active",active)});document.querySelectorAll(".nav button,.mobile-nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===p));$("pageTitle").textContent={dashboard:"Dashboard",payments:"Client Payments",expenses:"Fund Transactions",budget:"Budget vs Actual",activity:"Activity Log",clients:"Clients / Projects",tools:"Construction Tools",cash:"Cash Position",receipts:"Receipts",reports:"Reports / Export",users:"User Management"}[p]||"Dashboard";if(p==="users")loadUsers();if(p==="reports")renderReport();if(p==="tools")loadTools();if(p==="cash")loadCash();if(p==="receipts")loadReceipts()}
 async function __liwoOriginalLoadUsers(){try{let o=await api("listUsers",{token:session.token});data.users=o.users;data.financeCount=o.financeCount;data.financeRegistrationOpen=o.financeRegistrationOpen;data.clients=o.clients;render()}catch(x){toast(x.message)}}
 document.addEventListener("DOMContentLoaded",()=>{
 $("loginTab").onclick=()=>tabs(false);$("registerTab").onclick=()=>tabs(true);$("loginForm").onsubmit=login;$("registerForm").onsubmit=register;$("logoutBtn").onclick=logout;$("menuLogoutBtn").onclick=logout;$("refreshBtn").onclick=refresh;$("printReportBtn").onclick=printReport;$("saveReportBtn").onclick=printReport;$("exportReportBtn").onclick=exportReportCSV;$("reportClient").onchange=()=>{selectedClientId=$("reportClient").value;renderReport()};$("reportPeriod").onchange=renderReport;$("notificationBtn").onclick=toggleNotificationMenu;$("userMenuBtn").onclick=toggleUserMenu;$("markNotificationsRead").onclick=markNotificationsRead;$("profileMenuBtn").onclick=openProfile;$("profileCloseBtn").onclick=closeProfile;$("profileDoneBtn").onclick=closeProfile;$("profilePhotoInput").onchange=e=>saveProfilePhoto(e.target.files[0]);$("removeProfilePhotoBtn").onclick=removeProfilePhoto;$("profileModal").onclick=e=>{if(e.target.id==="profileModal")closeProfile()};document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeHeaderMenus();closeProfile()}});document.addEventListener("click",e=>{if(!e.target.closest(".top-user"))closeHeaderMenus()});
@@ -1843,6 +1842,8 @@ document.addEventListener("DOMContentLoaded",()=>{
   }
 
   document.addEventListener("click",function(e){
+    if(e.__liwoUserActionHandled)return;
+    e.__liwoUserActionHandled=true;
     const b=e.target.closest("[data-user-action]");
     if(!b)return;
     userAction(b.getAttribute("data-user-action"),b.getAttribute("data-username"));
@@ -2115,6 +2116,8 @@ document.addEventListener("DOMContentLoaded",()=>{
     finally{button.disabled=false;}
   }
   document.addEventListener("click",e=>{
+    if(e.__liwoUserActionHandled)return;
+    e.__liwoUserActionHandled=true;
     const b=e.target.closest("[data-user-action]");
     if(b)act(b);
   });
@@ -2144,6 +2147,18 @@ document.addEventListener("DOMContentLoaded",()=>{
 }
 @media(max-width:430px){
   .main{padding-left:11px!important;padding-right:11px!important}.mobile-header{margin-left:-11px!important;margin-right:-11px!important;padding-left:11px!important;padding-right:11px!important}.mobile-brand-mark{width:32px;height:32px}.mobile-brand strong{font-size:13px}.mobile-brand span{font-size:8px}.mobile-header-actions{gap:5px}.mobile-icon-btn,.mobile-avatar{width:37px;height:37px}.cards{gap:8px!important}.card{min-height:110px!important;padding:12px!important}.card strong{font-size:16px!important}.receipt-grid{grid-template-columns:1fr!important}.receipt-thumb{height:190px!important}.report-summary-grid{grid-template-columns:1fr!important}
+}
+/* App-style mobile presentation based on the approved LIWO reference. */
+@media(max-width:900px){
+  html,body{background:#f5f8fa!important}
+  .mobile-header{height:49px!important;margin:0 -14px 13px!important;padding:6px 12px!important;background:linear-gradient(105deg,#071a2d,#0d3657)!important;border:0!important;box-shadow:0 4px 14px rgba(5,24,42,.22)!important}
+  .mobile-menu-btn{width:31px!important;height:31px!important;border-color:rgba(255,255,255,.14)!important;background:rgba(255,255,255,.04)!important;border-radius:9px!important;box-shadow:none!important}.mobile-menu-btn span{width:14px!important;height:1.5px!important;background:#d9e6ef!important}
+  .mobile-brand{gap:7px!important}.mobile-brand-mark{width:26px!important;height:26px!important;border-radius:0!important;background:transparent!important;color:#f3c66a!important;font-size:7px!important}.mobile-brand strong{color:#fff!important;font-size:13px!important;letter-spacing:.02em}.mobile-brand span{color:#b9c9d7!important;font-size:7px!important;margin-top:1px!important}
+  .mobile-header-actions{gap:5px!important}.mobile-icon-btn{width:30px!important;height:30px!important;background:transparent!important;color:#eaf3fa!important;font-size:18px!important}.mobile-icon-btn b{top:-4px!important;right:-3px!important;min-width:14px!important;height:14px!important;font-size:7px!important}.mobile-avatar{width:31px!important;height:31px!important;background:#123b5d!important;border:1px solid rgba(255,255,255,.16)!important;font-size:11px!important}
+  .main{padding:0 12px 25px!important}.top{display:block!important;margin:0 1px 10px!important}.top h2,#pageTitle{font-size:15px!important;line-height:1.2!important;color:#17364f!important;letter-spacing:-.2px!important;margin:0!important}.top h2::before{content:"▥";display:inline-grid;place-items:center;width:27px;height:27px;margin-right:9px;border-radius:7px;background:#edf5fb;color:#4e81ac;font-size:15px;vertical-align:middle}.top .muted,#projectLabel{font-size:10px!important;line-height:1.35!important;color:#4e6173!important;margin:5px 0 9px!important;max-width:270px!important}.top-actions{display:grid!important;grid-template-columns:1fr!important;gap:7px!important}.client-picker{padding:0!important;font-size:8px!important;letter-spacing:.04em;color:#8090a0!important}.client-picker select{height:31px!important;min-height:31px!important;margin-top:4px!important;padding:6px 28px 6px 9px!important;border-radius:7px!important;font-size:9px!important;background:#fff!important}.top-actions #refreshBtn{height:29px!important;min-height:29px!important;margin:0!important;padding:4px!important;font-size:9px!important;border-radius:7px!important;background:#fff!important;box-shadow:0 2px 7px rgba(17,51,78,.04)!important}
+  .panel{border:1px solid #e5edf3!important;border-radius:10px!important;box-shadow:0 3px 11px rgba(13,47,73,.045)!important;margin-bottom:10px!important}.panel-head{padding:10px!important}.panel-head h3{font-size:11px!important;color:#24445d!important}.panel-head .muted{font-size:8px!important;line-height:1.35!important}.grid{padding:10px!important;gap:9px!important}label{font-size:8px!important;letter-spacing:.035em!important;color:#718395!important;margin:0!important}input,select,textarea{min-height:34px!important;border-radius:8px!important;padding:7px 9px!important;font-size:10px!important}
+  #reportsPage .panel-head{background:linear-gradient(90deg,#f8fbff,#fff)!important;border-radius:10px 10px 0 0!important}#reportsPage .panel-head h3::before{content:"▥";display:inline-grid;place-items:center;width:21px;height:21px;margin-right:7px;border-radius:5px;background:#dceeff;color:#397bbb;font-size:12px;vertical-align:middle}#reportsPage .report-controls{display:grid!important;grid-template-columns:1fr!important;padding:10px!important;gap:9px!important}#reportsPage .report-actions{display:grid!important;grid-template-columns:1fr 1fr!important;gap:7px!important;align-items:stretch!important}#reportsPage .report-actions button{width:100%!important;min-height:39px!important;padding:7px 8px!important;text-align:left!important;font-size:9px!important;line-height:1.15!important;border-radius:7px!important;box-shadow:0 2px 6px rgba(12,39,61,.06)!important}#reportsPage #printReportBtn{background:linear-gradient(135deg,#0a2c47,#123e60)!important}#reportsPage #exportReportBtn{grid-column:1/-1!important;background:#fff!important;color:#1c425e!important;border-color:#e1eaf0!important}
+  #reportsPage .report-period-note{margin:10px 0!important;padding:10px 11px 10px 35px!important;border:1px solid #d9f0df!important;border-radius:9px!important;background:#f4fcf6!important;color:#315b42!important;font-size:9px!important;line-height:1.45!important;position:relative}#reportsPage .report-period-note::before{content:"i";position:absolute;left:11px;top:10px;width:16px;height:16px;border-radius:50%;background:#14a34a;color:#fff;display:grid;place-items:center;font-size:11px;font-weight:900}#reportsPage .report-preview{padding:12px!important;border-radius:10px!important}#reportsPage .report-header{display:none!important}
 }
 </style>
 <script id="liwo-mobile-shell-js">
@@ -2181,4 +2196,50 @@ document.addEventListener("DOMContentLoaded",()=>{
 })();
 </script>
 
+<script id="liwo-simple-cash-position">
+(function(){
+  function render(o){
+    if(!o)return;
+    const money=v=>new Intl.NumberFormat("en-PH",{style:"currency",currency:"PHP"}).format(Number(v||0));
+    const bank=Number(o.bankBalance||0),onHand=Number(o.cashOnHand||0);
+    document.getElementById("cashBankValue").textContent=money(bank);
+    document.getElementById("cashOnHandValue").textContent=money(onHand);
+    document.getElementById("cashTotalValue").textContent=money(Number(o.totalCash??bank+onHand));
+    document.getElementById("cashBankInput").value=bank||"";
+    document.getElementById("cashOnHandInput").value=onHand||"";
+  }
+  async function load(){if(!window.session?.token)return;try{render(await api("cashBalances",{token:session.token}));}catch(e){toast(e.message||String(e));}}
+  document.addEventListener("DOMContentLoaded",()=>{
+    const old=document.getElementById("saveCashBalanceBtn"),button=old.cloneNode(true);old.replaceWith(button);
+    button.addEventListener("click",async()=>{try{const bank=Number(document.getElementById("cashBankInput").value),onHand=Number(document.getElementById("cashOnHandInput").value);if(!Number.isFinite(bank)||bank<0||!Number.isFinite(onHand)||onHand<0)throw Error("Enter valid amounts for both Bank and Cash On Hand.");button.disabled=true;render(await api("updateCashBalances",{token:session.token,bankBalance:bank,cashOnHand:onHand}));toast("Bank and cash-on-hand balances updated.");}catch(e){toast(e.message||String(e));}finally{button.disabled=false;}});
+    window.loadCash=load;window.loadLIWOCash=load;
+  });
+})();
+</script>
+<style id="liwo-mobile-notification-center">
+@media(max-width:900px){
+  .mobile-notification-center{position:fixed;inset:0;z-index:500;display:grid;align-items:end;background:rgba(4,22,37,.42);opacity:0;visibility:hidden;transition:opacity .2s ease}.mobile-notification-center.open{opacity:1;visibility:visible}.mobile-notification-sheet{width:100%;max-height:78vh;overflow:auto;background:#fff;border-radius:18px 18px 0 0;box-shadow:0 -16px 42px rgba(3,18,31,.2);transform:translateY(24px);transition:transform .2s ease}.mobile-notification-center.open .mobile-notification-sheet{transform:none}.mobile-notification-head{display:flex;align-items:center;justify-content:space-between;padding:15px 15px 12px;border-bottom:1px solid #e7edf2}.mobile-notification-head strong{font-size:14px;color:#153b58}.mobile-notification-head button{border:0;background:#eef4f7;color:#24526f;padding:7px 9px;border-radius:7px;font-size:10px;font-weight:800}.mobile-notification-list{padding:8px 12px 18px}.mobile-note-row{width:100%;border:0;border-bottom:1px solid #edf1f4;background:#fff;padding:12px 4px;text-align:left;display:flex;gap:10px;color:#28455b}.mobile-note-row:last-child{border-bottom:0}.mobile-note-dot{width:8px;height:8px;margin-top:5px;flex:none;border-radius:50%;background:#2478a8}.mobile-note-row.read .mobile-note-dot{background:#c8d4dd}.mobile-note-row strong{display:block;font-size:11px}.mobile-note-row span{display:block;margin-top:3px;color:#6b8090;font-size:10px;line-height:1.4}.mobile-note-empty{padding:22px 6px;color:#748898;font-size:11px;text-align:center}
+}
+</style>
+<script id="liwo-notification-interactions">
+/* Mobile notification center fed by the same audited finance activity as desktop. */
+(function(){
+  const q=id=>document.getElementById(id);
+  const safe=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+  const getNotes=()=>Array.isArray(window.data?.activity)?window.data.activity:[];
+  const isRead=x=>typeof getReadNotificationIds==="function"&&getReadNotificationIds().includes(notificationId(x));
+  function syncBadge(){const unread=getNotes().filter(x=>!isRead(x)).length;const badge=q("mobileNotificationBadge");if(badge){badge.textContent=unread;badge.style.display=unread?"grid":"none";}}
+  function renderCenter(){const list=q("mobileNotificationList");if(!list)return;const notes=getNotes().slice().reverse();list.innerHTML=notes.length?notes.map(x=>`<button type="button" class="mobile-note-row ${isRead(x)?"read":""}"><i class="mobile-note-dot"></i><span><strong>${safe(x.action||"Finance activity")}</strong><span>${safe(x.details||"A finance update was recorded.")}</span><span>${safe(x.name||x.username||"")}${x.time?" • "+safe(formatNotificationTime(x.time)):""}</span></span></button>`).join(""):'<div class="mobile-note-empty">No finance activity yet.</div>';syncBadge();}
+  function close(){q("mobileNotificationCenter")?.classList.remove("open");}
+  async function open(){try{if(typeof loadServerNotifications==="function")await loadServerNotifications();renderCenter();q("mobileNotificationCenter")?.classList.add("open");}catch(e){if(typeof toast==="function")toast(e.message||String(e));}}
+  const originalRender=window.renderNotifications;
+  if(typeof originalRender==="function")window.renderNotifications=function(){const result=originalRender.apply(this,arguments);renderCenter();return result;};
+  document.body.insertAdjacentHTML("beforeend",'<div id="mobileNotificationCenter" class="mobile-notification-center" aria-hidden="true"><section class="mobile-notification-sheet" role="dialog" aria-label="Notifications"><div class="mobile-notification-head"><strong>Notifications</strong><div><button id="mobileMarkNotifications" type="button">Mark all read</button><button id="mobileCloseNotifications" type="button">Close</button></div></div><div id="mobileNotificationList" class="mobile-notification-list"></div></section></div>');
+  const oldButton=q("mobileNotificationBtn");
+  if(oldButton){const button=oldButton.cloneNode(true);oldButton.replaceWith(button);button.addEventListener("click",e=>{e.stopImmediatePropagation();open();});}
+  q("mobileCloseNotifications")?.addEventListener("click",close);q("mobileNotificationCenter")?.addEventListener("click",e=>{if(e.target===q("mobileNotificationCenter"))close();});q("mobileMarkNotifications")?.addEventListener("click",()=>{if(typeof markNotificationsRead==="function")markNotificationsRead();renderCenter();});q("mobileNotificationList")?.addEventListener("click",e=>{if(!e.target.closest(".mobile-note-row"))return;if(typeof markNotificationsRead==="function")markNotificationsRead();close();if(typeof switchPage==="function")switchPage("activity");});
+  document.addEventListener("click",e=>{const item=e.target.closest("#notificationList .notification-item");if(!item)return;if(typeof markNotificationsRead==="function")markNotificationsRead();if(typeof switchPage==="function")switchPage("activity");if(typeof closeHeaderMenus==="function")closeHeaderMenus();});
+  renderCenter();syncBadge();
+})();
+</script>
 </body></html>
