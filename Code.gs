@@ -18,7 +18,7 @@ const SHEETS={
  clients:["ClientID","Client / Project Name","Reference","Contract Budget","Active","CreatedAt","UpdatedAt"],
  payments:["Timestamp","Date","ClientID","Payment Ref.","Description / Milestone","Due Amount","Amount Paid","Payment Method","Notes","Entered By","Username"],
  expenses:["Timestamp","Date","ClientID","Type","Category","Payee / Supplier","Description","Amount","Payment Method","Receipt / Ref.","Approved By","Notes","Entered By","Username","Receipt File URL","Receipt File ID"],
- budget:["Category","Budget"],cash_balances:["Account","Balance","UpdatedAt","UpdatedBy","Notes"],audit:["Timestamp","Action","Username","Name","Details"]
+ budget:["Category","Budget"],tools:["Timestamp","Tool","Tool ID","Borrowed By","Project","Date Borrowed","Expected Return","Date Returned","Status","Notes","Entered By","Username"],cash_balances:["Account","Balance","UpdatedAt","UpdatedBy","Notes"],audit:["Timestamp","Action","Username","Name","Details"]
 };
 function setup(){
  const s=ss();Object.keys(SHEETS).forEach(n=>{let sh=s.getSheetByName(n)||s.insertSheet(n);ensureHeaders_(sh,SHEETS[n]);sh.setFrozenRows(1);sh.getRange(1,1,1,SHEETS[n].length).setFontWeight("bold")});
@@ -33,8 +33,8 @@ function doGet(){return json({ok:true,service:"LIWO Finance Tracker"})}
 function doPost(e){try{let r=JSON.parse(e.postData.contents||"{}");switch(r.action){
 case"login":return json(login(r));case"registerFinance":return json(registerFinance(r));case"dashboard":return json(withAuth(r,dashboard));
 case"addPayment":return json(withAuth(r,addPayment));case"addExpense":return json(withAuth(r,addExpense));case"listUsers":return json(withAuth(r,listUsers));
-case"upsertUser":return json(withAuth(r,upsertUser));case"deactivateUser":return json(withAuth(r,deactivateUser));case"cashBalances":return json(withAuth(r,cashBalances));case"updateCashBalance":return json(withAuth(r,updateCashBalance));case"reactivateUser":return json(withAuth(r,reactivateUser));case"deleteUser":return json(withAuth(r,deleteUser));case"changeInvite":return json(withAuth(r,changeInvite));case"reopenRegistration":return json(withAuth(r,reopenRegistration));case"upsertClient":return json(withAuth(r,upsertClient));case"archiveClient":return json(withAuth(r,archiveClient));case"restoreClient":return json(withAuth(r,restoreClient));case"deleteClient":return json(withAuth(r,deleteClient));case"deletePayment":return json(withAuth(r,deletePayment));case"deleteExpense":return json(withAuth(r,deleteExpense));case"deactivateUser":return json(withAuth(r,deactivateUser));
-default:return json({ok:false,error:"Unknown action"})}}catch(x){return json({ok:false,error:String(x.message||x)})}}
+case"upsertUser":return json(withAuth(r,upsertUser));case"deactivateUser":return json(withAuth(r,deactivateUser));case"listTools":return json(withAuth(r,listTools));case"addTool":return json(withAuth(r,addTool));case"updateTool":return json(withAuth(r,updateTool));case"cashBalances":return json(withAuth(r,cashBalances));case"updateCashBalance":return json(withAuth(r,updateCashBalance));case"reactivateUser":return json(withAuth(r,reactivateUser));case"deleteUser":return json(withAuth(r,deleteUser));case"changeInvite":return json(withAuth(r,changeInvite));case"reopenRegistration":return json(withAuth(r,reopenRegistration));case"upsertClient":return json(withAuth(r,upsertClient));case"archiveClient":return json(withAuth(r,archiveClient));case"restoreClient":return json(withAuth(r,restoreClient));case"deleteClient":return json(withAuth(r,deleteClient));case"deletePayment":return json(withAuth(r,deletePayment));case"deleteExpense":return json(withAuth(r,deleteExpense));case"deactivateUser":return json(withAuth(r,deactivateUser));
+case"listReceipts":return json(withAuth(r,listReceipts));default:return json({ok:false,error:"Unknown action"})}}catch(x){return json({ok:false,error:String(x.message||x)})}}
 function json(o){return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON)}
 function ensureHeaders_(sh,headers){if(sh.getLastRow()===0){sh.getRange(1,1,1,headers.length).setValues([headers]);return}let existing=sh.getRange(1,1,1,Math.max(sh.getLastColumn(),1)).getValues()[0].map(String);if(existing.length<headers.length){sh.getRange(1,existing.length+1,1,headers.length-existing.length).setValues([headers.slice(existing.length)]);}}
 function receiptRootFolder_(){
@@ -94,7 +94,7 @@ function dashboard(r,u){
  let budget=rows("budget").map(x=>{let actual=ex.filter(y=>y.category===x[0]&&y.type==="Expense").reduce((a,y)=>a+y.amount,0),b=num(x[1]);return{category:x[0],budget:b,actual,variance:b-actual,used:b?actual/b:0,remaining:Math.max(0,b-actual)}}).filter(x=>x.budget||x.actual);
  let recent=[...p.map(x=>({...x,type:"Client Payment"})),...ex.map(x=>({...x,type:x.type}))].sort((a,b)=>String(b.date).localeCompare(String(a.date))).slice(0,12);
  let av=rows("audit").slice(-100).reverse().map(x=>({time:x[0],action:x[1],username:x[2],name:x[3],details:x[4]}));
- let cb=cashBalances({},u);let o={ok:true,clients,summary:{clientName:c.name,reference:c.reference,contractAmount:c.budget,totalPayments,totalExpenses,budgetRemaining,outstandingBalance:Math.max(0,c.budget-totalPayments),cashPosition,bankBalance:cb.bankBalance,cashOnHand:cb.cashOnHand,totalCash:cb.totalCash},cashBalances:cb,payments:p.slice(-100).reverse(),expenses:ex.slice(-100).reverse(),budget,recent,activity:av};
+ let cb=cashBalances({},u);let tools=listToolsData_();let o={ok:true,clients,summary:{clientName:c.name,reference:c.reference,contractAmount:c.budget,totalPayments,totalExpenses,budgetRemaining,outstandingBalance:Math.max(0,c.budget-totalPayments),cashPosition,bankBalance:cb.bankBalance,cashOnHand:cb.cashOnHand,totalCash:cb.totalCash},cashBalances:cb,tools:tools,payments:p.slice(-100).reverse(),expenses:ex.slice(-100).reverse(),budget,recent,activity:av};
  if(u.role==="Admin"){let uv=rows("users"),fc=uv.filter(x=>String(x[3])==="Finance"&&String(x[4]).toLowerCase()!=="false").length;o.users=uv.map(x=>({username:x[0],name:x[1],role:x[3],active:String(x[4]).toLowerCase()!=="false"}));o.financeCount=fc;o.financeRegistrationOpen=String(settingsMap().RegistrationOpen).toLowerCase()!=="false"}return o;
 }
 function addPayment(r,u){if(!r.clientId)throw Error("Select a client/project.");if(num(r.amount)<=0)throw Error("Amount paid must be greater than zero.");let cm=clientNameMap();if(!cm[String(r.clientId)]||!cm[String(r.clientId)].active)throw Error("Invalid or inactive client/project.");ss().getSheetByName("payments").appendRow([new Date(),r.date||"",r.clientId,r.reference||"",r.description||"",num(r.dueAmount),num(r.amount),r.method||"",r.notes||"",u.name,u.username]);audit("ADD_PAYMENT",u,(cm[String(r.clientId)].name+" | "+(r.description||"")+" | "+r.amount));return{ok:true}}
@@ -218,6 +218,80 @@ function deleteUser(r,u){
 }
 
 
+
+function listToolsData_(){
+  return rows("tools").map((x,i)=>({
+    row:i+2,
+    timestamp:x[0],
+    tool:String(x[1]||""),
+    toolId:String(x[2]||""),
+    borrower:String(x[3]||""),
+    project:String(x[4]||""),
+    borrowed:String(x[5]||""),
+    expectedReturn:String(x[6]||""),
+    returned:String(x[7]||""),
+    status:String(x[8]||"Borrowed"),
+    notes:String(x[9]||""),
+    enteredBy:String(x[10]||""),
+    username:String(x[11]||"")
+  }));
+}
+
+function listTools(r,u){
+  return{ok:true,tools:listToolsData_()};
+}
+
+function addTool(r,u){
+  if(!r.tool)throw Error("Tool / Equipment name is required.");
+  if(!r.borrower)throw Error("Borrowed By is required.");
+
+  ss().getSheetByName("tools").appendRow([
+    new Date(),
+    String(r.tool),
+    String(r.toolId||""),
+    String(r.borrower),
+    String(r.project||""),
+    String(r.borrowed||""),
+    String(r.expectedReturn||""),
+    String(r.returned||""),
+    String(r.status||"Borrowed"),
+    String(r.notes||""),
+    u.name,
+    u.username
+  ]);
+
+  audit("ADD_TOOL",u,String(r.tool)+" | Borrowed by: "+String(r.borrower));
+  return{ok:true};
+}
+
+function updateTool(r,u){
+  adminOrFinance_(u);
+  let row=Number(r.row);
+  if(!row||row<2)throw Error("Invalid tool record.");
+
+  let sh=ss().getSheetByName("tools");
+  if(row>sh.getLastRow())throw Error("Tool record not found.");
+
+  let old=sh.getRange(row,1,1,12).getValues()[0];
+  sh.getRange(row,1,1,12).setValues([[
+    old[0],
+    String(r.tool||old[1]),
+    String(r.toolId||old[2]),
+    String(r.borrower||old[3]),
+    String(r.project||old[4]),
+    String(r.borrowed||old[5]),
+    String(r.expectedReturn||old[6]),
+    String(r.returned||old[7]),
+    String(r.status||old[8]),
+    String(r.notes||old[9]),
+    u.name,
+    u.username
+  ]]);
+
+  audit("UPDATE_TOOL",u,String(r.tool||old[1])+" | Status: "+String(r.status||old[8]));
+  return{ok:true};
+}
+
 function cashBalances(r,u){
   let sh=ss().getSheetByName("cash_balances");
   let v=sh.getDataRange().getValues();
@@ -236,7 +310,7 @@ function cashBalances(r,u){
 }
 
 function updateCashBalance(r,u){
-  adminOnly(u);
+  adminOrFinance_(u);
   let account=String(r.account||"").toLowerCase().replace(/\s+/g,"");
   if(account!=="bank"&&account!=="onhand")throw Error("Account must be Bank or On Hand.");
   let balance=num(r.balance);
