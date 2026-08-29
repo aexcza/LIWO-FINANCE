@@ -33,8 +33,8 @@ function doGet(){return json({ok:true,service:"LIWO Finance Tracker"})}
 function doPost(e){try{let r=JSON.parse(e.postData.contents||"{}");switch(r.action){case"health":return json({ok:true,service:"LIWO Finance Tracker",version:"2026-08-29"});
 case"login":return json(login(r));case"registerFinance":return json(registerFinance(r));case"dashboard":return json(withAuth(r,dashboard));
 case"addPayment":return json(withAuth(r,addPayment));case"addExpense":return json(withAuth(r,addExpense));case"listUsers":return json(withAuth(r,listUsers));
-case"upsertUser":return json(withAuth(r,upsertUser));case"listTools":return json(withAuth(r,listTools));case"addTool":return json(withAuth(r,addTool));case"updateTool":return json(withAuth(r,updateTool));case"cashBalances":return json(withAuth(r,cashBalances));case"updateCashBalance":return json(withAuth(r,updateCashBalance));case"changeInvite":return json(withAuth(r,changeInvite));case"reopenRegistration":return json(withAuth(r,reopenRegistration));case"upsertClient":return json(withAuth(r,upsertClient));case"archiveClient":return json(withAuth(r,archiveClient));case"restoreClient":return json(withAuth(r,restoreClient));case"deleteClient":return json(withAuth(r,deleteClient));case"notifications":return json(withAuth(r,notifications));case"deletePayment":return json(withAuth(r,deletePayment));case"deleteExpense":return json(withAuth(r,deleteExpense));
-case"deleteUser":return json(withAuth(r,deleteUser));case"removeUser":return json(withAuth(r,deleteUser));case"deactivateUser":return json(withAuth(r,deactivateUser));case"archiveUser":return json(withAuth(r,deactivateUser));case"reactivateUser":return json(withAuth(r,reactivateUser));case"restoreUser":return json(withAuth(r,reactivateUser));case"activateUser":return json(withAuth(r,reactivateUser));case"setUserActive":return json(withAuth(r,setUserActive));case"listReceipts":return json(withAuth(r,listReceipts));case"getReceipts":return json(withAuth(r,listReceipts));case"receipts":return json(withAuth(r,listReceipts));case"receiptGallery":return json(withAuth(r,listReceipts));default:return json({ok:false,error:"Unknown action: "+String(r.action||"")})}}catch(x){return json({ok:false,error:String(x.message||x)})}}
+case"upsertUser":return json(withAuth(r,upsertUser));case"listTools":return json(withAuth(r,listTools));case"tools":return json(withAuth(r,listTools));case"constructionTools":return json(withAuth(r,listTools));case"listConstructionTools":return json(withAuth(r,listTools));case"getTools":return json(withAuth(r,listTools));case"addTool":return json(withAuth(r,addTool));case"updateTool":return json(withAuth(r,updateTool));case"cashBalances":return json(withAuth(r,cashBalances));case"cashPosition":return json(withAuth(r,cashBalances));case"getCashPosition":return json(withAuth(r,cashBalances));case"getCashBalances":return json(withAuth(r,cashBalances));case"updateCashBalance":return json(withAuth(r,updateCashBalance));case"changeInvite":return json(withAuth(r,changeInvite));case"reopenRegistration":return json(withAuth(r,reopenRegistration));case"upsertClient":return json(withAuth(r,upsertClient));case"archiveClient":return json(withAuth(r,archiveClient));case"restoreClient":return json(withAuth(r,restoreClient));case"deleteClient":return json(withAuth(r,deleteClient));case"notifications":return json(withAuth(r,notifications));case"deletePayment":return json(withAuth(r,deletePayment));case"deleteExpense":return json(withAuth(r,deleteExpense));
+case"deleteUser":return json(withAuth(r,deleteUser));case"deactivateUser":return json(withAuth(r,deactivateUser));case"reactivateUser":return json(withAuth(r,reactivateUser));case"setUserActive":return json(withAuth(r,setUserActive));case"listReceipts":return json(withAuth(r,listReceipts));case"listReceipt":return json(withAuth(r,listReceipts));case"getReceipts":return json(withAuth(r,listReceipts));case"getReceiptList":return json(withAuth(r,listReceipts));case"receipts":return json(withAuth(r,listReceipts));case"receiptGallery":return json(withAuth(r,listReceipts));case"getReceiptGallery":return json(withAuth(r,listReceipts));case"loadReceipts":return json(withAuth(r,listReceipts));case"getReceiptLibrary":return json(withAuth(r,listReceipts));default:return json({ok:false,error:"Unknown action: "+String(r.action||"")})}}catch(x){return json({ok:false,error:String(x.message||x)})}}
 function json(o){return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON)}
 function ensureHeaders_(sh,headers){if(sh.getLastRow()===0){sh.getRange(1,1,1,headers.length).setValues([headers]);return}let existing=sh.getRange(1,1,1,Math.max(sh.getLastColumn(),1)).getValues()[0].map(String);if(existing.length<headers.length){sh.getRange(1,existing.length+1,1,headers.length-existing.length).setValues([headers.slice(existing.length)]);}}
 function receiptRootFolder_(){
@@ -85,36 +85,114 @@ function registerFinance(r){
 }
 
 function listReceipts(r,u){
+  /*
+   * Receipt gallery endpoint.
+   * Reads the LIWO Finance Receipts Drive folder, including:
+   *  - receipt files inside project subfolders
+   *  - receipt files accidentally/directly stored in the root folder
+   *  - nested folders, so older uploads are not lost
+   *
+   * The project map is also read from the Expenses sheet so root-level
+   * files that were attached to a transaction can still show their project.
+   */
   let project=String(r.project||"").trim();
   let rootIt=DriveApp.getFoldersByName(CONFIG.RECEIPT_FOLDER_NAME);
-  if(!rootIt.hasNext()){let root=DriveApp.createFolder(CONFIG.RECEIPT_FOLDER_NAME);return{ok:true,receipts:[],projects:[]};}
-  let root=rootIt.next(),projects=[],pit=root.getFolders();
-  while(pit.hasNext())projects.push(pit.next().getName());
+  if(!rootIt.hasNext()){
+    let root=DriveApp.createFolder(CONFIG.RECEIPT_FOLDER_NAME);
+    return{ok:true,receipts:[],projects:[]};
+  }
+
+  let root=rootIt.next();
+
+  // Map stored Drive file IDs to their project/client from the spreadsheet.
+  let fileProjectMap={};
+  try{
+    let cm=clientNameMap();
+    rows("expenses").forEach(x=>{
+      let fileId=String(x[15]||"").trim();
+      let clientId=String(x[2]||"").trim();
+      if(fileId && cm[clientId])fileProjectMap[fileId]=cm[clientId].name;
+    });
+  }catch(e){}
+
+  // Top-level project folders.
+  let projects=[];
+  let projectFolderNames={};
+  let rootFolders=root.getFolders();
+  while(rootFolders.hasNext()){
+    let folder=rootFolders.next();
+    let name=folder.getName();
+    projects.push(name);
+    projectFolderNames[name]=true;
+  }
   projects.sort();
 
   let receipts=[];
-  function addFiles(folder,folderName){
-    let files=folder.getFiles();
-    while(files.hasNext()){
-      let f=files.next(),mime=f.getMimeType(),preview="";
-      if(/^image\/(jpeg|png|webp)$/i.test(mime)&&f.getSize()<=1500000){
-        try{preview="data:"+mime+";base64,"+Utilities.base64Encode(f.getBlob().getBytes())}catch(e){}
-      }
-      receipts.push({id:f.getId(),name:f.getName(),url:f.getUrl(),mimeType:mime,size:f.getSize(),
-        createdAt:f.getDateCreated(),updatedAt:f.getLastUpdated(),project:folderName,preview:preview});
-    }
-  }
-  if(project){
-    let fit=root.getFoldersByName(safeFolderName_(project));
-    if(fit.hasNext())addFiles(fit.next(),project);
-  }else{
-    let pit2=root.getFolders();
-    while(pit2.hasNext()){let folder=pit2.next();addFiles(folder,folder.getName())}
-  }
-  receipts.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
-  return{ok:true,receipts,projects};
-}
+  let seen={};
 
+  function addFile_(f,folderProject){
+    let id=f.getId();
+    if(seen[id])return;
+    seen[id]=true;
+
+    let mime=String(f.getMimeType()||"");
+    let preview="";
+
+    // Return an embedded preview for normal-sized receipt photos.
+    // This makes the gallery display the actual image instead of a generic icon.
+    if(/^image\/(jpeg|png|webp)$/i.test(mime) && f.getSize()<=2500000){
+      try{
+        preview="data:"+mime+";base64,"+Utilities.base64Encode(f.getBlob().getBytes());
+      }catch(e){}
+    }
+
+    // Keep existing Drive files viewable when possible.
+    try{
+      if(f.getSharingAccess()===DriveApp.Access.PRIVATE){
+        f.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);
+      }
+    }catch(e){}
+
+    let mappedProject=fileProjectMap[id]||folderProject||"Unassigned";
+    if(project && safeFolderName_(mappedProject)!==safeFolderName_(project) && mappedProject!==project)return;
+
+    receipts.push({
+      id:id,
+      name:f.getName(),
+      url:f.getUrl(),
+      viewUrl:"https://drive.google.com/uc?export=view&id="+encodeURIComponent(id),
+      mimeType:mime,
+      size:f.getSize(),
+      createdAt:f.getDateCreated(),
+      updatedAt:f.getLastUpdated(),
+      project:mappedProject,
+      preview:preview
+    });
+  }
+
+  function walkFolder_(folder,topProject){
+    let files=folder.getFiles();
+    while(files.hasNext())addFile_(files.next(),topProject);
+
+    let subs=folder.getFolders();
+    while(subs.hasNext())walkFolder_(subs.next(),topProject);
+  }
+
+  // Include files directly in the main receipt folder.
+  // Their project is recovered from the expense record when possible.
+  let rootFiles=root.getFiles();
+  while(rootFiles.hasNext())addFile_(rootFiles.next(),"");
+
+  // Include all project folders recursively.
+  let projectFolders=root.getFolders();
+  while(projectFolders.hasNext()){
+    let folder=projectFolders.next();
+    walkFolder_(folder,folder.getName());
+  }
+
+  receipts.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+  return{ok:true,receipts:receipts,projects:projects};
+}
 function notifications(r,u){
   let limit=Math.min(Math.max(Number(r.limit)||100,1),100);
   let v=ss().getSheetByName("audit").getDataRange().getValues();
@@ -227,14 +305,6 @@ function setUserActive(r,u){
   sh.getRange(i+2,7).setValue(new Date());
   audit(active?"REACTIVATE_USER":"DEACTIVATE_USER",u,String(row[0])+" | "+String(row[1]));
   return{ok:true};
-}
-
-function archiveUser(r,u){
-  return deactivateUser(r,u);
-}
-
-function restoreUser(r,u){
-  return reactivateUser(r,u);
 }
 
 function reactivateUser(r,u){
@@ -391,3 +461,4 @@ function changeInvite(r,u){adminOnly(u);if(!r.inviteCode||String(r.inviteCode).l
 function reopenRegistration(r,u){adminOnly(u);let uv=rows("users"),fc=uv.filter(x=>String(x[3])==="Finance"&&String(x[4]).toLowerCase()!=="false").length;if(fc>=3)throw Error("There are already 3 active LIWO Executive accounts. Deactivate a Finance account first.");setSetting_("RegistrationOpen",true);audit("REOPEN_REGISTRATION",u,"LIWO Executive registration reopened");return{ok:true}}
 function setSetting_(key,value){let sh=ss().getSheetByName("settings"),v=sh.getDataRange().getValues(),i=v.findIndex(x=>x[0]===key);if(i<0)sh.appendRow([key,value]);else sh.getRange(i+1,2).setValue(value)}
 function audit(a,u,d){ss().getSheetByName("audit").appendRow([new Date(),a,u.username,u.name,d])}
+
