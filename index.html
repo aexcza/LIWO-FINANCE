@@ -593,33 +593,19 @@ textarea{min-height:82px;resize:vertical}
 }
 </style>
 
-
-<style id="liwo-receipts">
+<style id="liwo-receipt-gallery">
 .receipt-toolbar{display:grid;grid-template-columns:minmax(220px,1fr) auto;gap:10px;align-items:end}
 .receipt-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;padding:14px}
 .receipt-card{border:1px solid #e5ebf0;border-radius:16px;overflow:hidden;background:#fff;box-shadow:0 7px 24px rgba(12,35,55,.07)}
-.receipt-thumb{height:150px;background:#f4f6f8;display:flex;align-items:center;justify-content:center;overflow:hidden}
-.receipt-thumb img{width:100%;height:100%;object-fit:cover}
-.receipt-file{font-size:38px}
-.receipt-info{padding:12px}
-.receipt-name{font-weight:750;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.receipt-project{font-size:10px;color:#778696;margin-top:4px}
-.receipt-meta{font-size:10px;color:#8a97a4;margin-top:7px}
-.receipt-actions{display:flex;gap:7px;margin-top:10px}
-.receipt-actions a{flex:1;text-align:center;text-decoration:none}
+.receipt-thumb{height:160px;background:#f4f6f8;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.receipt-thumb img{width:100%;height:100%;object-fit:cover}.receipt-file{font-size:42px}
+.receipt-info{padding:12px}.receipt-name{font-weight:750;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.receipt-project{font-size:10px;color:#778696;margin-top:4px}.receipt-meta{font-size:10px;color:#8a97a4;margin-top:7px}
+.receipt-actions{display:flex;gap:7px;margin-top:10px}.receipt-actions a{flex:1;text-align:center;text-decoration:none}
 .receipt-empty{padding:35px;text-align:center;color:#7b8996}
-@media(max-width:760px){
- .receipt-toolbar{grid-template-columns:1fr}
- .receipt-grid{grid-template-columns:1fr 1fr;padding:10px;gap:9px}
- .receipt-thumb{height:125px}
- .receipt-info{padding:10px}
- .receipt-name{font-size:10px}
- .receipt-project,.receipt-meta{font-size:9px}
- .receipt-actions{display:grid;grid-template-columns:1fr}
-}
+@media(max-width:760px){.receipt-toolbar{grid-template-columns:1fr}.receipt-grid{grid-template-columns:1fr 1fr;padding:10px;gap:9px}.receipt-thumb{height:130px}}
 @media(max-width:430px){.receipt-grid{grid-template-columns:1fr}}
-</style>
-</head>
+</style></head>
 <body>
 
 <div id="loginView" class="auth">
@@ -717,6 +703,7 @@ textarea{min-height:82px;resize:vertical}
 <button data-page="clients" id="clientsNav">Clients / Projects</button>
 <button data-page="tools">Construction Tools</button>
 <button type="button" data-page="cash">💰 <span>Cash Position</span></button>
+<button data-page="receipts" id="receiptsNav">Receipts</button>
 <button data-page="reports" id="reportsNav">Reports / Export</button>
 <button data-page="users" id="usersNav" class="hidden">User Management</button>
 </div></div>
@@ -895,7 +882,7 @@ textarea{min-height:82px;resize:vertical}
   </div>
 </section>
 
-<section class="page" id="cashPage" data-page-section="cash" style="display:none">
+<section class="page hidden" id="cashPage" data-page-section="cash">
   <div class="page-header">
     <div><h1>Cash Position</h1><p>Track the actual money currently held in the bank and on hand.</p></div>
   </div>
@@ -925,32 +912,6 @@ textarea{min-height:82px;resize:vertical}
   </div>
 </section>
 
-
-<section class="page hidden" id="receiptsPage" data-page-section="receipts">
-  <div class="page-heading">
-    <div>
-      <h2>Receipts</h2>
-      <div class="muted">View attached receipts by project or browse the complete receipt library.</div>
-    </div>
-  </div>
-  <div class="panel">
-    <div class="receipt-toolbar" style="padding:15px">
-      <div>
-        <label>Project / Receipt Folder</label>
-        <select id="receiptProjectFilter">
-          <option value="">All Projects — All Receipts</option>
-        </select>
-      </div>
-      <button class="secondary" type="button" id="refreshReceiptsBtn">Refresh Receipts</button>
-    </div>
-  </div>
-  <div class="panel" style="margin-top:12px">
-    <div class="panel-head"><h3 id="receiptCount">Receipts</h3></div>
-    <div class="receipt-grid" id="receiptGrid">
-      <div class="receipt-empty">Loading receipts...</div>
-    </div>
-  </div>
-</section>
 </main>
 <div class="mobile-nav">
   <button data-page="dashboard" class="active"><span>⌂</span><small>Home</small></button>
@@ -1002,12 +963,12 @@ const today=()=>new Date().toISOString().slice(0,10);
 function toast(m){let t=$("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2500)}
 async function api(action,payload={}){let r=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({...payload,action})});let o=await r.json();if(!o.ok)throw Error(o.error||"Request failed");return o}
 function tabs(reg){$("loginForm").classList.toggle("hidden",reg);$("registerForm").classList.toggle("hidden",!reg);$("loginTab").classList.toggle("active",!reg);$("registerTab").classList.toggle("active",reg)}
-async function login(e){e.preventDefault();$("loginError").textContent="";try{let o=await api("login",{username:$("loginUsername").value.trim(),password:$("loginPassword").value});session={token:o.token,user:o.user};sessionStorage.setItem("cf_session",JSON.stringify(session));showApp();await refresh()}catch(x){$("loginError").textContent=x.message}}
+async function login(e){e.preventDefault();$("loginError").textContent="";try{let o=await api("login",{username:$("loginUsername").value.trim(),password:$("loginPassword").value});session={token:o.token,user:o.user};sessionStorage.setItem("cf_session",JSON.stringify(session));showApp();await refresh();await loadServerNotifications()}catch(x){$("loginError").textContent=x.message}}
 async function register(e){e.preventDefault();$("registerError").textContent="";if($("regPassword").value!==$("regConfirm").value){$("registerError").textContent="Passwords do not match.";return}try{await api("registerFinance",{name:$("regName").value.trim(),username:$("regUsername").value.trim(),password:$("regPassword").value,inviteCode:$("regInvite").value});toast("Account created. You can now sign in.");$("loginUsername").value=$("regUsername").value;tabs(false);$("registerForm").reset()}catch(x){$("registerError").textContent=x.message}}
 function showApp(){$("loginView").classList.add("hidden");$("appView").classList.remove("hidden");const name=session.user.name||session.user.username;const role=session.user.role||"Finance";$("currentUser").textContent=name+" • "+session.user.username;$("currentRole").textContent=role;$("topName").textContent=name;$("topRole").textContent=role==="Admin"?"Administrator":"Finance Staff";$("topAvatar").textContent=initials(name);$("menuUserName").textContent=name;$("menuUserRole").textContent=role==="Admin"?"Administrator":"Finance Staff";applyProfilePhoto();if(session.user.role==="Admin"){$("usersNav").classList.remove("hidden");$("mobileUsersNav").classList.remove("hidden");$("adminDashboard").classList.remove("hidden")}}
 function logout(){closeHeaderMenus();session=null;sessionStorage.removeItem("cf_session");$("appView").classList.add("hidden");$("loginView").classList.remove("hidden")}
 function closeHeaderMenus(){const n=$("notificationDropdown"),u=$("userDropdown");if(n){n.classList.add("hidden");$("notificationBtn")?.setAttribute("aria-expanded","false")}if(u){u.classList.add("hidden");$("userMenuBtn")?.setAttribute("aria-expanded","false")}}
-function toggleNotificationMenu(){const n=$("notificationDropdown");if(!n)return;const opening=n.classList.contains("hidden");closeHeaderMenus();if(opening){n.classList.remove("hidden");$("notificationBtn").setAttribute("aria-expanded","true")}}
+async function toggleNotificationMenu(){const n=$("notificationDropdown");if(!n)return;const opening=n.classList.contains("hidden");closeHeaderMenus();if(opening){await loadServerNotifications();n.classList.remove("hidden");$("notificationBtn").setAttribute("aria-expanded","true")}}
 function toggleUserMenu(){const u=$("userDropdown");if(!u)return;const opening=u.classList.contains("hidden");closeHeaderMenus();if(opening){u.classList.remove("hidden");$("userMenuBtn").setAttribute("aria-expanded","true")}}
 function notificationStorageKey(){return session?.user?.username?`cf_notifications_read_${session.user.username}`:"cf_notifications_read"}
 function getReadNotificationIds(){try{return JSON.parse(localStorage.getItem(notificationStorageKey())||"[]")}catch{return[]}}
@@ -1015,6 +976,15 @@ function saveReadNotificationIds(ids){try{localStorage.setItem(notificationStora
 function notificationId(x){return [x.time,x.action,x.username,x.name,x.details].map(v=>String(v??"")).join("|")}
 function formatNotificationTime(value){if(!value)return "";const d=new Date(value);if(Number.isNaN(d.getTime()))return String(value);const diff=Date.now()-d.getTime();if(diff<60000)return "Just now";if(diff<3600000)return Math.floor(diff/60000)+" min ago";if(diff<86400000)return Math.floor(diff/3600000)+" hr ago";return d.toLocaleString([], {month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})}
 function renderNotifications(){const list=$("notificationList"),badge=$("notificationBadge");if(!list||!badge)return;const activities=Array.isArray(data?.activity)?data.activity:[];const readIds=new Set(getReadNotificationIds());const notifications=activities.map((x,i)=>({x,id:notificationId(x),unread:!readIds.has(notificationId(x))})).reverse();const unread=notifications.filter(n=>n.unread).length;badge.textContent=unread;badge.classList.toggle("hidden",unread===0);if(!notifications.length){list.innerHTML='<div class="notification-item"><div><p>No finance activity yet.</p><small>New transactions and inputs will appear here.</small></div></div>';return}list.innerHTML=notifications.map(n=>{const x=n.x,title=x.action||"Finance activity",details=x.details||"A new input was recorded in LIWO Finance.",actor=x.name||x.username||"Finance user";return `<div class="notification-item ${n.unread?"unread":""}"><span class="notification-dot ${n.unread?"":"read-dot"}"></span><div><p><strong>${esc(title)}</strong> — ${esc(details)}</p><small>${esc(actor)}${x.time?" • "+esc(formatNotificationTime(x.time)):""}</small></div></div>`}).join("")}
+async function loadServerNotifications(){
+  if(!session?.token)return;
+  try{
+    let o=await api("notifications",{token:session.token,limit:100});
+    data=data||{};
+    data.activity=o.notifications||[];
+    renderNotifications();
+  }catch(e){console.error(e)}
+}
 function markNotificationsRead(){const ids=(data?.activity||[]).map((x,i)=>notificationId(x));saveReadNotificationIds(ids);renderNotifications();toast('Notifications marked as read.')}
 function profileStorageKey(){return session?.user?.username?`cf_profile_photo_${session.user.username}`:"cf_profile_photo"}
 function getProfilePhoto(){try{return localStorage.getItem(profileStorageKey())||""}catch{return""}}
@@ -1069,7 +1039,7 @@ function reportClientOptions(){let cs=data.clients||[],el=$("reportClient");if(!
 function renderReport(){reportClientOptions();let r=reportRecords();$("reportDate").textContent=new Date().toLocaleDateString();$("reportProject").textContent=r.client?.name||data.summary?.projectName||"All Clients / Projects";$("rContract").textContent=peso(r.contract);$("rPayments").textContent=peso(r.totalPayments);$("rExpenses").textContent=peso(r.totalExpenses);$("rAvailable").textContent=peso(r.available);$("rBalance").textContent=peso(r.balance);$("rNet").textContent=peso(r.net);$("reportPreparedBy").textContent=session?.user?.name?`Prepared by ${session.user.name}`:"";$("reportExpensesBody").innerHTML=r.expenses.map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.type||"Expense")}</td><td>${esc(x.category)}</td><td>${esc(x.payee)}</td><td>${esc(x.description)}</td><td>${esc(x.method)}</td><td>${x.receiptUrl?`<a class="receipt-link" href="${esc(x.receiptUrl)}" target="_blank" rel="noopener">View</a>`:"—"}</td><td>${esc(x.enteredBy)}</td><td>${peso(x.amount)}</td></tr>`).join("")||`<tr><td colspan="9" class="empty">No expenses for this report.</td></tr>`;$("reportPaymentsBody").innerHTML=r.payments.map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.reference)}</td><td>${esc(x.description)}</td><td>${esc(x.method)}</td><td>${esc(x.enteredBy)}</td><td>${peso(x.amount)}</td></tr>`).join("")||`<tr><td colspan="6" class="empty">No payments for this report.</td></tr>`;$("reportBudgetBody").innerHTML=r.budget.map(x=>`<tr><td>${esc(x.category)}</td><td>${peso(x.budget)}</td><td>${peso(x.actual)}</td><td>${peso(x.variance)}</td><td>${(Number(x.used||0)*100).toFixed(1)}%</td><td>${peso(x.remaining)}</td></tr>`).join("")||`<tr><td colspan="6" class="empty">No budget data.</td></tr>`}
 function printReport(){renderReport();window.print()}
 function exportReportCSV(){let r=reportRecords(),lines=[];const q=v=>`"${String(v??"").replace(/"/g,'""')}"`;lines.push(["LIWO ENGINEERING & CONSULTANCY","Financial Report"].map(q).join(","));lines.push(["Client / Project",r.client?.name||data.summary?.projectName||"All"].map(q).join(","));lines.push([]);lines.push(["SUMMARY","Amount"].map(q).join(","));[["Contract Budget",r.contract],["Total Payments",r.totalPayments],["Total Expenses",r.totalExpenses],["Funds Available",r.available],["Uncollected Balance",r.balance],["Cash Position",r.net]].forEach(x=>lines.push(x.map(q).join(",")));lines.push([]);lines.push(["EXPENSES"].map(q).join(","));lines.push(["Date","Type","Category","Payee / Supplier","Description","Payment Method","Entered By","Amount"].map(q).join(","));r.expenses.forEach(x=>lines.push([x.date,x.type||"Expense",x.category,x.payee,x.description,x.method,x.enteredBy,x.amount].map(q).join(",")));lines.push([]);lines.push(["CLIENT PAYMENTS"].map(q).join(","));lines.push(["Date","Reference","Description / Milestone","Method","Entered By","Amount Paid"].map(q).join(","));r.payments.forEach(x=>lines.push([x.date,x.reference,x.description,x.method,x.enteredBy,x.amount].map(q).join(",")));let blob=new Blob(["\ufeff"+lines.join("\n")],{type:"text/csv;charset=utf-8;"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`LIWO-Finance-${(r.client?.name||"Report").replace(/[^a-z0-9]+/gi,"-")}.csv`;a.click();URL.revokeObjectURL(a.href);toast("Report CSV saved.")}
-function switchPage(p){document.querySelectorAll(".page").forEach(x=>x.classList.add("hidden"));$(p+"Page").classList.remove("hidden");document.querySelectorAll(".nav button,.mobile-nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===p));$("pageTitle").textContent={dashboard:"Dashboard",payments:"Client Payments",expenses:"Fund Transactions",budget:"Budget vs Actual",activity:"Activity Log",clients:"Clients / Projects",tools:"Construction Tools",cash:"Cash Position",receipts:"Receipts",reports:"Reports / Export",users:"User Management"}[p]||"Dashboard";if(p==="users")loadUsers();if(p==="reports")renderReport();if(p==="tools")loadTools();if(p==="cash")loadCash();if(p==="receipts")loadReceipts()}
+function switchPage(p){document.querySelectorAll(".page").forEach(x=>x.classList.add("hidden"));$(p+"Page").classList.remove("hidden");document.querySelectorAll(".nav button,.mobile-nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===p));$("pageTitle").textContent={dashboard:"Dashboard",payments:"Client Payments",expenses:"Fund Transactions",budget:"Budget vs Actual",activity:"Activity Log",clients:"Clients / Projects",tools:"Construction Tools",cash:"Cash Position",reports:"Reports / Export",users:"User Management"}[p]||"Dashboard";if(p==="users")loadUsers();if(p==="reports")renderReport();if(p==="tools")loadTools();if(p==="cash")loadCash();if(p==="receipts")loadReceipts()}
 async function loadUsers(){try{let o=await api("listUsers",{token:session.token});data.users=o.users;data.financeCount=o.financeCount;data.financeRegistrationOpen=o.financeRegistrationOpen;data.clients=o.clients;render()}catch(x){toast(x.message)}}
 document.addEventListener("DOMContentLoaded",()=>{
 $("loginTab").onclick=()=>tabs(false);$("registerTab").onclick=()=>tabs(true);$("loginForm").onsubmit=login;$("registerForm").onsubmit=register;$("logoutBtn").onclick=logout;$("menuLogoutBtn").onclick=logout;$("refreshBtn").onclick=refresh;$("printReportBtn").onclick=printReport;$("saveReportBtn").onclick=printReport;$("exportReportBtn").onclick=exportReportCSV;$("reportClient").onchange=()=>{selectedClientId=$("reportClient").value;renderReport()};$("reportPeriod").onchange=renderReport;$("notificationBtn").onclick=toggleNotificationMenu;$("userMenuBtn").onclick=toggleUserMenu;$("markNotificationsRead").onclick=markNotificationsRead;$("profileMenuBtn").onclick=openProfile;$("profileCloseBtn").onclick=closeProfile;$("profileDoneBtn").onclick=closeProfile;$("profilePhotoInput").onchange=e=>saveProfilePhoto(e.target.files[0]);$("removeProfilePhotoBtn").onclick=removeProfilePhoto;$("profileModal").onclick=e=>{if(e.target.id==="profileModal")closeProfile()};document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeHeaderMenus();closeProfile()}});document.addEventListener("click",e=>{if(!e.target.closest(".top-user"))closeHeaderMenus()});
@@ -1087,8 +1057,7 @@ $("toolForm").onsubmit=async e=>{
   }catch(x){toast(x.message)}
 };
 $("toolClearBtn").onclick=()=>$("toolForm").reset();
-$("refreshToolsBtn").onclick=loadTools;
-$("receiptProjectFilter").onchange=loadReceipts;$("refreshReceiptsBtn").onclick=loadReceipts;
+$("refreshToolsBtn").onclick=loadTools;$("receiptProjectFilter")?.addEventListener("change",loadReceipts);$("refreshReceiptsBtn")?.addEventListener("click",loadReceipts);
 $("saveCashBalanceBtn").onclick=async()=>{
   try{
     let balance=Number($("cashBalanceInput").value);
@@ -1126,37 +1095,19 @@ async function loadCash(){
 
 async function loadReceipts(){
   try{
-    let project=$("receiptProjectFilter")?$("receiptProjectFilter").value:"";
+    let project=$("receiptProjectFilter")?.value||"";
     let o=await api("listReceipts",{token:session.token,project});
     let sel=$("receiptProjectFilter");
-    if(sel && sel.options.length<=1){
-      (o.projects||[]).forEach(p=>{
-        let op=document.createElement("option");op.value=p;op.textContent=p;sel.appendChild(op);
-      });
-    }
-    let list=o.receipts||[],grid=$("receiptGrid"),count=$("receiptCount");
-    if(count)count.textContent=`Receipts (${list.length})`;
+    if(sel&&sel.options.length<=1)(o.projects||[]).forEach(p=>{let op=document.createElement("option");op.value=p;op.textContent=p;sel.appendChild(op)});
+    let grid=$("receiptGrid"),list=o.receipts||[];
+    if($("receiptCount"))$("receiptCount").textContent="Receipts ("+list.length+")";
     if(!grid)return;
-    if(!list.length){
-      grid.innerHTML='<div class="receipt-empty" style="grid-column:1/-1">No receipts found for this selection.</div>';
-      return;
-    }
-    grid.innerHTML=list.map(x=>{
-      let isImg=/^image\//i.test(x.mimeType||"");
-      let thumb=isImg?`<img src="${esc(x.url)}" alt="Receipt" loading="lazy">`:`<div class="receipt-file">📄</div>`;
-      let size=x.size?((Number(x.size)/1024/1024).toFixed(2)+" MB"):"";
-      return `<article class="receipt-card">
-        <div class="receipt-thumb">${thumb}</div>
-        <div class="receipt-info">
-          <div class="receipt-name" title="${esc(x.name)}">${esc(x.name)}</div>
-          <div class="receipt-project">${esc(x.project||"")}</div>
-          <div class="receipt-meta">${esc(size)} · ${esc(x.createdAt||"")}</div>
-          <div class="receipt-actions">
-            <a class="primary" href="${esc(x.url)}" target="_blank" rel="noopener">Open Receipt</a>
-          </div>
-        </div>
-      </article>`;
-    }).join("");
+    grid.innerHTML=list.length?list.map(x=>{
+      let img=x.mimeType&&x.mimeType.indexOf("image/")===0;
+      let thumb=x.preview?`<img src="${x.preview}" alt="Receipt" loading="lazy">`:img?`<div class="receipt-file">🧾</div>`:`<div class="receipt-file">📄</div>`;
+      let size=x.size?((Number(x.size)/1048576).toFixed(2)+" MB"):"";
+      return `<article class="receipt-card"><div class="receipt-thumb">${thumb}</div><div class="receipt-info"><div class="receipt-name" title="${esc(x.name)}">${esc(x.name)}</div><div class="receipt-project">${esc(x.project)}</div><div class="receipt-meta">${esc(size)}</div><div class="receipt-actions"><a class="primary" href="${esc(x.url)}" target="_blank" rel="noopener">Open Receipt</a></div></div></article>`;
+    }).join(""):'<div class="receipt-empty" style="grid-column:1/-1">No receipts found.</div>';
   }catch(x){toast(x.message)}
 }
 </script>
@@ -1315,4 +1266,12 @@ document.addEventListener("DOMContentLoaded",()=>{
 });
 </script>
 
-</body></html>
+<script>setInterval(()=>{if(session?.token)loadServerNotifications()},30000);</script></body></html<section class="page hidden" id="receiptsPage" data-page-section="receipts">
+<div class="page-heading"><div><h2>Receipts</h2><div class="muted">Browse attached receipts by project.</div></div></div>
+<div class="panel"><div class="receipt-toolbar" style="padding:15px">
+<div><label>Project / Receipt Folder</label><select id="receiptProjectFilter"><option value="">All Projects — All Receipts</option></select></div>
+<button class="secondary" type="button" id="refreshReceiptsBtn">Refresh Receipts</button>
+</div></div>
+<div class="panel" style="margin-top:12px"><div class="panel-head"><h3 id="receiptCount">Receipts</h3></div>
+<div class="receipt-grid" id="receiptGrid"><div class="receipt-empty">Loading receipts...</div></div></div></section>
+>

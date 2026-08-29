@@ -33,8 +33,8 @@ function doGet(){return json({ok:true,service:"LIWO Finance Tracker"})}
 function doPost(e){try{let r=JSON.parse(e.postData.contents||"{}");switch(r.action){
 case"login":return json(login(r));case"registerFinance":return json(registerFinance(r));case"dashboard":return json(withAuth(r,dashboard));
 case"addPayment":return json(withAuth(r,addPayment));case"addExpense":return json(withAuth(r,addExpense));case"listUsers":return json(withAuth(r,listUsers));
-case"upsertUser":return json(withAuth(r,upsertUser));case"deactivateUser":return json(withAuth(r,deactivateUser));case"listTools":return json(withAuth(r,listTools));case"addTool":return json(withAuth(r,addTool));case"updateTool":return json(withAuth(r,updateTool));case"cashBalances":return json(withAuth(r,cashBalances));case"updateCashBalance":return json(withAuth(r,updateCashBalance));case"reactivateUser":return json(withAuth(r,reactivateUser));case"deleteUser":return json(withAuth(r,deleteUser));case"changeInvite":return json(withAuth(r,changeInvite));case"reopenRegistration":return json(withAuth(r,reopenRegistration));case"upsertClient":return json(withAuth(r,upsertClient));case"archiveClient":return json(withAuth(r,archiveClient));case"restoreClient":return json(withAuth(r,restoreClient));case"deleteClient":return json(withAuth(r,deleteClient));case"deletePayment":return json(withAuth(r,deletePayment));case"deleteExpense":return json(withAuth(r,deleteExpense));case"deactivateUser":return json(withAuth(r,deactivateUser));
-case"listReceipts":return json(withAuth(r,listReceipts));default:return json({ok:false,error:"Unknown action"})}}catch(x){return json({ok:false,error:String(x.message||x)})}}
+case"upsertUser":return json(withAuth(r,upsertUser));case"deactivateUser":return json(withAuth(r,deactivateUser));case"listTools":return json(withAuth(r,listTools));case"addTool":return json(withAuth(r,addTool));case"updateTool":return json(withAuth(r,updateTool));case"cashBalances":return json(withAuth(r,cashBalances));case"updateCashBalance":return json(withAuth(r,updateCashBalance));case"reactivateUser":return json(withAuth(r,reactivateUser));case"deleteUser":return json(withAuth(r,deleteUser));case"changeInvite":return json(withAuth(r,changeInvite));case"reopenRegistration":return json(withAuth(r,reopenRegistration));case"upsertClient":return json(withAuth(r,upsertClient));case"archiveClient":return json(withAuth(r,archiveClient));case"restoreClient":return json(withAuth(r,restoreClient));case"deleteClient":return json(withAuth(r,deleteClient));case"listReceipts":return json(withAuth(r,listReceipts));case"notifications":return json(withAuth(r,notifications));case"deletePayment":return json(withAuth(r,deletePayment));case"deleteExpense":return json(withAuth(r,deleteExpense));case"deactivateUser":return json(withAuth(r,deactivateUser));
+default:return json({ok:false,error:"Unknown action"})}}catch(x){return json({ok:false,error:String(x.message||x)})}}
 function json(o){return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON)}
 function ensureHeaders_(sh,headers){if(sh.getLastRow()===0){sh.getRange(1,1,1,headers.length).setValues([headers]);return}let existing=sh.getRange(1,1,1,Math.max(sh.getLastColumn(),1)).getValues()[0].map(String);if(existing.length<headers.length){sh.getRange(1,existing.length+1,1,headers.length-existing.length).setValues([headers.slice(existing.length)]);}}
 function receiptRootFolder_(){
@@ -83,6 +83,48 @@ function registerFinance(r){
  sh.appendRow([String(r.username),String(r.name),hash_(r.password),"Finance",true,new Date(),new Date()]);
  count++;if(count>=3)setSetting_("RegistrationOpen",false);return{ok:true};
 }
+
+function listReceipts(r,u){
+  let project=String(r.project||"").trim();
+  let rootIt=DriveApp.getFoldersByName(CONFIG.RECEIPT_FOLDER_NAME);
+  if(!rootIt.hasNext())return{ok:true,receipts:[],projects:[]};
+  let root=rootIt.next(),projects=[],pit=root.getFolders();
+  while(pit.hasNext())projects.push(pit.next().getName());
+  projects.sort();
+
+  let receipts=[];
+  function addFiles(folder,folderName){
+    let files=folder.getFiles();
+    while(files.hasNext()){
+      let f=files.next(),mime=f.getMimeType(),preview="";
+      if(/^image\/(jpeg|png|webp)$/i.test(mime)&&f.getSize()<=1500000){
+        try{preview="data:"+mime+";base64,"+Utilities.base64Encode(f.getBlob().getBytes())}catch(e){}
+      }
+      receipts.push({id:f.getId(),name:f.getName(),url:f.getUrl(),mimeType:mime,size:f.getSize(),
+        createdAt:f.getDateCreated(),updatedAt:f.getLastUpdated(),project:folderName,preview:preview});
+    }
+  }
+  if(project){
+    let fit=root.getFoldersByName(safeFolderName_(project));
+    if(fit.hasNext())addFiles(fit.next(),project);
+  }else{
+    let pit2=root.getFolders();
+    while(pit2.hasNext()){let folder=pit2.next();addFiles(folder,folder.getName())}
+  }
+  receipts.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+  return{ok:true,receipts,projects};
+}
+
+function notifications(r,u){
+  let limit=Math.min(Math.max(Number(r.limit)||100,1),100);
+  let v=ss().getSheetByName("audit").getDataRange().getValues();
+  let items=v.slice(1).filter(x=>String(x[1]||"")!=="LOGIN").slice(-limit).reverse().map(x=>({
+    time:x[0],action:String(x[1]||"Finance activity"),username:String(x[2]||""),
+    name:String(x[3]||""),details:String(x[4]||"")
+  }));
+  return{ok:true,notifications:items};
+}
+
 function clientObjects(activeOnly){return rows("clients").filter(x=>!activeOnly||String(x[4]).toLowerCase()!=="false").map(x=>({id:String(x[0]),name:String(x[1]),reference:String(x[2]||""),budget:num(x[3]),active:String(x[4]).toLowerCase()!=="false"}))}
 function clientNameMap(){let m={};clientObjects(false).forEach(c=>m[c.id]=c);return m}
 function dashboard(r,u){
