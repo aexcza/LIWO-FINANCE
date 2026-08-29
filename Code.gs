@@ -30,11 +30,140 @@ function setup(){
  return"Setup complete";
 }
 function doGet(){return json({ok:true,service:"LIWO Finance Tracker"})}
-function doPost(e){try{let r=JSON.parse(e.postData.contents||"{}");switch(r.action){case"health":return json({ok:true,service:"LIWO Finance Tracker",version:"2026-08-29"});
-case"login":return json(login(r));case"registerFinance":return json(registerFinance(r));case"dashboard":return json(withAuth(r,dashboard));
-case"addPayment":return json(withAuth(r,addPayment));case"addExpense":return json(withAuth(r,addExpense));case"listUsers":return json(withAuth(r,listUsers));
-case"upsertUser":return json(withAuth(r,upsertUser));case"listTools":return json(withAuth(r,listTools));case"tools":return json(withAuth(r,listTools));case"constructionTools":return json(withAuth(r,listTools));case"listConstructionTools":return json(withAuth(r,listTools));case"getTools":return json(withAuth(r,listTools));case"addTool":return json(withAuth(r,addTool));case"updateTool":return json(withAuth(r,updateTool));case"cashBalances":return json(withAuth(r,cashBalances));case"cashPosition":return json(withAuth(r,cashBalances));case"getCashPosition":return json(withAuth(r,cashBalances));case"getCashBalances":return json(withAuth(r,cashBalances));case"updateCashBalance":return json(withAuth(r,updateCashBalance));case"updateCashBalances":return json(withAuth(r,updateCashBalances));case"changeInvite":return json(withAuth(r,changeInvite));case"reopenRegistration":return json(withAuth(r,reopenRegistration));case"upsertClient":return json(withAuth(r,upsertClient));case"archiveClient":return json(withAuth(r,archiveClient));case"restoreClient":return json(withAuth(r,restoreClient));case"deleteClient":return json(withAuth(r,deleteClient));case"notifications":return json(withAuth(r,notifications));case"deletePayment":return json(withAuth(r,deletePayment));case"deleteExpense":return json(withAuth(r,deleteExpense));
-case"deleteUser":return json(withAuth(r,deleteUser));case"deactivateUser":return json(withAuth(r,deactivateUser));case"reactivateUser":return json(withAuth(r,reactivateUser));case"setUserActive":return json(withAuth(r,setUserActive));case"listReceipts":return json(withAuth(r,listReceipts));case"listReceipt":return json(withAuth(r,listReceipts));case"getReceipts":return json(withAuth(r,listReceipts));case"getReceiptList":return json(withAuth(r,listReceipts));case"receipts":return json(withAuth(r,listReceipts));case"receiptGallery":return json(withAuth(r,listReceipts));case"getReceiptGallery":return json(withAuth(r,listReceipts));case"loadReceipts":return json(withAuth(r,listReceipts));case"getReceiptLibrary":return json(withAuth(r,listReceipts));default:return json({ok:false,error:"Unknown action: "+String(r.action||"")})}}catch(x){return json({ok:false,error:String(x.message||x)})}}
+function doPost(e){
+  try{
+    const r = JSON.parse((e && e.postData && e.postData.contents) || "{}");
+    const action = String(r.action || "").trim().toLowerCase();
+
+    switch(action){
+      case "health":
+        return json({ok:true,service:"LIWO Finance Tracker",version:CONFIG.API_VERSION});
+
+      case "login":
+        return json(login(r));
+
+      case "registerfinance":
+        return json(registerFinance(r));
+
+      case "dashboard":
+        return json(withAuth(r,dashboard));
+
+      case "addpayment":
+        return json(withAuth(r,addPayment));
+
+      case "addexpense":
+        return json(withAuth(r,addExpense));
+
+      case "listusers":
+        return json(withAuth(r,listUsers));
+
+      case "upsertuser":
+        return json(withAuth(r,upsertUser));
+
+      // Construction Tools — all common frontend names are supported.
+      case "listtools":
+      case "tools":
+      case "constructiontools":
+      case "listconstructiontools":
+      case "gettools":
+      case "getconstructiontools":
+        return json(withAuth(r,listTools));
+
+      case "addtool":
+        return json(withAuth(r,addTool));
+
+      case "updatetool":
+        return json(withAuth(r,updateTool));
+
+      // Cash Position.
+      case "cashbalances":
+      case "cashposition":
+      case "getcashposition":
+      case "getcashbalances":
+        return json(withAuth(r,cashBalances));
+
+      case "updatecashbalance":
+        return json(withAuth(r,updateCashBalance));
+
+      case "updatecashbalances":
+        return json(withAuth(r,updateCashBalances));
+
+      // Settings / clients.
+      case "changeinvite":
+        return json(withAuth(r,changeInvite));
+
+      case "reopenregistration":
+        return json(withAuth(r,reopenRegistration));
+
+      case "upsertclient":
+        return json(withAuth(r,upsertClient));
+
+      case "archiveclient":
+        return json(withAuth(r,archiveClient));
+
+      case "restoreclient":
+        return json(withAuth(r,restoreClient));
+
+      case "deleteclient":
+        return json(withAuth(r,deleteClient));
+
+      // Notifications — aliases included so the frontend can evolve
+      // without producing an "Unknown action" response.
+      case "notifications":
+      case "getnotifications":
+      case "listnotifications":
+      case "loadnotifications":
+        return json(withAuth(r,notifications));
+
+      // Receipt Library — aliases included.
+      case "listreceipts":
+      case "listreceipt":
+      case "getreceipts":
+      case "getreceiptlist":
+      case "receipts":
+      case "receiptgallery":
+      case "getreceiptgallery":
+      case "loadreceipts":
+      case "getreceiptlibrary":
+        return json(withAuth(r,listReceipts));
+
+      // Record deletion.
+      case "deletepayment":
+        return json(withAuth(r,deletePayment));
+
+      case "deleteexpense":
+        return json(withAuth(r,deleteExpense));
+
+      // User management.
+      case "deleteuser":
+        return json(withAuth(r,deleteUser));
+
+      case "deactivateuser":
+        return json(withAuth(r,deactivateUser));
+
+      case "reactivateuser":
+        return json(withAuth(r,reactivateUser));
+
+      case "setuseractive":
+        return json(withAuth(r,setUserActive));
+
+      default:
+        return json({
+          ok:false,
+          error:"Unknown action: " + String(r.action || ""),
+          action:String(r.action || ""),
+          version:CONFIG.API_VERSION
+        });
+    }
+  }catch(x){
+    return json({
+      ok:false,
+      error:String(x && x.message || x),
+      version:CONFIG.API_VERSION
+    });
+  }
+}
+
 function json(o){return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON)}
 function ensureHeaders_(sh,headers){if(sh.getLastRow()===0){sh.getRange(1,1,1,headers.length).setValues([headers]);return}let existing=sh.getRange(1,1,1,Math.max(sh.getLastColumn(),1)).getValues()[0].map(String);if(existing.length<headers.length){sh.getRange(1,existing.length+1,1,headers.length-existing.length).setValues([headers.slice(existing.length)]);}}
 function receiptRootFolder_(){
@@ -498,3 +627,33 @@ function changeInvite(r,u){adminOnly(u);if(!r.inviteCode||String(r.inviteCode).l
 function reopenRegistration(r,u){adminOnly(u);let uv=rows("users"),fc=uv.filter(x=>String(x[3])==="Finance"&&String(x[4]).toLowerCase()!=="false").length;if(fc>=3)throw Error("There are already 3 active LIWO Executive accounts. Deactivate a Finance account first.");setSetting_("RegistrationOpen",true);audit("REOPEN_REGISTRATION",u,"LIWO Executive registration reopened");return{ok:true}}
 function setSetting_(key,value){let sh=ss().getSheetByName("settings"),v=sh.getDataRange().getValues(),i=v.findIndex(x=>x[0]===key);if(i<0)sh.appendRow([key,value]);else sh.getRange(i+1,2).setValue(value)}
 function audit(a,u,d){ss().getSheetByName("audit").appendRow([new Date(),a,u.username,u.name,d])}
+/**
+ * Shared authorization helper.
+ * Both the Administrator and LIWO Executive/Finance accounts
+ * may perform normal finance operations.
+ */
+function adminOrFinance_(u){
+  if(!u || (u.role!=="Admin" && u.role!=="Finance")){
+    throw Error("Authorized LIWO Finance users only.");
+  }
+}
+
+/**
+ * Diagnostic helper. Run from Apps Script after deployment if needed.
+ */
+function testBackendActions(){
+  const required = [
+    "dashboard",
+    "addPayment",
+    "addExpense",
+    "notifications",
+    "listTools",
+    "addTool",
+    "listReceipts"
+  ];
+  return {
+    ok:true,
+    version:CONFIG.API_VERSION,
+    actions:required
+  };
+}
