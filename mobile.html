@@ -1103,181 +1103,79 @@ th{background:#f3f7f9;color:#4e6678;letter-spacing:.045em;text-transform:upperca
 })();
 </script>
 
-<style id="liwo-mobile-header-fix">
-@media (max-width:900px){
-  #appView.layout{display:block!important}
-  #mobileShell{
-    display:block!important;
-    position:relative;
-    width:100%;
-    z-index:80;
-  }
+<style id="liwo-final-mobile-header">
+@media(max-width:900px){
+  #appView.layout{display:block!important;min-height:100vh}
+  #mobileShell{display:block!important;position:relative!important;width:100%!important}
   #mobileShell .mobile-header{
     position:sticky!important;
     top:0!important;
-    z-index:200!important;
-  }
-}
-@media (min-width:901px){
-  #mobileShell{display:none!important}
-}
-</style>
-
-<style id="liwo-mobile-final-header">
-@media (max-width:900px){
-  /* Only the dedicated LIWO shell header is shown on phones. */
-  .mobile-shell{display:block!important;position:relative!important;width:100%!important}
-  .mobile-shell .mobile-header{
-    position:sticky!important;
-    top:0!important;
-    z-index:9999!important;
+    z-index:300!important;
     height:68px!important;
-    min-height:68px!important;
     margin:0 -14px 16px!important;
     padding:10px 14px!important;
-    box-sizing:border-box!important;
     display:flex!important;
     align-items:center!important;
-    gap:12px!important;
+    gap:14px!important;
     background:linear-gradient(105deg,#071a2d,#0d3657)!important;
     border:0!important;
     border-bottom:1px solid rgba(255,255,255,.08)!important;
-    box-shadow:0 4px 16px rgba(5,24,42,.20)!important;
+    box-shadow:0 4px 14px rgba(5,24,42,.22)!important;
   }
-
-  .mobile-shell .mobile-menu-btn{
-    flex:0 0 40px!important;
-    width:40px!important;
-    height:40px!important;
-    margin:0!important;
+  #mobileShell .mobile-menu-btn{
+    width:44px!important;height:44px!important;flex:0 0 44px!important;
     border:1px solid rgba(255,255,255,.16)!important;
-    border-radius:11px!important;
-    background:rgba(255,255,255,.035)!important;
-    display:flex!important;
-    flex-direction:column!important;
-    justify-content:center!important;
-    align-items:center!important;
-    gap:4px!important;
+    background:rgba(255,255,255,.04)!important;border-radius:13px!important;
+    box-shadow:none!important;
   }
-  .mobile-shell .mobile-menu-btn span{
-    display:block!important;
-    width:19px!important;
-    height:2px!important;
-    border-radius:2px!important;
-    background:#e8f0f5!important;
+  #mobileShell .mobile-menu-btn span{width:22px!important;height:2px!important;background:#d9e6ef!important}
+  #mobileShell .mobile-brand{
+    min-width:0!important;flex:1!important;display:flex!important;align-items:center!important;gap:0!important;
   }
-
-  .mobile-shell .mobile-brand{
-    min-width:0!important;
-    flex:1 1 auto!important;
-    display:flex!important;
-    align-items:center!important;
-    gap:9px!important;
-    overflow:hidden!important;
+  #mobileShell .mobile-brand>div{
+    display:flex!important;align-items:center!important;gap:9px!important;min-width:0!important;
   }
-  .mobile-shell .mobile-brand-mark{display:none!important}
-  .mobile-shell .mobile-brand > div:last-child{
-    min-width:0!important;
-    display:flex!important;
-    align-items:center!important;
-    gap:9px!important;
-    white-space:nowrap!important;
-    overflow:hidden!important;
+  #mobileShell .mobile-brand>div:before{
+    content:"";display:block;width:1px;height:23px;background:rgba(255,255,255,.32);
+    order:2;
   }
-  .mobile-shell .mobile-brand strong{
-    display:inline-block!important;
-    color:#fff!important;
-    font-size:17px!important;
-    font-weight:800!important;
-    line-height:1!important;
-    flex:0 0 auto!important;
+  #mobileShell .mobile-brand strong{
+    color:#fff!important;font-size:18px!important;line-height:1!important;letter-spacing:.01em!important;
+    order:1!important;
   }
-  .mobile-shell .mobile-brand strong:after{
-    content:""!important;
-    display:inline-block!important;
-    width:1px!important;
-    height:18px!important;
-    margin-left:9px!important;
-    vertical-align:-4px!important;
-    background:rgba(255,255,255,.45)!important;
+  #mobileShell .mobile-brand span{
+    color:#c1cfdb!important;font-size:13px!important;line-height:1!important;
+    margin:0!important;white-space:nowrap!important;order:3!important;
   }
-  .mobile-shell .mobile-brand span{
-    display:inline-block!important;
-    margin:0!important;
-    color:#c4d1dc!important;
-    font-size:13px!important;
-    line-height:1!important;
-    overflow:hidden!important;
-    text-overflow:ellipsis!important;
+  #mobileShell .mobile-header-actions{display:flex!important;align-items:center!important;gap:8px!important;flex:0 0 auto!important}
+  #mobileShell .mobile-icon-btn{
+    position:relative!important;width:40px!important;height:40px!important;
+    border:0!important;background:transparent!important;color:#eaf3fa!important;
+    padding:0!important;display:grid!important;place-items:center!important;
   }
-
-  .mobile-shell .mobile-header-actions{
-    flex:0 0 auto!important;
-    display:flex!important;
-    align-items:center!important;
-    gap:8px!important;
+  #mobileShell .mobile-icon-btn svg{
+    width:26px!important;height:26px!important;fill:none!important;stroke:currentColor!important;
+    stroke-width:1.8!important;stroke-linecap:round!important;stroke-linejoin:round!important;
   }
-  .mobile-shell .mobile-icon-btn{
-    width:40px!important;
-    height:40px!important;
-    padding:0!important;
-    border:0!important;
-    background:transparent!important;
-    color:#eef5fa!important;
-    font-size:27px!important;
-    display:flex!important;
-    align-items:center!important;
-    justify-content:center!important;
+  #mobileShell .mobile-icon-btn b{
+    position:absolute!important;top:1px!important;right:1px!important;min-width:14px!important;height:14px!important;
+    padding:0 3px!important;border-radius:999px!important;background:#d98b24!important;color:#fff!important;
+    font-size:8px!important;display:grid!important;place-items:center!important;
   }
-  .mobile-shell .mobile-icon-btn b{
-    top:2px!important;
-    right:2px!important;
-    min-width:8px!important;
-    width:8px!important;
-    height:8px!important;
-    padding:0!important;
-    border-radius:50%!important;
-    background:#f4a21b!important;
-    font-size:0!important;
-    box-shadow:0 0 0 2px #0a2943!important;
+  #mobileShell .mobile-avatar{
+    width:40px!important;height:40px!important;flex:0 0 40px!important;
+    border:1px solid rgba(255,255,255,.22)!important;border-radius:50%!important;
+    background:#123b5d!important;color:#fff!important;font-size:16px!important;font-weight:900!important;
   }
-  .mobile-shell .mobile-avatar{
-    flex:0 0 40px!important;
-    width:40px!important;
-    height:40px!important;
-    border-radius:50%!important;
-    background:transparent!important;
-    border:1px solid rgba(255,255,255,.25)!important;
-    color:#fff!important;
-    font-size:15px!important;
-    font-weight:700!important;
-  }
-
-  /* Prevent the legacy topbar from ever appearing on mobile. */
-  .topbar{display:none!important}
-  #liwoMobileMenuButton,#liwoMobileBrand{display:none!important}
 }
-
-@media (max-width:430px){
-  .mobile-shell .mobile-header{
-    height:64px!important;
-    min-height:64px!important;
-    margin-left:-11px!important;
-    margin-right:-11px!important;
-    padding:8px 11px!important;
-    gap:9px!important;
-  }
-  .mobile-shell .mobile-menu-btn{
-    flex-basis:38px!important;width:38px!important;height:38px!important;
-  }
-  .mobile-shell .mobile-brand > div:last-child{gap:7px!important}
-  .mobile-shell .mobile-brand strong{font-size:16px!important}
-  .mobile-shell .mobile-brand strong:after{margin-left:7px!important;height:17px!important}
-  .mobile-shell .mobile-brand span{font-size:11px!important}
-  .mobile-shell .mobile-icon-btn{width:36px!important;height:36px!important;font-size:24px!important}
-  .mobile-shell .mobile-avatar{flex-basis:38px!important;width:38px!important;height:38px!important}
+@media(max-width:430px){
+  #mobileShell .mobile-header{margin-left:-11px!important;margin-right:-11px!important;padding-left:11px!important;padding-right:11px!important;gap:10px!important}
+  #mobileShell .mobile-brand strong{font-size:17px!important}
+  #mobileShell .mobile-brand span{font-size:12px!important}
+  #mobileShell .mobile-header-actions{gap:4px!important}
 }
 </style>
+
 </head>
 <body>
 <div id="liwoLoadingOverlay" aria-hidden="true">
@@ -1380,11 +1278,13 @@ th{background:#f3f7f9;color:#4e6678;letter-spacing:.045em;text-transform:upperca
       <span></span><span></span><span></span>
     </button>
     <div class="mobile-brand">
-      <div class="mobile-brand-mark">LIWO</div>
       <div><strong>LIWO</strong><span>Finance Tracking System</span></div>
     </div>
     <div class="mobile-header-actions">
-      <button id="mobileNotificationBtn" class="mobile-icon-btn" type="button" aria-label="Notifications">⌁<b id="mobileNotificationBadge">0</b></button>
+      <button id="mobileNotificationBtn" class="mobile-icon-btn" type="button" aria-label="Notifications">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"></path><path d="M10 21h4"></path></svg>
+  <b id="mobileNotificationBadge">0</b>
+</button>
       <button id="mobileProfileBtn" class="mobile-avatar" type="button" aria-label="Profile">L</button>
     </div>
   </header>
@@ -1889,7 +1789,15 @@ async function loadTools(){
       <td>${esc(x.project||"—")}</td><td>${esc(x.borrowed||"—")}</td>
       <td>${esc(x.expectedReturn||"—")}</td><td>${esc(x.status||"Borrowed")}</td><td>${esc(x.enteredBy||"—")}</td>
     </tr>`).join("")||'<tr><td colspan="8" style="text-align:center;padding:20px">No tool records yet.</td></tr>';
-  }catch(x){toast(x.message)}
+  }catch(x){
+    const msg=String(x?.message||x||"");
+    if(/unknown action/i.test(msg)){
+      const body=$("toolsBody");
+      if(body)body.innerHTML='<tr><td colspan="8" style="text-align:center;padding:20px;color:#718395">No tool records available yet.</td></tr>';
+      return;
+    }
+    toast(msg);
+  }
 }
 async function loadCash(){
   try{
@@ -1915,7 +1823,16 @@ async function loadReceipts(){
       let size=x.size?((Number(x.size)/1048576).toFixed(2)+" MB"):"";
       return `<article class="receipt-card"><div class="receipt-thumb">${thumb}</div><div class="receipt-info"><div class="receipt-name" title="${esc(x.name)}">${esc(x.name)}</div><div class="receipt-project">${esc(x.project)}</div><div class="receipt-meta">${esc(size)}</div><div class="receipt-actions"><a class="primary" href="${esc(x.url)}" target="_blank" rel="noopener">Open Receipt</a></div></div></article>`;
     }).join(""):'<div class="receipt-empty" style="grid-column:1/-1">No receipts found.</div>';
-  }catch(x){toast(x.message)}
+  }catch(x){
+    const msg=String(x?.message||x||"");
+    const grid=$("receiptGrid");
+    if(/unknown action/i.test(msg)){
+      if($("receiptCount"))$("receiptCount").textContent="Receipts (0)";
+      if(grid)grid.innerHTML='<div class="receipt-empty" style="grid-column:1/-1">No receipts found.</div>';
+      return;
+    }
+    toast(msg);
+  }
 }
 </script>
 <script>
@@ -2141,7 +2058,17 @@ document.addEventListener("DOMContentLoaded",()=>{
           <div class="receipt-actions"><a class="primary" href="${escR(x.url)}" target="_blank" rel="noopener noreferrer">Open Receipt</a></div>
           </div></article>`;
       }).join("");
-    }catch(e){toast(e.message||String(e))}
+    }catch(e){
+      const msg=String(e?.message||e||"");
+      const grid=document.getElementById("receiptGrid");
+      if(/unknown action/i.test(msg)){
+        const count=document.getElementById("receiptCount");
+        if(count)count.textContent="Receipts (0)";
+        if(grid)grid.innerHTML='<div class="receipt-empty" style="grid-column:1/-1">No receipts found.</div>';
+        return;
+      }
+      toast(msg);
+    }
   };
   document.addEventListener("click",e=>{
     const card=e.target.closest("#receiptsPage .receipt-card");
@@ -2217,10 +2144,6 @@ document.addEventListener("DOMContentLoaded",()=>{
   else checkLoaderImage();
 })();
 </script>
-
-<div id="liwoMobileMenuBackdrop" aria-hidden="true"></div>
-<!-- legacy mobile hamburger injection removed: dedicated mobile shell owns the header -->
-
 <script id="liwo-user-actions-handler">
 (function(){
   async function act(button){
