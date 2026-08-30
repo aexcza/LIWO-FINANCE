@@ -2109,57 +2109,16 @@ function printReport(){
 </div>
 <div class="liwo-report-records-footer" id="liwoReportRecordsFooter">GENERATED FROM LIWO FINANCE</div>
 </div>
-<script id="liwo-navigation-space-guard">
-(function(){
-  function activate(page){
-    if(!page)return;
-    document.querySelectorAll('.page').forEach(function(el){
-      var on=el.id===page+'Page';
-      el.classList.toggle('active',on);
-      el.classList.toggle('hidden',!on);
-      el.style.display=on?'block':'none';
-      el.style.height='auto';
-      el.style.minHeight='0';
-    });
-  }
-  window.addEventListener('DOMContentLoaded',function(){
-    document.querySelectorAll('.nav button,.mobile-nav button').forEach(function(btn){
-      btn.addEventListener('click',function(){ setTimeout(function(){ activate(btn.dataset.page); },0); },true);
-    });
-  });
-})();
-<\/script>
 
 
-<script id="liwo-admin-session-visibility">
-(function(){
-  function syncAdminVisibility(){
-    var isAdmin=String(window.session?.user?.role||"").trim().toLowerCase()==="admin";
-    document.body.classList.toggle("liwo-admin-session",isAdmin);
-    var nav=document.getElementById("usersNav"), mnav=document.getElementById("mobileUsersNav"), page=document.getElementById("usersPage");
-    if(nav)nav.classList.toggle("hidden",!isAdmin);
-    if(mnav)mnav.classList.toggle("hidden",!isAdmin);
-    if(!isAdmin && page && (page.classList.contains("active") || !page.classList.contains("hidden"))){
-      if(typeof window.switchPage==="function")window.switchPage("dashboard");
-      else {page.classList.add("hidden");page.classList.remove("active");}
-    }
-  }
-  document.addEventListener("DOMContentLoaded",syncAdminVisibility);
-  var oldShow=window.showApp;
-  if(typeof oldShow==="function"){
-    window.showApp=function(){var r=oldShow.apply(this,arguments);syncAdminVisibility();return r;};
-  }
-  document.addEventListener("click",function(e){
-    var b=e.target.closest("[data-page=\"users\"]");
-    if(!b)return;
-    if(String(window.session?.user?.role||"").trim().toLowerCase()!=="admin"){
-      e.preventDefault(); e.stopImmediatePropagation();
-      syncAdminVisibility();
-      if(typeof window.toast==="function")toast("User Management is available to administrators only.");
-    }
-  },true);
-})();
-</script>
+
+
+
+
+
+
+
+
 </body></html>`);
   w.document.close();w.focus();setTimeout(()=>w.print(),500);
 }
@@ -2875,3 +2834,60 @@ tbody:empty{display:none!important}
   },true);
 })();
 </script>
+<script id="liwo-navigation-space-guard">
+(function(){
+  function activate(page){
+    if(!page)return;
+    document.querySelectorAll('.page').forEach(function(el){
+      var on=el.id===page+'Page';
+      el.classList.toggle('active',on);
+      el.classList.toggle('hidden',!on);
+      el.style.display=on?'block':'none';
+      el.style.height='auto';
+      el.style.minHeight='0';
+    });
+  }
+  document.addEventListener('DOMContentLoaded',function(){
+    document.querySelectorAll('.nav button,.mobile-nav button').forEach(function(btn){
+      btn.addEventListener('click',function(){setTimeout(function(){activate(btn.dataset.page)},0)},true);
+    });
+  });
+})();
+</script>
+<script id="liwo-admin-session-visibility">
+(function(){
+  function sync(){
+    var admin=String(window.session?.user?.role||'').trim().toLowerCase()==='admin';
+    var nav=document.getElementById('usersNav'),mobile=document.getElementById('mobileUsersNav'),page=document.getElementById('usersPage');
+    if(nav)nav.classList.toggle('hidden',!admin);
+    if(mobile)mobile.classList.toggle('hidden',!admin);
+    if(!admin && page && !page.classList.contains('hidden')){
+      if(typeof window.switchPage==='function')window.switchPage('dashboard');
+      else {page.classList.add('hidden');page.classList.remove('active');page.style.display='none';}
+    }
+  }
+  window.syncLIWOAdminVisibility=sync;
+  document.addEventListener('DOMContentLoaded',sync);
+  var timer=setInterval(function(){
+    if(typeof window.showApp==='function'){
+      clearInterval(timer);
+      if(!window.showApp.__liwoAdminWrapped){
+        var original=window.showApp;
+        var wrapped=function(){var result=original.apply(this,arguments);sync();return result};
+        wrapped.__liwoAdminWrapped=true;
+        window.showApp=wrapped;
+      }
+      sync();
+    }
+  },50);
+  document.addEventListener('click',function(e){
+    var b=e.target.closest('[data-page="users"]');
+    if(b && String(window.session?.user?.role||'').trim().toLowerCase()!=='admin'){
+      e.preventDefault();e.stopImmediatePropagation();
+      sync();
+      if(typeof window.toast==='function')window.toast('User Management is available to administrators only.');
+    }
+  },true);
+})();
+</script>
+</body></html>
