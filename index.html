@@ -1594,17 +1594,6 @@ body.liwO-operational-page #globalProjectScope,
 }
 </style>
 
-
-<style id="liwo-compared-final-page-visibility">
-/* Use the original index page-isolation model. Only the selected module may occupy layout space. */
-.page:not(.active){display:none!important;visibility:hidden!important;}
-.page.active{display:block!important;visibility:visible!important;}
-.page.hidden{display:none!important;visibility:hidden!important;}
-/* Keep operational modules in normal document flow; never reserve artificial height. */
-#toolsPage.active,#cashPage.active,#receiptsPage.active{position:static!important;height:auto!important;min-height:0!important;max-height:none!important;margin:0!important;overflow:visible!important;}
-#toolsPage:not(.active),#cashPage:not(.active),#receiptsPage:not(.active){display:none!important;height:0!important;min-height:0!important;max-height:0!important;margin:0!important;padding:0!important;overflow:hidden!important;}
-body.liwO-operational-page #globalProjectScope{display:none!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;overflow:hidden!important;}
-</style>
 </head>
 <body>
 <div id="liwoLoadingOverlay" aria-hidden="true">
@@ -2680,13 +2669,123 @@ function printReport(){
 
 
 
+<script id="liwo-operational-gap-runtime-fix">
+(function(){
+  const IDS = ["toolsPage","cashPage","receiptsPage"];
+
+  function normalize(){
+    const active = document.querySelector(".page.active");
+    const isOperational = !!active && IDS.indexOf(active.id) !== -1;
+    document.body.classList.toggle("liwO-operational-page", isOperational);
+
+    const scope = document.getElementById("globalProjectScope");
+    if (scope && isOperational) {
+      scope.style.display = "none";
+      scope.style.height = "0";
+      scope.style.minHeight = "0";
+      scope.style.maxHeight = "0";
+      scope.style.margin = "0";
+      scope.style.padding = "0";
+      scope.style.overflow = "hidden";
+    }
+
+    IDS.forEach(function(id){
+      const el = document.getElementById(id);
+      if(!el) return;
+
+      if(el.classList.contains("active")){
+        el.style.display = "block";
+        el.style.height = "auto";
+        el.style.minHeight = "0";
+        el.style.maxHeight = "none";
+        el.style.margin = "0";
+        el.style.padding = "0";
+        el.style.transform = "none";
+      }else{
+        el.style.display = "none";
+      }
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", normalize);
+  window.addEventListener("load", normalize);
+
+  document.addEventListener("click", function(e){
+    const btn = e.target.closest(".nav button, .mobile-nav button");
+    if(btn && IDS.indexOf(btn.dataset.page + "Page") !== -1){
+      requestAnimationFrame(normalize);
+      setTimeout(normalize, 30);
+      setTimeout(normalize, 150);
+    }
+  });
+
+  if(window.MutationObserver){
+    const observer = new MutationObserver(function(){
+      if(document.querySelector(".page.active")){
+        normalize();
+      }
+    });
+    document.addEventListener("DOMContentLoaded", function(){
+      observer.observe(document.body, {
+        subtree:true,
+        attributes:true,
+        attributeFilter:["class","style"]
+      });
+    });
+  }
+})();
+</script>
 
 
+<script id="liwo-premium-operational-runtime">
+(function(){
+ const ids=["toolsPage","cashPage","receiptsPage"];
+ function fix(){
+   const active=document.querySelector(".page.active");
+   const operational=active && ids.includes(active.id);
+   document.body.classList.toggle("liwO-operational-page",!!operational);
+   const scope=document.getElementById("globalProjectScope");
+   if(scope && operational){
+     scope.style.display="none";scope.style.height="0";scope.style.minHeight="0";
+     scope.style.maxHeight="0";scope.style.margin="0";scope.style.padding="0";scope.style.overflow="hidden";
+   }
+   ids.forEach(id=>{
+     const el=document.getElementById(id);
+     if(!el)return;
+     if(el.classList.contains("active")){
+       el.style.display="block";el.style.height="auto";el.style.minHeight="0";el.style.maxHeight="none";
+     }
+   });
+ }
+ document.addEventListener("DOMContentLoaded",fix);
+ window.addEventListener("load",fix);
+ document.addEventListener("click",e=>{
+   if(e.target.closest(".nav button,.mobile-nav button")){
+     requestAnimationFrame(fix);setTimeout(fix,50);setTimeout(fix,150);
+   }
+ });
+})();
+</script>
 
 
-
-
-
+<script id="liwo-final-vertical-navigation-fix">
+(function(){
+  function top(){
+    try{
+      window.scrollTo({top:0,left:0,behavior:'instant'});
+      document.documentElement.scrollTop=0;
+      document.body.scrollTop=0;
+    }catch(e){ window.scrollTo(0,0); }
+  }
+  document.addEventListener('click',function(e){
+    var b=e.target.closest('.nav button,.mobile-nav button,[data-page]');
+    if(!b) return;
+    setTimeout(top,0);
+    setTimeout(top,80);
+    setTimeout(top,180);
+  },true);
+})();
+</script>
 </body></html>`);
   w.document.close();w.focus();setTimeout(()=>w.print(),500);
 }
@@ -3487,6 +3586,122 @@ tbody:empty{display:none!important}
     setTimeout(top,80);
     setTimeout(top,180);
   },true);
+})();
+</script>
+
+<!-- Final page-layout and access-control guard.  Kept last so it wins over legacy layout patches above. -->
+<style id="liwo-page-gap-and-user-access-final">
+/* The project scope strip is not used on these standalone pages and must never reserve space. */
+body.liwO-standalone-page #globalProjectScope{
+  display:none!important;
+  width:0!important;
+  height:0!important;
+  min-height:0!important;
+  max-height:0!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  overflow:hidden!important;
+}
+
+/* Do not let a legacy fixed/minimum height create a blank area above page content. */
+#toolsPage,
+#cashPage,
+#receiptsPage,
+#usersPage,
+#toolsPage.active,
+#cashPage.active,
+#receiptsPage.active,
+#usersPage.active{
+  display:none;
+  position:static!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:visible!important;
+}
+#toolsPage.active,
+#cashPage.active,
+#receiptsPage.active,
+#usersPage.active{display:block!important;}
+#toolsPage.active > *,
+#cashPage.active > *,
+#receiptsPage.active > *,
+#usersPage.active > *{
+  position:static!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+}
+#toolsPage.active > :first-child,
+#cashPage.active > :first-child,
+#receiptsPage.active > :first-child,
+#usersPage.active > :first-child{margin-top:0!important;}
+
+/* User Management is an administrator-only page in both desktop and mobile navigation. */
+body:not(.liwo-admin-session) #usersNav,
+body:not(.liwo-admin-session) #mobileUsersNav,
+body:not(.liwo-admin-session) #usersPage{display:none!important;}
+</style>
+
+<script id="liwo-page-gap-and-user-access-final-script">
+(function(){
+  var standalone={tools:true,cash:true,receipts:true,users:true};
+  function isAdmin(){
+    return String(window.session&&window.session.user&&window.session.user.role||'').trim().toLowerCase()==='admin';
+  }
+  function sync(){
+    var active=document.querySelector('.page.active');
+    var page=active ? active.id.replace(/Page$/,'') : '';
+    var standalonePage=!!standalone[page];
+    document.body.classList.toggle('liwO-standalone-page',standalonePage);
+
+    var nav=document.getElementById('usersNav');
+    var mobileNav=document.getElementById('mobileUsersNav');
+    var usersPage=document.getElementById('usersPage');
+    var admin=isAdmin();
+    if(nav){nav.classList.toggle('hidden',!admin);nav.style.display=admin?'':'none';}
+    if(mobileNav){mobileNav.classList.toggle('hidden',!admin);mobileNav.style.display=admin?'':'none';}
+    if(!admin && usersPage){
+      usersPage.classList.remove('active');
+      usersPage.classList.add('hidden');
+      usersPage.style.display='none';
+    }
+
+    /* Clear inline dimensions left by earlier navigation handlers. */
+    var scope=document.getElementById('globalProjectScope');
+    if(scope && standalonePage){
+      scope.style.display='none';
+      scope.style.height='0';
+      scope.style.minHeight='0';
+      scope.style.maxHeight='0';
+      scope.style.margin='0';
+      scope.style.padding='0';
+    }
+  }
+  document.addEventListener('DOMContentLoaded',sync);
+  window.addEventListener('load',sync);
+  document.addEventListener('click',function(event){
+    if(event.target.closest('.nav button,.mobile-nav button,[data-page]')){
+      setTimeout(sync,0);
+      setTimeout(sync,150);
+    }
+  },true);
+  var originalShowApp=window.showApp;
+  if(typeof originalShowApp==='function'){
+    window.showApp=function(){var result=originalShowApp.apply(this,arguments);sync();return result;};
+  }
+  var originalSwitchPage=window.switchPage;
+  if(typeof originalSwitchPage==='function'){
+    window.switchPage=function(page){
+      if(page==='users'&&!isAdmin()) page='dashboard';
+      var result=originalSwitchPage.call(this,page);
+      sync();
+      return result;
+    };
+  }
 })();
 </script>
 </body></html>
