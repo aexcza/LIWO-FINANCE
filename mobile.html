@@ -781,24 +781,8 @@ textarea{min-height:82px;resize:vertical}
 
 <script id="liwo-initial-loader">
 (function(){
-  function bootLoader(){
-    var el=document.getElementById("liwoLoadingOverlay");
-    if(!el)return;
-    el.classList.add("show");
-    el.setAttribute("aria-hidden","false");
-    var txt=el.querySelector(".lw-loader-text");
-    if(txt)txt.textContent="Preparing LIWO Finance…";
-    window.setTimeout(function(){
-      if(window.sessionStorage && sessionStorage.getItem("cf_session")){
-        /* The restored session will keep the loader visible through the API call. */
-      }else{
-        el.classList.remove("show");
-        el.setAttribute("aria-hidden","true");
-      }
-    },900);
-  }
-  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bootLoader,{once:true});
-  else bootLoader();
+  // Loader is intentionally NOT shown on initial page load.
+  // It is shown only during the successful login/signup -> dashboard transition.
 })();
 </script>
 
@@ -1939,13 +1923,10 @@ function hideLIWOLoader(){
   },wait);
 }
 async function api(action,payload={}){
-  showLIWOLoader(action==="login"?"Signing you in…":"Updating LIWO Finance…");
-  try{
-    let r=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({...payload,action})});
-    let o=await r.json();
-    if(!o.ok)throw Error(o.error||"Request failed");
-    return o;
-  }finally{hideLIWOLoader()}
+  let r=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({...payload,action})});
+  let o=await r.json();
+  if(!o.ok)throw Error(o.error||"Request failed");
+  return o;
 }
 window.api=api;
 
@@ -1957,22 +1938,29 @@ async function login(e){
     const o=await api("login",{username:$("loginUsername").value.trim(),password:$("loginPassword").value});
     session={token:o.token,user:o.user};
     sessionStorage.setItem("cf_session",JSON.stringify(session));
-    showApp();
-    switchPage("dashboard");
 
-    // Do not let a dashboard/project-data error turn a successful
-    // authentication into a failed sign-in.
+    // Show the animated loader ONLY for the successful login -> dashboard transition.
+    showLIWOLoader("Preparing your dashboard…");
     try{
-      await refresh();
-    }catch(err){
-      console.error("Dashboard initialization failed:",err);
-      toast(err.message||"Signed in, but dashboard data could not be loaded.");
-    }
+      showApp();
+      switchPage("dashboard");
 
-    try{
-      await loadServerNotifications();
-    }catch(err){
-      console.error("Notification initialization failed:",err);
+      // Do not let a dashboard/project-data error turn a successful
+      // authentication into a failed sign-in.
+      try{
+        await refresh();
+      }catch(err){
+        console.error("Dashboard initialization failed:",err);
+        toast(err.message||"Signed in, but dashboard data could not be loaded.");
+      }
+
+      try{
+        await loadServerNotifications();
+      }catch(err){
+        console.error("Notification initialization failed:",err);
+      }
+    }finally{
+      hideLIWOLoader();
     }
   }catch(x){
     $("loginError").textContent=x.message||"Unable to sign in.";
