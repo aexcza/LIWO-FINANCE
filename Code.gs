@@ -158,6 +158,7 @@ function getProjectFinancialSummary_(startDate,endDate){
   const hasRange=!!(startDate||endDate);
   const startKey=startDate?Utilities.formatDate(new Date(startDate),tz,"yyyy-MM-dd"):null;
   const endKey=endDate?Utilities.formatDate(new Date(endDate),tz,"yyyy-MM-dd"):null;
+
   const inRange=function(value){
     if(!hasRange)return true;
     if(value===""||value===null||value===undefined)return false;
@@ -178,142 +179,180 @@ function getProjectFinancialSummary_(startDate,endDate){
       contract:Number(c.ContractValue||c.Budget||0)||0,
       payments:0,
       expenses:0,
+      otherIncome:0,
+      refunds:0,
+      netMovement:0,
       uncollected:0,
       profit:0,
-      margin:0
+      margin:0,
+      periodTransactionCount:0,
+      paymentCount:0,
+      expenseCount:0,
+      categories:{}
     };
   });
 
-  // Keep a separate lifetime payment total so a rolling weekly report can
-  // show weekly activity while still showing the true outstanding balance.
+  // Lifetime payments are retained only for the true contract balance.
   const lifetimePayments={};
   payments.forEach(function(p){
     const id=String(p.ClientID||"").trim();
     if(!projectMap[id])return;
-    const amount=Number(p.Amount||0)||0;
+    const amount=Number(p.Amount||p.AmountPaid||0)||0;
     lifetimePayments[id]=(lifetimePayments[id]||0)+amount;
-    if(inRange(p.Date)) projectMap[id].payments += amount;
+    if(inRange(p.Date||p.Timestamp)){
+      projectMap[id].payments+=amount;
+      projectMap[id].paymentCount++;
+      projectMap[id].periodTransactionCount++;
+    }
   });
 
   expenses.forEach(function(e){
     const id=String(e.ClientID||"").trim();
-    if(!projectMap[id] || !inRange(e.Date))return;
-    projectMap[id].expenses += Number(e.Amount||0)||0;
+    if(!projectMap[id] || !inRange(e.Date||e.Timestamp))return;
+    const amount=Number(e.Amount||0)||0;
+    const type=String(e.Type||"Expense").trim().toLowerCase();
+    const category=String(e.Category||"Uncategorized").trim()||"Uncategorized";
+    projectMap[id].periodTransactionCount++;
+
+    if(type==="other income"){
+      projectMap[id].otherIncome+=amount;
+      return;
+    }
+    if(type==="refund"){
+      projectMap[id].refunds+=amount;
+      return;
+    }
+
+    projectMap[id].expenses+=amount;
+    projectMap[id].expenseCount++;
+    projectMap[id].categories[category]=(projectMap[id].categories[category]||0)+amount;
   });
 
   return Object.keys(projectMap).map(function(id){
     const x=projectMap[id];
-    const collected=hasRange?(lifetimePayments[id]||0):x.payments;
-    x.uncollected=Math.max(0,x.contract-collected);
-    x.profit=x.payments-x.expenses;
+    const collectedLifetime=lifetimePayments[id]||0;
+    x.uncollected=Math.max(0,x.contract-collectedLifetime);
+    x.profit=x.payments+x.otherIncome-x.refunds-x.expenses;
+    x.netMovement=x.payments+x.otherIncome-x.refunds-x.expenses;
     x.margin=x.payments>0?(x.profit/x.payments)*100:0;
-    x.collectionPct=x.contract>0?(collected/x.contract)*100:0;
+    x.collectionPct=x.contract>0?(collectedLifetime/x.contract)*100:0;
+    x.spentPctOfReceived=x.payments>0?(x.expenses/x.payments)*100:0;
+    x.remainingPctOfReceived=x.payments>0?((x.payments-x.expenses)/x.payments)*100:0;
     x.budgetUsed=x.contract>0?(x.expenses/x.contract)*100:0;
+
+    const categoryEntries=Object.keys(x.categories).map(function(k){
+      return {name:k,amount:x.categories[k]};
+    }).sort(function(a,b){return b.amount-a.amount;});
+    x.topExpenseCategory=categoryEntries[0]||{name:"No expense category recorded",amount:0};
+    x.secondExpenseCategory=categoryEntries[1]||null;
+    x.categoryBreakdown=categoryEntries;
     x.health=x.budgetUsed>=100 || x.profit<0 ? "Critical" :
       (x.budgetUsed>=80 || x.collectionPct<50 ? "Attention" : "Healthy");
     return x;
   });
 }
-function buildFinancialReportHtml_(periodLabel, rows){
-  let totalContract=0,totalPayments=0,totalExpenses=0,totalProfit=0,totalUncollected=0;
-  let healthy=0,attention=0,critical=0;
+function buildFinancialReportHtml_(periodLabel, rows, reportType){
+  reportType=String(reportType||"Weekly");
+  let totalContract=0,totalPayments=0,totalExpenses=0,totalOtherIncome=0,totalRefunds=0,totalProfit=0,totalUncollected=0;
   rows.forEach(function(r){
     totalContract+=r.contract; totalPayments+=r.payments; totalExpenses+=r.expenses;
+    totalOtherIncome+=r.otherIncome||0; totalRefunds+=r.refunds||0;
     totalProfit+=r.profit; totalUncollected+=r.uncollected;
-    if(r.health==="Healthy")healthy++;
-    else if(r.health==="Attention")attention++;
-    else critical++;
   });
 
-  const margin=totalPayments>0?(totalProfit/totalPayments)*100:0;
+  const netMovement=totalPayments+totalOtherIncome-totalRefunds-totalExpenses;
   const collectionPct=totalContract>0?(totalPayments/totalContract)*100:0;
-  const budgetUsed=totalContract>0?(totalExpenses/totalContract)*100:0;
+  const spentPct=totalPayments>0?(totalExpenses/totalPayments)*100:0;
+  const remainingReceived=totalPayments-totalExpenses;
+  const remainingPct=totalPayments>0?(remainingReceived/totalPayments)*100:0;
+  const margin=totalPayments>0?(totalProfit/totalPayments)*100:0;
 
   const money=function(n){
-    return "₱"+Number(n||0).toLocaleString("en-PH",{
-      minimumFractionDigits:2,maximumFractionDigits:2
-    });
+    return "₱"+Number(n||0).toLocaleString("en-PH",{minimumFractionDigits:2,maximumFractionDigits:2});
   };
+  const pct=function(n){return Number(n||0).toFixed(1)+"%";};
   const esc=function(s){
     return String(s??"").replace(/[&<>"']/g,function(m){
       return({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"})[m];
     });
   };
 
-  const ranked=rows.slice().sort(function(a,b){return b.profit-a.profit;});
-  const top=ranked[0];
-  const negative=rows.filter(function(r){return r.profit<0;});
-  const warningProjects=rows.filter(function(r){
-    return r.health!=="Healthy" || r.uncollected>0;
-  });
-
-  let narrative="";
-  if(!rows.length){
-    narrative="No project records were available for this reporting period. Once projects and financial activity are recorded, the weekly report will provide a project-by-project financial assessment.";
-  }else{
-    narrative += "This weekly financial report provides management with a consolidated view of LIWO's current project finances for "+periodLabel+". ";
-    narrative += "Across "+rows.length+" project"+(rows.length===1?"":"s")+", the portfolio has a combined contract or budget value of "+money(totalContract)+", with "+money(totalPayments)+" in client payments recorded and "+money(totalExpenses)+" in recorded expenses. ";
-    narrative += "The resulting cash-based management profit is "+money(totalProfit)+", representing an overall margin of "+margin.toFixed(1)+"% of client payments. ";
-    narrative += "Approximately "+collectionPct.toFixed(1)+"% of the combined contract or budget value has been collected, leaving "+money(totalUncollected)+" uncollected. ";
-    narrative += "Recorded expenses represent "+budgetUsed.toFixed(1)+"% of the combined contract or budget value.";
-
-    narrative += " Project health is currently distributed as follows: "+healthy+" healthy, "+attention+" requiring attention, and "+critical+" critical. ";
-    if(top){
-      narrative += "The project with the highest current cash profit is "+esc(top.project||top.reference||top.clientId)+" at "+money(top.profit)+", with a margin of "+top.margin.toFixed(1)+"%. ";
-    }
-    if(negative.length){
-      narrative += "Management should give immediate attention to "+negative.length+" project"+(negative.length===1?"":"s")+" currently showing negative cash profit. ";
-    }
-    if(warningProjects.length){
-      narrative += "There are "+warningProjects.length+" project"+(warningProjects.length===1?"":"s")+" requiring monitoring because of financial-health warnings or outstanding collections. ";
+  const projectSections=rows.map(function(r){
+    const top=r.topExpenseCategory||{name:"No expense category recorded",amount:0};
+    const second=r.secondExpenseCategory;
+    const topPct=r.expenses>0?(top.amount/r.expenses)*100:0;
+    const secondPct=second&&r.expenses>0?(second.amount/r.expenses)*100:0;
+    const collectedLifetime=r.contract-r.uncollected;
+    let description="During "+periodLabel+", "+esc(r.project||"this project")+" recorded "+money(r.payments)+" in client payments";
+    if(r.otherIncome) description+=", "+money(r.otherIncome)+" in other income";
+    if(r.refunds) description+=", and "+money(r.refunds)+" in refunds";
+    description+=". Total expenses for the period were "+money(r.expenses)+", resulting in a net cash movement of "+money(r.netMovement)+". ";
+    description+="Client payments represent "+pct(r.collectionPct)+" of the contract value";
+    if(r.contract) description+=", with "+money(r.uncollected)+" remaining uncollected";
+    description+=". ";
+    if(r.payments) description+=money(r.expenses)+" or "+pct(r.spentPctOfReceived)+" of the payments received during the period was spent, leaving "+money(remainingForProject(r))+" or "+pct(r.remainingPctOfReceived)+" of period payments before other income/refund adjustments. ";
+    else description+="No client payment was recorded during this period, so spending as a percentage of period payments is not applicable. ";
+    if(top.amount>0){
+      description+=esc(top.name)+" was the largest expense category at "+money(top.amount)+" ("+pct(topPct)+" of project expenses).";
+      if(second&&second.amount>0) description+=" "+esc(second.name)+" followed at "+money(second.amount)+" ("+pct(secondPct)+").";
     }else{
-      narrative += "No project is currently flagged for additional financial monitoring based on the report's health and collection rules. ";
+      description+="No categorized expense movement was recorded during this period.";
     }
 
-    narrative += "The figures in this report are organized by project identifier so client payments, expenses, milestones, and related project records remain separated. ";
-    narrative += "Management should review projects marked Attention or Critical, follow up on uncollected client balances, and compare project expenses against the available budget before committing additional project spending. ";
-    narrative += "This report is a management snapshot and should be read together with the detailed project records, receipts, payment history, and transaction records when making financial decisions.";
+    const cats=r.categoryBreakdown||[];
+    const catRows=cats.map(function(c){
+      return "<tr><td>"+esc(c.name)+"</td><td>"+money(c.amount)+"</td><td>"+pct(r.expenses>0?(c.amount/r.expenses)*100:0)+"</td></tr>";
+    }).join("")||'<tr><td colspan="3">No expense categories recorded.</td></tr>';
+
+    return '<section class="project">'+
+      '<h2>'+esc(r.project||"Unnamed Project")+(r.reference?' <span class="ref">— '+esc(r.reference)+'</span>':'')+'</h2>'+
+      '<div class="mini"><div><small>Contract Value</small><b>'+money(r.contract)+'</b></div>'+
+      '<div><small>Period Payments</small><b>'+money(r.payments)+'</b></div>'+
+      '<div><small>Period Expenses</small><b>'+money(r.expenses)+'</b></div>'+
+      '<div><small>Net Movement</small><b>'+money(r.netMovement)+'</b></div>'+
+      '<div><small>Contract Collected</small><b>'+pct(r.collectionPct)+'</b></div>'+
+      '<div><small>Funds Spent</small><b>'+pct(r.spentPctOfReceived)+'</b></div>'+
+      '<div><small>Funds Remaining</small><b>'+pct(r.remainingPctOfReceived)+'</b></div>'+
+      '<div><small>Outstanding Contract</small><b>'+money(r.uncollected)+'</b></div></div>'+
+      '<h3>Expense Category Movement</h3>'+
+      '<table><thead><tr><th>Category</th><th>Amount</th><th>% of Project Expenses</th></tr></thead><tbody>'+catRows+'</tbody></table>'+
+      '<div class="overview"><h3>Detailed Financial Overview</h3><p>'+description+'</p></div>'+
+      '</section>';
+  }).join("");
+
+  function remainingForProject(r){
+    return r.payments-r.expenses;
   }
 
   const body=rows.map(function(r){
-    return "<tr>"+
-      "<td>"+esc(r.project||"—")+"</td>"+
-      "<td>"+esc(r.reference||"—")+"</td>"+
-      "<td>"+money(r.contract)+"</td>"+
-      "<td>"+money(r.payments)+"</td>"+
-      "<td>"+money(r.expenses)+"</td>"+
-      "<td>"+money(r.profit)+"</td>"+
-      "<td>"+r.margin.toFixed(1)+"%</td>"+
-      "<td>"+esc(r.health)+"</td>"+
-      "</tr>";
-  }).join("");
+    return "<tr><td>"+esc(r.project||"—")+"</td><td>"+esc(r.reference||"—")+"</td>"+
+      "<td>"+money(r.contract)+"</td><td>"+money(r.payments)+"</td><td>"+money(r.expenses)+"</td>"+
+      "<td>"+money(r.otherIncome||0)+"</td><td>"+money(r.refunds||0)+"</td><td>"+money(r.netMovement)+"</td>"+
+      "<td>"+pct(r.collectionPct)+"</td><td>"+pct(r.spentPctOfReceived)+"</td></tr>";
+  }).join("")||'<tr><td colspan="10">No project records were available.</td></tr>';
 
-  return '<!doctype html><html><head><meta charset="utf-8"><style>'+
-    'body{font-family:Arial,sans-serif;color:#17324a;padding:32px}'+
-    'h1{margin:0 0 4px}.sub{color:#718395;margin-bottom:24px}'+
-    '.kpis{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px}'+
-    '.kpi{border:1px solid #d9e2ea;border-radius:10px;padding:12px 16px;min-width:150px}'+
-    '.kpi b{display:block;font-size:18px;margin-top:4px}'+
-    'table{width:100%;border-collapse:collapse;font-size:11px}'+
-    'th,td{border:1px solid #d9e2ea;padding:8px;text-align:left}'+
-    'th{background:#eef4f8}'+
-    '.summary{margin-top:28px;border:1px solid #d9e2ea;border-radius:10px;padding:18px;background:#f7fafc;line-height:1.65}'+
-    '.summary h2{margin:0 0 10px;font-size:16px}.summary p{margin:0}'+
-    '</style></head><body>'+
-    '<h1>LIWO Finance — Weekly Financial Report</h1>'+
-    '<div class="sub">'+esc(periodLabel)+'</div>'+
-    '<div class="kpis">'+
-      '<div class="kpi">Contract Value<b>'+money(totalContract)+'</b></div>'+
-      '<div class="kpi">Client Payments<b>'+money(totalPayments)+'</b></div>'+
-      '<div class="kpi">Expenses<b>'+money(totalExpenses)+'</b></div>'+
-      '<div class="kpi">Cash Profit<b>'+money(totalProfit)+'</b></div>'+
-      '<div class="kpi">Uncollected<b>'+money(totalUncollected)+'</b></div>'+
-      '<div class="kpi">Overall Margin<b>'+margin.toFixed(1)+'%</b></div>'+
-    '</div>'+
+  const title=reportType+" Financial Report";
+  const css='body{font-family:Arial,sans-serif;color:#17324a;padding:30px;line-height:1.45}'+
+    'h1{margin:0 0 5px}.sub{color:#66798a;margin-bottom:22px}.kpis,.mini{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 20px}'+
+    '.kpi,.mini>div{border:1px solid #d9e2ea;border-radius:8px;padding:10px 13px;min-width:135px}.kpi b,.mini b{display:block;font-size:16px;margin-top:4px}'+
+    'table{width:100%;border-collapse:collapse;font-size:10px;margin:8px 0 18px}th,td{border:1px solid #d9e2ea;padding:7px;text-align:left}th{background:#eef4f8}'+
+    '.project{page-break-inside:avoid;border-top:2px solid #d9e2ea;margin-top:28px;padding-top:18px}.ref{font-size:13px;color:#718395;font-weight:normal}'+
+    '.overview{background:#f7fafc;border:1px solid #d9e2ea;border-radius:8px;padding:14px;margin-top:12px}.overview h3{margin-top:0}.overview p{margin:0}'+
+    '.small{font-size:10px;color:#718395}';
+  return '<!doctype html><html><head><meta charset="utf-8"><style>'+css+'</style></head><body>'+
+    '<h1>LIWO ENGINEERING CONSULTANCY</h1><h2>'+title+'</h2><div class="sub">'+esc(periodLabel)+'</div>'+
+    '<div class="kpis"><div class="kpi">Contract Value<b>'+money(totalContract)+'</b></div>'+
+    '<div class="kpi">Period Money In<b>'+money(totalPayments+totalOtherIncome)+'</b></div>'+
+    '<div class="kpi">Period Money Out<b>'+money(totalExpenses+totalRefunds)+'</b></div>'+
+    '<div class="kpi">Net Movement<b>'+money(netMovement)+'</b></div>'+
+    '<div class="kpi">Collected<b>'+pct(collectionPct)+'</b></div>'+
+    '<div class="kpi">Spent of Payments<b>'+pct(spentPct)+'</b></div>'+
+    '<div class="kpi">Remaining of Payments<b>'+pct(remainingPct)+'</b></div>'+
+    '<div class="kpi">Outstanding<b>'+money(totalUncollected)+'</b></div></div>'+
     '<h2>Project-by-Project Financial Summary</h2>'+
-    '<table><thead><tr><th>Project</th><th>Reference</th><th>Contract</th><th>Payments</th><th>Expenses</th><th>Profit</th><th>Margin</th><th>Health</th></tr></thead>'+
-    '<tbody>'+body+'</tbody></table>'+
-    '<div class="summary"><h2>Management Financial Assessment</h2><p>'+esc(narrative)+'</p></div>'+
+    '<table><thead><tr><th>Project</th><th>Reference</th><th>Contract</th><th>Payments</th><th>Expenses</th><th>Other Income</th><th>Refunds</th><th>Net Movement</th><th>Collected %</th><th>Spent %</th></tr></thead><tbody>'+body+'</tbody></table>'+
+    '<h2>Detailed Financial Overview by Project</h2>'+projectSections+
+    '<p class="small">Reporting figures are restricted to the stated reporting period. Contract collection and outstanding balance use cumulative client payments so the project balance remains accurate, while money movement and expense analysis use only transactions within the stated period.</p>'+
     '</body></html>';
 }
 
@@ -352,27 +391,30 @@ function generateWeeklyFinancialReport_(u){
 }
 function generateMonthlyFinancialReport_(u){
   adminOnly(u);
-  const rows=getProjectFinancialSummary_();
   const tz=Session.getScriptTimeZone()||"Asia/Manila";
   const now=new Date();
-  const label="Monthly Financial Report: "+Utilities.formatDate(now,tz,"MMMM yyyy");
-  const html=buildFinancialReportHtml_(label,rows);
+  const startDate=new Date(now.getFullYear(),now.getMonth()-1,1);
+  const endDate=new Date(now.getFullYear(),now.getMonth(),0);
+  const start=Utilities.formatDate(startDate,tz,"MMMM d, yyyy");
+  const end=Utilities.formatDate(endDate,tz,"MMMM d, yyyy");
+  const label="Monthly Financial Report: "+start+" – "+end;
+  const rows=getProjectFinancialSummary_(startDate,endDate);
+  const html=buildFinancialReportHtml_(label,rows,"Monthly");
   const folder=getOrCreateReceiptFolder_();
-  const blob=Utilities.newBlob(html,"text/html","LIWO Monthly Financial Report "+Utilities.formatDate(now,tz,"yyyy-MM")+".html");
-  const file=folder.createFile(blob);
-  const pdf=file.getAs(MimeType.PDF).setName("LIWO Monthly Financial Report "+Utilities.formatDate(now,tz,"yyyy-MM")+".pdf");
-  const pdfFile=folder.createFile(pdf);
+  const base="LIWO Monthly Financial Report "+Utilities.formatDate(startDate,tz,"yyyy-MM");
+  const file=folder.createFile(Utilities.newBlob(html,"text/html",base+".html"));
+  const pdfFile=folder.createFile(file.getAs(MimeType.PDF).setName(base+".pdf"));
   try{file.setTrashed(true)}catch(_){}
   const recipients=getReportRecipients_();
   if(recipients.length){
     MailApp.sendEmail({
       to:recipients.join(","),
       subject:"LIWO Finance — "+label,
-      htmlBody:"<p>Please find attached the automated LIWO monthly financial report.</p>",
+      htmlBody:"<p>Please find attached the automated LIWO monthly financial report.</p><p><b>Reporting period:</b> "+label+"</p>",
       attachments:[pdfFile.getBlob()]
     });
   }
-  audit_(u,"MONTHLY_FINANCIAL_REPORT","SYSTEM",label,JSON.stringify({pdfUrl:pdfFile.getUrl(),recipients:recipients}));
+  audit_(u,"MONTHLY_FINANCIAL_REPORT","SYSTEM",label,JSON.stringify({pdfUrl:pdfFile.getUrl(),recipients:recipients,start:Utilities.formatDate(startDate,tz,"yyyy-MM-dd"),end:Utilities.formatDate(endDate,tz,"yyyy-MM-dd")}));
   return {ok:true,period:label,pdfUrl:pdfFile.getUrl(),recipients:recipients,projects:rows};
 }
 
@@ -398,15 +440,15 @@ function runScheduledWeeklyReport(){
   if(!recipients.length) throw Error("No automated report recipients configured.");
   const tz=Session.getScriptTimeZone()||"Asia/Manila";
   const now=new Date();
-  const endDate=new Date(now);
-  const startDate=new Date(now.getTime()-6*24*60*60*1000);
+  const endDate=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  const startDate=new Date(now.getFullYear(),now.getMonth(),now.getDate()-6);
+  const start=Utilities.formatDate(startDate,tz,"MMMM d, yyyy");
+  const end=Utilities.formatDate(endDate,tz,"MMMM d, yyyy");
   const startKey=Utilities.formatDate(startDate,tz,"yyyy-MM-dd");
   const endKey=Utilities.formatDate(endDate,tz,"yyyy-MM-dd");
-  const start=Utilities.formatDate(startDate,tz,"MMM d, yyyy");
-  const end=Utilities.formatDate(endDate,tz,"MMM d, yyyy");
   const label="Weekly Financial Report: "+start+" – "+end;
   const rows=getProjectFinancialSummary_(startDate,endDate);
-  const html=buildFinancialReportHtml_(label,rows);
+  const html=buildFinancialReportHtml_(label,rows,"Weekly");
   const folder=getOrCreateReceiptFolder_();
   const base="LIWO Weekly Financial Report "+endKey;
   const file=folder.createFile(Utilities.newBlob(html,"text/html",base+".html"));
@@ -415,7 +457,7 @@ function runScheduledWeeklyReport(){
   MailApp.sendEmail({
     to:recipients.join(","),
     subject:"LIWO Finance — "+label,
-    htmlBody:"<p>Your automated LIWO weekly financial report is attached.</p><p><b>Period:</b> "+label+"</p>",
+    htmlBody:"<p>Please find attached the automated LIWO weekly financial report.</p><p><b>Reporting period:</b> "+label+"</p>",
     attachments:[pdfFile.getBlob()]
   });
   audit_({username:"SYSTEM",name:"SYSTEM",role:"Admin"},"WEEKLY_FINANCIAL_REPORT","SYSTEM",label,JSON.stringify({pdfUrl:pdfFile.getUrl(),recipients:recipients,start:startKey,end:endKey}));
@@ -1571,8 +1613,27 @@ function escReport_(s){return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;",
 function sendMonthlyFinancialReport(){
   const recipients=getReportRecipients_();
   if(!recipients.length) throw Error("No automated report recipients configured.");
-  let now=new Date(),start=new Date(now.getFullYear(),now.getMonth()-1,1),end=new Date(now.getFullYear(),now.getMonth(),1),projects=reportDataForPeriod_(start,end),tot=projects.reduce((a,p)=>{a.payments+=p.payments;a.expenses+=p.expenses;a.profit+=p.profit;return a},{payments:0,expenses:0,profit:0});
-  let subject='LIWO Monthly Financial Report — '+Utilities.formatDate(start,Session.getScriptTimeZone(),'MMMM yyyy');let html='<p><b>LIWO ENGINEERING CONSULTANCY</b></p><p>'+subject+'</p><p>Client payments: ₱'+tot.payments.toLocaleString('en-PH',{minimumFractionDigits:2})+'<br>Expenses: ₱'+tot.expenses.toLocaleString('en-PH',{minimumFractionDigits:2})+'<br>Cash profit: ₱'+tot.profit.toLocaleString('en-PH',{minimumFractionDigits:2})+'</p><ul>'+projects.map(p=>'<li><b>'+escReport_(p.name)+'</b>: Profit ₱'+p.profit.toLocaleString('en-PH',{minimumFractionDigits:2})+' ('+p.margin.toFixed(1)+'%)</li>').join('')+'</ul>';
-  MailApp.sendEmail({to:recipients.join(','),subject,htmlBody:html,body:subject+'\nPayments: ₱'+tot.payments+'\nExpenses: ₱'+tot.expenses+'\nCash Profit: ₱'+tot.profit});return{ok:true,recipients:recipients};
+  const tz=Session.getScriptTimeZone()||"Asia/Manila";
+  const now=new Date();
+  const startDate=new Date(now.getFullYear(),now.getMonth()-1,1);
+  const endDate=new Date(now.getFullYear(),now.getMonth(),0);
+  const start=Utilities.formatDate(startDate,tz,"MMMM d, yyyy");
+  const end=Utilities.formatDate(endDate,tz,"MMMM d, yyyy");
+  const label="Monthly Financial Report: "+start+" – "+end;
+  const rows=getProjectFinancialSummary_(startDate,endDate);
+  const html=buildFinancialReportHtml_(label,rows,"Monthly");
+  const folder=getOrCreateReceiptFolder_();
+  const base="LIWO Monthly Financial Report "+Utilities.formatDate(startDate,tz,"yyyy-MM");
+  const file=folder.createFile(Utilities.newBlob(html,"text/html",base+".html"));
+  const pdfFile=folder.createFile(file.getAs(MimeType.PDF).setName(base+".pdf"));
+  try{file.setTrashed(true)}catch(_){}
+  MailApp.sendEmail({
+    to:recipients.join(","),
+    subject:"LIWO Finance — "+label,
+    htmlBody:"<p>Please find attached the automated LIWO monthly financial report.</p><p><b>Reporting period:</b> "+label+"</p>",
+    attachments:[pdfFile.getBlob()]
+  });
+  audit_({username:"SYSTEM",name:"SYSTEM",role:"Admin"},"MONTHLY_FINANCIAL_REPORT","SYSTEM",label,JSON.stringify({pdfUrl:pdfFile.getUrl(),recipients:recipients}));
+  return {ok:true,period:label,pdfUrl:pdfFile.getUrl(),recipients:recipients,projects:rows};
 }
 function installMonthlyReportTrigger(r,u){adminOnly(u);ScriptApp.getProjectTriggers().filter(t=>t.getHandlerFunction()==='sendMonthlyFinancialReport').forEach(t=>ScriptApp.deleteTrigger(t));ScriptApp.newTrigger('sendMonthlyFinancialReport').timeBased().onMonthDay(1).atHour(8).create();audit('INSTALL_MONTHLY_REPORT',u,'Monthly automated report trigger installed');return{ok:true};}
