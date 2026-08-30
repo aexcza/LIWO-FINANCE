@@ -1264,6 +1264,12 @@ body.lw-admin #executivePage .exec-report-admin-only{display:block!important}
 }
 </style>
 
+
+<style id="liwo-final-admin-print-layout">
+.admin-report-panel{margin-top:16px}.admin-report-grid{display:grid;grid-template-columns:minmax(0,2fr) minmax(160px,1fr) minmax(150px,1fr);gap:12px;padding:16px}.admin-report-grid label{display:flex;flex-direction:column;gap:6px;font-weight:700}.admin-report-grid textarea,.admin-report-grid input,.admin-report-grid select{width:100%;box-sizing:border-box}.admin-report-grid small{font-weight:400}.admin-report-actions{display:flex;flex-wrap:wrap;gap:8px;padding:0 16px 16px}.admin-report-status{padding:0 16px 16px;min-height:18px}.report-print-options{display:grid;grid-template-columns:minmax(180px,260px) minmax(180px,260px);gap:12px;margin:0 0 12px}.report-print-options label{display:flex;flex-direction:column;gap:6px;font-weight:700}.report-print-options select{width:100%;box-sizing:border-box}
+@media(max-width:900px){.admin-report-grid{grid-template-columns:1fr;padding:12px}.admin-report-actions{padding:0 12px 12px}.report-print-options{grid-template-columns:1fr;gap:8px}}
+@media print{html,body{width:auto!important;min-width:0!important;overflow:visible!important;background:#fff!important}.report-preview{width:100%!important;max-width:none!important;margin:0!important;padding:0!important;border:0!important;box-shadow:none!important;overflow:visible!important}.report-preview .table-wrap{overflow:visible!important;width:100%!important}.report-preview table{width:100%!important;min-width:0!important;table-layout:auto!important;border-collapse:collapse!important}.report-preview thead{display:table-header-group!important}.report-preview tr{break-inside:avoid!important;page-break-inside:avoid!important}.report-print-options{display:none!important}}
+</style>
 </head>
 <body>
 <div id="liwoLoadingOverlay" aria-hidden="true">
@@ -1556,10 +1562,26 @@ body.lw-admin #executivePage .exec-report-admin-only{display:block!important}
     <div class="card"><span>Total Contract Value</span><strong id="exContract">₱0.00</strong></div><div class="card"><span>Total Client Payments</span><strong id="exPayments">₱0.00</strong></div><div class="card"><span>Total Expenses</span><strong id="exExpenses">₱0.00</strong></div><div class="card"><span>Cash Profit</span><strong id="exProfit">₱0.00</strong></div><div class="card"><span>Uncollected</span><strong id="exOutstanding">₱0.00</strong></div><div class="card"><span>Overall Margin</span><strong id="exMargin">0.0%</strong></div>
   </div>
   <div class="panel"><div class="panel-head"><div><h3>Project-by-Project Profitability</h3><span class="muted">Cash-based management view: client payments + other income/refunds − expenses.</span></div><span id="exHealthSummary" class="muted"></span></div><div class="table-wrap"><table><thead><tr><th>Project</th><th>Reference</th><th>Contract</th><th>Payments</th><th>Expenses</th><th>Cash Profit</th><th>Margin</th><th>Uncollected</th><th>Health</th></tr></thead><tbody id="executiveProjectsBody"></tbody></table></div></div>
-  <div class="panel exec-report-admin-only"><div class="panel-head"><div><h3>Automated Financial Reports</h3><span class="muted">Admin-only: configure recipients and automated email delivery.</span></div></div><div class="exec-report-settings"><label>Report recipients (email)<input id="reportRecipients" placeholder="finance@example.com, admin@example.com"></label><div class="exec-report-actions"><button class="secondary" id="saveReportSettingsBtn" type="button">Save Recipients</button><button class="primary" id="generateMonthlyReportBtn" type="button">Generate Monthly PDF</button><button class="secondary" id="installMonthlyReportBtn" type="button">Enable Monthly Auto-Report</button></div></div><div id="reportAutomationStatus" class="muted" style="margin-top:10px"></div></div>
 </section>
 <section id="reportsPage" class="page hidden">
 <div class="panel"><div class="panel-head"><div><h3>Reports / Export</h3><span class="muted">Generate a printable financial summary for the selected client / project.</span></div></div>
+
+<div class="report-print-options">
+  <label>Paper size
+    <select id="reportPaperSize" aria-label="Report paper size">
+      <option value="A4" selected>A4 — 210 × 297 mm</option>
+      <option value="Letter">Letter — 8.5 × 11 in</option>
+      <option value="Legal">Legal — 8.5 × 14 in</option>
+    </select>
+  </label>
+  <label>Orientation
+    <select id="reportOrientation" aria-label="Report orientation">
+      <option value="landscape" selected>Landscape — recommended</option>
+      <option value="portrait">Portrait</option>
+    </select>
+  </label>
+</div>
+
 <div class="grid report-controls"><label>Client / Project<select id="reportClient"></select></label><label>Report Period<select id="reportPeriod"><option value="all">All available records</option><option value="week">This Week — Weekly Money Report</option><option value="month">This Month — Monthly Money Report</option></select></label><div class="wide report-actions"><button id="printReportBtn" class="primary" type="button">🖨 Print Report</button><button id="saveReportBtn" class="secondary" type="button">📄 Save / Print as PDF</button><button id="exportReportBtn" class="secondary" type="button">⬇ Export CSV</button></div></div></div>
 <div class="report-period-note" id="reportPeriodNote"><strong>Weekly / Monthly Reports:</strong> Select <b>This Week</b> or <b>This Month</b> above to generate a money report using the transactions recorded for that period.</div>
 <div id="reportPreview" class="report-preview"><div class="report-header"><div><h2>LIWO ENGINEERING CONSULTANCY</h2><p>Financial Report</p></div><div class="report-meta"><strong id="reportDate"></strong><span id="reportPeriodLabel"></span><span id="reportProject"></span></div></div>
@@ -1574,6 +1596,32 @@ body.lw-admin #executivePage .exec-report-admin-only{display:block!important}
 <div class="panel-body" style="border-top:1px solid var(--line)"><strong>LIWO Executive Accounts</strong><p class="muted">Registration closes automatically after 3 active LIWO Executive accounts. Change the invitation code to reopen registration with a new code.</p>
 <form id="inviteForm" style="display:flex;gap:10px;max-width:650px"><input name="inviteCode" type="password" placeholder="New invitation code" minlength="8" required><button class="primary">Change & Reopen</button></form>
 <button id="reopenBtn" class="secondary" style="margin-top:10px">Re-open Registration</button></div></div>
+
+<div class="panel admin-report-panel" id="adminAutomatedReportsPanel">
+  <div class="panel-head">
+    <div><h3>Automated Financial Reports</h3><span class="muted">Admin only — choose report recipients and control automatic weekly/monthly PDF email delivery.</span></div>
+  </div>
+  <div class="admin-report-grid">
+    <label>Report recipients (email)
+      <textarea id="reportRecipients" rows="3" placeholder="finance@example.com, admin@example.com"></textarea>
+      <small class="muted">Separate multiple addresses with commas, semicolons, or new lines.</small>
+    </label>
+    <label>Weekly report day
+      <select id="adminWeeklyReportDay"><option>MONDAY</option><option>TUESDAY</option><option>WEDNESDAY</option><option>THURSDAY</option><option>FRIDAY</option><option>SATURDAY</option><option>SUNDAY</option></select>
+    </label>
+    <label>Report hour (0–23)<input id="adminWeeklyReportHour" type="number" min="0" max="23" value="17"></label>
+  </div>
+  <div class="admin-report-actions">
+    <button class="secondary" id="saveReportSettingsBtn" type="button">Save Recipients</button>
+    <button class="secondary" id="saveWeeklyReportConfigBtn" type="button">Save Weekly Schedule</button>
+    <button class="secondary" id="enableWeeklyReportBtn" type="button">Enable Weekly Auto-Report</button>
+    <button class="secondary" id="disableWeeklyReportBtn" type="button">Disable Weekly Auto-Report</button>
+    <button class="primary" id="generateWeeklyReportBtn" type="button">Generate Weekly PDF Now</button>
+    <button class="primary" id="generateMonthlyReportBtn" type="button">Generate Monthly PDF Now</button>
+  </div>
+  <div id="reportAutomationStatus" class="muted admin-report-status" role="status"></div>
+</div>
+
 <div class="panel"><div class="panel-head"><h3>Current Users</h3></div><div class="table-wrap"><table><thead><tr><th>Username</th><th>Name</th><th>Role</th><th>Active</th><th>Actions</th></tr></thead><tbody id="usersBody"></tbody></table></div></div>
 
 </section>
@@ -1869,24 +1917,22 @@ if(period==="week"){
 function reportClientOptions(){let cs=data.clients||[],el=$("reportClient");if(!el)return;el.innerHTML=cs.length?cs.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}${c.reference?" — "+esc(c.reference):""}</option>`).join(""):"<option value=\"\">No clients/projects</option>";if(selectedClientId)el.value=selectedClientId}
 function renderReport(){reportClientOptions();let r=reportRecords();let rp=$("reportPeriod")?.value||"all";$("reportPeriodLabel").textContent=rp==="week"?"Weekly Money Report":rp==="month"?"Monthly Money Report":"Complete Financial Report";$("reportDate").textContent=new Date().toLocaleDateString();$("reportProject").textContent=r.client?.name||data.summary?.projectName||"All Clients / Projects";$("rContract").textContent=peso(r.contract);$("rPayments").textContent=peso(r.totalPayments);$("rExpenses").textContent=peso(r.totalExpenses);$("rAvailable").textContent=peso(r.available);$("rBalance").textContent=peso(r.balance);$("rNet").textContent=peso(r.net);$("reportPreparedBy").textContent=session?.user?.name?`Prepared by ${session.user.name}`:"";$("reportExpensesBody").innerHTML=r.expenses.map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.type||"Expense")}</td><td>${esc(x.category)}</td><td>${esc(x.payee)}</td><td>${esc(x.description)}</td><td>${esc(x.method)}</td><td>${x.receiptUrl?`<a class="receipt-link" href="${esc(x.receiptUrl)}" target="_blank" rel="noopener">View</a>`:"—"}</td><td>${esc(x.enteredBy)}</td><td>${peso(x.amount)}</td></tr>`).join("")||`<tr><td colspan="9" class="empty">No expenses for this report.</td></tr>`;$("reportPaymentsBody").innerHTML=r.payments.map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.reference)}</td><td>${esc(x.description)}</td><td>${esc(x.method)}</td><td>${esc(x.enteredBy)}</td><td>${peso(x.amount)}</td></tr>`).join("")||`<tr><td colspan="6" class="empty">No payments for this report.</td></tr>`;$("reportBudgetBody").innerHTML=r.budget.map(x=>`<tr><td>${esc(x.category)}</td><td>${peso(x.budget)}</td><td>${peso(x.actual)}</td><td>${peso(x.variance)}</td><td>${(Number(x.used||0)*100).toFixed(1)}%</td><td>${peso(x.remaining)}</td></tr>`).join("")||`<tr><td colspan="6" class="empty">No budget data.</td></tr>`}
 function printReport(){
-  try{ renderReport(); }catch(e){ toast(e.message||String(e)); return; }
-  const source=document.getElementById("reportPreview");
-  if(!source){toast("Report preview is not available.");return;}
-  const w=window.open("","_blank","width=1100,height=800");
-  if(!w){toast("Please allow pop-ups to print or save the report as PDF.");return;}
-  const styles=[...document.querySelectorAll("style")].map(x=>x.textContent).join("\n");
-  const reportHtml=source.outerHTML;
+  renderReport();
+  window.bindLIWOPrintControls?.();
+  const settings=window.getLIWOPrintSettings?window.getLIWOPrintSettings():{size:'A4',orientation:'landscape'};
+  const source=document.getElementById('reportPreview');
+  if(!source){toast('Report preview is not available.');return;}
+  const w=window.open('','_blank','width=1100,height=800');
+  if(!w){toast('Please allow pop-ups to print or save the report as PDF.');return;}
+  const styles=[...document.querySelectorAll('style')].map(x=>x.textContent).join("\\n");
+  const css='body{background:#fff!important;margin:0;padding:0;font-family:Arial,sans-serif;color:#111}.report-preview{display:block!important;max-width:none!important;width:100%!important;border:0!important;box-shadow:none!important;margin:0!important;padding:0!important;overflow:visible!important}.report-preview .table-wrap{overflow:visible!important;width:100%!important}.report-preview table{width:100%!important;min-width:0!important;border-collapse:collapse!important;table-layout:auto!important}.report-preview thead{display:table-header-group!important}.report-preview tr{break-inside:avoid!important;page-break-inside:avoid!important}.report-preview th,.report-preview td{font-size:9px!important;padding:5px!important}.report-preview a{color:#123451;text-decoration:none}@page{size:'+settings.size+' '+settings.orientation+';margin:10mm}';
   w.document.open();
-  w.document.write(`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>LIWO Financial Report</title><style>${styles}
-body{background:#fff!important;margin:0;padding:0;font-family:Arial,sans-serif;color:#111}.report-preview{display:block!important;max-width:none!important;width:100%!important;border:0!important;box-shadow:none!important;margin:0!important;padding:0!important}.report-preview table{width:100%;border-collapse:collapse}.report-preview a{color:#123451;text-decoration:none}@page{size:A4 landscape;margin:10mm}@media print{body{margin:0}.report-preview{padding:0!important}}
-</style></head><body>${reportHtml}
-</body></html>`);
-  w.document.close();
-  w.focus();
-  setTimeout(()=>{try{w.print();}catch(e){}},350);
+  w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>LIWO Financial Report</title><style>'+styles+'\\n'+css+'</style></head><body>'+source.outerHTML+'</body></html>');
+  w.document.close();w.focus();setTimeout(()=>w.print(),500);
 }
+
 function exportReportCSV(){let r=reportRecords(),lines=[];const q=v=>`"${String(v??"").replace(/"/g,'""')}"`;lines.push(["LIWO ENGINEERING & CONSULTANCY","Financial Report"].map(q).join(","));lines.push(["Client / Project",r.client?.name||data.summary?.projectName||"All"].map(q).join(","));lines.push([]);lines.push(["SUMMARY","Amount"].map(q).join(","));[["Contract Budget",r.contract],["Total Payments",r.totalPayments],["Total Expenses",r.totalExpenses],["Funds Available",r.available],["Uncollected Balance",r.balance],["Cash Position",r.net]].forEach(x=>lines.push(x.map(q).join(",")));lines.push([]);lines.push(["EXPENSES"].map(q).join(","));lines.push(["Date","Type","Category","Payee / Supplier","Description","Payment Method","Entered By","Amount"].map(q).join(","));r.expenses.forEach(x=>lines.push([x.date,x.type||"Expense",x.category,x.payee,x.description,x.method,x.enteredBy,x.amount].map(q).join(",")));lines.push([]);lines.push(["CLIENT PAYMENTS"].map(q).join(","));lines.push(["Date","Reference","Description / Milestone","Method","Entered By","Amount Paid"].map(q).join(","));r.payments.forEach(x=>lines.push([x.date,x.reference,x.description,x.method,x.enteredBy,x.amount].map(q).join(",")));let blob=new Blob(["\ufeff"+lines.join("\n")],{type:"text/csv;charset=utf-8;"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`LIWO-Finance-${(r.client?.name||"Report").replace(/[^a-z0-9]+/gi,"-")}.csv`;a.click();URL.revokeObjectURL(a.href);toast("Report CSV saved.")}
-function switchPage(p){document.querySelectorAll(".page").forEach(x=>{let active=x.id===p+"Page";x.classList.toggle("hidden",!active);x.classList.toggle("active",active)});document.querySelectorAll(".nav button,.mobile-nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===p));$("pageTitle").textContent={dashboard:"Dashboard",projectDashboard:"Project Financials",payments:"Client Payments",expenses:"Fund Transactions",budget:"Budget vs Actual",activity:"Activity Log",clients:"Clients / Projects",tools:"Construction Tools",cash:"Cash Position",receipts:"Receipts",reports:"Reports / Export",users:"User Management",executive:"Executive Dashboard"}[p]||"Dashboard";if(p==="projectDashboard")loadProjectFinancialDashboard();if(p==="users")loadUsers();if(p==="reports")renderReport();if(p==="tools")loadTools();if(p==="cash")loadCash();if(p==="receipts")loadReceipts()}
+function switchPage(p){document.querySelectorAll(".page").forEach(x=>{let active=x.id===p+"Page";x.classList.toggle("hidden",!active);x.classList.toggle("active",active)});document.querySelectorAll(".nav button,.mobile-nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===p));$("pageTitle").textContent={dashboard:"Dashboard",projectDashboard:"Project Financials",payments:"Client Payments",expenses:"Fund Transactions",budget:"Budget vs Actual",activity:"Activity Log",clients:"Clients / Projects",tools:"Construction Tools",cash:"Cash Position",receipts:"Receipts",reports:"Reports / Export",users:"User Management",executive:"Executive Dashboard"}[p]||"Dashboard";if(p==="projectDashboard")loadProjectFinancialDashboard();if(p==="users"){loadUsers();if(session?.user?.role==="Admin")loadReportSettings();}if(p==="reports"){renderReport();window.bindLIWOPrintControls?.();}if(p==="tools")loadTools();if(p==="cash")loadCash();if(p==="receipts")loadReceipts()}
 async function __liwoOriginalLoadUsers(){try{let o=await api("listUsers",{token:session.token});data.users=o.users;data.financeCount=o.financeCount;data.financeRegistrationOpen=o.financeRegistrationOpen;data.clients=o.clients;render()}catch(x){toast(x.message)}}
 document.addEventListener("DOMContentLoaded",()=>{
 $("loginTab").onclick=()=>tabs(false);$("registerTab").onclick=()=>tabs(true);$("loginForm").onsubmit=login;$("registerForm").onsubmit=register;$("logoutBtn").onclick=logout;$("menuLogoutBtn").onclick=logout;$("refreshBtn").onclick=refresh;$("printReportBtn").onclick=printReport;$("saveReportBtn").onclick=printReport;$("exportReportBtn").onclick=exportReportCSV;$("reportClient").onchange=()=>{selectedClientId=$("reportClient").value;renderReport()};$("reportPeriod").onchange=renderReport;$("notificationBtn").onclick=toggleNotificationMenu;$("userMenuBtn").onclick=toggleUserMenu;$("markNotificationsRead").onclick=markNotificationsRead;$("profileMenuBtn").onclick=openProfile;$("profileCloseBtn").onclick=closeProfile;$("profileDoneBtn").onclick=closeProfile;$("profilePhotoInput").onchange=e=>saveProfilePhoto(e.target.files[0]);$("removeProfilePhotoBtn").onclick=removeProfilePhoto;$("profileModal").onclick=e=>{if(e.target.id==="profileModal")closeProfile()};document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeHeaderMenus();closeProfile()}});document.addEventListener("click",e=>{if(!e.target.closest(".top-user"))closeHeaderMenus()});
@@ -2436,11 +2482,25 @@ document.addEventListener("DOMContentLoaded",()=>{
  const q=id=>document.getElementById(id); const money=v=>'₱'+Number(v||0).toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2});
  function syncAdminUI(){document.body.classList.toggle('lw-admin',String(session?.user?.role||'').toLowerCase()==='admin');}
 
- window.loadExecutiveDashboard=async function(){syncAdminUI();if(!window.session?.token)return;try{const d=await api('executiveDashboard',{token:session.token});if(q('exContract'))q('exContract').textContent=money(d.totals.contract);if(q('exPayments'))q('exPayments').textContent=money(d.totals.payments);if(q('exExpenses'))q('exExpenses').textContent=money(d.totals.expenses);if(q('exProfit'))q('exProfit').textContent=money(d.totals.profit);if(q('exOutstanding'))q('exOutstanding').textContent=money(d.totals.outstanding);if(q('exMargin'))q('exMargin').textContent=Number(d.totals.margin||0).toFixed(1)+'%';if(q('exHealthSummary'))q('exHealthSummary').textContent=`${d.healthy} Healthy · ${d.attention} Attention · ${d.critical} Critical`;if(q('executiveProjectsBody'))q('executiveProjectsBody').innerHTML=(d.projects||[]).map(p=>`<tr><td><strong>${esc(p.name)}</strong></td><td>${esc(p.reference||'—')}</td><td>${money(p.budget)}</td><td>${money(p.totalPayments)}</td><td>${money(p.totalExpenses)}</td><td>${money(p.cashProfit)}</td><td>${Number(p.margin||0).toFixed(1)}%</td><td>${money(p.outstanding)}</td><td><span class="health-badge ${String(p.status).toLowerCase()}">${esc(p.status)}</span></td></tr>`).join('')||'<tr><td colspan="9" class="empty">No active projects.</td></tr>';if(session.user.role==='Admin')loadReportSettings()}catch(e){if(q('executiveProjectsBody'))q('executiveProjectsBody').innerHTML='<tr><td colspan="9" class="empty">Unable to load executive dashboard.</td></tr>'}};
- async function loadReportSettings(){try{const d=await api('getReportSettings',{token:session.token});if(q('reportRecipients'))q('reportRecipients').value=d.recipients||''}catch(e){}}
- function bind(){q('refreshExecutiveBtn')?.addEventListener('click',loadExecutiveDashboard);q('saveReportSettingsBtn')?.addEventListener('click',async()=>{try{await api('saveReportSettings',{token:session.token,recipients:q('reportRecipients').value});q('reportAutomationStatus').textContent='Recipients saved.';toast('Report recipients saved.')}catch(e){toast(e.message||String(e))}});q('generateMonthlyReportBtn')?.addEventListener('click',async()=>{try{const d=await api('generateFinancialReport',{token:session.token,period:'month'});q('reportAutomationStatus').innerHTML=`Report created: <a href="${esc(d.fileUrl)}" target="_blank" rel="noopener">Open PDF</a>`;toast('Monthly report generated.')}catch(e){toast(e.message||String(e))}});q('installMonthlyReportBtn')?.addEventListener('click',async()=>{try{await api('installMonthlyReportTrigger',{token:session.token});q('reportAutomationStatus').textContent='Monthly auto-report is enabled for the 1st day of each month.';toast('Monthly auto-report enabled.')}catch(e){toast(e.message||String(e))}})}
+ window.loadExecutiveDashboard=async function(){syncAdminUI();if(!window.session?.token)return;try{const d=await api('executiveDashboard',{token:session.token});if(q('exContract'))q('exContract').textContent=money(d.totals.contract);if(q('exPayments'))q('exPayments').textContent=money(d.totals.payments);if(q('exExpenses'))q('exExpenses').textContent=money(d.totals.expenses);if(q('exProfit'))q('exProfit').textContent=money(d.totals.profit);if(q('exOutstanding'))q('exOutstanding').textContent=money(d.totals.outstanding);if(q('exMargin'))q('exMargin').textContent=Number(d.totals.margin||0).toFixed(1)+'%';if(q('exHealthSummary'))q('exHealthSummary').textContent=`${d.healthy} Healthy · ${d.attention} Attention · ${d.critical} Critical`;if(q('executiveProjectsBody'))q('executiveProjectsBody').innerHTML=(d.projects||[]).map(p=>`<tr><td><strong>${esc(p.name)}</strong></td><td>${esc(p.reference||'—')}</td><td>${money(p.budget)}</td><td>${money(p.totalPayments)}</td><td>${money(p.totalExpenses)}</td><td>${money(p.cashProfit)}</td><td>${Number(p.margin||0).toFixed(1)}%</td><td>${money(p.outstanding)}</td><td><span class="health-badge ${String(p.status).toLowerCase()}">${esc(p.status)}</span></td></tr>`).join('')||'<tr><td colspan="9" class="empty">No active projects.</td></tr>';if(session.user.role==='Admin' && document.getElementById('adminAutomatedReportsPanel'))loadReportSettings()}catch(e){if(q('executiveProjectsBody'))q('executiveProjectsBody').innerHTML='<tr><td colspan="9" class="empty">Unable to load executive dashboard.</td></tr>'}};
+ async function loadReportSettings(){
+   if(session?.user?.role!=='Admin'||!q('adminAutomatedReportsPanel'))return;
+   try{const d=await api('getReportConfig',{token:session.token});const c=d.config||{};if(q('reportRecipients'))q('reportRecipients').value=(c.recipients||[]).join(', ');if(q('adminWeeklyReportDay'))q('adminWeeklyReportDay').value=c.weeklyDay||'SUNDAY';if(q('adminWeeklyReportHour'))q('adminWeeklyReportHour').value=Number(c.weeklyHour??17);if(q('reportAutomationStatus'))q('reportAutomationStatus').textContent=c.weeklyEnabled?'Weekly automated report: ENABLED':'Weekly automated report: DISABLED'}catch(e){if(q('reportAutomationStatus'))q('reportAutomationStatus').textContent=e.message||String(e)}}
+ async function saveAdminReportConfig(enabled){const config={weeklyEnabled:enabled,weeklyDay:q('adminWeeklyReportDay')?.value||'SUNDAY',weeklyHour:Number(q('adminWeeklyReportHour')?.value||17)};await api('saveReportConfig',{token:session.token,config});const t=await api('installWeeklyReportTrigger',{token:session.token});if(q('reportAutomationStatus'))q('reportAutomationStatus').textContent=t.enabled?'Weekly report enabled every '+t.day+' around '+t.hour+':00.':'Weekly report disabled.'}
+ function bind(){
+  q('refreshExecutiveBtn')?.addEventListener('click',loadExecutiveDashboard);
+  if(session?.user?.role!=='Admin')q('adminAutomatedReportsPanel')?.remove();
+  q('saveReportSettingsBtn')?.addEventListener('click',async()=>{try{const emails=String(q('reportRecipients')?.value||'').split(/[,\n;]+/).map(x=>x.trim()).filter(Boolean);const d=await api('setReportRecipients',{token:session.token,emails});if(q('reportAutomationStatus'))q('reportAutomationStatus').textContent='Saved '+(d.recipients||emails).length+' report recipient(s).';toast('Report recipients saved.')}catch(e){toast(e.message||String(e))}});
+  q('saveWeeklyReportConfigBtn')?.addEventListener('click',async()=>{try{await saveAdminReportConfig(true);toast('Weekly report schedule saved.')}catch(e){toast(e.message||String(e))}});
+  q('enableWeeklyReportBtn')?.addEventListener('click',async()=>{try{await saveAdminReportConfig(true);toast('Weekly auto-report enabled.')}catch(e){toast(e.message||String(e))}});
+  q('disableWeeklyReportBtn')?.addEventListener('click',async()=>{try{await saveAdminReportConfig(false);toast('Weekly auto-report disabled.')}catch(e){toast(e.message||String(e))}});
+  q('generateWeeklyReportBtn')?.addEventListener('click',async()=>{try{const d=await api('generateWeeklyReport',{token:session.token});if(q('reportAutomationStatus'))q('reportAutomationStatus').textContent='Weekly PDF generated and emailed to '+(d.recipients?.length||0)+' recipient(s).';if(d.pdfUrl)window.open(d.pdfUrl,'_blank')}catch(e){toast(e.message||String(e))}});
+  q('generateMonthlyReportBtn')?.addEventListener('click',async()=>{try{const d=await api('generateMonthlyReport',{token:session.token});if(q('reportAutomationStatus'))q('reportAutomationStatus').textContent='Monthly PDF generated and emailed to '+(d.recipients?.length||0)+' recipient(s).';if(d.pdfUrl)window.open(d.pdfUrl,'_blank')}catch(e){toast(e.message||String(e))}});
+  if(session?.user?.role==='Admin')loadReportSettings();
+  window.bindLIWOPrintControls?.();
+ }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{syncAdminUI();bind()});else{syncAdminUI();bind();}
- const oldSwitch=window.switchPage;if(typeof oldSwitch==='function')window.switchPage=function(p){oldSwitch(p);if(p==='executive')loadExecutiveDashboard()};
+  const oldSwitch=window.switchPage;if(typeof oldSwitch==='function')window.switchPage=function(p){oldSwitch(p);if(p==='executive')loadExecutiveDashboard();if(p==='users'&&session?.user?.role==='Admin')loadReportSettings()};
  window.renderMobileAlertCenter=window.renderMobileAlertCenter||function(){const box=q('mobileAlertCenter');if(!box||!window.data)return;const a=data.smart?.alerts||[];if(!a.length){box.classList.add('hidden');return}box.classList.remove('hidden');box.innerHTML='<div class="ma-head"><span>⚠ Attention</span><span>'+a.length+'</span></div>'+a.slice(0,4).map(x=>`<div class="ma-item ${escF(x.level||'attention')}"><b>${escF(x.title)}</b><br>${escF(x.detail)}</div>`).join('')};
  const oldRender=window.render;if(typeof oldRender==='function')window.render=function(){const r=oldRender.apply(this,arguments);try{renderMobileAlertCenter()}catch(e){}return r};
  const origLoadReceipts=window.loadReceipts;if(typeof origLoadReceipts==='function')window.loadReceipts=async function(){await origLoadReceipts.apply(this,arguments);const grid=q('receiptGrid');if(!grid)return;const search=(q('receiptSearchInput')?.value||'').toLowerCase().trim(),status=q('receiptStatusFilter')?.value||'';const cards=[...grid.querySelectorAll('.receipt-card')];let shown=0;cards.forEach(c=>{const text=c.textContent.toLowerCase(),st=(c.querySelector('.receipt-verify span')?.textContent||'').trim();const ok=(!search||text.includes(search))&&(!status||st===status);c.style.display=ok?'':'none';if(ok)shown++});if(q('receiptStats'))q('receiptStats').textContent=cards.length?`${shown} shown`:'No receipts'};
@@ -2458,6 +2518,23 @@ document.addEventListener("DOMContentLoaded",()=>{
       el.style.display=active?'block':'none';
     });
   };
+})();
+</script>
+
+<script id="liwo-paper-print-controls">
+(function(){
+  const $=id=>document.getElementById(id);
+  function settings(){return {size:$('reportPaperSize')?.value||'A4',orientation:$('reportOrientation')?.value||'landscape'}}
+  window.getLIWOPrintSettings=settings;
+  window.bindLIWOPrintControls=function(){
+    ['reportPaperSize','reportOrientation'].forEach(id=>{const el=$(id);if(el&&!el.dataset.bound){el.dataset.bound='1';el.addEventListener('change',()=>window.updateLIWOPrintPageStyle?.())}});
+    window.updateLIWOPrintPageStyle?.();
+  };
+  window.updateLIWOPrintPageStyle=function(){
+    const s=settings(),old=$('liwoDynamicPrintStyle');if(old)old.remove();
+    const st=document.createElement('style');st.id='liwoDynamicPrintStyle';st.textContent='@page{size:'+s.size+' '+s.orientation+';margin:10mm}';document.head.appendChild(st);
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',window.bindLIWOPrintControls);else window.bindLIWOPrintControls();
 })();
 </script>
 </body></html>
