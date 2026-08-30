@@ -694,14 +694,7 @@ textarea{min-height:82px;resize:vertical}
 }
 </style>
 
-<style id="liwo-page-isolation-fix">
-.page[data-page-section="receipts"]{display:none}
-.page[data-page-section="receipts"].active{display:block}
-#receiptsPage .receipt-toolbar,#receiptsPage .receipt-grid,#receiptsPage .receipt-card,
-#receiptsPage #receiptProjectFilter,#receiptsPage #refreshReceiptsBtn,#receiptsPage #receiptGrid,#receiptsPage #receiptCount{
-  box-sizing:border-box;
-}
-</style>
+
 
 <style id="liwo-user-actions-final">
 .user-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
@@ -1214,55 +1207,7 @@ body:not(.liwo-admin-session) #usersPage{display:none!important;}
 }
 </style>
 
-<style id="liwo-final-tight-operational-pages">
-/* FINAL: eliminate excess vertical whitespace on operational pages. */
-#toolsPage,#cashPage,#receiptsPage{
-  margin:0!important;padding:0!important;height:auto!important;min-height:0!important;
-}
-/* The global topbar reserves extra space below itself. These pages do not need it. */
-main:has(#toolsPage.active) .topbar,
-main:has(#cashPage.active) .topbar,
-main:has(#receiptsPage.active) .topbar{margin-bottom:8px!important;}
-#toolsPage .page-heading,#receiptsPage .page-heading,
-#cashPage .page-header{margin:0 0 8px!important;padding:0!important;}
-#toolsPage .page-heading h2,#receiptsPage .page-heading h2,
-#cashPage .page-header h1{margin:0!important;}
-#toolsPage .panel,#cashPage .card,#cashPage .panel,#receiptsPage .panel{
-  margin-top:0!important;margin-bottom:8px!important;
-}
-#toolsPage .panel-head,#cashPage .panel-head,#receiptsPage .panel-head{
-  padding:10px 14px!important;min-height:0!important;
-}
-#toolsPage .grid{padding:10px!important;gap:8px!important;}
-#toolsPage .table-wrap{padding:0!important;margin:0!important;}
-#toolsPage .table-wrap table{margin:0!important;}
-#cashPage .cash-balance-grid{gap:8px!important;margin:0 0 8px!important;}
-#cashPage .cash-balance-card{padding:10px!important;}
-#cashPage .card{padding:11px!important;}
-#cashPage .card h2{margin:0 0 5px!important;}
-#cashPage .cash-update-copy{margin:0 0 8px!important;}
-#cashPage .cash-balance-actions{gap:8px!important;}
-#cashPage .reconciliation-panel{margin-top:0!important;margin-bottom:8px!important;}
-#cashPage .reconciliation-panel .grid{padding:10px!important;gap:8px!important;}
-#receiptsPage .panel[style*="margin-top"]{margin-top:0!important;}
-#receiptsPage .receipt-toolbar{padding:8px!important;}
-#receiptsPage .receipt-grid{padding:8px!important;gap:8px!important;}
-#receiptsPage .receipt-empty{padding:20px!important;}
-@media(max-width:900px){
-  main:has(#toolsPage.active) .topbar,
-  main:has(#cashPage.active) .topbar,
-  main:has(#receiptsPage.active) .topbar{margin-bottom:6px!important;}
-  #toolsPage .page-heading,#receiptsPage .page-heading,#cashPage .page-header{margin:0 0 6px!important;}
-  #toolsPage .panel,#cashPage .card,#cashPage .panel,#receiptsPage .panel{margin-bottom:6px!important;}
-  #toolsPage .grid{padding:9px!important;gap:7px!important;}
-  #cashPage .cash-balance-grid{gap:7px!important;margin-bottom:7px!important;}
-  #cashPage .cash-balance-card{padding:9px!important;}
-  #cashPage .card{padding:10px!important;}
-  #cashPage .reconciliation-panel .grid{padding:9px!important;gap:7px!important;}
-  #receiptsPage .receipt-toolbar{padding:7px!important;}
-  #receiptsPage .receipt-grid{padding:7px!important;gap:7px!important;}
-}
-</style>
+
 
 <style id="liwo-absolute-operational-spacing-fix">
 /* FINAL OPERATIONAL PAGE FIX — compact layout with no reserved blank viewport space */
@@ -1335,6 +1280,320 @@ body.liwO-operational-page #globalProjectScope{display:none!important}
   #receiptsPage.active .receipt-grid{padding:7px!important;gap:7px!important}
 }
 </style>
+
+<style id="liwo-definitive-operational-layout">
+/* Definitive operational-page layout: no artificial vertical space. */
+#toolsPage,#cashPage,#receiptsPage{margin:0!important;padding:0!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;}
+#toolsPage.active,#cashPage.active,#receiptsPage.active{display:block!important;visibility:visible!important;position:static!important;height:auto!important;min-height:0!important;max-height:none!important;margin:0!important;padding:0!important;overflow:visible!important;}
+#toolsPage.active>* ,#cashPage.active>* ,#receiptsPage.active>*{position:static!important;height:auto!important;min-height:0!important;max-height:none!important;transform:none!important;}
+#toolsPage.active .page-heading,#receiptsPage.active .page-heading,#cashPage.active .page-header{margin:0 0 10px!important;padding:0!important;height:auto!important;min-height:0!important;}
+#toolsPage.active .page-heading h2,#receiptsPage.active .page-heading h2,#cashPage.active .page-header h1{margin:0!important;}
+#toolsPage.active .panel,#cashPage.active .panel,#cashPage.active .card,#receiptsPage.active .panel{margin:0 0 10px!important;height:auto!important;min-height:0!important;}
+#toolsPage.active .grid{padding:12px!important;gap:9px!important;}
+#cashPage.active .cash-balance-grid{display:grid!important;height:auto!important;min-height:0!important;margin:0 0 10px!important;gap:10px!important;}
+#cashPage.active .cash-balance-card{height:auto!important;min-height:0!important;padding:13px!important;}
+#receiptsPage.active .receipt-toolbar{padding:10px!important;}
+#receiptsPage.active .receipt-grid{height:auto!important;min-height:0!important;padding:10px!important;gap:10px!important;}
+/* The active project is already selected in the main header; this duplicate bar caused the visual gap. */
+.main:has(#toolsPage.active) > #globalProjectScope,.main:has(#cashPage.active) > #globalProjectScope,.main:has(#receiptsPage.active) > #globalProjectScope{display:none!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;}
+@media(max-width:900px){
+ #toolsPage.active .page-heading,#receiptsPage.active .page-heading,#cashPage.active .page-header{margin:0 0 8px!important;}
+ #toolsPage.active .panel,#cashPage.active .panel,#cashPage.active .card,#receiptsPage.active .panel{margin-bottom:8px!important;}
+ #toolsPage.active .grid{padding:9px!important;gap:7px!important;}
+ #cashPage.active .cash-balance-grid{gap:8px!important;margin-bottom:8px!important;}
+ #cashPage.active .cash-balance-card{padding:10px!important;}
+ #receiptsPage.active .receipt-toolbar,#receiptsPage.active .receipt-grid{padding:8px!important;}
+}
+</style>
+
+<style id="liwo-true-operational-gap-fix">
+/* =========================================================
+   LIWO FINAL OPERATIONAL GAP FIX
+   Tools / Cash Position / Receipts
+   Removes reserved vertical space and keeps a tight desktop
+   layout without changing any business logic.
+   ========================================================= */
+
+#toolsPage,
+#cashPage,
+#receiptsPage,
+#toolsPage.active,
+#cashPage.active,
+#receiptsPage.active{
+  display:block!important;
+  box-sizing:border-box!important;
+  width:100%!important;
+  max-width:none!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:0!important;
+  position:relative!important;
+  top:auto!important;
+  bottom:auto!important;
+  transform:none!important;
+  overflow:visible!important;
+}
+
+/* The page heading must sit immediately above its content. */
+#toolsPage.active .page-heading,
+#receiptsPage.active .page-heading,
+#cashPage.active .page-header{
+  display:flex!important;
+  box-sizing:border-box!important;
+  height:auto!important;
+  min-height:0!important;
+  margin:0 0 10px!important;
+  padding:0!important;
+}
+
+/* No child is allowed to reserve viewport/flex space. */
+#toolsPage.active > *,
+#cashPage.active > *,
+#receiptsPage.active > *{
+  box-sizing:border-box!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  margin-top:0!important;
+}
+
+/* Operational panels stay content-sized. */
+#toolsPage.active .panel,
+#cashPage.active .panel,
+#cashPage.active .card,
+#receiptsPage.active .panel{
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  margin-top:0!important;
+  margin-bottom:10px!important;
+}
+
+/* Eliminate table/receipt containers as a source of empty height. */
+#toolsPage.active .table-wrap,
+#cashPage.active .table-wrap,
+#receiptsPage.active .table-wrap,
+#toolsPage.active .receipt-grid,
+#receiptsPage.active .receipt-grid{
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  margin-top:0!important;
+  margin-bottom:0!important;
+}
+
+/* Cash cards must be content-sized. */
+#cashPage.active .cash-balance-grid{
+  height:auto!important;
+  min-height:0!important;
+  margin-top:0!important;
+  margin-bottom:10px!important;
+}
+
+#cashPage.active .cash-balance-card{
+  height:auto!important;
+  min-height:0!important;
+}
+
+/* The global project strip is redundant on these pages. */
+body.liwO-operational-page #globalProjectScope,
+.main:has(#toolsPage.active) > #globalProjectScope,
+.main:has(#cashPage.active) > #globalProjectScope,
+.main:has(#receiptsPage.active) > #globalProjectScope{
+  display:none!important;
+  width:0!important;
+  height:0!important;
+  min-height:0!important;
+  max-height:0!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:hidden!important;
+}
+
+/* Tight desktop relationship between topbar and operational content. */
+@media (min-width:901px){
+  .main:has(#toolsPage.active) .topbar,
+  .main:has(#cashPage.active) .topbar,
+  .main:has(#receiptsPage.active) .topbar{
+    margin-bottom:10px!important;
+  }
+
+  #toolsPage.active .page-heading h2,
+  #receiptsPage.active .page-heading h2,
+  #cashPage.active .page-header h1{
+    margin:0!important;
+  }
+
+  #toolsPage.active .panel-head,
+  #receiptsPage.active .panel-head,
+  #cashPage.active .panel-head{
+    min-height:0!important;
+  }
+}
+
+@media (max-width:900px){
+  #toolsPage.active .page-heading,
+  #receiptsPage.active .page-heading,
+  #cashPage.active .page-header{
+    margin-bottom:8px!important;
+  }
+
+  #toolsPage.active .panel,
+  #cashPage.active .panel,
+  #cashPage.active .card,
+  #receiptsPage.active .panel{
+    margin-bottom:8px!important;
+  }
+}
+</style>
+
+
+<style id="liwo-premium-operational-final">
+.main:has(#toolsPage.active) .topbar,
+.main:has(#cashPage.active) .topbar,
+.main:has(#receiptsPage.active) .topbar{margin-bottom:14px!important}
+
+#toolsPage.active,#cashPage.active,#receiptsPage.active{
+ display:block!important;width:100%!important;height:auto!important;min-height:0!important;
+ max-height:none!important;margin:0!important;padding:0 0 24px!important;
+ position:relative!important;overflow:visible!important
+}
+
+#toolsPage.active .page-heading,#receiptsPage.active .page-heading,#cashPage.active .page-header{
+ display:flex!important;align-items:flex-end!important;justify-content:space-between!important;
+ width:100%!important;height:auto!important;min-height:0!important;margin:0 0 14px!important;padding:0!important
+}
+#toolsPage.active .page-heading h2,#receiptsPage.active .page-heading h2,#cashPage.active .page-header h1{
+ margin:0 0 4px!important;font-size:25px!important;line-height:1.15!important;
+ letter-spacing:-.4px!important;color:#122b46!important
+}
+#toolsPage.active .page-heading .muted,#receiptsPage.active .page-heading .muted,#cashPage.active .page-header p{
+ margin:0!important;font-size:12px!important;line-height:1.45!important;color:#708094!important
+}
+
+#toolsPage.active .panel,#cashPage.active .panel,#cashPage.active .card,#receiptsPage.active .panel{
+ width:100%!important;box-sizing:border-box!important;height:auto!important;min-height:0!important;
+ max-height:none!important;margin:0 0 14px!important;overflow:hidden!important;
+ border:1px solid #dfe7ed!important;border-radius:15px!important;background:#fff!important;
+ box-shadow:0 8px 24px rgba(16,42,67,.055)!important
+}
+#toolsPage.active .panel-head,#cashPage.active .panel-head,#receiptsPage.active .panel-head{
+ min-height:0!important;padding:15px 18px!important;background:linear-gradient(180deg,#fff,#fbfcfd)!important
+}
+#toolsPage.active .panel-head h3,#cashPage.active .panel-head h3,#receiptsPage.active .panel-head h3{
+ margin:0!important;color:#152e49!important;font-size:17px!important
+}
+
+/* CASH POSITION */
+#cashPage.active .cash-balance-grid{
+ display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:14px!important;
+ width:100%!important;height:auto!important;min-height:0!important;margin:0 0 14px!important;padding:0!important
+}
+#cashPage.active .cash-balance-card{
+ position:relative!important;min-height:108px!important;height:auto!important;box-sizing:border-box!important;
+ padding:18px 20px!important;border:1px solid #dfe7ed!important;border-radius:15px!important;
+ background:#fff!important;box-shadow:0 8px 24px rgba(16,42,67,.06)!important;overflow:hidden!important
+}
+#cashPage.active .cash-balance-card::before{
+ content:""!important;position:absolute!important;left:0!important;top:0!important;bottom:0!important;width:4px!important;background:#1478bd!important
+}
+#cashPage.active .cash-balance-card:nth-child(2)::before{background:#20a05a!important}
+#cashPage.active .cash-balance-card:nth-child(3)::before{background:#5543b8!important}
+#cashPage.active .cash-balance-label{
+ font-size:11px!important;font-weight:800!important;text-transform:uppercase!important;
+ letter-spacing:.55px!important;color:#66778b!important
+}
+#cashPage.active .cash-balance-value{
+ margin-top:8px!important;font-size:25px!important;line-height:1.1!important;
+ font-weight:850!important;color:#123d63!important
+}
+#cashPage.active .cash-balance-card:nth-child(2) .cash-balance-value{color:#15934f!important}
+#cashPage.active .cash-balance-card:nth-child(3) .cash-balance-value{color:#4a3bb1!important}
+
+#cashPage.active > .card{padding:20px!important}
+#cashPage.active > .card h2{margin:0 0 6px!important;font-size:20px!important;color:#122b46!important}
+#cashPage.active .cash-update-copy{
+ display:block!important;width:100%!important;margin:0 0 16px!important;font-size:12px!important;line-height:1.5!important
+}
+#cashPage.active .cash-balance-actions{
+ display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto!important;
+ gap:13px!important;align-items:end!important;width:100%!important
+}
+#cashPage.active .cash-balance-actions .field{min-width:0!important;width:auto!important}
+#cashPage.active .cash-balance-actions input{
+ width:100%!important;min-height:44px!important;box-sizing:border-box!important
+}
+#cashPage.active .cash-balance-actions .btn,#cashPage.active .cash-balance-actions button{
+ min-height:44px!important;padding:0 22px!important;white-space:nowrap!important;border-radius:10px!important
+}
+#cashPage.active .reconciliation-panel{margin-bottom:0!important}
+#cashPage.active .reconciliation-panel .grid{padding:18px!important;gap:13px!important}
+
+/* CONSTRUCTION TOOLS */
+#toolsPage.active #toolForm{
+ display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:13px!important;
+ width:100%!important;box-sizing:border-box!important;padding:18px!important
+}
+#toolsPage.active #toolForm .wide{grid-column:1/-1!important}
+#toolsPage.active #toolForm label{
+ display:block!important;margin:0 0 6px!important;font-size:11px!important;font-weight:800!important;color:#53667a!important
+}
+#toolsPage.active #toolForm input{width:100%!important;min-height:43px!important;box-sizing:border-box!important}
+#toolsPage.active #toolForm .wide[style*="display:flex"]{display:flex!important;gap:9px!important;align-items:center!important}
+#toolsPage.active .table-wrap{
+ width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;
+ padding:0!important;margin:0!important;overflow-x:auto!important
+}
+#toolsPage.active table{width:100%!important;min-width:760px!important;margin:0!important}
+
+/* RECEIPTS */
+#receiptsPage.active .receipt-toolbar{
+ display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:end!important;
+ gap:14px!important;width:100%!important;box-sizing:border-box!important;padding:16px!important
+}
+#receiptsPage.active .receipt-toolbar>div{min-width:0!important}
+#receiptsPage.active .receipt-enhanced-controls{
+ display:grid!important;grid-template-columns:minmax(0,1fr) 170px!important;gap:8px!important;margin:0 0 8px!important
+}
+#receiptsPage.active .receipt-toolbar select#receiptProjectFilter{width:100%!important}
+#receiptsPage.active .receipt-toolbar button{
+ min-height:43px!important;white-space:nowrap!important;border-radius:10px!important
+}
+#receiptsPage.active .receipt-grid{
+ display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:14px!important;
+ width:100%!important;height:auto!important;min-height:0!important;padding:14px!important;
+ box-sizing:border-box!important;margin:0!important
+}
+#receiptsPage.active .receipt-card{min-height:0!important;border-radius:14px!important;box-shadow:0 7px 22px rgba(12,35,55,.065)!important}
+#receiptsPage.active .receipt-thumb{height:145px!important}
+
+/* MOBILE */
+@media(max-width:900px){
+ .main:has(#toolsPage.active) .topbar,.main:has(#cashPage.active) .topbar,.main:has(#receiptsPage.active) .topbar{margin-bottom:10px!important}
+ #toolsPage.active .page-heading,#receiptsPage.active .page-heading,#cashPage.active .page-header{margin-bottom:10px!important}
+ #cashPage.active .cash-balance-grid{grid-template-columns:1fr 1fr!important;gap:9px!important}
+ #cashPage.active .cash-balance-card{min-height:94px!important;padding:14px!important}
+ #cashPage.active .cash-balance-card.total{grid-column:1/-1!important}
+ #cashPage.active .cash-balance-actions{grid-template-columns:1fr 1fr!important}
+ #cashPage.active .cash-balance-actions button{grid-column:1/-1!important;width:100%!important}
+ #toolsPage.active #toolForm{grid-template-columns:1fr 1fr!important}
+ #receiptsPage.active .receipt-toolbar{grid-template-columns:1fr!important}
+ #receiptsPage.active .receipt-toolbar button{width:100%!important}
+ #receiptsPage.active .receipt-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:600px){
+ #toolsPage.active #toolForm{grid-template-columns:1fr!important}
+ #toolsPage.active #toolForm .wide{grid-column:auto!important}
+ #cashPage.active .cash-balance-grid{grid-template-columns:1fr!important}
+ #cashPage.active .cash-balance-card.total{grid-column:auto!important}
+ #cashPage.active .cash-balance-actions{grid-template-columns:1fr!important}
+ #receiptsPage.active .receipt-enhanced-controls,#receiptsPage.active .receipt-grid{grid-template-columns:1fr!important}
+ #receiptsPage.active .receipt-thumb{height:180px!important}
+}
+</style>
+
 </head>
 <body>
 <div id="liwoLoadingOverlay" aria-hidden="true">
@@ -2208,7 +2467,173 @@ function printReport(){
   const period=document.getElementById('reportPeriod')?.value||'all';
   const printClass=(period==='week'?'weekly-print ':'')+(period==='week'?(printOrientation==='portrait'?'weekly-portrait':'weekly-landscape'):(period==='month'?'monthly-print':'full-print'));
   const printWrap=period==='week'?'weekly-one-page':(period==='month'?'monthly-one-page':'full-one-page');
-  w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>LIWO Financial Report</title><style>${styles}\n${css}</style></head><body class="${printClass}"><div class="${printWrap}">${source.outerHTML}
+  w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>LIWO Financial Report</title><style>${styles}\n${css}</style>
+<style id="liwo-premium-operational-desktop">
+/* LIWO PREMIUM DESKTOP — compact operational pages */
+@media (min-width: 901px){
+  /* These pages use the project selector in the top header. Remove the duplicate scope strip. */
+  .main:has(#toolsPage.active) > #globalProjectScope,
+  .main:has(#cashPage.active) > #globalProjectScope,
+  .main:has(#receiptsPage.active) > #globalProjectScope{
+    display:none!important;
+  }
+
+  .main:has(#toolsPage.active) .topbar,
+  .main:has(#cashPage.active) .topbar,
+  .main:has(#receiptsPage.active) .topbar{
+    margin-bottom:18px!important;
+  }
+
+  #toolsPage.active,
+  #cashPage.active,
+  #receiptsPage.active{
+    display:block!important;
+    width:100%!important;
+    margin:0!important;
+    padding:0 0 28px!important;
+    min-height:0!important;
+    height:auto!important;
+    max-height:none!important;
+    overflow:visible!important;
+    position:relative!important;
+  }
+
+  #toolsPage.active .page-heading,
+  #receiptsPage.active .page-heading,
+  #cashPage.active .page-header{
+    display:flex!important;
+    align-items:flex-end!important;
+    justify-content:space-between!important;
+    gap:20px!important;
+    margin:0 0 14px!important;
+    padding:0!important;
+    min-height:0!important;
+    height:auto!important;
+  }
+
+  #toolsPage.active .page-heading h2,
+  #receiptsPage.active .page-heading h2,
+  #cashPage.active .page-header h1{
+    margin:0 0 4px!important;
+    font-size:25px!important;
+    line-height:1.15!important;
+    letter-spacing:-.35px!important;
+  }
+
+  #toolsPage.active .page-heading .muted,
+  #receiptsPage.active .page-heading .muted,
+  #cashPage.active .page-header p{
+    margin:0!important;
+    font-size:12px!important;
+    line-height:1.4!important;
+  }
+
+  #toolsPage.active .panel,
+  #cashPage.active .panel,
+  #cashPage.active .card,
+  #receiptsPage.active .panel{
+    width:100%!important;
+    box-sizing:border-box!important;
+    margin:0 0 12px!important;
+    padding:0!important;
+    min-height:0!important;
+    height:auto!important;
+    max-height:none!important;
+    overflow:visible!important;
+  }
+
+  #toolsPage.active .panel-head,
+  #receiptsPage.active .panel-head,
+  #cashPage.active .panel-head{
+    min-height:0!important;
+    padding:13px 16px!important;
+  }
+
+  /* Construction Tools */
+  #toolsPage.active .panel:first-of-type{box-shadow:0 8px 24px rgba(16,42,67,.06)!important;}
+  #toolsPage.active #toolForm{
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:12px!important;
+    padding:15px!important;
+    box-sizing:border-box!important;
+  }
+  #toolsPage.active #toolForm .wide{grid-column:1/-1!important;}
+  #toolsPage.active #toolForm label{display:block!important;margin-bottom:6px!important;font-size:11px!important;font-weight:750!important;}
+  #toolsPage.active #toolForm input{width:100%!important;box-sizing:border-box!important;}
+  #toolsPage.active .table-wrap{padding:0!important;margin:0!important;overflow:auto!important;}
+  #toolsPage.active table{width:100%!important;min-width:760px!important;}
+
+  /* Cash Position */
+  #cashPage.active .cash-balance-grid{
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:12px!important;
+    margin:0 0 12px!important;
+    padding:0!important;
+    height:auto!important;
+    min-height:0!important;
+  }
+  #cashPage.active .cash-balance-card{
+    min-height:96px!important;
+    height:auto!important;
+    box-sizing:border-box!important;
+    padding:18px!important;
+    border-radius:14px!important;
+    box-shadow:0 8px 24px rgba(16,42,67,.06)!important;
+  }
+  #cashPage.active .cash-balance-value{margin-top:7px!important;font-size:24px!important;line-height:1.1!important;}
+  #cashPage.active .card{padding:16px!important;}
+  #cashPage.active .card h2{margin:0 0 5px!important;font-size:17px!important;}
+  #cashPage.active .cash-update-copy{margin:0 0 12px!important;}
+  #cashPage.active .cash-balance-actions{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto!important;
+    gap:12px!important;
+    align-items:end!important;
+  }
+  #cashPage.active .cash-balance-actions .field{min-width:0!important;}
+  #cashPage.active .cash-balance-actions input{width:100%!important;box-sizing:border-box!important;}
+  #cashPage.active .reconciliation-panel .grid{padding:15px!important;gap:12px!important;}
+  #cashPage.active .reconciliation-panel{margin-bottom:0!important;}
+
+  /* Receipts */
+  #receiptsPage.active .receipt-toolbar{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto!important;
+    align-items:end!important;
+    gap:14px!important;
+    padding:14px!important;
+  }
+  #receiptsPage.active .receipt-toolbar > div{min-width:0!important;}
+  #receiptsPage.active .receipt-enhanced-controls{display:grid!important;grid-template-columns:minmax(0,1fr) 170px!important;gap:8px!important;margin-bottom:8px!important;}
+  #receiptsPage.active .receipt-toolbar select#receiptProjectFilter{width:100%!important;}
+  #receiptsPage.active .receipt-grid{
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:14px!important;
+    padding:14px!important;
+    min-height:0!important;
+    height:auto!important;
+    margin:0!important;
+  }
+  #receiptsPage.active .receipt-thumb{height:145px!important;}
+  #receiptsPage.active .receipt-card{min-height:0!important;}
+
+  /* Prevent any hidden child/old inline sizing from creating a viewport-sized hole. */
+  #toolsPage.active > *,#cashPage.active > *,#receiptsPage.active > *{
+    max-height:none!important;
+  }
+}
+
+@media (max-width:900px){
+  #toolsPage.active,#cashPage.active,#receiptsPage.active{min-height:0!important;height:auto!important;}
+  .main:has(#toolsPage.active) > #globalProjectScope,
+  .main:has(#cashPage.active) > #globalProjectScope,
+  .main:has(#receiptsPage.active) > #globalProjectScope{display:none!important;height:0!important;margin:0!important;padding:0!important;}
+}
+</style>
+</head><body class="${printClass}"><div class="${printWrap}">${source.outerHTML}
 <div class="report-signature-section" id="reportSignatureSection">
   <h3>Reviewed and Approved by:</h3>
   <div class="report-signature-grid">
@@ -2243,6 +2668,124 @@ function printReport(){
 
 
 
+
+<script id="liwo-operational-gap-runtime-fix">
+(function(){
+  const IDS = ["toolsPage","cashPage","receiptsPage"];
+
+  function normalize(){
+    const active = document.querySelector(".page.active");
+    const isOperational = !!active && IDS.indexOf(active.id) !== -1;
+    document.body.classList.toggle("liwO-operational-page", isOperational);
+
+    const scope = document.getElementById("globalProjectScope");
+    if (scope && isOperational) {
+      scope.style.display = "none";
+      scope.style.height = "0";
+      scope.style.minHeight = "0";
+      scope.style.maxHeight = "0";
+      scope.style.margin = "0";
+      scope.style.padding = "0";
+      scope.style.overflow = "hidden";
+    }
+
+    IDS.forEach(function(id){
+      const el = document.getElementById(id);
+      if(!el) return;
+
+      if(el.classList.contains("active")){
+        el.style.display = "block";
+        el.style.height = "auto";
+        el.style.minHeight = "0";
+        el.style.maxHeight = "none";
+        el.style.margin = "0";
+        el.style.padding = "0";
+        el.style.transform = "none";
+      }else{
+        el.style.display = "none";
+      }
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", normalize);
+  window.addEventListener("load", normalize);
+
+  document.addEventListener("click", function(e){
+    const btn = e.target.closest(".nav button, .mobile-nav button");
+    if(btn && IDS.indexOf(btn.dataset.page + "Page") !== -1){
+      requestAnimationFrame(normalize);
+      setTimeout(normalize, 30);
+      setTimeout(normalize, 150);
+    }
+  });
+
+  if(window.MutationObserver){
+    const observer = new MutationObserver(function(){
+      if(document.querySelector(".page.active")){
+        normalize();
+      }
+    });
+    document.addEventListener("DOMContentLoaded", function(){
+      observer.observe(document.body, {
+        subtree:true,
+        attributes:true,
+        attributeFilter:["class","style"]
+      });
+    });
+  }
+})();
+</script>
+
+
+<script id="liwo-premium-operational-runtime">
+(function(){
+ const ids=["toolsPage","cashPage","receiptsPage"];
+ function fix(){
+   const active=document.querySelector(".page.active");
+   const operational=active && ids.includes(active.id);
+   document.body.classList.toggle("liwO-operational-page",!!operational);
+   const scope=document.getElementById("globalProjectScope");
+   if(scope && operational){
+     scope.style.display="none";scope.style.height="0";scope.style.minHeight="0";
+     scope.style.maxHeight="0";scope.style.margin="0";scope.style.padding="0";scope.style.overflow="hidden";
+   }
+   ids.forEach(id=>{
+     const el=document.getElementById(id);
+     if(!el)return;
+     if(el.classList.contains("active")){
+       el.style.display="block";el.style.height="auto";el.style.minHeight="0";el.style.maxHeight="none";
+     }
+   });
+ }
+ document.addEventListener("DOMContentLoaded",fix);
+ window.addEventListener("load",fix);
+ document.addEventListener("click",e=>{
+   if(e.target.closest(".nav button,.mobile-nav button")){
+     requestAnimationFrame(fix);setTimeout(fix,50);setTimeout(fix,150);
+   }
+ });
+})();
+</script>
+
+
+<script id="liwo-final-vertical-navigation-fix">
+(function(){
+  function top(){
+    try{
+      window.scrollTo({top:0,left:0,behavior:'instant'});
+      document.documentElement.scrollTop=0;
+      document.body.scrollTop=0;
+    }catch(e){ window.scrollTo(0,0); }
+  }
+  document.addEventListener('click',function(e){
+    var b=e.target.closest('.nav button,.mobile-nav button,[data-page]');
+    if(!b) return;
+    setTimeout(top,0);
+    setTimeout(top,80);
+    setTimeout(top,180);
+  },true);
+})();
+</script>
 </body></html>`);
   w.document.close();w.focus();setTimeout(()=>w.print(),500);
 }
@@ -2301,6 +2844,8 @@ function switchPage(p){
   }
   document.querySelectorAll(".page").forEach(x=>{let active=x.id===p+"Page";x.classList.toggle("hidden",!active);x.classList.toggle("active",active)});
   document.querySelectorAll(".nav button,.mobile-nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===p));
+  /* Always start each module at the top so a previous dashboard scroll position cannot create a giant blank gap. */
+  try{window.scrollTo({top:0,left:0,behavior:"instant"});document.documentElement.scrollTop=0;document.body.scrollTop=0;}catch(e){window.scrollTo(0,0)}
   $("pageTitle").textContent={dashboard:"Dashboard",projectDashboard:"Project Financials",payments:"Client Payments",expenses:"Fund Transactions",budget:"Budget vs Actual",activity:"Activity Log",clients:"Clients / Projects",tools:"Construction Tools",cash:"Cash Position",receipts:"Receipts",reports:"Reports / Export",users:"User Management"}[p]||"Dashboard";
   if(p==="projectDashboard"){fillClients();loadProjectFinancialDashboard();}
   if(p==="users"){loadUsers();if(session?.user?.role==="Admin")loadReportSettings();}
@@ -2860,7 +3405,7 @@ document.addEventListener("DOMContentLoaded",()=>{
   window.addEventListener('load',sync);
 })();
 </script>
-</body>
+
 <script id="liwo-admin-report-final-fix">
 (function(){
   function admin(){
@@ -2909,7 +3454,7 @@ document.addEventListener("DOMContentLoaded",()=>{
 })();
 </script>
 
-</html>
+
 
 <style id="liwo-responsive-layout-final">
 /* LIWO final responsive layout correction */
@@ -2987,59 +3532,59 @@ tbody:empty{display:none!important}
   },true);
 })();
 </script>
-<script id="liwo-navigation-space-guard">
+
+
+
+
+<script id="liwo-definitive-navigation-fix">
 (function(){
-  function activate(page){
-    if(!page)return;
-    document.querySelectorAll('.page').forEach(function(el){
-      var on=el.id===page+'Page';
-      el.classList.toggle('active',on);
-      el.classList.toggle('hidden',!on);
-      el.style.display=on?'block':'none';
-      el.style.height='auto';
-      el.style.minHeight='0';
-    });
-  }
-  document.addEventListener('DOMContentLoaded',function(){
-    document.querySelectorAll('.nav button,.mobile-nav button').forEach(function(btn){
-      btn.addEventListener('click',function(){setTimeout(function(){activate(btn.dataset.page)},0)},true);
-    });
-  });
-})();
-</script>
-<script id="liwo-admin-session-visibility">
-(function(){
-  function sync(){
-    var admin=String(window.session?.user?.role||'').trim().toLowerCase()==='admin';
+  function role(){return String(window.session&&window.session.user&&window.session.user.role||'').trim().toLowerCase();}
+  function syncUsers(){
+    var admin=role()==='admin';
     var nav=document.getElementById('usersNav'),mobile=document.getElementById('mobileUsersNav'),page=document.getElementById('usersPage');
     if(nav)nav.classList.toggle('hidden',!admin);
     if(mobile)mobile.classList.toggle('hidden',!admin);
-    if(!admin && page && !page.classList.contains('hidden')){
-      if(typeof window.switchPage==='function')window.switchPage('dashboard');
-      else {page.classList.add('hidden');page.classList.remove('active');page.style.display='none';}
-    }
+    if(!admin&&page){page.classList.add('hidden');page.classList.remove('active');page.style.display='none';}
   }
-  window.syncLIWOAdminVisibility=sync;
-  document.addEventListener('DOMContentLoaded',sync);
-  var timer=setInterval(function(){
-    if(typeof window.showApp==='function'){
-      clearInterval(timer);
-      if(!window.showApp.__liwoAdminWrapped){
-        var original=window.showApp;
-        var wrapped=function(){var result=original.apply(this,arguments);sync();return result};
-        wrapped.__liwoAdminWrapped=true;
-        window.showApp=wrapped;
-      }
-      sync();
-    }
-  },50);
+  function activate(page){
+    if(page==='users'&&role()!=='admin') page='dashboard';
+    document.querySelectorAll('.page').forEach(function(el){
+      var on=el.id===page+'Page';
+      el.classList.toggle('active',on);el.classList.toggle('hidden',!on);
+      el.style.display=on?'block':'none';
+      el.style.height='auto';el.style.minHeight='0';el.style.margin='0';el.style.padding='0';
+    });
+    var scope=document.getElementById('globalProjectScope');
+    var op=/^(tools|cash|receipts)$/.test(page);
+    if(scope){scope.style.display=op?'none':'';if(op){scope.style.height='0';scope.style.minHeight='0';scope.style.margin='0';scope.style.padding='0';}}
+    syncUsers();
+    try{window.scrollTo({top:0,left:0,behavior:'instant'});document.documentElement.scrollTop=0;document.body.scrollTop=0;}catch(e){window.scrollTo(0,0)}
+  }
+  document.addEventListener('DOMContentLoaded',function(){
+    syncUsers();
+    document.querySelectorAll('.nav button,.mobile-nav button').forEach(function(btn){
+      btn.addEventListener('click',function(){setTimeout(function(){activate(btn.dataset.page);},0);setTimeout(function(){activate(btn.dataset.page);},120);},true);
+    });
+  });
+  window.addEventListener('load',syncUsers);
+})();
+</script>
+
+<script id="liwo-final-vertical-navigation-fix">
+(function(){
+  function top(){
+    try{
+      window.scrollTo({top:0,left:0,behavior:'instant'});
+      document.documentElement.scrollTop=0;
+      document.body.scrollTop=0;
+    }catch(e){ window.scrollTo(0,0); }
+  }
   document.addEventListener('click',function(e){
-    var b=e.target.closest('[data-page="users"]');
-    if(b && String(window.session?.user?.role||'').trim().toLowerCase()!=='admin'){
-      e.preventDefault();e.stopImmediatePropagation();
-      sync();
-      if(typeof window.toast==='function')window.toast('User Management is available to administrators only.');
-    }
+    var b=e.target.closest('.nav button,.mobile-nav button,[data-page]');
+    if(!b) return;
+    setTimeout(top,0);
+    setTimeout(top,80);
+    setTimeout(top,180);
   },true);
 })();
 </script>
