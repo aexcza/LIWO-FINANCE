@@ -52,11 +52,40 @@ function doGet(){return json({ok:true,service:"LIWO Finance Tracker"})}
    LIWO AUTOMATED REPORTING
    ========================= */
 
+
+/* Reporting compatibility helpers.
+   These normalize the newer reporting code to this Code.gs file's
+   existing spreadsheet/audit helpers. */
+function readSheet_(sheetName){
+  const sh=ss().getSheetByName(sheetName);
+  if(!sh || sh.getLastRow()<2)return [];
+  const values=sh.getDataRange().getValues();
+  const headers=values[0].map(function(h){return String(h||"").trim();});
+  return values.slice(1).map(function(row){
+    const o={};
+    headers.forEach(function(h,i){if(h)o[h]=row[i];});
+    return o;
+  });
+}
+
+function audit_(u,action,entity,details,extra){
+  const actor=u||{username:"SYSTEM",name:"SYSTEM"};
+  let detail=String(details||"");
+  if(extra)detail += (detail?" | ":"")+String(extra);
+  const username=String(actor.username||"SYSTEM");
+  const name=String(actor.name||"SYSTEM");
+  audit(action,{username,name},String(entity||detail||""));
+}
+
+function getOrCreateReceiptFolder_(){
+  return receiptRootFolder_();
+}
+
 function getReportRecipients_(){
   const out = [];
   const seen = {};
   ["report_recipients","weekly_report_config"].forEach(function(name){
-    const sh = SS.getSheetByName(name);
+    const sh = ss().getSheetByName(name);
     if(!sh || sh.getLastRow()<2) return;
     const rows = sh.getDataRange().getValues();
     rows.slice(1).forEach(function(r){
@@ -97,7 +126,7 @@ function setReportRecipients_(u, emails){
 function getReportConfig_(u){
   adminOnly(u);
   const recipients=getReportRecipients_();
-  const sh=SS.getSheetByName("weekly_report_config");
+  const sh=ss().getSheetByName("weekly_report_config");
   const cfg={weeklyEnabled:false,weeklyDay:"SUNDAY",weeklyHour:17,recipients:recipients};
   if(sh && sh.getLastRow()>1){
     sh.getDataRange().getValues().slice(1).forEach(function(r){
@@ -375,12 +404,8 @@ function runScheduledWeeklyReport(){
 
 function generateProjectFinancialReport_(u, clientId){
   adminOnly(u);
-  const id=String(clientId||"").trim();
-  if(!id) throw Error("Select a project first.");
-
-  const clients=readSheet_("clients");
-  const client=clients.find(function(c){return String(c.ClientID||"").trim()===id;});
-  if(!client) throw Error("Project not found.");
+  const client=requireClient_(clientId,true);
+  const id=client.id;
 
   const payments=readSheet_("payments").filter(function(p){return String(p.ClientID||"").trim()===id;});
   const expenses=readSheet_("expenses").filter(function(e){return String(e.ClientID||"").trim()===id;});
@@ -457,10 +482,18 @@ function generateProjectFinancialReport_(u, clientId){
 }
 
 function doPost(e){try{let r=JSON.parse(e.postData.contents||"{}");switch(r.action){case"health":return json({ok:true,service:"LIWO Finance Tracker",version:"2026-08-29"});
-case"login":return json(login(r));case"registerFinance":return json(registerFinance(r));case"dashboard":return json(withAuth(r,dashboard));case"executiveDashboard":return json(withAuth(r,executiveDashboard));case"getExecutiveDashboard":return json(withAuth(r,executiveDashboard));case"saveReportSettings":return json(withAuth(r,saveReportSettings));case"getReportSettings":return json(withAuth(r,getReportSettings));case"generateFinancialReport":return json(withAuth(r,generateFinancialReport));case"installMonthlyReportTrigger":return json(withAuth(r,installMonthlyReportTrigger));case"sendMonthlyFinancialReport":return json(withAuth(r,sendMonthlyFinancialReport));case"projectFinancialDashboard":return json(withAuth(r,projectFinancialDashboard));case"projectDashboard":return json(withAuth(r,projectFinancialDashboard));case"projectWorkspace":return json(withAuth(r,projectFinancialDashboard));
+case"login":return json(login(r));case"registerFinance":return json(registerFinance(r));case"dashboard":return json(withAuth(r,dashboard));case"executiveDashboard":return json(withAuth(r,executiveDashboard));case"getExecutiveDashboard":return json(withAuth(r,executiveDashboard));case"saveReportSettings":return json(withAuth(r,saveReportSettings));case"getReportSettings":return json(withAuth(r,getReportSettings));
+case"setReportRecipients":return json(withAuth(r,setReportRecipients_));
+case"getReportConfig":return json(withAuth(r,getReportConfig_));
+case"saveReportConfig":return json(withAuth(r,saveReportConfig_));
+case"installWeeklyReportTrigger":return json(withAuth(r,installWeeklyReportTrigger_));
+case"generateWeeklyReport":return json(withAuth(r,generateWeeklyFinancialReport_));
+case"generateMonthlyReport":return json(withAuth(r,generateMonthlyFinancialReport_));
+case"generateProjectFinancialReport":return json(withAuth(r,function(rr,uu){return generateProjectFinancialReport_(uu,rr.clientId);}));
+case"generateFinancialReport":return json(withAuth(r,generateFinancialReport));case"installMonthlyReportTrigger":return json(withAuth(r,installMonthlyReportTrigger));case"sendMonthlyFinancialReport":return json(withAuth(r,sendMonthlyFinancialReport));case"projectFinancialDashboard":return json(withAuth(r,projectFinancialDashboard));case"projectDashboard":return json(withAuth(r,projectFinancialDashboard));case"projectWorkspace":return json(withAuth(r,projectFinancialDashboard));
 case"addPayment":return json(withAuth(r,addPayment));case"addExpense":return json(withAuth(r,addExpense));case"listUsers":return json(withAuth(r,listUsers));
 case"upsertUser":return json(withAuth(r,upsertUser));case"listTools":return json(withAuth(r,listTools));case"tools":return json(withAuth(r,listTools));case"constructionTools":return json(withAuth(r,listTools));case"listConstructionTools":return json(withAuth(r,listTools));case"getTools":return json(withAuth(r,listTools));case"addTool":return json(withAuth(r,addTool));case"updateTool":return json(withAuth(r,updateTool));case"cashBalances":return json(withAuth(r,cashBalances));case"cashPosition":return json(withAuth(r,cashBalances));case"getCashPosition":return json(withAuth(r,cashBalances));case"getCashBalances":return json(withAuth(r,cashBalances));case"updateCashBalance":return json(withAuth(r,updateCashBalance));case"updateCashBalances":return json(withAuth(r,updateCashBalances));case"changeInvite":return json(withAuth(r,changeInvite));case"reopenRegistration":return json(withAuth(r,reopenRegistration));case"upsertClient":return json(withAuth(r,upsertClient));case"archiveClient":return json(withAuth(r,archiveClient));case"restoreClient":return json(withAuth(r,restoreClient));case"deleteClient":return json(withAuth(r,deleteClient));case"notifications":return json(withAuth(r,notifications));case"markNotificationsRead":return json(withAuth(r,markNotificationsRead));case"listMilestones":return json(withAuth(r,listMilestones));case"addMilestone":return json(withAuth(r,addMilestone));case"updateMilestone":return json(withAuth(r,updateMilestone));case"verifyReceipt":return json(withAuth(r,verifyReceipt));case"reconcileCash":return json(withAuth(r,reconcileCash));case"getProjectBudget":return json(withAuth(r,getProjectBudget));case"saveProjectBudget":return json(withAuth(r,saveProjectBudget));case"returnTool":return json(withAuth(r,returnTool));case"deletePayment":return json(withAuth(r,deletePayment));case"deleteExpense":return json(withAuth(r,deleteExpense));
-case"deleteUser":return json(withAuth(r,deleteUser));case"deactivateUser":return json(withAuth(r,deactivateUser));case"reactivateUser":return json(withAuth(r,reactivateUser));case"setUserActive":return json(withAuth(r,setUserActive));case"listReceipts":return json(withAuth(r,listReceipts));case"listReceipt":return json(withAuth(r,listReceipts));case"getReceipts":return json(withAuth(r,listReceipts));case"getReceiptList":return json(withAuth(r,listReceipts));case"receipts":return json(withAuth(r,listReceipts));case"receiptGallery":return json(withAuth(r,listReceipts));case"getReceiptGallery":return json(withAuth(r,listReceipts));case"loadReceipts":return json(withAuth(r,listReceipts));case"getReceiptLibrary":return json(withAuth(r,listReceipts));default:return json({ok:false,error:"Unknown action: "+String(r.action||"")})}}catch(x){return json({ok:false,error:String(x.message||x)})}}
+case"deleteUser":return json(withAuth(r,deleteUser));case"deactivateUser":return json(withAuth(r,deactivateUser));case"reactivateUser":return json(withAuth(r,reactivateUser));case"setUserActive":return json(withAuth(r,setUserActive));case"listReceipts":return json(withAuth(r,listReceipts));case"listReceipt":return json(withAuth(r,listReceipts));case"getReceipts":return json(withAuth(r,listReceipts));case"getReceiptList":return json(withAuth(r,listReceipts));case"receipts":return json(withAuth(r,listReceipts));case"receiptGallery":return json(withAuth(r,listReceipts));case"getReceiptGallery":return json(withAuth(r,listReceipts));case"loadReceipts":return json(withAuth(r,listReceipts));case"getReceiptLibrary":return json(withAuth(r,listReceipts));case"migrateLegacyToolClientIds":return json(withAuth(r,migrateLegacyToolClientIds_));default:return json({ok:false,error:"Unknown action: "+String(r.action||"")})}}catch(x){return json({ok:false,error:String(x.message||x)})}}
 function json(o){return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON)}
 function ensureHeaders_(sh,headers){if(sh.getLastRow()===0){sh.getRange(1,1,1,headers.length).setValues([headers]);return}let existing=sh.getRange(1,1,1,Math.max(sh.getLastColumn(),1)).getValues()[0].map(String);if(existing.length<headers.length){sh.getRange(1,existing.length+1,1,headers.length-existing.length).setValues([headers.slice(existing.length)]);}}
 function receiptRootFolder_(){
@@ -471,8 +504,11 @@ function safeFolderName_(name){
   return String(name||"Unassigned").replace(/[\\/:*?"<>|#%{}~]/g,"_").replace(/\s+/g," ").trim().slice(0,120)||"Unassigned";
 }
 function projectReceiptFolder_(client){
+  if(!client||!client.id)throw Error("A valid client/project is required.");
   let root=receiptRootFolder_();
-  let folderName=safeFolderName_(client&&client.name?client.name:"Unassigned");
+  // ClientID is part of the folder name so two projects with the same
+  // display name can never share a receipt folder.
+  let folderName=safeFolderName_(client.name||"Unassigned")+" ["+String(client.id)+"]";
   let folders=root.getFoldersByName(folderName);
   return folders.hasNext()?folders.next():root.createFolder(folderName);
 }
@@ -524,7 +560,14 @@ function listReceipts(r,u){
    */
   let project=String(r.project||"").trim();
   let clientId=String(r.clientId||"").trim();
-  if(clientId){let cm0=clientNameMap(),c0=cm0[clientId];if(!c0||!c0.active)throw Error("Invalid or inactive client/project.");project=c0.name;}
+  if(clientId){
+    const c0=requireClient_(clientId,true);
+    project=c0.name;
+  }else if(project){
+    const c0=requireUniqueClientByName_(project,true);
+    clientId=c0.id;
+    project=c0.name;
+  }
   let rootIt=DriveApp.getFoldersByName(CONFIG.RECEIPT_FOLDER_NAME);
   if(!rootIt.hasNext()){
     let root=DriveApp.createFolder(CONFIG.RECEIPT_FOLDER_NAME);
@@ -534,13 +577,12 @@ function listReceipts(r,u){
   let root=rootIt.next();
 
   // Map stored Drive file IDs to their project/client from the spreadsheet.
-  let fileProjectMap={};
+  let fileClientMap={};
   try{
-    let cm=clientNameMap();
     rows("expenses").forEach(x=>{
       let fileId=String(x[15]||"").trim();
-      let clientId=String(x[2]||"").trim();
-      if(fileId && cm[clientId])fileProjectMap[fileId]=cm[clientId].name;
+      let expenseClientId=String(x[2]||"").trim();
+      if(fileId && expenseClientId)fileClientMap[fileId]=expenseClientId;
     });
   }catch(e){}
 
@@ -582,8 +624,21 @@ function listReceipts(r,u){
       }
     }catch(e){}
 
-    let mappedProject=fileProjectMap[id]||folderProject||"Unassigned";
-    if(project && safeFolderName_(mappedProject)!==safeFolderName_(project) && mappedProject!==project)return;
+    const mappedClientId=fileClientMap[id]||"";
+    let mappedProject="";
+    if(mappedClientId){
+      const mappedClient=clientNameMap()[mappedClientId];
+      mappedProject=mappedClient?mappedClient.name:"";
+    }
+    if(!mappedProject) mappedProject=folderProject||"Unassigned";
+
+    // For a project-scoped receipt request, ONLY an exact ClientID match
+    // is accepted. Folder-name matching is intentionally not used as a
+    // security boundary because project names can be duplicated/renamed.
+    if(clientId){
+      if(mappedClientId!==clientId)return;
+      if(!mappedClientId)return;
+    }
 
     receipts.push({
       id:id,
@@ -623,6 +678,39 @@ function listReceipts(r,u){
   receipts.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
   return{ok:true,receipts:receipts,projects:projects};
 }
+
+/* Optional one-time migration helper for older tool rows that predate ClientID.
+   It assigns a legacy tool row to a project only when the project name matches
+   exactly one active client/project. No automatic cross-project guess is made. */
+function migrateLegacyToolClientIds_(u){
+  adminOnly(u);
+  const sh=ss().getSheetByName("tools");
+  if(!sh||sh.getLastRow()<2)return{ok:true,updated:0,skipped:0};
+  const clients=clientObjects(false);
+  const byName={};
+  clients.forEach(function(c){
+    const k=c.name.trim().toLowerCase();
+    if(!byName[k])byName[k]=[];
+    byName[k].push(c);
+  });
+  let updated=0,skipped=0;
+  const v=sh.getDataRange().getValues();
+  for(let i=1;i<v.length;i++){
+    const cid=String(v[i][12]||"").trim();
+    if(cid)continue;
+    const name=String(v[i][4]||"").trim().toLowerCase();
+    const matches=byName[name]||[];
+    if(matches.length===1){
+      sh.getRange(i+1,13).setValue(matches[0].id);
+      updated++;
+    }else{
+      skipped++;
+    }
+  }
+  audit("MIGRATE_LEGACY_TOOL_CLIENT_IDS",u,"Updated: "+updated+" | Skipped: "+skipped);
+  return{ok:true,updated,skipped};
+}
+
 function notifications(r,u){
   let limit=Math.min(Math.max(Number(r.limit)||100,1),100);
   let sh=ss().getSheetByName("audit"),v=sh.getDataRange().getValues();
@@ -643,107 +731,284 @@ function markNotificationsRead(r,u){
 
 function clientObjects(activeOnly){return rows("clients").filter(x=>!activeOnly||String(x[4]).toLowerCase()!=="false").map(x=>({id:String(x[0]),name:String(x[1]),reference:String(x[2]||""),budget:num(x[3]),active:String(x[4]).toLowerCase()!=="false"}))}
 function clientNameMap(){let m={};clientObjects(false).forEach(c=>m[c.id]=c);return m}
-function dashboard(r,u){
- let clients=clientObjects(true),cid=String(r.clientId||"");if(!cid&&clients.length)cid=clients[0].id;let cm=clientNameMap(),c=cm[cid]||{id:cid,name:"",reference:"",budget:0};
- let p=rows("payments").filter(x=>String(x[2])===cid).map(x=>({date:x[1],clientName:c.name,reference:x[3],description:x[4],amount:num(x[6]),method:x[7],enteredBy:x[9]}));
- let ex=rows("expenses").filter(x=>String(x[2])===cid).map(x=>({date:x[1],clientName:c.name,clientId:x[2],type:x[3],category:x[4],payee:x[5],description:x[6],amount:num(x[7]),method:x[8],reference:x[9],approvedBy:x[10]||"",enteredBy:x[12],username:x[13],receiptUrl:x[14]||"",receiptId:x[15]||"",recordStatus:"Recorded"}));
- let approvedEx=ex;
-  let totalPayments=p.reduce((a,x)=>a+x.amount,0),totalExpenses=approvedEx.filter(x=>x.type==="Expense").reduce((a,x)=>a+x.amount,0),refunds=approvedEx.filter(x=>x.type==="Refund").reduce((a,x)=>a+x.amount,0),income=approvedEx.filter(x=>x.type==="Other Income").reduce((a,x)=>a+x.amount,0);
- let budgetRemaining=Math.max(0,c.budget-totalExpenses),cashPosition=totalPayments-totalExpenses+refunds+income;
- let budget=getProjectBudgetData_(cid).map(x=>{let actual=approvedEx.filter(y=>y.category===x.category&&y.type==="Expense").reduce((a,y)=>a+y.amount,0),b=num(x.budget);return{category:x.category,budget:b,actual,variance:b-actual,used:b?actual/b:0,remaining:Math.max(0,b-actual)}}).filter(x=>x.budget||x.actual);
- let recent=[...p.map(x=>({...x,type:"Client Payment"})),...ex.map(x=>({...x,type:x.type}))].sort((a,b)=>String(b.date).localeCompare(String(a.date))).slice(0,12);
- let av=rows("audit").slice(-100).reverse().map(x=>({time:x[0],action:x[1],username:x[2],name:x[3],details:x[4]}));
- let cb=cashBalances({},u),tools=listToolsData_();
- let pendingExpenses=0;
- let milestones=listMilestones({clientId:cid},u).milestones||[];
- let overdueMilestones=milestones.filter(x=>x.status==="Overdue").length;
- let overdueTools=tools.filter(x=>x.status==="Overdue").length;
- let usedPct=c.budget?totalExpenses/c.budget*100:0;
- let health=usedPct>=100||Math.max(0,c.budget-totalPayments)>c.budget*.5?"Critical":(usedPct>=75||Math.max(0,c.budget-totalPayments)>c.budget*.3||pendingExpenses||overdueMilestones||overdueTools)?"Attention":"Healthy";
- let alerts=[];
-  if(overdueMilestones)alerts.push({level:"critical",title:"Overdue client milestone",detail:overdueMilestones+" payment milestone(s) are overdue."});
- if(overdueTools)alerts.push({level:"attention",title:"Overdue construction tool",detail:overdueTools+" borrowed tool(s) are past their expected return date."});
- if(usedPct>=75)alerts.push({level:usedPct>=100?"critical":"attention",title:"Budget utilization warning",detail:"Project spending has reached "+usedPct.toFixed(1)+"% of the contract budget."});
- if(Math.max(0,c.budget-totalPayments)>c.budget*.3)alerts.push({level:"attention",title:"Uncollected balance",detail:"More than 30% of the contract value remains uncollected."});
- let o={ok:true,clients,summary:{clientName:c.name,reference:c.reference,contractAmount:c.budget,totalPayments,totalExpenses,budgetRemaining,outstandingBalance:Math.max(0,c.budget-totalPayments),cashPosition,bankBalance:cb.bankBalance,cashOnHand:cb.cashOnHand,totalCash:cb.totalCash},smart:{health,alerts,pendingExpenses,overdueMilestones,overdueTools},cashBalances:cb,tools:tools,payments:p.slice(-100).reverse(),expenses:ex.slice(-100).reverse(),budget,recent,activity:av};
- if(u.role==="Admin"){let uv=rows("users"),fc=uv.filter(x=>String(x[3])==="Finance"&&String(x[4]).toLowerCase()!=="false").length;o.users=uv.map(x=>({username:x[0],name:x[1],role:x[3],active:String(x[4]).toLowerCase()!=="false"}));o.financeCount=fc;o.financeRegistrationOpen=String(settingsMap().RegistrationOpen).toLowerCase()!=="false"}return o;
-}
-function getProjectBudgetData_(cid){
-  let cm=clientNameMap(),c=cm[String(cid||"")];
-  if(!c)throw Error("Invalid client/project.");
-  let specific=rows("project_budgets").filter(x=>String(x[0])===String(cid)).map(x=>({category:String(x[1]||""),budget:num(x[2])})).filter(x=>x.category);
-  if(specific.length)return specific;
-  return rows("budget").map(x=>({category:String(x[0]||""),budget:num(x[1])})).filter(x=>x.category);
-}
-function getProjectBudget(r,u){let cid=String(r.clientId||"");if(!cid)throw Error("Select a client/project.");return{ok:true,clientId:cid,budget:getProjectBudgetData_(cid)}}
-function saveProjectBudget(r,u){
-  adminOrFinance_(u);let cid=String(r.clientId||"");if(!cid)throw Error("Select a client/project.");let cm=clientNameMap();if(!cm[cid]||!cm[cid].active)throw Error("Invalid or inactive client/project.");
-  let items=Array.isArray(r.items)?r.items:[];if(!items.length)throw Error("Add at least one budget category.");
-  let clean=[],seen={};items.forEach(x=>{let cat=String(x.category||"").trim();let b=Number(x.budget);if(!cat)return;if(!Number.isFinite(b)||b<0)throw Error("Invalid budget for "+cat+".");let key=cat.toLowerCase();if(seen[key])throw Error("Duplicate budget category: "+cat);seen[key]=true;clean.push([cid,cat,b,new Date(),u.name]);});
-  let sh=ensureSheet_("project_budgets",SHEETS.project_budgets);for(let i=sh.getLastRow();i>=2;i--){if(String(sh.getRange(i,1).getValue())===cid)sh.deleteRow(i)}
-  if(clean.length)sh.getRange(sh.getLastRow()+1,1,clean.length,5).setValues(clean);audit("SAVE_PROJECT_BUDGET",u,cm[cid].name+" | "+clean.length+" categories");return{ok:true,clientId:cid,budget:clean.map(x=>({category:x[1],budget:x[2]}))};
-}
-function projectFinancialDashboard(r,u){
-  let clients=clientObjects(true),cid=String(r.clientId||"");
-  if(!cid&&clients.length)cid=clients[0].id;
-  let cm=clientNameMap(),c=cm[cid];
-  if(!c||!c.active)throw Error("Select a valid active client/project.");
 
-  let payments=rows("payments").filter(x=>String(x[2])===cid).map((x,i)=>({
-    row:i+2,date:x[1],clientId:cid,clientName:c.name,reference:String(x[3]||""),
-    description:String(x[4]||""),dueAmount:num(x[5]),amount:num(x[6]),method:String(x[7]||""),
+/* ============================================================
+   PROJECT-SCOPE SECURITY
+   ------------------------------------------------------------
+   All project-scoped reads/writes must validate the ClientID
+   on the server. The frontend selection is NOT trusted.
+   ============================================================ */
+
+function requireClient_(clientId, requireActive){
+  const id=String(clientId||"").trim();
+  if(!id) throw Error("Client / project ID is required.");
+  const cm=clientNameMap();
+  const c=cm[id];
+  if(!c) throw Error("Invalid client/project.");
+  if(requireActive!==false && !c.active) throw Error("Client/project is inactive.");
+  return c;
+}
+
+function requireClientFromRequest_(r, requireActive){
+  return requireClient_(String(r&&r.clientId||"").trim(), requireActive);
+}
+
+function requireUniqueClientByName_(name, requireActive){
+  const n=String(name||"").trim();
+  if(!n) throw Error("Client / project is required.");
+  const matches=clientObjects(false).filter(function(c){
+    return c.name.trim().toLowerCase()===n.toLowerCase() &&
+      (requireActive===false || c.active);
+  });
+  if(matches.length===0) throw Error("Invalid client/project.");
+  if(matches.length>1) throw Error("Project name is not unique. Use the ClientID.");
+  return matches[0];
+}
+
+/*
+ * Verify that a spreadsheet row belongs to the project requested
+ * by the caller. This prevents a caller from supplying an arbitrary
+ * row number and editing/deleting another project's transaction.
+ */
+function requireRowClient_(sheetName, row, clientId, clientColumn){
+  const sh=ss().getSheetByName(sheetName);
+  if(!sh) throw Error("Sheet not found: "+sheetName);
+  const n=Number(row);
+  if(!Number.isInteger(n) || n<2 || n>sh.getLastRow())
+    throw Error("Record not found.");
+  const col=Number(clientColumn||3);
+  const stored=String(sh.getRange(n,col).getValue()||"").trim();
+  const requested=String(clientId||"").trim();
+  if(!requested) throw Error("Client / project ID is required.");
+  if(!stored || stored!==requested)
+    throw Error("Project scope violation: this record does not belong to the selected client/project.");
+  return {sheet:sh,row:n,clientId:stored};
+}
+
+function requireProjectScopedRead_(r){
+  return requireClientFromRequest_(r,true);
+}
+
+function assertToolProject_(r, oldRow){
+  const requested=String(r&&r.clientId||"").trim();
+  if(!requested) throw Error("Client / project ID is required.");
+  const c=requireClient_(requested,true);
+  if(oldRow){
+    const stored=String(oldRow[12]||"").trim();
+    if(!stored || stored!==requested)
+      throw Error("Project scope violation: this tool record belongs to another project or has no project ID.");
+  }
+  return c;
+}
+
+function dashboard(r,u){
+  const c=requireProjectScopedRead_(r);
+  const cid=c.id;
+  const cm=clientNameMap();
+
+  const p=rows("payments")
+    .filter(x=>String(x[2]||"").trim()===cid)
+    .map(x=>({date:x[1],clientName:c.name,clientId:cid,reference:x[3],description:x[4],amount:num(x[6]),method:x[7],enteredBy:x[9]}));
+
+  const ex=rows("expenses")
+    .filter(x=>String(x[2]||"").trim()===cid)
+    .map(x=>({date:x[1],clientName:c.name,clientId:cid,type:x[3],category:x[4],payee:x[5],description:x[6],amount:num(x[7]),method:x[8],reference:x[9],approvedBy:x[10]||"",enteredBy:x[12],username:x[13],receiptUrl:x[14]||"",receiptId:x[15]||"",recordStatus:String(x[16]||"Recorded")}));
+
+  const approvedEx=ex;
+  const totalPayments=p.reduce((a,x)=>a+x.amount,0);
+  const totalExpenses=approvedEx.filter(x=>x.type==="Expense").reduce((a,x)=>a+x.amount,0);
+  const refunds=approvedEx.filter(x=>x.type==="Refund").reduce((a,x)=>a+x.amount,0);
+  const income=approvedEx.filter(x=>x.type==="Other Income").reduce((a,x)=>a+x.amount,0);
+  const budgetRemaining=Math.max(0,c.budget-totalExpenses);
+  const cashPosition=totalPayments-totalExpenses+refunds+income;
+
+  const budget=getProjectBudgetData_(cid).map(x=>{
+    const actual=approvedEx
+      .filter(y=>y.category===x.category&&y.type==="Expense")
+      .reduce((a,y)=>a+y.amount,0);
+    const b=num(x.budget);
+    return{category:x.category,budget:b,actual,variance:b-actual,used:b?actual/b:0,remaining:Math.max(0,b-actual)};
+  }).filter(x=>x.budget||x.actual);
+
+  const recent=[...p.map(x=>({...x,type:"Client Payment"})),...ex.map(x=>({...x,type:x.type}))]
+    .sort((a,b)=>String(b.date).localeCompare(String(a.date))).slice(0,12);
+
+  // Activity is global by design; transaction data above is strictly project-scoped.
+  const av=rows("audit").slice(-100).reverse().map(x=>({time:x[0],action:x[1],username:x[2],name:x[3],details:x[4]}));
+  const cb=cashBalances({},u);
+  const tools=listToolsData_().filter(x=>String(x.clientId||"").trim()===cid);
+  const pendingExpenses=0;
+  const milestones=listMilestones({clientId:cid},u).milestones||[];
+  const overdueMilestones=milestones.filter(x=>x.status==="Overdue").length;
+  const overdueTools=tools.filter(x=>x.status==="Overdue").length;
+  const usedPct=c.budget?totalExpenses/c.budget*100:0;
+  const health=usedPct>=100||Math.max(0,c.budget-totalPayments)>c.budget*.5
+    ?"Critical"
+    :(usedPct>=75||Math.max(0,c.budget-totalPayments)>c.budget*.3||pendingExpenses||overdueMilestones||overdueTools)
+      ?"Attention":"Healthy";
+
+  const alerts=[];
+  if(overdueMilestones)alerts.push({level:"critical",title:"Overdue client milestone",detail:overdueMilestones+" payment milestone(s) are overdue."});
+  if(overdueTools)alerts.push({level:"attention",title:"Overdue construction tool",detail:overdueTools+" borrowed tool(s) are past their expected return date."});
+  if(usedPct>=75)alerts.push({level:usedPct>=100?"critical":"attention",title:"Budget utilization warning",detail:"Project spending has reached "+usedPct.toFixed(1)+"% of the contract budget."});
+  if(Math.max(0,c.budget-totalPayments)>c.budget*.3)alerts.push({level:"attention",title:"Uncollected balance",detail:"More than 30% of the contract value remains uncollected."});
+
+  const o={
+    ok:true,
+    clients:clientObjects(true),
+    selectedClientId:cid,
+    summary:{clientName:c.name,reference:c.reference,contractAmount:c.budget,totalPayments,totalExpenses,budgetRemaining,outstandingBalance:Math.max(0,c.budget-totalPayments),cashPosition,bankBalance:cb.bankBalance,cashOnHand:cb.cashOnHand,totalCash:cb.totalCash},
+    smart:{health,alerts,pendingExpenses,overdueMilestones,overdueTools},
+    cashBalances:cb,
+    tools:tools,
+    payments:p.slice(-100).reverse(),
+    expenses:ex.slice(-100).reverse(),
+    budget,
+    recent,
+    activity:av
+  };
+
+  if(u.role==="Admin"){
+    let uv=rows("users"),fc=uv.filter(x=>String(x[3])==="Finance"&&String(x[4]).toLowerCase()!=="false").length;
+    o.users=uv.map(x=>({username:x[0],name:x[1],role:x[3],active:String(x[4]).toLowerCase()!=="false"}));
+    o.financeCount=fc;
+    o.financeRegistrationOpen=String(settingsMap().RegistrationOpen).toLowerCase()!=="false";
+  }
+  return o;
+}
+
+function getProjectBudgetData_(cid){
+  requireClient_(cid,true);
+  // IMPORTANT: never fall back to the global "budget" sheet.
+  // A project may only read its own project_budgets rows.
+  return rows("project_budgets")
+    .filter(x=>String(x[0]||"").trim()===String(cid).trim())
+    .map(x=>({category:String(x[1]||""),budget:num(x[2])}))
+    .filter(x=>x.category);
+}
+function getProjectBudget(r,u){const c=requireProjectScopedRead_(r);return{ok:true,clientId:c.id,budget:getProjectBudgetData_(c.id)}}
+function saveProjectBudget(r,u){
+  adminOrFinance_(u);
+  const c=requireProjectScopedRead_(r);
+  const items=Array.isArray(r.items)?r.items:[];
+  if(!items.length)throw Error("Add at least one budget category.");
+  const clean=[],seen={};
+  items.forEach(x=>{
+    const cat=String(x.category||"").trim();
+    const b=Number(x.budget);
+    if(!cat)return;
+    if(!Number.isFinite(b)||b<0)throw Error("Invalid budget for "+cat+".");
+    const key=cat.toLowerCase();
+    if(seen[key])throw Error("Duplicate budget category: "+cat);
+    seen[key]=true;
+    clean.push([c.id,cat,b,new Date(),u.name]);
+  });
+  const sh=ensureSheet_("project_budgets",SHEETS.project_budgets);
+  for(let i=sh.getLastRow();i>=2;i--){
+    if(String(sh.getRange(i,1).getValue()||"").trim()===c.id)sh.deleteRow(i);
+  }
+  if(clean.length)sh.getRange(sh.getLastRow()+1,1,clean.length,5).setValues(clean);
+  audit("SAVE_PROJECT_BUDGET",u,c.name+" | "+clean.length+" categories");
+  return{ok:true,clientId:c.id,budget:clean.map(x=>({category:x[1],budget:x[2]}))};
+}
+
+function projectFinancialDashboard(r,u){
+  const c=requireProjectScopedRead_(r);
+  const cid=c.id;
+  const cm=clientNameMap();
+
+  const payments=rows("payments").map((x,i)=>({
+    row:i+2,date:x[1],clientId:String(x[2]||"").trim(),clientName:(cm[String(x[2]||"")]||{}).name||"",
+    reference:String(x[3]||""),description:String(x[4]||""),dueAmount:num(x[5]),amount:num(x[6]),method:String(x[7]||""),
     notes:String(x[8]||""),enteredBy:String(x[9]||""),username:String(x[10]||"")
-  }));
-  let expenses=rows("expenses").map((x,i)=>({
-    row:i+2,date:x[1],clientId:String(x[2]||""),clientName:(cm[String(x[2]||"")]||{}).name||"",
+  })).filter(x=>x.clientId===cid);
+
+  const expenses=rows("expenses").map((x,i)=>({
+    row:i+2,date:x[1],clientId:String(x[2]||"").trim(),clientName:(cm[String(x[2]||"")]||{}).name||"",
     type:String(x[3]||"Expense"),category:String(x[4]||"Other"),payee:String(x[5]||""),description:String(x[6]||""),
     amount:num(x[7]),method:String(x[8]||""),reference:String(x[9]||""),approvedBy:String(x[10]||""),
     notes:String(x[11]||""),enteredBy:String(x[12]||""),username:String(x[13]||""),receiptUrl:String(x[14]||""),receiptId:String(x[15]||""),
-    recordStatus:"Recorded"
+    recordStatus:String(x[16]||"Recorded")
   })).filter(x=>x.clientId===cid);
-  let approved=expenses;
-  let totalPayments=payments.reduce((a,x)=>a+x.amount,0);
-  let totalExpenses=approved.filter(x=>x.type==="Expense").reduce((a,x)=>a+x.amount,0);
-  let refunds=approved.filter(x=>x.type==="Refund").reduce((a,x)=>a+x.amount,0);
-  let income=approved.filter(x=>x.type==="Other Income").reduce((a,x)=>a+x.amount,0);
-  let projectCash=totalPayments-totalExpenses+refunds+income;
-  let budgetRemaining=Math.max(0,c.budget-totalExpenses);
-  let outstanding=Math.max(0,c.budget-totalPayments);
-  let collectionPct=c.budget?Math.min(100,totalPayments/c.budget*100):0;
-  let usedPct=c.budget?totalExpenses/c.budget*100:0;
 
-  let budget=getProjectBudgetData_(cid).map(x=>{
-    let b=num(x.budget),actual=approved.filter(y=>y.type==="Expense"&&String(y.category)===String(x.category)).reduce((a,y)=>a+y.amount,0);
+  const approved=expenses;
+  const totalPayments=payments.reduce((a,x)=>a+x.amount,0);
+  const totalExpenses=approved.filter(x=>x.type==="Expense").reduce((a,x)=>a+x.amount,0);
+  const refunds=approved.filter(x=>x.type==="Refund").reduce((a,x)=>a+x.amount,0);
+  const income=approved.filter(x=>x.type==="Other Income").reduce((a,x)=>a+x.amount,0);
+  const projectCash=totalPayments-totalExpenses+refunds+income;
+  const budgetRemaining=Math.max(0,c.budget-totalExpenses);
+  const outstanding=Math.max(0,c.budget-totalPayments);
+  const collectionPct=c.budget?Math.min(100,totalPayments/c.budget*100):0;
+  const usedPct=c.budget?totalExpenses/c.budget*100:0;
+
+  const budget=getProjectBudgetData_(cid).map(x=>{
+    const b=num(x.budget);
+    const actual=approved.filter(y=>y.type==="Expense"&&String(y.category)===String(x.category)).reduce((a,y)=>a+y.amount,0);
     return{category:String(x.category),budget:b,actual,variance:b-actual,used:b?actual/b:0,remaining:Math.max(0,b-actual)};
   }).filter(x=>x.budget||x.actual);
 
-  let milestones=(listMilestones({clientId:cid},u).milestones||[]);
-  let tools=listToolsData_().filter(x=>String(x.clientId||"")===cid || (!x.clientId&&String(x.project||"").trim()===String(c.name).trim()));
-  let overdueTools=tools.filter(x=>x.status==="Overdue").length;
-  let overdueMilestones=milestones.filter(x=>x.status==="Overdue").length;
-  let pendingExpenses=0;
+  const milestones=listMilestones({clientId:cid},u).milestones||[];
+  const tools=listToolsData_().filter(x=>String(x.clientId||"").trim()===cid);
   let receipts=[];
-  try{receipts=(listReceipts({project:c.name},u).receipts||[])}catch(e){receipts=[]}
+  try{receipts=(listReceipts({clientId:cid},u).receipts||[])}catch(e){receipts=[]}
 
-  let health=(usedPct>=100||outstanding>c.budget*.5)?"Critical":(usedPct>=75||outstanding>c.budget*.3||pendingExpenses||overdueMilestones||overdueTools)?"Attention":"Healthy";
-  let alerts=[];
+  const overdueTools=tools.filter(x=>x.status==="Overdue").length;
+  const overdueMilestones=milestones.filter(x=>x.status==="Overdue").length;
+  const pendingExpenses=0;
+  const health=(usedPct>=100||outstanding>c.budget*.5)
+    ?"Critical"
+    :(usedPct>=75||outstanding>c.budget*.3||pendingExpenses||overdueMilestones||overdueTools)
+      ?"Attention":"Healthy";
+
+  const alerts=[];
   if(pendingExpenses)alerts.push({level:"critical",title:"Expenses awaiting approval",detail:pendingExpenses+" pending expense transaction(s)."});
   if(overdueMilestones)alerts.push({level:"critical",title:"Overdue payment milestones",detail:overdueMilestones+" milestone(s) need attention."});
   if(overdueTools)alerts.push({level:"attention",title:"Overdue construction tools",detail:overdueTools+" tool(s) are past their expected return date."});
   if(usedPct>=75)alerts.push({level:usedPct>=100?"critical":"attention",title:"Budget utilization",detail:"Approved spending is at "+usedPct.toFixed(1)+"% of contract budget."});
   if(outstanding>c.budget*.3)alerts.push({level:"attention",title:"Client balance outstanding",detail:""+Math.round(100-collectionPct)+"% of the contract remains uncollected."});
 
-  let recent=[...payments.map(x=>({...x,recordType:"Client Payment"})),...expenses.map(x=>({...x,recordType:x.type||"Fund Transaction"}))]
+  const recent=[...payments.map(x=>({...x,recordType:"Client Payment"})),...expenses.map(x=>({...x,recordType:x.type||"Fund Transaction"}))]
     .sort((a,b)=>new Date(b.date||0)-new Date(a.date||0)).slice(0,15);
 
-  return{ok:true,project:{id:c.id,name:c.name,reference:c.reference,budget:c.budget,active:c.active},
+  return{
+    ok:true,
+    project:{id:c.id,name:c.name,reference:c.reference,budget:c.budget,active:c.active},
     summary:{contractAmount:c.budget,totalPayments,totalExpenses,budgetRemaining,outstandingBalance:outstanding,projectCash,cashProfit:projectCash,profitMargin:totalPayments?projectCash/totalPayments*100:0,collectionPct,budgetUsedPct:usedPct},
-    health:{status:health,alerts},counts:{payments:payments.length,expenses:expenses.length,approvedExpenses:approved.filter(x=>x.type==="Expense").length,pendingExpenses,receipts:receipts.length,tools:tools.length,borrowedTools:tools.filter(x=>x.status==="Borrowed"||x.status==="Overdue").length,overdueTools,milestones:milestones.length,overdueMilestones},
+    counts:{payments:payments.length,expenses:expenses.length,approvedExpenses:approved.filter(x=>x.type==="Expense").length,pendingExpenses,receipts:receipts.length,tools:tools.length,borrowedTools:tools.filter(x=>x.status==="Borrowed"||x.status==="Overdue").length,overdueTools,milestones:milestones.length,overdueMilestones},
     payments:payments.slice().reverse(),expenses:expenses.slice().reverse(),budget,milestones,tools,recent,receipts
   };
 }
-function addPayment(r,u){if(!r.clientId)throw Error("Select a client/project.");if(num(r.amount)<=0)throw Error("Amount paid must be greater than zero.");let cm=clientNameMap();if(!cm[String(r.clientId)]||!cm[String(r.clientId)].active)throw Error("Invalid or inactive client/project.");ss().getSheetByName("payments").appendRow([new Date(),r.date||"",r.clientId,r.reference||"",r.description||"",num(r.dueAmount),num(r.amount),r.method||"",r.notes||"",u.name,u.username]);audit("ADD_PAYMENT",u,(cm[String(r.clientId)].name+" | "+(r.description||"")+" | "+r.amount));return{ok:true}}
-function addExpense(r,u){if(!r.clientId)throw Error("Select a client/project.");if(num(r.amount)<=0)throw Error("Amount must be greater than zero.");let cm=clientNameMap();if(!cm[String(r.clientId)]||!cm[String(r.clientId)].active)throw Error("Invalid or inactive client/project.");let type=String(r.type||"Expense"),receipt=saveReceipt_(r.receiptData,r.receiptName,u,cm[String(r.clientId)]);let approvalStatus="Recorded",approvedBy="";ss().getSheetByName("expenses").appendRow([new Date(),r.date||"",r.clientId,type,r.category||"Other",r.payee||"",r.description||"",num(r.amount),r.method||"",r.reference||"",approvedBy,r.notes||"",u.name,u.username,receipt?receipt.url:"",receipt?receipt.id:"",approvalStatus]);let detail=(cm[String(r.clientId)].name+" | "+(r.category||"")+" | "+(r.description||"")+" | "+r.amount)+(receipt?" | Receipt attached":" | No receipt attached");audit("ADD_EXPENSE",u,detail);return{ok:true,receipt:receipt,recordStatus:"Recorded"}}
+
+function addPayment(r,u){
+  adminOrFinance_(u);
+  const c=requireProjectScopedRead_(r);
+  if(num(r.amount)<=0)throw Error("Amount paid must be greater than zero.");
+  ss().getSheetByName("payments").appendRow([
+    new Date(),r.date||"",c.id,r.reference||"",r.description||"",num(r.dueAmount),num(r.amount),
+    r.method||"",r.notes||"",u.name,u.username
+  ]);
+  audit("ADD_PAYMENT",u,(c.name+" | "+(r.description||"")+" | "+r.amount));
+  return{ok:true,clientId:c.id};
+}
+
+function addExpense(r,u){
+  adminOrFinance_(u);
+  const c=requireProjectScopedRead_(r);
+  if(num(r.amount)<=0)throw Error("Amount must be greater than zero.");
+  const type=String(r.type||"Expense");
+  const receipt=saveReceipt_(r.receiptData,r.receiptName,u,c);
+  const approvalStatus="Recorded",approvedBy="";
+  ss().getSheetByName("expenses").appendRow([
+    new Date(),r.date||"",c.id,type,r.category||"Other",r.payee||"",r.description||"",num(r.amount),
+    r.method||"",r.reference||"",approvedBy,r.notes||"",u.name,u.username,
+    receipt?receipt.url:"",receipt?receipt.id:"",approvalStatus
+  ]);
+  const detail=(c.name+" | "+(r.category||"")+" | "+(r.description||"")+" | "+r.amount)+(receipt?" | Receipt attached":" | No receipt attached");
+  audit("ADD_EXPENSE",u,detail);
+  return{ok:true,clientId:c.id,receipt:receipt,recordStatus:"Recorded"};
+}
+
 function listUsers(r,u){adminOnly(u);let set=settingsMap(),uv=rows("users"),fc=uv.filter(x=>String(x[3])==="Finance"&&String(x[4]).toLowerCase()!=="false").length;return{ok:true,users:uv.map(x=>({username:x[0],name:x[1],role:x[3],active:String(x[4]).toLowerCase()!=="false"})),financeCount:fc,financeRegistrationOpen:String(set.RegistrationOpen).toLowerCase()!=="false",clients:clientObjects(false)}}
 function upsertUser(r,u){adminOnly(u);if(!r.username||!r.name||!r.password)throw Error("Username, name and password are required.");if(String(r.password).length<8)throw Error("Password must be at least 8 characters.");let sh=ss().getSheetByName("users"),v=sh.getDataRange().getValues(),i=v.slice(1).findIndex(x=>String(x[0])===String(r.username)),now=new Date(),active=String(r.active)!=="FALSE";if(i<0)sh.appendRow([r.username,r.name,hash_(r.password),r.role||"Finance",active,now,now]);else sh.getRange(i+2,1,1,7).setValues([[r.username,r.name,hash_(r.password),r.role||"Finance",active,v[i+1][5]||now,now]]);audit("UPSERT_USER",u,String(r.username));return{ok:true}}
 function upsertClient(r,u){if(!r.name)throw Error("Client / Project Name is required.");if(num(r.budget)<0)throw Error("Contract budget cannot be negative.");let sh=ss().getSheetByName("clients"),v=sh.getDataRange().getValues(),id=r.id?String(r.id):Utilities.getUuid(),i=v.slice(1).findIndex(x=>String(x[0])===id),now=new Date(),active=String(r.active)!=="FALSE";if(i<0)sh.appendRow([id,r.name,r.reference||"",num(r.budget),active,now,now]);else sh.getRange(i+2,1,1,7).setValues([[id,r.name,r.reference||"",num(r.budget),active,v[i+1][5]||now,now]]);audit("UPSERT_CLIENT",u,String(r.name)+" | "+r.budget);return{ok:true}}
@@ -771,9 +1036,13 @@ function deleteClient(r,u){
   if(!r.clientId)throw Error("Client / Project ID is required.");
   let id=String(r.clientId),cm=clientNameMap(),c=cm[id];
   if(!c)throw Error("Client / project not found.");
-  let hasPayments=rows("payments").some(x=>String(x[2])===id);
-  let hasExpenses=rows("expenses").some(x=>String(x[2])===id);
-  if(hasPayments||hasExpenses)throw Error("This client/project has financial records. Archive it instead of deleting it.");
+  let hasPayments=rows("payments").some(x=>String(x[2]||"").trim()===id);
+  let hasExpenses=rows("expenses").some(x=>String(x[2]||"").trim()===id);
+  let hasTools=rows("tools").some(x=>String(x[12]||"").trim()===id);
+  let hasMilestones=rows("milestones").some(x=>String(x[1]||"").trim()===id);
+  let hasBudgets=rows("project_budgets").some(x=>String(x[0]||"").trim()===id);
+  if(hasPayments||hasExpenses||hasTools||hasMilestones||hasBudgets)
+    throw Error("This client/project has linked records. Archive it instead of deleting it.");
   let sh=ss().getSheetByName("clients"),v=sh.getDataRange().getValues(),i=v.slice(1).findIndex(x=>String(x[0])===id);
   sh.deleteRow(i+2);
   audit("DELETE_CLIENT",u,c.name);
@@ -781,23 +1050,25 @@ function deleteClient(r,u){
 }
 function deletePayment(r,u){
   adminOnly(u);
-  let row=Number(r.row);if(!Number.isInteger(row)||row<2)throw Error("Valid payment row is required.");
-  let sh=ss().getSheetByName("payments");if(row>sh.getLastRow())throw Error("Payment record not found.");
-  let vals=sh.getRange(row,1,1,sh.getLastColumn()).getValues()[0];
-  audit("DELETE_PAYMENT",u,String(vals[2]||"")+" | "+String(vals[4]||"")+" | "+num(vals[6]));
-  sh.deleteRow(row);
-  return{ok:true,message:"Payment deleted."};
-}
-function deleteExpense(r,u){
-  adminOnly(u);
-  let row=Number(r.row);if(!Number.isInteger(row)||row<2)throw Error("Valid expense row is required.");
-  let sh=ss().getSheetByName("expenses");if(row>sh.getLastRow())throw Error("Expense record not found.");
-  let vals=sh.getRange(row,1,1,sh.getLastColumn()).getValues()[0];
-  audit("DELETE_EXPENSE",u,String(vals[2]||"")+" | "+String(vals[6]||"")+" | "+num(vals[7]));
-  sh.deleteRow(row);
-  return{ok:true,message:"Expense deleted."};
+  const clientId=String(r.clientId||"").trim();
+  requireClient_(clientId,true);
+  const checked=requireRowClient_("payments",r.row,clientId,3);
+  const vals=checked.sheet.getRange(checked.row,1,1,checked.sheet.getLastColumn()).getValues()[0];
+  audit("DELETE_PAYMENT",u,clientId+" | "+String(vals[4]||"")+" | "+num(vals[6]));
+  checked.sheet.deleteRow(checked.row);
+  return{ok:true,clientId,message:"Payment deleted."};
 }
 
+function deleteExpense(r,u){
+  adminOnly(u);
+  const clientId=String(r.clientId||"").trim();
+  requireClient_(clientId,true);
+  const checked=requireRowClient_("expenses",r.row,clientId,3);
+  const vals=checked.sheet.getRange(checked.row,1,1,checked.sheet.getLastColumn()).getValues()[0];
+  audit("DELETE_EXPENSE",u,clientId+" | "+String(vals[6]||"")+" | "+num(vals[7]));
+  checked.sheet.deleteRow(checked.row);
+  return{ok:true,clientId,message:"Expense deleted."};
+}
 
 function deactivateUser(r,u){
   adminOnly(u);
@@ -904,54 +1175,52 @@ function listToolsData_(){
 }
 
 function listTools(r,u){
-  let cid=String(r.clientId||"");
-  let tools=listToolsData_();
-  if(cid){let cm=clientNameMap(),c=cm[cid];if(!c)throw Error("Invalid client/project.");tools=tools.filter(x=>String(x.clientId||"")===cid || (!x.clientId&&String(x.project||"").trim()===String(c.name).trim()));}
-  return{ok:true,tools};
+  const c=requireProjectScopedRead_(r);
+  const tools=listToolsData_().filter(x=>String(x.clientId||"").trim()===c.id);
+  return{ok:true,clientId:c.id,tools};
 }
 
 function addTool(r,u){
   adminOrFinance_(u);
+  const c=requireProjectScopedRead_(r);
   if(!r.tool)throw Error("Tool / Equipment name is required.");
   if(!r.borrower)throw Error("Borrowed By is required.");
-  let cid=String(r.clientId||"");
-  let cm=clientNameMap();
-  if(cid && (!cm[cid]||!cm[cid].active))throw Error("Invalid or inactive client/project.");
-  let project=cid?cm[cid].name:String(r.project||"");
+
   ensureSheet_("tools",SHEETS.tools).appendRow([
-    new Date(),String(r.tool),String(r.toolId||""),String(r.borrower),project,String(r.borrowed||""),
-    String(r.expectedReturn||""),String(r.returned||""),String(r.status||"Borrowed"),String(r.notes||""),u.name,u.username,cid
+    new Date(),String(r.tool),String(r.toolId||""),String(r.borrower),c.name,String(r.borrowed||""),
+    String(r.expectedReturn||""),String(r.returned||""),String(r.status||"Borrowed"),String(r.notes||""),
+    u.name,u.username,c.id
   ]);
-  audit("ADD_TOOL",u,project+" | "+String(r.tool)+" | Borrowed by: "+String(r.borrower));
-  return{ok:true};
+  audit("ADD_TOOL",u,c.name+" | "+String(r.tool)+" | Borrowed by: "+String(r.borrower));
+  return{ok:true,clientId:c.id};
 }
 
 function updateTool(r,u){
   adminOrFinance_(u);
-  let row=Number(r.row);
+  const row=Number(r.row);
   if(!row||row<2)throw Error("Invalid tool record.");
-
-  let sh=ss().getSheetByName("tools");
+  const sh=ss().getSheetByName("tools");
   if(row>sh.getLastRow())throw Error("Tool record not found.");
 
-  let old=sh.getRange(row,1,1,12).getValues()[0];
-  sh.getRange(row,1,1,12).setValues([[
+  const old=sh.getRange(row,1,1,13).getValues()[0];
+  const c=assertToolProject_(r,old);
+
+  sh.getRange(row,1,1,13).setValues([[
     old[0],
     String(r.tool||old[1]),
     String(r.toolId||old[2]),
     String(r.borrower||old[3]),
-    String(r.project||old[4]),
+    c.name,
     String(r.borrowed||old[5]),
     String(r.expectedReturn||old[6]),
     String(r.returned||old[7]),
     String(r.status||old[8]),
     String(r.notes||old[9]),
-    u.name,
-    u.username
+    u.name,u.username,c.id
   ]]);
 
-  audit("UPDATE_TOOL",u,String(r.tool||old[1])+" | Status: "+String(r.status||old[8]));
-  return{ok:true};
+  audit("UPDATE_TOOL",u,c.name+" | "+String(r.tool||old[1])+" | Status: "+String(r.status||old[8]));
+  return{ok:true,clientId:c.id};
 }
 
 function cashBalances(r,u){
@@ -1022,31 +1291,102 @@ function setSetting_(key,value){let sh=ss().getSheetByName("settings"),v=sh.getD
 
 function adminOrFinance_(u){if(!u || (u.role!=="Admin" && u.role!=="Finance"))throw Error("Authorized LIWO Finance users only.");}
 function listPendingExpenses(r,u){
-  let cm=clientNameMap(),out=[]; rows("expenses").forEach((x,i)=>{
-    let status=String(x[16]||((String(x[3])==="Expense")?"Approved":"Not Required"));
-    if(String(x[3])==="Expense"&&status==="Pending")out.push({row:i+2,date:x[1],clientId:x[2],clientName:(cm[String(x[2])]||{}).name||"",category:x[4],payee:x[5],description:x[6],amount:num(x[7]),enteredBy:x[12],username:x[13],receiptUrl:x[14]||""});
+  const c=requireProjectScopedRead_(r);
+  const cm=clientNameMap(),out=[];
+  rows("expenses").forEach(function(x,i){
+    const clientId=String(x[2]||"").trim();
+    if(clientId!==c.id)return;
+    const status=String(x[16]||((String(x[3])==="Expense")?"Approved":"Not Required"));
+    if(String(x[3])==="Expense"&&status==="Pending")
+      out.push({row:i+2,date:x[1],clientId,clientName:(cm[clientId]||{}).name||"",category:x[4],payee:x[5],description:x[6],amount:num(x[7]),enteredBy:x[12],username:x[13],receiptUrl:x[14]||""});
   });
-  return{ok:true,expenses:out.reverse()};
+  return{ok:true,clientId:c.id,expenses:out.reverse()};
 }
+
 function setExpenseApproval_(r,u,status){
-  adminOnly(u);let row=Number(r.row);if(!row||row<2)throw Error("Invalid expense record.");let sh=ss().getSheetByName("expenses");if(row>sh.getLastRow())throw Error("Expense record not found.");
-  let old=sh.getRange(row,1,1,17).getValues()[0];if(String(old[3])!=="Expense")throw Error("Only Expense transactions require approval.");
-  sh.getRange(row,11).setValue(status==="Approved"?u.name:"");sh.getRange(row,17).setValue(status);audit(status==="Approved"?"APPROVE_EXPENSE":"REJECT_EXPENSE",u,String(old[6]||old[5]||"")+" | "+old[7]);return{ok:true,status};
+  adminOnly(u);
+  const clientId=String(r.clientId||"").trim();
+  requireClient_(clientId,true);
+  const checked=requireRowClient_("expenses",r.row,clientId,3);
+  const old=checked.sheet.getRange(checked.row,1,1,17).getValues()[0];
+  if(String(old[3])!=="Expense")throw Error("Only Expense transactions require approval.");
+  checked.sheet.getRange(checked.row,11).setValue(status==="Approved"?u.name:"");
+  checked.sheet.getRange(checked.row,17).setValue(status);
+  audit(status==="Approved"?"APPROVE_EXPENSE":"REJECT_EXPENSE",u,clientId+" | "+String(old[6]||old[5]||"")+" | "+old[7]);
+  return{ok:true,clientId,status};
 }
 function approveExpense(r,u){return setExpenseApproval_(r,u,"Approved")}
 function rejectExpense(r,u){return setExpenseApproval_(r,u,"Rejected")}
 
 function listMilestones(r,u){
-  let cm=clientNameMap(),cid=String(r.clientId||"");let items=rows("milestones").filter(x=>!cid||String(x[1])===cid).map((x,i)=>({row:i+2,id:String(x[0]),clientId:String(x[1]),clientName:(cm[String(x[1])]||{}).name||"",milestone:String(x[2]||""),dueDate:x[3],amount:num(x[4]),status:String(x[5]||"Upcoming"),paidAmount:num(x[6]),notes:String(x[7]||""),createdAt:x[8],updatedAt:x[9],createdBy:String(x[10]||"")}));
-  items.forEach(x=>{if(x.status!=="Paid"&&x.dueDate&&new Date(x.dueDate)<new Date()&&x.status!=="Cancelled")x.status="Overdue"});return{ok:true,milestones:items};
+  const c=requireProjectScopedRead_(r);
+  const cm=clientNameMap();
+  const items=rows("milestones")
+    .map((x,i)=>({row:i+2,id:String(x[0]),clientId:String(x[1]||"").trim(),clientName:(cm[String(x[1]||"")]||{}).name||"",milestone:String(x[2]||""),dueDate:x[3],amount:num(x[4]),status:String(x[5]||"Upcoming"),paidAmount:num(x[6]),notes:String(x[7]||""),createdAt:x[8],updatedAt:x[9],createdBy:String(x[10]||"")}))
+    .filter(x=>x.clientId===c.id);
+  items.forEach(x=>{
+    if(x.status!=="Paid"&&x.dueDate&&new Date(x.dueDate)<new Date()&&x.status!=="Cancelled")x.status="Overdue";
+  });
+  return{ok:true,clientId:c.id,milestones:items};
 }
-function addMilestone(r,u){adminOrFinance_(u);let cid=String(r.clientId||"");let cm=clientNameMap();if(!cid||!r.milestone)throw Error("Client/project and milestone are required.");if(!cm[cid]||!cm[cid].active)throw Error("Invalid or inactive client/project.");if(num(r.amount)<0)throw Error("Milestone amount cannot be negative.");let id=Utilities.getUuid(),now=new Date();ensureSheet_("milestones",SHEETS.milestones).appendRow([id,cid,String(r.milestone),r.dueDate||"",num(r.amount),String(r.status||"Upcoming"),num(r.paidAmount),String(r.notes||""),now,now,u.name]);audit("ADD_MILESTONE",u,cm[cid].name+" | "+String(r.milestone)+" | "+r.amount);return{ok:true,id};}
-function updateMilestone(r,u){adminOrFinance_(u);let row=Number(r.row);if(!row||row<2)throw Error("Invalid milestone record.");let sh=ensureSheet_("milestones",SHEETS.milestones);if(row>sh.getLastRow())throw Error("Milestone not found.");let old=sh.getRange(row,1,1,11).getValues()[0],now=new Date();sh.getRange(row,1,1,11).setValues([[old[0],old[1],String(r.milestone||old[2]),r.dueDate||old[3],num(r.amount??old[4]),String(r.status||old[5]),num(r.paidAmount??old[6]),String(r.notes??old[7]),old[8],now,u.name]]);audit("UPDATE_MILESTONE",u,String(r.milestone||old[2]));return{ok:true};}
+
+function addMilestone(r,u){
+  adminOrFinance_(u);
+  const c=requireProjectScopedRead_(r);
+  if(!r.milestone)throw Error("Client/project and milestone are required.");
+  if(num(r.amount)<0)throw Error("Milestone amount cannot be negative.");
+  const id=Utilities.getUuid(),now=new Date();
+  ensureSheet_("milestones",SHEETS.milestones).appendRow([
+    id,c.id,String(r.milestone),r.dueDate||"",num(r.amount),String(r.status||"Upcoming"),
+    num(r.paidAmount),String(r.notes||""),now,now,u.name
+  ]);
+  audit("ADD_MILESTONE",u,c.name+" | "+String(r.milestone)+" | "+r.amount);
+  return{ok:true,id,clientId:c.id};
+}
+
+function updateMilestone(r,u){
+  adminOrFinance_(u);
+  const clientId=String(r.clientId||"").trim();
+  const c=requireClient_(clientId,true);
+  const row=Number(r.row);
+  if(!row||row<2)throw Error("Invalid milestone record.");
+  const sh=ensureSheet_("milestones",SHEETS.milestones);
+  if(row>sh.getLastRow())throw Error("Milestone not found.");
+  const old=sh.getRange(row,1,1,11).getValues()[0];
+  if(String(old[1]||"").trim()!==c.id)
+    throw Error("Project scope violation: this milestone belongs to another project.");
+  const now=new Date();
+  sh.getRange(row,1,1,11).setValues([[
+    old[0],c.id,String(r.milestone||old[2]),r.dueDate||old[3],num(r.amount??old[4]),
+    String(r.status||old[5]),num(r.paidAmount??old[6]),String(r.notes??old[7]),old[8],now,u.name
+  ]]);
+  audit("UPDATE_MILESTONE",u,c.name+" | "+String(r.milestone||old[2]));
+  return{ok:true,clientId:c.id};
+}
 
 function verifyReceipt(r,u){adminOrFinance_(u);let id=String(r.receiptId||"");if(!id)throw Error("Receipt ID is required.");let sh=ensureSheet_("receipt_verification",SHEETS.receipt_verification),v=sh.getDataRange().getValues(),i=v.slice(1).findIndex(x=>String(x[0])===id),now=new Date(),status=String(r.status||"Verified");if(!["Pending","Verified","Rejected"].includes(status))throw Error("Invalid receipt status.");let row=[id,status,u.name,now,String(r.notes||"")];if(i<0)sh.appendRow(row);else sh.getRange(i+2,1,1,5).setValues([row]);audit("VERIFY_RECEIPT",u,status+" | "+id);return{ok:true,status};}
 function receiptVerificationMap_(){let m={};rows("receipt_verification").forEach(x=>m[String(x[0])]={status:String(x[1]||"Pending"),verifiedBy:String(x[2]||""),verifiedAt:x[3],notes:String(x[4]||"")});return m;}
 function reconcileCash(r,u){adminOrFinance_(u);let expected=cashBalances({},u),ab=Number(r.actualBank),ao=Number(r.actualCashOnHand);if(!Number.isFinite(ab)||ab<0||!Number.isFinite(ao)||ao<0)throw Error("Enter valid actual bank and cash-on-hand balances.");let variance=(ab+ao)-expected.totalCash,sh=ensureSheet_("cash_reconciliation",SHEETS.cash_reconciliation),now=new Date();sh.appendRow([now,expected.bankBalance,expected.cashOnHand,ab,ao,variance,String(r.notes||""),u.name]);audit("RECONCILE_CASH",u,"Variance: "+variance);return{ok:true,expectedBank:expected.bankBalance,expectedCashOnHand:expected.cashOnHand,actualBank:ab,actualCashOnHand:ao,variance};}
-function returnTool(r,u){adminOrFinance_(u);let row=Number(r.row);if(!row||row<2)throw Error("Invalid tool record.");let sh=ss().getSheetByName("tools");if(row>sh.getLastRow())throw Error("Tool record not found.");let old=sh.getRange(row,1,1,12).getValues()[0],returned=r.returned||Utilities.formatDate(new Date(),Session.getScriptTimeZone(),"yyyy-MM-dd");sh.getRange(row,8).setValue(returned);sh.getRange(row,9).setValue("Returned");sh.getRange(row,10).setValue(String(r.notes||old[9]||""));sh.getRange(row,11).setValue(u.name);sh.getRange(row,12).setValue(u.username);audit("RETURN_TOOL",u,String(old[1])+" | Returned: "+returned);return{ok:true};}
+function returnTool(r,u){
+  adminOrFinance_(u);
+  const row=Number(r.row);
+  if(!row||row<2)throw Error("Invalid tool record.");
+  const sh=ss().getSheetByName("tools");
+  if(row>sh.getLastRow())throw Error("Tool record not found.");
+  const old=sh.getRange(row,1,1,13).getValues()[0];
+  const c=assertToolProject_(r,old);
+  const returned=r.returned||Utilities.formatDate(new Date(),Session.getScriptTimeZone(),"yyyy-MM-dd");
+  sh.getRange(row,5).setValue(c.name);
+  sh.getRange(row,8).setValue(returned);
+  sh.getRange(row,9).setValue("Returned");
+  sh.getRange(row,10).setValue(String(r.notes||old[9]||""));
+  sh.getRange(row,11).setValue(u.name);
+  sh.getRange(row,12).setValue(u.username);
+  sh.getRange(row,13).setValue(c.id);
+  audit("RETURN_TOOL",u,c.name+" | "+String(old[1])+" | Returned: "+returned);
+  return{ok:true,clientId:c.id};
+}
+
 function audit(a,u,d){ss().getSheetByName("audit").appendRow([new Date(),a,u.username,u.name,d])}
 
 /* ===================== LIWO EXECUTIVE + AUTOMATED REPORTING ===================== */
