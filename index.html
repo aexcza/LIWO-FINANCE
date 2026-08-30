@@ -1177,6 +1177,42 @@ th{background:#f3f7f9;color:#4e6678;letter-spacing:.045em;text-transform:upperca
 .page.active{display:block!important}
 </style>
 
+
+<style id="liwo-final-operational-spacing-and-admin-guard">
+/* Compact operational pages: remove the oversized vertical gaps on both desktop and mobile. */
+#toolsPage, #cashPage, #receiptsPage{
+  height:auto!important; min-height:0!important; padding-bottom:0!important;
+}
+#toolsPage .page-heading, #receiptsPage .page-heading{margin:4px 0 12px!important;}
+#cashPage .page-header{margin:4px 0 12px!important;}
+#toolsPage .panel, #cashPage .panel, #receiptsPage .panel{margin-bottom:12px!important;}
+#toolsPage .panel-head, #cashPage .panel-head, #receiptsPage .panel-head{padding:13px 16px!important;}
+#toolsPage .grid{padding:14px!important;gap:10px!important;}
+#toolsPage .table-wrap{padding-bottom:0!important;}
+#cashPage .cash-balance-grid{gap:10px!important;margin-bottom:10px!important;}
+#cashPage .cash-balance-card{padding:13px!important;}
+#cashPage .card{padding:14px!important;}
+#cashPage .reconciliation-panel{margin-bottom:12px!important;}
+#receiptsPage .panel[style*="margin-top"]{margin-top:10px!important;}
+#receiptsPage .receipt-toolbar{padding:12px!important;}
+#receiptsPage .receipt-grid{padding:10px!important;gap:10px!important;}
+
+/* User Management must not be visible to Finance / LIWO Executive accounts. */
+body:not(.liwo-admin-session) #usersNav,
+body:not(.liwo-admin-session) #mobileUsersNav,
+body:not(.liwo-admin-session) #usersPage{display:none!important;}
+@media(max-width:900px){
+  #toolsPage .page-heading, #receiptsPage .page-heading{margin:2px 0 10px!important;}
+  #cashPage .page-header{margin:2px 0 10px!important;}
+  #toolsPage .panel, #cashPage .panel, #receiptsPage .panel{margin-bottom:10px!important;}
+  #toolsPage .grid{padding:12px!important;gap:9px!important;}
+  #cashPage .cash-balance-grid{gap:8px!important;margin-bottom:9px!important;}
+  #cashPage .cash-balance-card{padding:11px!important;}
+  #cashPage .card{padding:12px!important;}
+  #receiptsPage .receipt-toolbar{padding:10px!important;}
+  #receiptsPage .receipt-grid{padding:8px!important;gap:8px!important;}
+}
+</style>
 </head>
 <body>
 <div id="liwoLoadingOverlay" aria-hidden="true">
@@ -1760,7 +1796,7 @@ async function login(e){
   }
 }
 async function register(e){e.preventDefault();$("registerError").textContent="";if($("regPassword").value!==$("regConfirm").value){$("registerError").textContent="Passwords do not match.";return}try{await api("registerFinance",{name:$("regName").value.trim(),username:$("regUsername").value.trim(),password:$("regPassword").value,inviteCode:$("regInvite").value});toast("Account created. You can now sign in.");$("loginUsername").value=$("regUsername").value;tabs(false);$("registerForm").reset()}catch(x){$("registerError").textContent=x.message}}
-function showApp(){$("loginView").classList.add("hidden");$("appView").classList.remove("hidden");const name=session.user.name||session.user.username;const role=session.user.role||"Finance";$("currentUser").textContent=name+" • "+session.user.username;$("currentRole").textContent=role;$("topName").textContent=name;$("topRole").textContent=role==="Admin"?"Administrator":"LIWO Executives";$("topAvatar").textContent=initials(name);$("menuUserName").textContent=name;$("menuUserRole").textContent=role==="Admin"?"Administrator":"LIWO Executives";applyProfilePhoto();if(session.user.role==="Admin"){$("usersNav").classList.remove("hidden");$("mobileUsersNav").classList.remove("hidden");$("adminDashboard").classList.remove("hidden")}}
+function showApp(){$("loginView").classList.add("hidden");$("appView").classList.remove("hidden");const name=session.user.name||session.user.username;const role=session.user.role||"Finance";document.body.classList.toggle("liwo-admin-session",String(role).trim().toLowerCase()==="admin");$("currentUser").textContent=name+" • "+session.user.username;$("currentRole").textContent=role;$("topName").textContent=name;$("topRole").textContent=role==="Admin"?"Administrator":"LIWO Executives";$("topAvatar").textContent=initials(name);$("menuUserName").textContent=name;$("menuUserRole").textContent=role==="Admin"?"Administrator":"LIWO Executives";applyProfilePhoto();if(session.user.role==="Admin"){$("usersNav").classList.remove("hidden");$("mobileUsersNav").classList.remove("hidden");$("adminDashboard").classList.remove("hidden")}}
 function logout(){closeHeaderMenus();session=null;sessionStorage.removeItem("cf_session");$("appView").classList.add("hidden");$("loginView").classList.remove("hidden")}
 function closeHeaderMenus(){const n=$("notificationDropdown"),u=$("userDropdown");if(n){n.classList.add("hidden");$("notificationBtn")?.setAttribute("aria-expanded","false")}if(u){u.classList.add("hidden");$("userMenuBtn")?.setAttribute("aria-expanded","false")}}
 async function toggleNotificationMenu(){const n=$("notificationDropdown");if(!n)return;const opening=n.classList.contains("hidden");closeHeaderMenus();if(opening){await loadServerNotifications();n.classList.remove("hidden");$("notificationBtn").setAttribute("aria-expanded","true")}}
@@ -2094,6 +2130,36 @@ function printReport(){
 })();
 <\/script>
 
+
+<script id="liwo-admin-session-visibility">
+(function(){
+  function syncAdminVisibility(){
+    var isAdmin=String(window.session?.user?.role||"").trim().toLowerCase()==="admin";
+    document.body.classList.toggle("liwo-admin-session",isAdmin);
+    var nav=document.getElementById("usersNav"), mnav=document.getElementById("mobileUsersNav"), page=document.getElementById("usersPage");
+    if(nav)nav.classList.toggle("hidden",!isAdmin);
+    if(mnav)mnav.classList.toggle("hidden",!isAdmin);
+    if(!isAdmin && page && (page.classList.contains("active") || !page.classList.contains("hidden"))){
+      if(typeof window.switchPage==="function")window.switchPage("dashboard");
+      else {page.classList.add("hidden");page.classList.remove("active");}
+    }
+  }
+  document.addEventListener("DOMContentLoaded",syncAdminVisibility);
+  var oldShow=window.showApp;
+  if(typeof oldShow==="function"){
+    window.showApp=function(){var r=oldShow.apply(this,arguments);syncAdminVisibility();return r;};
+  }
+  document.addEventListener("click",function(e){
+    var b=e.target.closest("[data-page=\"users\"]");
+    if(!b)return;
+    if(String(window.session?.user?.role||"").trim().toLowerCase()!=="admin"){
+      e.preventDefault(); e.stopImmediatePropagation();
+      syncAdminVisibility();
+      if(typeof window.toast==="function")toast("User Management is available to administrators only.");
+    }
+  },true);
+})();
+</script>
 </body></html>`);
   w.document.close();w.focus();setTimeout(()=>w.print(),500);
 }
@@ -2144,7 +2210,22 @@ async function loadProjectFinancialDashboard(){
     const rr=await api("listReceipts",{token:session.token,clientId:id,project:id}); const list=rr.receipts||[]; set("pdReceiptCount",list.length); body("pdReceiptsBody",list.slice(0,8).map(x=>`<tr><td>${esc(x.name||"Receipt")}</td><td>${esc(x.createdAt||"—")}</td><td>${esc(x.status||x.verification||"Pending")}</td></tr>`).join("")||'<tr><td colspan="3" class="empty">No receipts for this project.</td></tr>');
   }catch(e){set("pdReceiptCount",0);body("pdReceiptsBody",'<tr><td colspan="3" class="empty">No receipts available.</td></tr>')}
 }
-function switchPage(p){document.querySelectorAll(".page").forEach(x=>{let active=x.id===p+"Page";x.classList.toggle("hidden",!active);x.classList.toggle("active",active)});document.querySelectorAll(".nav button,.mobile-nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===p));$("pageTitle").textContent={dashboard:"Dashboard",projectDashboard:"Project Financials",payments:"Client Payments",expenses:"Fund Transactions",budget:"Budget vs Actual",activity:"Activity Log",clients:"Clients / Projects",tools:"Construction Tools",cash:"Cash Position",receipts:"Receipts",reports:"Reports / Export",users:"User Management"}[p]||"Dashboard";if(p==="projectDashboard"){fillClients();loadProjectFinancialDashboard();}if(p==="users"){loadUsers();if(session?.user?.role==="Admin")loadReportSettings();}if(p==="reports"){renderReport();window.bindLIWOPrintControls?.();}if(p==="tools")loadTools();if(p==="cash")loadCash();if(p==="receipts")loadReceipts()}
+function switchPage(p){
+  /* User Management is an ADMIN-only area. Never allow non-admin users to open it, even by direct JS navigation. */
+  if(p==="users" && String(session?.user?.role||"").trim().toLowerCase()!=="admin"){
+    p="dashboard";
+    try{toast("User Management is available to administrators only.")}catch(e){}
+  }
+  document.querySelectorAll(".page").forEach(x=>{let active=x.id===p+"Page";x.classList.toggle("hidden",!active);x.classList.toggle("active",active)});
+  document.querySelectorAll(".nav button,.mobile-nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===p));
+  $("pageTitle").textContent={dashboard:"Dashboard",projectDashboard:"Project Financials",payments:"Client Payments",expenses:"Fund Transactions",budget:"Budget vs Actual",activity:"Activity Log",clients:"Clients / Projects",tools:"Construction Tools",cash:"Cash Position",receipts:"Receipts",reports:"Reports / Export",users:"User Management"}[p]||"Dashboard";
+  if(p==="projectDashboard"){fillClients();loadProjectFinancialDashboard();}
+  if(p==="users"){loadUsers();if(session?.user?.role==="Admin")loadReportSettings();}
+  if(p==="reports"){renderReport();window.bindLIWOPrintControls?.();}
+  if(p==="tools")loadTools();
+  if(p==="cash")loadCash();
+  if(p==="receipts")loadReceipts()
+}
 async function __liwoOriginalLoadUsers(){try{let o=await api("listUsers",{token:session.token});data.users=o.users;data.financeCount=o.financeCount;data.financeRegistrationOpen=o.financeRegistrationOpen;data.clients=o.clients;render()}catch(x){toast(x.message)}}
 document.addEventListener("DOMContentLoaded",()=>{
 $("loginTab").onclick=()=>tabs(false);$("registerTab").onclick=()=>tabs(true);$("loginForm").onsubmit=login;$("registerForm").onsubmit=register;$("logoutBtn").onclick=logout;$("menuLogoutBtn").onclick=logout;$("refreshBtn").onclick=refresh;$("printReportBtn").onclick=printReport;$("saveReportBtn").onclick=printReport;$("exportReportBtn").onclick=exportReportCSV;$("reportPeriod").onchange=renderReport;$("notificationBtn").onclick=toggleNotificationMenu;$("userMenuBtn").onclick=toggleUserMenu;$("markNotificationsRead").onclick=markNotificationsRead;$("profileMenuBtn").onclick=openProfile;$("profileCloseBtn").onclick=closeProfile;$("profileDoneBtn").onclick=closeProfile;$("profilePhotoInput").onchange=e=>saveProfilePhoto(e.target.files[0]);$("removeProfilePhotoBtn").onclick=removeProfilePhoto;$("profileUsernameSaveBtn").onclick=saveProfileUsername;$("profileModal").onclick=e=>{if(e.target.id==="profileModal")closeProfile()};document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeHeaderMenus();closeProfile()}});document.addEventListener("click",e=>{if(!e.target.closest(".top-user"))closeHeaderMenus()});
