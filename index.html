@@ -1587,7 +1587,128 @@ function printReport(){
   const styles=[...document.querySelectorAll("style")].map(x=>x.textContent).join("\n");
   w.document.open();
   w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>LIWO Financial Report</title><style>${styles}
-body{background:#fff!important;margin:0;padding:0;font-family:Arial,sans-serif;color:#111}.report-preview{display:block!important;max-width:none!important;width:100%!important;border:0!important;box-shadow:none!important;margin:0!important;padding:0!important}.report-preview table{width:100%;border-collapse:collapse}.report-preview a{color:#123451;text-decoration:none}@page{size:A4 landscape;margin:10mm}</style></head><body>${source.outerHTML}
+body{background:#fff!important;margin:0;padding:0;font-family:Arial,sans-serif;color:#111}.report-preview{display:block!important;max-width:none!important;width:100%!important;border:0!important;box-shadow:none!important;margin:0!important;padding:0!important}.report-preview table{width:100%;border-collapse:collapse}.report-preview a{color:#123451;text-decoration:none}@page{size:A4 landscape;margin:10mm}</style></head><body>${source.outerHTML}</body></html>`);
+  w.document.close();
+  w.focus();
+  setTimeout(()=>{w.print();},350);
+}
+function exportReportCSV(){let r=reportRecords(),lines=[];const q=v=>`"${String(v??"").replace(/"/g,'""')}"`;lines.push(["LIWO ENGINEERING & CONSULTANCY","Financial Report"].map(q).join(","));lines.push(["Client / Project",r.client?.name||data.summary?.projectName||"All"].map(q).join(","));lines.push([]);lines.push(["SUMMARY","Amount"].map(q).join(","));[["Contract Budget",r.contract],["Total Payments",r.totalPayments],["Total Expenses",r.totalExpenses],["Funds Available",r.available],["Uncollected Balance",r.balance],["Cash Position",r.net]].forEach(x=>lines.push(x.map(q).join(",")));lines.push([]);lines.push(["EXPENSES"].map(q).join(","));lines.push(["Date","Type","Category","Payee / Supplier","Description","Payment Method","Entered By","Amount"].map(q).join(","));r.expenses.forEach(x=>lines.push([x.date,x.type||"Expense",x.category,x.payee,x.description,x.method,x.enteredBy,x.amount].map(q).join(",")));lines.push([]);lines.push(["CLIENT PAYMENTS"].map(q).join(","));lines.push(["Date","Reference","Description / Milestone","Method","Entered By","Amount Paid"].map(q).join(","));r.payments.forEach(x=>lines.push([x.date,x.reference,x.description,x.method,x.enteredBy,x.amount].map(q).join(",")));let blob=new Blob(["\ufeff"+lines.join("\n")],{type:"text/csv;charset=utf-8;"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`LIWO-Finance-${(r.client?.name||"Report").replace(/[^a-z0-9]+/gi,"-")}.csv`;a.click();URL.revokeObjectURL(a.href);toast("Report CSV saved.")}
+function switchPage(p){document.querySelectorAll(".page").forEach(x=>{let active=x.id===p+"Page";x.classList.toggle("hidden",!active);x.classList.toggle("active",active)});document.querySelectorAll(".nav button,.mobile-nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===p));$("pageTitle").textContent={dashboard:"Dashboard",projectDashboard:"Project Financials",payments:"Client Payments",expenses:"Fund Transactions",budget:"Budget vs Actual",activity:"Activity Log",clients:"Clients / Projects",tools:"Construction Tools",cash:"Cash Position",receipts:"Receipts",reports:"Reports / Export",users:"User Management"}[p]||"Dashboard";if(p==="projectDashboard")loadProjectFinancialDashboard();if(p==="users")loadUsers();if(p==="reports")renderReport();if(p==="tools")loadTools();if(p==="cash")loadCash();if(p==="receipts")loadReceipts()}
+async function __liwoOriginalLoadUsers(){try{let o=await api("listUsers",{token:session.token});data.users=o.users;data.financeCount=o.financeCount;data.financeRegistrationOpen=o.financeRegistrationOpen;data.clients=o.clients;render()}catch(x){toast(x.message)}}
+document.addEventListener("DOMContentLoaded",()=>{
+$("loginTab").onclick=()=>tabs(false);$("registerTab").onclick=()=>tabs(true);$("loginForm").onsubmit=login;$("registerForm").onsubmit=register;$("logoutBtn").onclick=logout;$("menuLogoutBtn").onclick=logout;$("refreshBtn").onclick=refresh;$("printReportBtn").onclick=printReport;$("saveReportBtn").onclick=printReport;$("exportReportBtn").onclick=exportReportCSV;$("reportClient").onchange=()=>{selectedClientId=$("reportClient").value;renderReport()};$("reportPeriod").onchange=renderReport;$("notificationBtn").onclick=toggleNotificationMenu;$("userMenuBtn").onclick=toggleUserMenu;$("markNotificationsRead").onclick=markNotificationsRead;$("profileMenuBtn").onclick=openProfile;$("profileCloseBtn").onclick=closeProfile;$("profileDoneBtn").onclick=closeProfile;$("profilePhotoInput").onchange=e=>saveProfilePhoto(e.target.files[0]);$("removeProfilePhotoBtn").onclick=removeProfilePhoto;$("profileModal").onclick=e=>{if(e.target.id==="profileModal")closeProfile()};document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeHeaderMenus();closeProfile()}});document.addEventListener("click",e=>{if(!e.target.closest(".top-user"))closeHeaderMenus()});
+document.querySelectorAll(".nav button,.mobile-nav button").forEach(b=>b.onclick=()=>switchPage(b.dataset.page));
+$("dashboardClient").onchange=async()=>{selectedClientId=$("dashboardClient").value;await refresh()};
+$("paymentClient").onchange=()=>{$("paymentClient").value=selectedClientId||$("paymentClient").value;toast("Client / Project is locked to the Active Project. Change the Active Project at the top.")};
+$("expenseClient").onchange=()=>{$("expenseClient").value=selectedClientId||$("expenseClient").value;toast("Client / Project is locked to the Active Project. Change the Active Project at the top.")};
+$("clientBaseBudget")?.addEventListener("input",updateClientTotal);$("additionalDesignFee")?.addEventListener("input",updateClientTotal);$("clientCancelEdit")?.addEventListener("click",resetClientForm);$("clientsBody")?.addEventListener("click",e=>{const b=e.target.closest(".edit-client-btn");if(b)editClient(b.dataset.clientId)});$("paymentForm").onsubmit=e=>{e.preventDefault();save("addPayment",e.target)};$("expenseForm").onsubmit=e=>{e.preventDefault();save("addExpense",e.target)};$("receiptInput").onchange=e=>{let f=e.target.files[0];if($("receiptFileName"))$("receiptFileName").textContent=f?`${f.name} selected`:`Optional — you can take a photo or upload a receipt. No receipt is also allowed.`};$("userForm").onsubmit=e=>{e.preventDefault();save("upsertUser",e.target)};
+$("toolForm").onsubmit=async e=>{
+  e.preventDefault();
+  try{
+    let p=formObj(e.target);p.token=session.token;p.clientId=selectedClientId;if(!p.clientId)throw Error("Select an Active Project before recording a tool.");
+    await api("addTool",p);toast("Tool borrowing record saved.");e.target.reset();
+    $("toolBorrowedDate").value=today();await loadTools();
+  }catch(x){toast(x.message);const grid=$("receiptGrid");if(grid)grid.innerHTML='<div class="receipt-empty" style="grid-column:1/-1">Unable to load receipts: '+esc(x.message)+'</div>'}
+};
+$("toolClearBtn").onclick=()=>$("toolForm").reset();
+$("refreshToolsBtn").onclick=loadTools;$("receiptProjectFilter")?.addEventListener("change",loadReceipts);$("refreshReceiptsBtn")?.addEventListener("click",loadReceipts);
+$("saveCashBalanceBtn").onclick=async()=>{
+  try{
+    let balance=Number($("cashBalanceInput").value);
+    if(!Number.isFinite(balance)||balance<0)throw Error("Enter a valid balance.");
+    let o=await api("updateCashBalance",{token:session.token,account:$("cashAccount").value,balance,notes:$("cashBalanceNotes").value});
+    $("cashBankValue").textContent=peso(o.bankBalance);$("cashOnHandValue").textContent=peso(o.cashOnHand);$("cashTotalValue").textContent=peso(o.totalCash);
+    toast("Cash balance updated.");
+  }catch(x){toast(x.message)}
+};
+$("clientForm").onsubmit=e=>{e.preventDefault();save("upsertClient",e.target)};$("inviteForm").onsubmit=e=>{e.preventDefault();save("changeInvite",e.target)};
+$("reopenBtn").onclick=async()=>{try{await api("reopenRegistration",{token:session.token});toast("LIWO Executive registration reopened.");await loadUsers()}catch(x){toast(x.message)}};
+document.querySelectorAll('[name="date"]').forEach(x=>x.value=today());if($("toolBorrowedDate"))$("toolBorrowedDate").value=today();
+let old=sessionStorage.getItem("cf_session");if(old){try{session=JSON.parse(old);showApp();refresh()}catch{}}});
+
+async function loadTools(){
+  try{
+    let o=await api("listTools",{token:session.token,clientId:selectedClientId});
+    let body=$("toolsBody");
+    if(!body)return;
+    body.innerHTML=(o.tools||[]).map(x=>`<tr>
+      <td>${esc(x.tool)}</td><td>${esc(x.toolId||"—")}</td><td>${esc(x.borrower)}</td>
+      <td>${esc(x.project||"—")}</td><td>${esc(x.borrowed||"—")}</td>
+      <td>${esc(x.expectedReturn||"—")}</td><td>${esc(x.status||"Borrowed")}</td><td>${esc(x.enteredBy||"—")}</td>
+    </tr>`).join("")||'<tr><td colspan="8" style="text-align:center;padding:20px">No tool records yet.</td></tr>';
+  }catch(x){toast(x.message)}
+}
+async function loadCash(){
+  try{
+    let o=await api("cashBalances",{token:session.token});
+    $("cashBankValue").textContent=peso(o.bankBalance);
+    $("cashOnHandValue").textContent=peso(o.cashOnHand);
+    $("cashTotalValue").textContent=peso(o.totalCash);
+  }catch(x){toast(x.message)}
+}
+
+async function loadReceipts(){ try{
+  let project=$("receiptProjectFilter")?.value||selectedClientId||"";
+  let o=await api("listReceipts",{token:session.token,project,clientId:project});
+  let sel=$("receiptProjectFilter");
+  if(sel&&sel.options.length<=1)(o.projects||[]).forEach(p=>{
+    let op=document.createElement("option");op.value=p.id||p.value||p.name||p;
+    op.textContent=p.name||p.project||p.value||p;sel.appendChild(op)
+  });
+  let grid=$("receiptGrid"),list=o.receipts||[];
+  if($("receiptCount"))$("receiptCount").textContent="Receipts ("+list.length+")";
+  if(!grid)return;
+  grid.innerHTML=list.length?list.map(x=>{
+    let img=x.mimeType&&x.mimeType.indexOf("image/")===0;
+    let thumb=x.preview
+      ? `<img src="${esc(x.preview)}" alt="Receipt" style="width:100%;height:150px;object-fit:cover;border-radius:12px">`
+      : img ? `<div style="font-size:42px;text-align:center;padding:35px 0">🧾</div>`
+      : `<div style="font-size:42px;text-align:center;padding:35px 0">📄</div>`;
+    let size=x.size?((Number(x.size)/1048576).toFixed(2)+" MB"):"";
+    let url=x.url||x.webViewLink||x.fileUrl||"";
+    return `<article class="receipt-card">
+      ${thumb}
+      <div style="padding:12px">
+        <div style="font-weight:700">${esc(x.name||"Receipt")}</div>
+        <div style="color:#718395;margin-top:4px">${esc(x.project||"")}</div>
+        ${size?`<div style="color:#718395;font-size:12px;margin-top:3px">${esc(size)}</div>`:""}
+        ${url?`<a href="${esc(url)}" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-top:10px">Open Receipt</a>`:""}
+      </div>
+    </article>`;
+  }).join(""):'<div class="empty-state">No receipts found.</div>';
+}catch(x){toast(x.message)} }
+document.addEventListener("DOMContentLoaded",()=>{
+  const createBtn=document.getElementById("createAccountBtn");
+  const backBtn=document.getElementById("backToLogin");
+  const intro=document.getElementById("loginIntro");
+  const loginForm=document.getElementById("loginForm");
+  const registerForm=document.getElementById("registerForm");
+  const or=document.querySelector(".auth-or");
+  const security=document.querySelector(".security-note");
+  const footer=document.querySelector(".auth-footer");
+  function showLogin(){
+    loginForm.classList.remove("hidden"); registerForm.classList.add("hidden");
+    intro.classList.remove("hidden"); or?.classList.remove("hidden"); createBtn?.classList.remove("hidden");
+    security?.classList.remove("hidden"); footer?.classList.remove("hidden");
+  }
+  function showRegister(){
+    loginForm.classList.add("hidden"); registerForm.classList.remove("hidden");
+    intro.classList.add("hidden"); or?.classList.add("hidden"); createBtn?.classList.add("hidden");
+    security?.classList.add("hidden"); footer?.classList.add("hidden");
+  }
+  createBtn?.addEventListener("click",showRegister);
+  backBtn?.addEventListener("click",showLogin);
+  document.querySelectorAll(".password-toggle").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const input=document.getElementById(btn.dataset.target);
+      if(!input)return;
+      input.type=input.type==="password"?"text":"password";
+      btn.textContent=input.type==="password"?"◉":"◌";
+    });
+  });
+  document.getElementById("forgotBtn")?.addEventListener("click",()=>toast("Please contact the LIWO administrator to reset your account."));
+});
+</script>
 <script id="liwo-smart-features-js">
 (function(){
  const q=id=>document.getElementById(id), escF=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
@@ -1713,224 +1834,6 @@ body{background:#fff!important;margin:0;padding:0;font-family:Arial,sans-serif;c
   document.addEventListener("DOMContentLoaded",()=>setTimeout(loadReportConfig,500));
 })();
 </script>
-
-
-<div id="receipt-folder-config-note" style="display:none">
-  <span>Receipt storage is controlled by the Google Drive Receipt Folder ID in Code.gs. Project subfolders are created automatically.</span>
-</div>
-
-
-<section id="liwo-report-recipient-config" class="panel" style="margin-top:16px">
-  <div class="panel-head">
-    <div>
-      <h3 style="margin:0">Automated Financial Reports</h3>
-      <p style="margin:4px 0 0;color:#718395">
-        Weekly report every Sunday, plus separate complete project financial reports.
-      </p>
-    </div>
-  </div>
-  <div style="padding:16px;display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px">
-    <label>Report Recipients
-      <textarea id="reportRecipientsInput" rows="3" placeholder="finance@example.com&#10;admin@example.com&#10;owner@example.com"></textarea>
-    </label>
-    <label>Weekly Day
-      <select id="weeklyReportDay">
-        <option>MONDAY</option><option>TUESDAY</option><option>WEDNESDAY</option>
-        <option>THURSDAY</option><option>FRIDAY</option><option>SATURDAY</option>
-        <option selected>SUNDAY</option>
-      </select>
-    </label>
-    <label>Report Hour
-      <input id="weeklyReportHour" type="number" min="0" max="23" value="17">
-    </label>
-  </div>
-  <div style="padding:0 16px 16px;display:flex;gap:8px;flex-wrap:wrap">
-    <button id="saveReportRecipientsBtn" class="primary" type="button">Save Recipients</button>
-    <button id="saveWeeklyReportConfigBtn" class="secondary" type="button">Save Weekly Schedule</button>
-    <button id="enableWeeklyReportBtn" class="secondary" type="button">Enable Weekly Auto-Report</button>
-    <button id="disableWeeklyReportBtn" class="secondary" type="button">Disable Weekly Auto-Report</button>
-    <button id="generateWeeklyReportBtn" class="secondary" type="button">Generate Weekly PDF Now</button>
-    <button id="generateMonthlyReportBtn" class="secondary" type="button">Generate Monthly PDF Now</button>
-    <button id="generateProjectFinancialReportBtn" class="secondary" type="button">Generate Selected Project PDF</button>
-  </div>
-  <div id="reportConfigStatus" style="padding:0 16px 16px;color:#718395"></div>
-</section>
-<script id="liwo-report-recipient-config-script">
-(function(){
-  const $r=id=>document.getElementById(id);
-  const status=m=>{const el=$r("reportConfigStatus");if(el)el.textContent=m||""};
-  async function loadReportConfig(){
-    try{
-      if(!window.session?.token || typeof api!=="function")return;
-      const r=await api("getReportConfig",{token:session.token});
-      const c=r.config||{};
-      if($r("reportRecipientsInput"))$r("reportRecipientsInput").value=(c.recipients||[]).join("\\n");
-      if($r("weeklyReportDay"))$r("weeklyReportDay").value=c.weeklyDay||"SUNDAY";
-      if($r("weeklyReportHour"))$r("weeklyReportHour").value=Number(c.weeklyHour??17);
-      status(c.weeklyEnabled?"Weekly automated report: ENABLED":"Weekly automated report: DISABLED");
-    }catch(e){status(e.message||String(e))}
-  }
-  async function saveRecipients(){
-    const emails=String($r("reportRecipientsInput")?.value||"").split(/[,\n;]+/).map(x=>x.trim()).filter(Boolean);
-    const r=await api("setReportRecipients",{token:session.token,emails});
-    status("Saved "+(r.recipients||[]).length+" report recipient(s).");
-  }
-  async function saveSchedule(enabled){
-    const config={
-      weeklyEnabled:enabled,
-      weeklyDay:$r("weeklyReportDay")?.value||"SUNDAY",
-      weeklyHour:Number($r("weeklyReportHour")?.value||17)
-    };
-    await api("saveReportConfig",{token:session.token,config});
-    const t=await api("installWeeklyReportTrigger",{token:session.token});
-    status(t.enabled?"Weekly report enabled every "+t.day+" around "+t.hour+":00.":"Weekly report disabled.");
-  }
-  $r("saveReportRecipientsBtn")?.addEventListener("click",async()=>{try{await saveRecipients()}catch(e){status(e.message||String(e))}});
-  $r("saveWeeklyReportConfigBtn")?.addEventListener("click",async()=>{try{await saveSchedule(true)}catch(e){status(e.message||String(e))}});
-  $r("enableWeeklyReportBtn")?.addEventListener("click",async()=>{try{await saveSchedule(true)}catch(e){status(e.message||String(e))}});
-  $r("disableWeeklyReportBtn")?.addEventListener("click",async()=>{try{await saveSchedule(false)}catch(e){status(e.message||String(e))}});
-  $r("generateWeeklyReportBtn")?.addEventListener("click",async()=>{
-    try{const r=await api("generateWeeklyReport",{token:session.token});status("Weekly PDF generated and emailed to "+(r.recipients?.length||0)+" recipient(s).");if(r.pdfUrl)window.open(r.pdfUrl,"_blank")}catch(e){status(e.message||String(e))}
-  });
-  $r("generateMonthlyReportBtn")?.addEventListener("click",async()=>{
-    try{const r=await api("generateMonthlyReport",{token:session.token});status("Monthly PDF generated and emailed to "+(r.recipients?.length||0)+" recipient(s).");if(r.pdfUrl)window.open(r.pdfUrl,"_blank")}catch(e){status(e.message||String(e))}
-  });
-  $r("generateProjectFinancialReportBtn")?.addEventListener("click",async()=>{
-    try{
-      const project=$r("dashboardClient")?.value||$r("reportClient")?.value||selectedClientId||"";
-      if(!project)throw Error("Select an Active Project first.");
-      const r=await api("generateProjectFinancialReport",{token:session.token,clientId:project});
-      status("Complete project financial PDF generated and saved to Drive.");
-      if(r.pdfUrl)window.open(r.pdfUrl,"_blank");
-    }catch(e){status(e.message||String(e))}
-  });
-  document.addEventListener("DOMContentLoaded",()=>setTimeout(loadReportConfig,700));
-})();
-</script>
-
-</body></html>`);
-  w.document.close();
-  w.focus();
-  setTimeout(()=>{w.print();},350);
-}
-function exportReportCSV(){let r=reportRecords(),lines=[];const q=v=>`"${String(v??"").replace(/"/g,'""')}"`;lines.push(["LIWO ENGINEERING & CONSULTANCY","Financial Report"].map(q).join(","));lines.push(["Client / Project",r.client?.name||data.summary?.projectName||"All"].map(q).join(","));lines.push([]);lines.push(["SUMMARY","Amount"].map(q).join(","));[["Contract Budget",r.contract],["Total Payments",r.totalPayments],["Total Expenses",r.totalExpenses],["Funds Available",r.available],["Uncollected Balance",r.balance],["Cash Position",r.net]].forEach(x=>lines.push(x.map(q).join(",")));lines.push([]);lines.push(["EXPENSES"].map(q).join(","));lines.push(["Date","Type","Category","Payee / Supplier","Description","Payment Method","Entered By","Amount"].map(q).join(","));r.expenses.forEach(x=>lines.push([x.date,x.type||"Expense",x.category,x.payee,x.description,x.method,x.enteredBy,x.amount].map(q).join(",")));lines.push([]);lines.push(["CLIENT PAYMENTS"].map(q).join(","));lines.push(["Date","Reference","Description / Milestone","Method","Entered By","Amount Paid"].map(q).join(","));r.payments.forEach(x=>lines.push([x.date,x.reference,x.description,x.method,x.enteredBy,x.amount].map(q).join(",")));let blob=new Blob(["\ufeff"+lines.join("\n")],{type:"text/csv;charset=utf-8;"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`LIWO-Finance-${(r.client?.name||"Report").replace(/[^a-z0-9]+/gi,"-")}.csv`;a.click();URL.revokeObjectURL(a.href);toast("Report CSV saved.")}
-function switchPage(p){document.querySelectorAll(".page").forEach(x=>{let active=x.id===p+"Page";x.classList.toggle("hidden",!active);x.classList.toggle("active",active)});document.querySelectorAll(".nav button,.mobile-nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===p));$("pageTitle").textContent={dashboard:"Dashboard",projectDashboard:"Project Financials",payments:"Client Payments",expenses:"Fund Transactions",budget:"Budget vs Actual",activity:"Activity Log",clients:"Clients / Projects",tools:"Construction Tools",cash:"Cash Position",receipts:"Receipts",reports:"Reports / Export",users:"User Management"}[p]||"Dashboard";if(p==="projectDashboard")loadProjectFinancialDashboard();if(p==="users")loadUsers();if(p==="reports")renderReport();if(p==="tools")loadTools();if(p==="cash")loadCash();if(p==="receipts")loadReceipts()}
-async function __liwoOriginalLoadUsers(){try{let o=await api("listUsers",{token:session.token});data.users=o.users;data.financeCount=o.financeCount;data.financeRegistrationOpen=o.financeRegistrationOpen;data.clients=o.clients;render()}catch(x){toast(x.message)}}
-document.addEventListener("DOMContentLoaded",()=>{
-$("loginTab").onclick=()=>tabs(false);$("registerTab").onclick=()=>tabs(true);$("loginForm").onsubmit=login;$("registerForm").onsubmit=register;$("logoutBtn").onclick=logout;$("menuLogoutBtn").onclick=logout;$("refreshBtn").onclick=refresh;$("printReportBtn").onclick=printReport;$("saveReportBtn").onclick=printReport;$("exportReportBtn").onclick=exportReportCSV;$("reportClient").onchange=()=>{selectedClientId=$("reportClient").value;renderReport()};$("reportPeriod").onchange=renderReport;$("notificationBtn").onclick=toggleNotificationMenu;$("userMenuBtn").onclick=toggleUserMenu;$("markNotificationsRead").onclick=markNotificationsRead;$("profileMenuBtn").onclick=openProfile;$("profileCloseBtn").onclick=closeProfile;$("profileDoneBtn").onclick=closeProfile;$("profilePhotoInput").onchange=e=>saveProfilePhoto(e.target.files[0]);$("removeProfilePhotoBtn").onclick=removeProfilePhoto;$("profileModal").onclick=e=>{if(e.target.id==="profileModal")closeProfile()};document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeHeaderMenus();closeProfile()}});document.addEventListener("click",e=>{if(!e.target.closest(".top-user"))closeHeaderMenus()});
-document.querySelectorAll(".nav button,.mobile-nav button").forEach(b=>b.onclick=()=>switchPage(b.dataset.page));
-$("dashboardClient").onchange=async()=>{selectedClientId=$("dashboardClient").value;await refresh()};
-$("paymentClient").onchange=()=>{$("paymentClient").value=selectedClientId||$("paymentClient").value;toast("Client / Project is locked to the Active Project. Change the Active Project at the top.")};
-$("expenseClient").onchange=()=>{$("expenseClient").value=selectedClientId||$("expenseClient").value;toast("Client / Project is locked to the Active Project. Change the Active Project at the top.")};
-$("clientBaseBudget")?.addEventListener("input",updateClientTotal);$("additionalDesignFee")?.addEventListener("input",updateClientTotal);$("clientCancelEdit")?.addEventListener("click",resetClientForm);$("clientsBody")?.addEventListener("click",e=>{const b=e.target.closest(".edit-client-btn");if(b)editClient(b.dataset.clientId)});$("paymentForm").onsubmit=e=>{e.preventDefault();save("addPayment",e.target)};$("expenseForm").onsubmit=e=>{e.preventDefault();save("addExpense",e.target)};$("receiptInput").onchange=e=>{let f=e.target.files[0];if($("receiptFileName"))$("receiptFileName").textContent=f?`${f.name} selected`:`Optional — you can take a photo or upload a receipt. No receipt is also allowed.`};$("userForm").onsubmit=e=>{e.preventDefault();save("upsertUser",e.target)};
-$("toolForm").onsubmit=async e=>{
-  e.preventDefault();
-  try{
-    let p=formObj(e.target);p.token=session.token;p.clientId=selectedClientId;if(!p.clientId)throw Error("Select an Active Project before recording a tool.");
-    await api("addTool",p);toast("Tool borrowing record saved.");e.target.reset();
-    $("toolBorrowedDate").value=today();await loadTools();
-  }catch(x){toast(x.message);const grid=$("receiptGrid");if(grid)grid.innerHTML='<div class="receipt-empty" style="grid-column:1/-1">Unable to load receipts: '+esc(x.message)+'</div>'}
-};
-$("toolClearBtn").onclick=()=>$("toolForm").reset();
-$("refreshToolsBtn").onclick=loadTools;$("receiptProjectFilter")?.addEventListener("change",loadReceipts);$("refreshReceiptsBtn")?.addEventListener("click",loadReceipts);
-$("saveCashBalanceBtn").onclick=async()=>{
-  try{
-    let balance=Number($("cashBalanceInput").value);
-    if(!Number.isFinite(balance)||balance<0)throw Error("Enter a valid balance.");
-    let o=await api("updateCashBalance",{token:session.token,account:$("cashAccount").value,balance,notes:$("cashBalanceNotes").value});
-    $("cashBankValue").textContent=peso(o.bankBalance);$("cashOnHandValue").textContent=peso(o.cashOnHand);$("cashTotalValue").textContent=peso(o.totalCash);
-    toast("Cash balance updated.");
-  }catch(x){toast(x.message)}
-};
-$("clientForm").onsubmit=e=>{e.preventDefault();save("upsertClient",e.target)};$("inviteForm").onsubmit=e=>{e.preventDefault();save("changeInvite",e.target)};
-$("reopenBtn").onclick=async()=>{try{await api("reopenRegistration",{token:session.token});toast("LIWO Executive registration reopened.");await loadUsers()}catch(x){toast(x.message)}};
-document.querySelectorAll('[name="date"]').forEach(x=>x.value=today());if($("toolBorrowedDate"))$("toolBorrowedDate").value=today();
-let old=sessionStorage.getItem("cf_session");if(old){try{session=JSON.parse(old);showApp();refresh()}catch{}}});
-
-async function loadTools(){
-  try{
-    let o=await api("listTools",{token:session.token,clientId:selectedClientId});
-    let body=$("toolsBody");
-    if(!body)return;
-    body.innerHTML=(o.tools||[]).map(x=>`<tr>
-      <td>${esc(x.tool)}</td><td>${esc(x.toolId||"—")}</td><td>${esc(x.borrower)}</td>
-      <td>${esc(x.project||"—")}</td><td>${esc(x.borrowed||"—")}</td>
-      <td>${esc(x.expectedReturn||"—")}</td><td>${esc(x.status||"Borrowed")}</td><td>${esc(x.enteredBy||"—")}</td>
-    </tr>`).join("")||'<tr><td colspan="8" style="text-align:center;padding:20px">No tool records yet.</td></tr>';
-  }catch(x){toast(x.message)}
-}
-async function loadCash(){
-  try{
-    let o=await api("cashBalances",{token:session.token});
-    $("cashBankValue").textContent=peso(o.bankBalance);
-    $("cashOnHandValue").textContent=peso(o.cashOnHand);
-    $("cashTotalValue").textContent=peso(o.totalCash);
-  }catch(x){toast(x.message)}
-}
-
-async function loadReceipts(){ try{
-  let project=$("receiptProjectFilter")?.value||selectedClientId||"";
-  let o=await api("listReceipts",{token:session.token,project,clientId:project});
-  let sel=$("receiptProjectFilter");
-  if(sel&&sel.options.length<=1)(o.projects||[]).forEach(p=>{
-    let op=document.createElement("option");op.value=p.id||p.value||p.name||p;
-    op.textContent=p.name||p.project||p.value||p;sel.appendChild(op)
-  });
-  let grid=$("receiptGrid"),list=o.receipts||[];
-  if($("receiptCount"))$("receiptCount").textContent="Receipts ("+list.length+")";
-  if(!grid)return;
-  grid.innerHTML=list.length?list.map(x=>{
-    let img=x.mimeType&&x.mimeType.indexOf("image/")===0;
-    let thumb=x.preview
-      ? `<img src="${esc(x.preview)}" alt="Receipt" style="width:100%;height:150px;object-fit:cover;border-radius:12px">`
-      : img ? `<div style="font-size:42px;text-align:center;padding:35px 0">🧾</div>`
-      : `<div style="font-size:42px;text-align:center;padding:35px 0">📄</div>`;
-    let size=x.size?((Number(x.size)/1048576).toFixed(2)+" MB"):"";
-    let url=x.url||x.webViewLink||x.fileUrl||"";
-    return `<article class="receipt-card">
-      ${thumb}
-      <div style="padding:12px">
-        <div style="font-weight:700">${esc(x.name||"Receipt")}</div>
-        <div style="color:#718395;margin-top:4px">${esc(x.project||"")}</div>
-        ${size?`<div style="color:#718395;font-size:12px;margin-top:3px">${esc(size)}</div>`:""}
-        ${url?`<a href="${esc(url)}" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-top:10px">Open Receipt</a>`:""}
-      </div>
-    </article>`;
-  }).join(""):'<div class="empty-state">No receipts found.</div>';
-}catch(x){toast(x.message)} }
-document.addEventListener("DOMContentLoaded",()=>{
-  const createBtn=document.getElementById("createAccountBtn");
-  const backBtn=document.getElementById("backToLogin");
-  const intro=document.getElementById("loginIntro");
-  const loginForm=document.getElementById("loginForm");
-  const registerForm=document.getElementById("registerForm");
-  const or=document.querySelector(".auth-or");
-  const security=document.querySelector(".security-note");
-  const footer=document.querySelector(".auth-footer");
-  function showLogin(){
-    loginForm.classList.remove("hidden"); registerForm.classList.add("hidden");
-    intro.classList.remove("hidden"); or?.classList.remove("hidden"); createBtn?.classList.remove("hidden");
-    security?.classList.remove("hidden"); footer?.classList.remove("hidden");
-  }
-  function showRegister(){
-    loginForm.classList.add("hidden"); registerForm.classList.remove("hidden");
-    intro.classList.add("hidden"); or?.classList.add("hidden"); createBtn?.classList.add("hidden");
-    security?.classList.add("hidden"); footer?.classList.add("hidden");
-  }
-  createBtn?.addEventListener("click",showRegister);
-  backBtn?.addEventListener("click",showLogin);
-  document.querySelectorAll(".password-toggle").forEach(btn=>{
-    btn.addEventListener("click",()=>{
-      const input=document.getElementById(btn.dataset.target);
-      if(!input)return;
-      input.type=input.type==="password"?"text":"password";
-      btn.textContent=input.type==="password"?"◉":"◌";
-    });
-  });
-  document.getElementById("forgotBtn")?.addEventListener("click",()=>toast("Please contact the LIWO administrator to reset your account."));
-});
-</script>
-
 <script>
 /* LIWO Admin User Management: deactivate/reactivate/delete */
 (function(){
