@@ -694,7 +694,14 @@ textarea{min-height:82px;resize:vertical}
 }
 </style>
 
-
+<style id="liwo-page-isolation-fix">
+.page[data-page-section="receipts"]{display:none}
+.page[data-page-section="receipts"].active{display:block}
+#receiptsPage .receipt-toolbar,#receiptsPage .receipt-grid,#receiptsPage .receipt-card,
+#receiptsPage #receiptProjectFilter,#receiptsPage #refreshReceiptsBtn,#receiptsPage #receiptGrid,#receiptsPage #receiptCount{
+  box-sizing:border-box;
+}
+</style>
 
 <style id="liwo-user-actions-final">
 .user-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
@@ -1207,390 +1214,273 @@ body:not(.liwo-admin-session) #usersPage{display:none!important;}
 }
 </style>
 
-
-
-<style id="liwo-absolute-operational-spacing-fix">
-/* FINAL OPERATIONAL PAGE FIX — compact layout with no reserved blank viewport space */
-#toolsPage.active, #cashPage.active, #receiptsPage.active{
-  display:block!important;
-  position:relative!important;
-  height:auto!important;
-  min-height:0!important;
-  max-height:none!important;
-  margin:0!important;
-  padding:0!important;
-  overflow:visible!important;
-}
-#toolsPage.active > *, #cashPage.active > *, #receiptsPage.active > *{
-  position:relative!important;
-  height:auto!important;
-  min-height:0!important;
-  max-height:none!important;
-}
-#toolsPage.active .page-heading, #receiptsPage.active .page-heading, #cashPage.active .page-header{
-  margin:0 0 8px!important;
-  padding:0!important;
-  height:auto!important;
-  min-height:0!important;
-}
-#toolsPage.active .page-heading h2, #receiptsPage.active .page-heading h2, #cashPage.active .page-header h1{
-  margin:0 0 3px!important;
-}
-#toolsPage.active .panel, #cashPage.active .panel, #cashPage.active .card, #receiptsPage.active .panel{
-  margin-top:0!important;
-  margin-bottom:8px!important;
-  height:auto!important;
-  min-height:0!important;
-}
-#toolsPage.active .panel-head, #cashPage.active .panel-head, #receiptsPage.active .panel-head{
-  padding:10px 14px!important;
-  min-height:0!important;
-}
-#toolsPage.active .grid{padding:10px!important;gap:8px!important}
-#toolsPage.active .table-wrap, #cashPage.active .table-wrap, #receiptsPage.active .table-wrap{
-  height:auto!important;min-height:0!important;max-height:none!important;padding:0!important;margin:0!important;
-}
-#toolsPage.active .table-wrap table{margin:0!important}
-#cashPage.active .cash-balance-grid{
-  display:grid!important;
-  height:auto!important;min-height:0!important;
-  margin:0 0 8px!important;gap:8px!important;
-}
-#cashPage.active .cash-balance-card{height:auto!important;min-height:0!important;padding:10px!important}
-#cashPage.active .cash-balance-value{margin-top:4px!important}
-#cashPage.active .card{padding:11px!important}
-#cashPage.active .card h2{margin:0 0 5px!important}
-#cashPage.active .cash-update-copy{margin:0 0 8px!important}
-#cashPage.active .cash-balance-actions{gap:8px!important}
-#cashPage.active .reconciliation-panel{margin:0 0 8px!important}
-#cashPage.active .reconciliation-panel .grid{padding:10px!important;gap:8px!important}
-#receiptsPage.active .receipt-toolbar{padding:8px!important}
-#receiptsPage.active .receipt-grid{height:auto!important;min-height:0!important;padding:8px!important;gap:8px!important}
-#receiptsPage.active .receipt-empty{padding:20px!important}
-/* The global project scope duplicates the project selector on these operational pages. Hide it here so it cannot create unnecessary vertical space. */
-body.liwO-operational-page #globalProjectScope{display:none!important}
-@media(max-width:900px){
-  #toolsPage.active .panel, #cashPage.active .panel, #cashPage.active .card, #receiptsPage.active .panel{margin-bottom:6px!important}
-  #toolsPage.active .grid{padding:9px!important;gap:7px!important}
-  #cashPage.active .cash-balance-grid{gap:7px!important;margin-bottom:7px!important}
-  #cashPage.active .cash-balance-card{padding:9px!important}
-  #cashPage.active .card{padding:10px!important}
-  #cashPage.active .reconciliation-panel .grid{padding:9px!important;gap:7px!important}
-  #receiptsPage.active .receipt-toolbar{padding:7px!important}
-  #receiptsPage.active .receipt-grid{padding:7px!important;gap:7px!important}
-}
-</style>
-
-<style id="liwo-definitive-operational-layout">
-/* Definitive operational-page layout: no artificial vertical space. */
-#toolsPage,#cashPage,#receiptsPage{margin:0!important;padding:0!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;}
-#toolsPage.active,#cashPage.active,#receiptsPage.active{display:block!important;visibility:visible!important;position:static!important;height:auto!important;min-height:0!important;max-height:none!important;margin:0!important;padding:0!important;overflow:visible!important;}
-#toolsPage.active>* ,#cashPage.active>* ,#receiptsPage.active>*{position:static!important;height:auto!important;min-height:0!important;max-height:none!important;transform:none!important;}
-#toolsPage.active .page-heading,#receiptsPage.active .page-heading,#cashPage.active .page-header{margin:0 0 10px!important;padding:0!important;height:auto!important;min-height:0!important;}
-#toolsPage.active .page-heading h2,#receiptsPage.active .page-heading h2,#cashPage.active .page-header h1{margin:0!important;}
-#toolsPage.active .panel,#cashPage.active .panel,#cashPage.active .card,#receiptsPage.active .panel{margin:0 0 10px!important;height:auto!important;min-height:0!important;}
-#toolsPage.active .grid{padding:12px!important;gap:9px!important;}
-#cashPage.active .cash-balance-grid{display:grid!important;height:auto!important;min-height:0!important;margin:0 0 10px!important;gap:10px!important;}
-#cashPage.active .cash-balance-card{height:auto!important;min-height:0!important;padding:13px!important;}
-#receiptsPage.active .receipt-toolbar{padding:10px!important;}
-#receiptsPage.active .receipt-grid{height:auto!important;min-height:0!important;padding:10px!important;gap:10px!important;}
-/* The active project is already selected in the main header; this duplicate bar caused the visual gap. */
-.main:has(#toolsPage.active) > #globalProjectScope,.main:has(#cashPage.active) > #globalProjectScope,.main:has(#receiptsPage.active) > #globalProjectScope{display:none!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;}
-@media(max-width:900px){
- #toolsPage.active .page-heading,#receiptsPage.active .page-heading,#cashPage.active .page-header{margin:0 0 8px!important;}
- #toolsPage.active .panel,#cashPage.active .panel,#cashPage.active .card,#receiptsPage.active .panel{margin-bottom:8px!important;}
- #toolsPage.active .grid{padding:9px!important;gap:7px!important;}
- #cashPage.active .cash-balance-grid{gap:8px!important;margin-bottom:8px!important;}
- #cashPage.active .cash-balance-card{padding:10px!important;}
- #receiptsPage.active .receipt-toolbar,#receiptsPage.active .receipt-grid{padding:8px!important;}
-}
-</style>
-
-<style id="liwo-true-operational-gap-fix">
+<style id="liwo-desktop-operational-layout-final">
 /* =========================================================
-   LIWO FINAL OPERATIONAL GAP FIX
-   Tools / Cash Position / Receipts
-   Removes reserved vertical space and keeps a tight desktop
-   layout without changing any business logic.
+   LIWO DESKTOP OPERATIONAL PAGES
+   Fixes overlap + excessive whitespace without touching logic.
+   Mobile rules remain controlled by the existing @media blocks.
    ========================================================= */
-
-#toolsPage,
-#cashPage,
-#receiptsPage,
-#toolsPage.active,
-#cashPage.active,
-#receiptsPage.active{
-  display:block!important;
-  box-sizing:border-box!important;
-  width:100%!important;
-  max-width:none!important;
-  height:auto!important;
-  min-height:0!important;
-  max-height:none!important;
-  margin:0!important;
-  padding:0!important;
-  position:relative!important;
-  top:auto!important;
-  bottom:auto!important;
-  transform:none!important;
-  overflow:visible!important;
-}
-
-/* The page heading must sit immediately above its content. */
-#toolsPage.active .page-heading,
-#receiptsPage.active .page-heading,
-#cashPage.active .page-header{
-  display:flex!important;
-  box-sizing:border-box!important;
-  height:auto!important;
-  min-height:0!important;
-  margin:0 0 10px!important;
-  padding:0!important;
-}
-
-/* No child is allowed to reserve viewport/flex space. */
-#toolsPage.active > *,
-#cashPage.active > *,
-#receiptsPage.active > *{
-  box-sizing:border-box!important;
-  height:auto!important;
-  min-height:0!important;
-  max-height:none!important;
-  margin-top:0!important;
-}
-
-/* Operational panels stay content-sized. */
-#toolsPage.active .panel,
-#cashPage.active .panel,
-#cashPage.active .card,
-#receiptsPage.active .panel{
-  height:auto!important;
-  min-height:0!important;
-  max-height:none!important;
-  margin-top:0!important;
-  margin-bottom:10px!important;
-}
-
-/* Eliminate table/receipt containers as a source of empty height. */
-#toolsPage.active .table-wrap,
-#cashPage.active .table-wrap,
-#receiptsPage.active .table-wrap,
-#toolsPage.active .receipt-grid,
-#receiptsPage.active .receipt-grid{
-  height:auto!important;
-  min-height:0!important;
-  max-height:none!important;
-  margin-top:0!important;
-  margin-bottom:0!important;
-}
-
-/* Cash cards must be content-sized. */
-#cashPage.active .cash-balance-grid{
-  height:auto!important;
-  min-height:0!important;
-  margin-top:0!important;
-  margin-bottom:10px!important;
-}
-
-#cashPage.active .cash-balance-card{
-  height:auto!important;
-  min-height:0!important;
-}
-
-/* The global project strip is redundant on these pages. */
-body.liwO-operational-page #globalProjectScope,
-.main:has(#toolsPage.active) > #globalProjectScope,
-.main:has(#cashPage.active) > #globalProjectScope,
-.main:has(#receiptsPage.active) > #globalProjectScope{
-  display:none!important;
-  width:0!important;
-  height:0!important;
-  min-height:0!important;
-  max-height:0!important;
-  margin:0!important;
-  padding:0!important;
-  overflow:hidden!important;
-}
-
-/* Tight desktop relationship between topbar and operational content. */
 @media (min-width:901px){
-  .main:has(#toolsPage.active) .topbar,
-  .main:has(#cashPage.active) .topbar,
-  .main:has(#receiptsPage.active) .topbar{
-    margin-bottom:10px!important;
+
+  /* Keep these pages in normal document flow. */
+  #toolsPage,
+  #cashPage,
+  #receiptsPage{
+    display:block;
+    width:100%;
+    max-width:none;
+    height:auto!important;
+    min-height:0!important;
+    margin:0!important;
+    padding:0 0 24px!important;
+    overflow:visible!important;
+    box-sizing:border-box;
   }
 
-  #toolsPage.active .page-heading h2,
-  #receiptsPage.active .page-heading h2,
-  #cashPage.active .page-header h1{
+  #toolsPage > *,
+  #cashPage > *,
+  #receiptsPage > *{
+    box-sizing:border-box;
+  }
+
+  /* ---------- Construction Tools ---------- */
+  #toolsPage .page-heading{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin:0 0 14px!important;
+    min-height:46px;
+  }
+
+  #toolsPage .panel{
+    width:100%;
+    margin:0 0 14px!important;
+    overflow:hidden;
+  }
+
+  #toolsPage #toolForm{
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:14px!important;
+    padding:16px!important;
+    align-items:end;
+  }
+
+  #toolsPage #toolForm > div{
+    min-width:0!important;
+    width:100%!important;
+  }
+
+  #toolsPage #toolForm .wide{
+    grid-column:1/-1!important;
+  }
+
+  #toolsPage #toolForm .wide[style*="display:flex"]{
+    display:flex!important;
+    align-items:center!important;
+    gap:8px!important;
+    flex-wrap:wrap;
+  }
+
+  #toolsPage #toolForm .wide[style*="display:flex"] button{
+    width:auto!important;
+    min-width:150px;
+  }
+
+  #toolsPage .table-wrap{
+    width:100%!important;
+    max-width:100%!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    padding:0!important;
+  }
+
+  #toolsPage table{
+    width:100%!important;
+    min-width:920px;
+    table-layout:auto;
+    border-collapse:collapse;
+  }
+
+  #toolsPage th,
+  #toolsPage td{
+    white-space:nowrap;
+    vertical-align:middle;
+  }
+
+  /* ---------- Cash Position ---------- */
+  #cashPage .page-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin:0 0 14px!important;
+    min-height:46px;
+  }
+
+  #cashPage .cash-balance-grid{
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:14px!important;
+    width:100%!important;
+    margin:0 0 14px!important;
+  }
+
+  #cashPage .cash-balance-card{
+    min-width:0!important;
+    width:100%!important;
+    padding:16px!important;
+  }
+
+  #cashPage > .card{
+    width:100%!important;
+    margin:0 0 14px!important;
+    padding:16px!important;
+    box-sizing:border-box;
+  }
+
+  #cashPage .cash-update-copy{
+    margin:4px 0 14px!important;
+    line-height:1.5;
+  }
+
+  #cashPage .cash-balance-actions{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto!important;
+    gap:14px!important;
+    align-items:end!important;
+    width:100%!important;
+  }
+
+  #cashPage .cash-balance-actions .field{
+    min-width:0!important;
+    width:100%!important;
+  }
+
+  #cashPage .cash-balance-actions button{
+    min-height:44px!important;
+    white-space:nowrap!important;
+    width:auto!important;
+    min-width:190px;
+  }
+
+  #cashPage .reconciliation-panel{
+    width:100%!important;
+    margin:0 0 14px!important;
+    overflow:hidden;
+  }
+
+  #cashPage .reconciliation-panel .grid{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:14px!important;
+    padding:16px!important;
+  }
+
+  #cashPage .reconciliation-panel .grid .wide{
+    grid-column:1/-1!important;
+  }
+
+  /* ---------- Receipts ---------- */
+  #receiptsPage .page-heading{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin:0 0 14px!important;
+    min-height:46px;
+  }
+
+  #receiptsPage .panel{
+    width:100%!important;
+    margin:0 0 14px!important;
+    overflow:hidden;
+  }
+
+  #receiptsPage .receipt-toolbar{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto!important;
+    gap:14px!important;
+    align-items:end!important;
+    padding:16px!important;
+  }
+
+  #receiptsPage .receipt-toolbar > div{
+    min-width:0!important;
+  }
+
+  #receiptsPage .receipt-toolbar .receipt-enhanced-controls{
+    display:grid!important;
+    grid-template-columns:minmax(0,1.5fr) minmax(150px,.65fr)!important;
+    gap:8px!important;
+    margin:0 0 8px!important;
+  }
+
+  #receiptsPage .receipt-toolbar #receiptProjectFilter{
+    width:100%!important;
+  }
+
+  #receiptsPage .receipt-toolbar > button{
+    min-height:42px!important;
+    white-space:nowrap!important;
+  }
+
+  #receiptsPage .receipt-grid{
+    display:grid!important;
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:14px!important;
+    padding:14px!important;
+    width:100%!important;
+    box-sizing:border-box;
+    align-items:start!important;
+  }
+
+  #receiptsPage .receipt-card{
+    min-width:0!important;
+    width:100%!important;
     margin:0!important;
   }
 
-  #toolsPage.active .panel-head,
-  #receiptsPage.active .panel-head,
-  #cashPage.active .panel-head{
-    min-height:0!important;
+  #receiptsPage .receipt-thumb{
+    height:145px!important;
+  }
+
+  #receiptsPage .receipt-info{
+    min-width:0!important;
+  }
+
+  /* Do not allow long filenames/metadata to push cards outside the grid. */
+  #receiptsPage .receipt-name,
+  #receiptsPage .receipt-project,
+  #receiptsPage .receipt-meta{
+    max-width:100%;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  /* Consistent panel-head sizing across all three pages. */
+  #toolsPage .panel-head,
+  #cashPage .panel-head,
+  #receiptsPage .panel-head{
+    min-height:50px!important;
+    padding:12px 16px!important;
+    box-sizing:border-box;
+  }
+
+  #toolsPage .panel:last-child,
+  #cashPage .panel:last-child,
+  #receiptsPage .panel:last-child{
+    margin-bottom:0!important;
   }
 }
 
-@media (max-width:900px){
-  #toolsPage.active .page-heading,
-  #receiptsPage.active .page-heading,
-  #cashPage.active .page-header{
-    margin-bottom:8px!important;
-  }
-
-  #toolsPage.active .panel,
-  #cashPage.active .panel,
-  #cashPage.active .card,
-  #receiptsPage.active .panel{
-    margin-bottom:8px!important;
-  }
-}
-</style>
-
-
-<style id="liwo-premium-operational-final">
-.main:has(#toolsPage.active) .topbar,
-.main:has(#cashPage.active) .topbar,
-.main:has(#receiptsPage.active) .topbar{margin-bottom:14px!important}
-
-#toolsPage.active,#cashPage.active,#receiptsPage.active{
- display:block!important;width:100%!important;height:auto!important;min-height:0!important;
- max-height:none!important;margin:0!important;padding:0 0 24px!important;
- position:relative!important;overflow:visible!important
+/* Larger desktop: use the available screen instead of leaving unused columns. */
+@media (min-width:1200px){
+  #toolsPage #toolForm{grid-template-columns:repeat(3,minmax(220px,1fr))!important;}
+  #receiptsPage .receipt-grid{grid-template-columns:repeat(4,minmax(210px,1fr))!important;}
 }
 
-#toolsPage.active .page-heading,#receiptsPage.active .page-heading,#cashPage.active .page-header{
- display:flex!important;align-items:flex-end!important;justify-content:space-between!important;
- width:100%!important;height:auto!important;min-height:0!important;margin:0 0 14px!important;padding:0!important
-}
-#toolsPage.active .page-heading h2,#receiptsPage.active .page-heading h2,#cashPage.active .page-header h1{
- margin:0 0 4px!important;font-size:25px!important;line-height:1.15!important;
- letter-spacing:-.4px!important;color:#122b46!important
-}
-#toolsPage.active .page-heading .muted,#receiptsPage.active .page-heading .muted,#cashPage.active .page-header p{
- margin:0!important;font-size:12px!important;line-height:1.45!important;color:#708094!important
-}
-
-#toolsPage.active .panel,#cashPage.active .panel,#cashPage.active .card,#receiptsPage.active .panel{
- width:100%!important;box-sizing:border-box!important;height:auto!important;min-height:0!important;
- max-height:none!important;margin:0 0 14px!important;overflow:hidden!important;
- border:1px solid #dfe7ed!important;border-radius:15px!important;background:#fff!important;
- box-shadow:0 8px 24px rgba(16,42,67,.055)!important
-}
-#toolsPage.active .panel-head,#cashPage.active .panel-head,#receiptsPage.active .panel-head{
- min-height:0!important;padding:15px 18px!important;background:linear-gradient(180deg,#fff,#fbfcfd)!important
-}
-#toolsPage.active .panel-head h3,#cashPage.active .panel-head h3,#receiptsPage.active .panel-head h3{
- margin:0!important;color:#152e49!important;font-size:17px!important
-}
-
-/* CASH POSITION */
-#cashPage.active .cash-balance-grid{
- display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:14px!important;
- width:100%!important;height:auto!important;min-height:0!important;margin:0 0 14px!important;padding:0!important
-}
-#cashPage.active .cash-balance-card{
- position:relative!important;min-height:108px!important;height:auto!important;box-sizing:border-box!important;
- padding:18px 20px!important;border:1px solid #dfe7ed!important;border-radius:15px!important;
- background:#fff!important;box-shadow:0 8px 24px rgba(16,42,67,.06)!important;overflow:hidden!important
-}
-#cashPage.active .cash-balance-card::before{
- content:""!important;position:absolute!important;left:0!important;top:0!important;bottom:0!important;width:4px!important;background:#1478bd!important
-}
-#cashPage.active .cash-balance-card:nth-child(2)::before{background:#20a05a!important}
-#cashPage.active .cash-balance-card:nth-child(3)::before{background:#5543b8!important}
-#cashPage.active .cash-balance-label{
- font-size:11px!important;font-weight:800!important;text-transform:uppercase!important;
- letter-spacing:.55px!important;color:#66778b!important
-}
-#cashPage.active .cash-balance-value{
- margin-top:8px!important;font-size:25px!important;line-height:1.1!important;
- font-weight:850!important;color:#123d63!important
-}
-#cashPage.active .cash-balance-card:nth-child(2) .cash-balance-value{color:#15934f!important}
-#cashPage.active .cash-balance-card:nth-child(3) .cash-balance-value{color:#4a3bb1!important}
-
-#cashPage.active > .card{padding:20px!important}
-#cashPage.active > .card h2{margin:0 0 6px!important;font-size:20px!important;color:#122b46!important}
-#cashPage.active .cash-update-copy{
- display:block!important;width:100%!important;margin:0 0 16px!important;font-size:12px!important;line-height:1.5!important
-}
-#cashPage.active .cash-balance-actions{
- display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto!important;
- gap:13px!important;align-items:end!important;width:100%!important
-}
-#cashPage.active .cash-balance-actions .field{min-width:0!important;width:auto!important}
-#cashPage.active .cash-balance-actions input{
- width:100%!important;min-height:44px!important;box-sizing:border-box!important
-}
-#cashPage.active .cash-balance-actions .btn,#cashPage.active .cash-balance-actions button{
- min-height:44px!important;padding:0 22px!important;white-space:nowrap!important;border-radius:10px!important
-}
-#cashPage.active .reconciliation-panel{margin-bottom:0!important}
-#cashPage.active .reconciliation-panel .grid{padding:18px!important;gap:13px!important}
-
-/* CONSTRUCTION TOOLS */
-#toolsPage.active #toolForm{
- display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:13px!important;
- width:100%!important;box-sizing:border-box!important;padding:18px!important
-}
-#toolsPage.active #toolForm .wide{grid-column:1/-1!important}
-#toolsPage.active #toolForm label{
- display:block!important;margin:0 0 6px!important;font-size:11px!important;font-weight:800!important;color:#53667a!important
-}
-#toolsPage.active #toolForm input{width:100%!important;min-height:43px!important;box-sizing:border-box!important}
-#toolsPage.active #toolForm .wide[style*="display:flex"]{display:flex!important;gap:9px!important;align-items:center!important}
-#toolsPage.active .table-wrap{
- width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;
- padding:0!important;margin:0!important;overflow-x:auto!important
-}
-#toolsPage.active table{width:100%!important;min-width:760px!important;margin:0!important}
-
-/* RECEIPTS */
-#receiptsPage.active .receipt-toolbar{
- display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:end!important;
- gap:14px!important;width:100%!important;box-sizing:border-box!important;padding:16px!important
-}
-#receiptsPage.active .receipt-toolbar>div{min-width:0!important}
-#receiptsPage.active .receipt-enhanced-controls{
- display:grid!important;grid-template-columns:minmax(0,1fr) 170px!important;gap:8px!important;margin:0 0 8px!important
-}
-#receiptsPage.active .receipt-toolbar select#receiptProjectFilter{width:100%!important}
-#receiptsPage.active .receipt-toolbar button{
- min-height:43px!important;white-space:nowrap!important;border-radius:10px!important
-}
-#receiptsPage.active .receipt-grid{
- display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:14px!important;
- width:100%!important;height:auto!important;min-height:0!important;padding:14px!important;
- box-sizing:border-box!important;margin:0!important
-}
-#receiptsPage.active .receipt-card{min-height:0!important;border-radius:14px!important;box-shadow:0 7px 22px rgba(12,35,55,.065)!important}
-#receiptsPage.active .receipt-thumb{height:145px!important}
-
-/* MOBILE */
-@media(max-width:900px){
- .main:has(#toolsPage.active) .topbar,.main:has(#cashPage.active) .topbar,.main:has(#receiptsPage.active) .topbar{margin-bottom:10px!important}
- #toolsPage.active .page-heading,#receiptsPage.active .page-heading,#cashPage.active .page-header{margin-bottom:10px!important}
- #cashPage.active .cash-balance-grid{grid-template-columns:1fr 1fr!important;gap:9px!important}
- #cashPage.active .cash-balance-card{min-height:94px!important;padding:14px!important}
- #cashPage.active .cash-balance-card.total{grid-column:1/-1!important}
- #cashPage.active .cash-balance-actions{grid-template-columns:1fr 1fr!important}
- #cashPage.active .cash-balance-actions button{grid-column:1/-1!important;width:100%!important}
- #toolsPage.active #toolForm{grid-template-columns:1fr 1fr!important}
- #receiptsPage.active .receipt-toolbar{grid-template-columns:1fr!important}
- #receiptsPage.active .receipt-toolbar button{width:100%!important}
- #receiptsPage.active .receipt-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
-}
-@media(max-width:600px){
- #toolsPage.active #toolForm{grid-template-columns:1fr!important}
- #toolsPage.active #toolForm .wide{grid-column:auto!important}
- #cashPage.active .cash-balance-grid{grid-template-columns:1fr!important}
- #cashPage.active .cash-balance-card.total{grid-column:auto!important}
- #cashPage.active .cash-balance-actions{grid-template-columns:1fr!important}
- #receiptsPage.active .receipt-enhanced-controls,#receiptsPage.active .receipt-grid{grid-template-columns:1fr!important}
- #receiptsPage.active .receipt-thumb{height:180px!important}
+/* Very wide desktop: receipts can comfortably use five cards per row. */
+@media (min-width:1550px){
+  #receiptsPage .receipt-grid{grid-template-columns:repeat(5,minmax(190px,1fr))!important;}
 }
 </style>
 
@@ -2177,7 +2067,7 @@ async function login(e){
   }
 }
 async function register(e){e.preventDefault();$("registerError").textContent="";if($("regPassword").value!==$("regConfirm").value){$("registerError").textContent="Passwords do not match.";return}try{await api("registerFinance",{name:$("regName").value.trim(),username:$("regUsername").value.trim(),password:$("regPassword").value,inviteCode:$("regInvite").value});toast("Account created. You can now sign in.");$("loginUsername").value=$("regUsername").value;tabs(false);$("registerForm").reset()}catch(x){$("registerError").textContent=x.message}}
-function showApp(){document.body.classList.toggle("lw-admin",String(session?.user?.role||"").toLowerCase()==="admin");$("loginView").classList.add("hidden");$("appView").classList.remove("hidden");const name=session.user.name||session.user.username;const role=session.user.role||"Finance";$("currentUser").textContent=name+" • "+session.user.username;$("currentRole").textContent=role;$("topName").textContent=name;$("topRole").textContent=role==="Admin"?"Administrator":"LIWO Executives";$("topAvatar").textContent=initials(name);$("menuUserName").textContent=name;$("menuUserRole").textContent=role==="Admin"?"Administrator":"LIWO Executives";applyProfilePhoto();if(session.user.role==="Admin"){$("usersNav").classList.remove("hidden");$("mobileUsersNav").classList.remove("hidden");$("adminDashboard").classList.remove("hidden")}}
+function showApp(){$("loginView").classList.add("hidden");$("appView").classList.remove("hidden");const name=session.user.name||session.user.username;const role=session.user.role||"Finance";document.body.classList.toggle("liwo-admin-session",String(role).trim().toLowerCase()==="admin");$("currentUser").textContent=name+" • "+session.user.username;$("currentRole").textContent=role;$("topName").textContent=name;$("topRole").textContent=role==="Admin"?"Administrator":"LIWO Executives";$("topAvatar").textContent=initials(name);$("menuUserName").textContent=name;$("menuUserRole").textContent=role==="Admin"?"Administrator":"LIWO Executives";applyProfilePhoto();if(session.user.role==="Admin"){$("usersNav").classList.remove("hidden");$("mobileUsersNav").classList.remove("hidden");$("adminDashboard").classList.remove("hidden")}}
 function logout(){closeHeaderMenus();session=null;sessionStorage.removeItem("cf_session");$("appView").classList.add("hidden");$("loginView").classList.remove("hidden")}
 function closeHeaderMenus(){const n=$("notificationDropdown"),u=$("userDropdown");if(n){n.classList.add("hidden");$("notificationBtn")?.setAttribute("aria-expanded","false")}if(u){u.classList.add("hidden");$("userMenuBtn")?.setAttribute("aria-expanded","false")}}
 async function toggleNotificationMenu(){const n=$("notificationDropdown");if(!n)return;const opening=n.classList.contains("hidden");closeHeaderMenus();if(opening){await loadServerNotifications();n.classList.remove("hidden");$("notificationBtn").setAttribute("aria-expanded","true")}}
@@ -2461,8 +2351,8 @@ function printReport(){
   if(!source){toast('Report preview is not available.');return;}
   const w=window.open('','_blank','width=1100,height=800');
   if(!w){toast('Please allow pop-ups to print or save the report as PDF.');return;}
-  const styles=[...document.querySelectorAll('style')].map(x=>x.textContent).join("\\n");
-  const css='body{background:#fff!important;margin:0;padding:0;font-family:Arial,sans-serif;color:#111}.report-preview{display:block!important;max-width:none!important;width:100%!important;border:0!important;box-shadow:none!important;margin:0!important;padding:0!important;overflow:visible!important}.report-preview .table-wrap{overflow:visible!important;width:100%!important}.report-preview table{width:100%!important;min-width:0!important;border-collapse:collapse!important;table-layout:auto!important}.report-preview thead{display:table-header-group!important}.report-preview tr{break-inside:avoid!important;page-break-inside:avoid!important}.report-preview .report-section,.report-preview .report-detailed-overview,.report-preview .report-analysis-box,.report-preview .report-subtotals,.report-preview .report-signature-section{break-inside:auto!important;page-break-inside:auto!important}.report-preview .report-header{display:flex!important;justify-content:space-between!important;align-items:flex-start!important;gap:18px!important;padding:0 0 10px!important;margin:0 0 11px!important;border-bottom:1.5px solid #123451!important}.report-preview .report-header h2{font-size:18px!important;line-height:1.15!important;margin:0!important}.report-preview .report-header p{font-size:10px!important;line-height:1.2!important;margin:3px 0 0!important}.report-preview .report-meta{font-size:9.5px!important;line-height:1.25!important;text-align:right!important;max-width:48%!important}.report-preview .report-meta strong{display:block!important;font-size:9.5px!important}.report-preview .report-meta span{display:block!important;margin-top:3px!important}.report-preview .report-summary-grid{gap:6px!important;margin-bottom:12px!important}.report-preview .report-summary-grid>div{padding:7px 8px!important}.report-preview .report-summary-grid span{font-size:8.5px!important;margin-bottom:2px!important}.report-preview .report-summary-grid strong{font-size:12px!important}.report-preview .report-section{margin-top:12px!important}.report-preview .report-section h3{font-size:11px!important;margin:0 0 5px!important}.report-preview table{font-size:9px!important}.report-preview th,.report-preview td{font-size:9px!important;padding:3.5px 4px!important;line-height:1.25!important}.report-preview .report-overview-grid{gap:5px!important;margin-bottom:8px!important}.report-preview .report-overview-grid>div{padding:7px!important}.report-preview .report-overview-grid span{font-size:8px!important;margin-bottom:2px!important}.report-preview .report-overview-grid strong{font-size:10px!important}.report-preview .report-analysis-box{padding:8px!important}.report-preview .report-analysis-box h3{font-size:10px!important;margin-bottom:4px!important}.report-preview .report-analysis-box p{font-size:9px!important;line-height:1.3!important;margin:4px 0!important}.report-preview .report-subtotals{padding:8px!important;margin-top:8px!important}.report-preview .subtotal-row{padding:4px 0!important;font-size:9px!important}.report-preview .report-footer{margin-top:10px!important;padding-top:6px!important;font-size:8px!important}.report-preview a{color:#123451;text-decoration:none}.liwo-report-records-footer{display:block!important;margin-top:10px!important;padding-top:6px!important;border-top:1px solid #d9e1e8!important;text-align:center!important;font-size:7.5px!important;font-weight:700!important;letter-spacing:.05em!important;color:#687781!important;break-inside:avoid!important;page-break-inside:avoid!important}.report-signature-section{margin-top:16px!important;padding-top:9px!important;border-top:1px solid #d9e1e8!important}.report-signature-section h3{font-size:11px!important;margin:0 0 10px!important}.report-signature-grid{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:14px!important}.report-signature{min-height:68px!important;justify-content:flex-end!important}.report-signature .signature-line{max-width:100%!important;margin-bottom:5px!important}.report-signature strong{font-size:9px!important;line-height:1.25!important}.report-signature span{font-size:8px!important;line-height:1.25!important;margin-top:2px!important}.weekly-one-page,.monthly-one-page,.full-one-page{zoom:1!important;width:100%!important}.weekly-print,.monthly-print,.full-print{overflow:visible!important}.weekly-print .report-preview,.monthly-print .report-preview,.full-print .report-preview{height:auto!important}@page{size:'+printSize+' '+printOrientation+';margin:8mm}';
+  const styles=[...document.querySelectorAll('style')].map(x=>x.textContent).join("\n");
+  const css='body{background:#fff!important;margin:0;padding:0;font-family:Arial,sans-serif;color:#111}.report-preview{display:block!important;max-width:none!important;width:100%!important;border:0!important;box-shadow:none!important;margin:0!important;padding:0!important;overflow:visible!important}.report-preview .table-wrap{overflow:visible!important;width:100%!important}.report-preview table{width:100%!important;min-width:0!important;border-collapse:collapse!important;table-layout:auto!important}.report-preview thead{display:table-header-group!important}.report-preview tr{break-inside:avoid!important;page-break-inside:avoid!important}.report-preview .report-section,.report-preview .report-detailed-overview,.report-preview .report-analysis-box,.report-preview .report-subtotals,.report-preview .report-signature-section{break-inside:auto!important;page-break-inside:auto!important}.report-preview .report-header{display:flex!important;justify-content:space-between!important;align-items:flex-start!important;gap:28px!important;padding:0 0 11px!important;margin:0 0 14px!important;border-bottom:1.5px solid #0b2239!important}.report-preview .report-header>div:first-child{flex:1 1 50%!important;min-width:0!important}.report-preview .report-header h2{font-size:20px!important;line-height:1.15!important;margin:0!important;color:#0b2239!important;font-weight:800!important;letter-spacing:.01em!important}.report-preview .report-header p{font-size:11px!important;line-height:1.25!important;margin:4px 0 0!important;color:#71808b!important}.report-preview .report-meta{flex:0 1 52%!important;font-size:10.5px!important;line-height:1.3!important;text-align:right!important;max-width:52%!important;color:#71808b!important}.report-preview .report-meta strong{display:block!important;font-size:10.5px!important;line-height:1.25!important;color:#0b2239!important;font-weight:800!important}.report-preview .report-meta span{display:block!important;margin-top:3px!important}.report-preview .report-meta span:first-of-type{font-size:11px!important;color:#123a5c!important;font-weight:800!important}.report-preview .report-meta span:last-of-type{font-size:10px!important;color:#5f6f7a!important}.report-preview .report-summary-grid{gap:7px!important;margin-bottom:14px!important}.report-preview .report-summary-grid>div{padding:8px 9px!important}.report-preview .report-summary-grid span{font-size:9px!important;margin-bottom:3px!important}.report-preview .report-summary-grid strong{font-size:13px!important}.report-preview .report-section{margin-top:14px!important}.report-preview .report-section h3{font-size:12px!important;margin:0 0 6px!important;color:#123a5c!important;letter-spacing:.01em!important}.report-preview table{font-size:9.2px!important}.report-preview th,.report-preview td{font-size:9.2px!important;padding:4px 5px!important;line-height:1.3!important}.report-preview th{font-weight:800!important}.report-preview .report-overview-grid{gap:6px!important;margin-bottom:9px!important}.report-preview .report-overview-grid>div{padding:8px!important}.report-preview .report-overview-grid span{font-size:8.5px!important;margin-bottom:2px!important}.report-preview .report-overview-grid strong{font-size:11px!important}.report-preview .report-analysis-box{padding:9px!important}.report-preview .report-analysis-box h3{font-size:10.5px!important;margin-bottom:5px!important}.report-preview .report-analysis-box p{font-size:9px!important;line-height:1.35!important;margin:4px 0!important}.report-preview .report-subtotals{padding:9px!important;margin-top:9px!important}.report-preview .subtotal-row{padding:4.5px 0!important;font-size:9px!important}.report-preview .report-footer{margin-top:10px!important;padding-top:6px!important;font-size:8px!important}.report-preview a{color:#123a5c;text-decoration:none}.liwo-report-records-footer{margin-top:18px!important;padding-top:7px!important;border-top:1px solid #d9e1e8!important;text-align:center!important;color:#71808b!important;font-size:8px!important;font-weight:700!important;letter-spacing:.05em!important;break-inside:avoid!important;page-break-inside:avoid!important}.report-signature-section{margin-top:16px!important;padding-top:10px!important;border-top:1px solid #d9e1e8!important;break-inside:avoid!important;page-break-inside:avoid!important}.report-signature-section h3{font-size:12px!important;margin:0 0 12px!important;color:#123a5c!important}.report-signature-grid{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:18px!important}.report-signature{min-height:70px!important;justify-content:flex-end!important;text-align:center!important}.report-signature .signature-line{max-width:100%!important;margin:0 auto 6px!important}.report-signature strong{font-size:9.5px!important;line-height:1.3!important}.report-signature span{font-size:8.5px!important;line-height:1.3!important;margin-top:2px!important}.weekly-one-page,.monthly-one-page,.full-one-page{zoom:1!important;width:100%!important}.weekly-print,.monthly-print,.full-print{overflow:visible!important}.weekly-print .report-preview,.monthly-print .report-preview,.full-print .report-preview{height:auto!important}@page{size:'+printSize+' '+printOrientation+';margin:8mm}';
   w.document.open();
   const period=document.getElementById('reportPeriod')?.value||'all';
   const printClass=(period==='week'?'weekly-print ':'')+(period==='week'?(printOrientation==='portrait'?'weekly-portrait':'weekly-landscape'):(period==='month'?'monthly-print':'full-print'));
@@ -2484,234 +2374,22 @@ function printReport(){
     <div class="report-signature">
       <div class="signature-line"></div>
       <strong>VISMARK NAVARRO</strong>
-      <span>BIM Modeler / Architectural Designer</span>
+      <span>Architectural Designer / BIM Modeler</span>
     </div>
   </div>
 </div>
 <div class="liwo-report-records-footer" id="liwoReportRecordsFooter">GENERATED FROM LIWO FINANCE</div>
-</div></body></html>`);
-  w.document.close();w.focus();setTimeout(()=>w.print(),500);
-}
-
-function exportReportCSV(){let r=reportRecords(),lines=[];const q=v=>`"${String(v??"").replace(/"/g,'""')}"`;lines.push(["LIWO ENGINEERING & CONSULTANCY","Financial Report"].map(q).join(","));lines.push(["Client / Project",r.client?.name||data.summary?.projectName||"All"].map(q).join(","));lines.push([]);lines.push(["SUMMARY","Amount"].map(q).join(","));[["Contract Budget",r.contract],["Total Payments",r.totalPayments],["Total Expenses",r.totalExpenses],["Funds Available",r.available],["Uncollected Balance",r.balance],["Cash Position",r.net]].forEach(x=>lines.push(x.map(q).join(",")));lines.push([]);lines.push(["EXPENSES"].map(q).join(","));lines.push(["Date","Type","Category","Payee / Supplier","Description","Payment Method","Entered By","Amount"].map(q).join(","));r.expenses.forEach(x=>lines.push([x.date,x.type||"Expense",x.category,x.payee,x.description,x.method,x.enteredBy,x.amount].map(q).join(",")));lines.push([]);lines.push(["CLIENT PAYMENTS"].map(q).join(","));lines.push(["Date","Reference","Description / Milestone","Method","Entered By","Amount Paid"].map(q).join(","));r.payments.forEach(x=>lines.push([x.date,x.reference,x.description,x.method,x.enteredBy,x.amount].map(q).join(",")));let blob=new Blob(["\ufeff"+lines.join("\n")],{type:"text/csv;charset=utf-8;"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`LIWO-Finance-${(r.client?.name||"Report").replace(/[^a-z0-9]+/gi,"-")}.csv`;a.click();URL.revokeObjectURL(a.href);toast("Report CSV saved.")}
-async function loadProjectFinancialDashboard(){
-  const id=selectedClientId;
-  const c=(data?.clients||[]).find(x=>String(x.id)===String(id));
-  const set=(id,v)=>{const e=$(id);if(e)e.textContent=v};
-  const body=(id,html)=>{const e=$(id);if(e)e.innerHTML=html};
-  if(!id||!c){
-    set("projectDashName","Project Financial Dashboard");
-    set("projectDashRef","Select a project to view its complete financial record.");
-    ["pdContract","pdPayments","pdExpenses","pdRemaining","pdOutstanding","pdCash","pdProfit"].forEach(x=>set(x,peso(0)));
-    set("pdCollection","0% collected");set("pdBudgetUsed","0% of budget used");set("pdProfitMargin","0.0% margin");
-    return;
-  }
-  const payments=(data.payments||[]).filter(x=>String(x.clientId||x.clientID||"")===String(id));
-  const expenses=(data.expenses||[]).filter(x=>String(x.clientId||x.clientID||"")===String(id));
-  const cost=expenses.filter(x=>x.type==="Expense"||!x.type).reduce((a,x)=>a+Number(x.amount||0),0);
-  const refunds=expenses.filter(x=>x.type==="Refund").reduce((a,x)=>a+Number(x.amount||0),0);
-  const income=expenses.filter(x=>x.type==="Other Income").reduce((a,x)=>a+Number(x.amount||0),0);
-  const paid=payments.reduce((a,x)=>a+Number(x.amount||0),0);
-  const contract=Number(c.totalContract??c.budget??0);
-  const cash=paid-cost+refunds+income;
-  const outstanding=Math.max(0,contract-paid);
-  const remaining=Math.max(0,contract-cost);
-  const collection=contract?Math.min(100,paid/contract*100):0;
-  const used=contract?Math.min(100,cost/contract*100):0;
-  const profit=cash; const margin=contract?profit/contract*100:0;
-  set("projectDashName",c.name||"Project Financial Dashboard");
-  set("projectDashRef",(c.reference?c.reference+" · ":"")+"Dedicated financial workspace for this project.");
-  set("pdContract",peso(contract));set("pdPayments",peso(paid));set("pdExpenses",peso(cost));set("pdRemaining",peso(remaining));set("pdOutstanding",peso(outstanding));set("pdCash",peso(cash));set("pdProfit",peso(profit));
-  set("pdCollection",collection.toFixed(1)+"% collected");set("pdBudgetUsed",used.toFixed(1)+"% of budget used");set("pdProfitMargin",margin.toFixed(1)+"% margin");
-  set("pdPaymentCount",payments.length);set("pdExpenseCount",expenses.length);
-  const health=used>=100?"critical":(used>=85||collection<50?"attention":"healthy");
-  const healthText=health==="critical"?"Budget exceeded":health==="attention"?"Needs attention":"Healthy";
-  set("pdHealthText",healthText);
-  const badge=$("pdHealthBadge")||$("projectHealthBadge"); if(badge){badge.textContent=healthText;badge.className="health-badge "+health;}
-  body("pdPaymentsBody",payments.slice().sort((a,b)=>String(b.date||"").localeCompare(String(a.date||""))).slice(0,8).map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.reference||"—")}</td><td>${esc(x.description||"—")}</td><td>${peso(x.amount)}</td></tr>`).join("")||'<tr><td colspan="4" class="empty">No client payments for this project.</td></tr>');
-  body("pdExpensesBody",expenses.slice().sort((a,b)=>String(b.date||"").localeCompare(String(a.date||""))).slice(0,8).map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.type||"Expense")}</td><td>${esc(x.category||"—")}</td><td>${peso(x.amount)}</td><td>${esc(x.status||"Recorded")}</td></tr>`).join("")||'<tr><td colspan="5" class="empty">No fund transactions for this project.</td></tr>');
-  const recent=[...payments.map(x=>({date:x.date,type:"Client Payment",description:x.description||x.reference||"Payment",amount:Number(x.amount||0),enteredBy:x.enteredBy})),...expenses.map(x=>({date:x.date,type:x.type||"Expense",description:x.description||x.category||"Transaction",amount:Number(x.amount||0),enteredBy:x.enteredBy}))].sort((a,b)=>String(b.date||"").localeCompare(String(a.date||""))).slice(0,10);
-  body("pdRecentBody",recent.map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.type)}</td><td>${esc(x.description)}</td><td>${peso(x.amount)}</td><td>${esc(x.enteredBy||"—")}</td></tr>`).join("")||'<tr><td colspan="5" class="empty">No recent activity for this project.</td></tr>');
-  try{
-    const tools=await api("listTools",{token:session.token,clientId:id}); const list=tools.tools||tools.records||[]; set("pdToolCount",list.length); body("pdToolsBody",list.slice(0,8).map(x=>`<tr><td>${esc(x.toolName||x.tool||x.name||"Tool")}</td><td>${esc(x.borrowedBy||x.borrower||"—")}</td><td>${esc(x.expectedReturn||x.returnDate||"—")}</td><td>${esc(x.status||"—")}</td></tr>`).join("")||'<tr><td colspan="4" class="empty">No tools recorded for this project.</td></tr>');
-  }catch(e){set("pdToolCount",0);body("pdToolsBody",'<tr><td colspan="4" class="empty">No tool records available.</td></tr>')}
-  try{
-    const rr=await api("listReceipts",{token:session.token,clientId:id,project:id}); const list=rr.receipts||[]; set("pdReceiptCount",list.length); body("pdReceiptsBody",list.slice(0,8).map(x=>`<tr><td>${esc(x.name||"Receipt")}</td><td>${esc(x.createdAt||"—")}</td><td>${esc(x.status||x.verification||"Pending")}</td></tr>`).join("")||'<tr><td colspan="3" class="empty">No receipts for this project.</td></tr>');
-  }catch(e){set("pdReceiptCount",0);body("pdReceiptsBody",'<tr><td colspan="3" class="empty">No receipts available.</td></tr>')}
-}
-function switchPage(p){document.querySelectorAll(".page").forEach(x=>{let active=x.id===p+"Page";x.classList.toggle("hidden",!active);x.classList.toggle("active",active)});document.querySelectorAll(".nav button,.mobile-nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===p));$("pageTitle").textContent={dashboard:"Dashboard",projectDashboard:"Project Financials",payments:"Client Payments",expenses:"Fund Transactions",budget:"Budget vs Actual",activity:"Activity Log",clients:"Clients / Projects",tools:"Construction Tools",cash:"Cash Position",receipts:"Receipts",reports:"Reports / Export",users:"User Management",executive:"Executive Dashboard"}[p]||"Dashboard";if(p==="projectDashboard"){fillClients();loadProjectFinancialDashboard();}if(p==="users"){loadUsers();if(session?.user?.role==="Admin")loadReportSettings();}if(p==="reports"){renderReport();window.bindLIWOPrintControls?.();}if(p==="tools")loadTools();if(p==="cash")loadCash();if(p==="receipts")loadReceipts()}
-async function __liwoOriginalLoadUsers(){try{let o=await api("listUsers",{token:session.token});data.users=o.users;data.financeCount=o.financeCount;data.financeRegistrationOpen=o.financeRegistrationOpen;data.clients=o.clients;render()}catch(x){toast(x.message)}}
-document.addEventListener("DOMContentLoaded",()=>{
-$("loginTab").onclick=()=>tabs(false);$("registerTab").onclick=()=>tabs(true);$("loginForm").onsubmit=login;$("registerForm").onsubmit=register;$("logoutBtn").onclick=logout;$("menuLogoutBtn").onclick=logout;$("refreshBtn").onclick=refresh;$("printReportBtn").onclick=printReport;$("saveReportBtn").onclick=printReport;$("exportReportBtn").onclick=exportReportCSV;$("reportPeriod").onchange=renderReport;$("notificationBtn").onclick=toggleNotificationMenu;$("userMenuBtn").onclick=toggleUserMenu;$("markNotificationsRead").onclick=markNotificationsRead;$("profileMenuBtn").onclick=openProfile;$("profileCloseBtn").onclick=closeProfile;$("profileDoneBtn").onclick=closeProfile;$("profilePhotoInput").onchange=e=>saveProfilePhoto(e.target.files[0]);$("removeProfilePhotoBtn").onclick=removeProfilePhoto;$("profileUsernameSaveBtn").onclick=saveProfileUsername;$("profileModal").onclick=e=>{if(e.target.id==="profileModal")closeProfile()};document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeHeaderMenus();closeProfile()}});document.addEventListener("click",e=>{if(!e.target.closest(".top-user"))closeHeaderMenus()});
-document.querySelectorAll(".nav button,.mobile-nav button").forEach(b=>b.onclick=()=>switchPage(b.dataset.page));
-$("dashboardClient").onchange=async()=>{selectedClientId=$("dashboardClient").value;await refresh()};document.querySelectorAll("[data-project-nav]").forEach(b=>b.addEventListener("click",()=>switchPage(b.dataset.projectNav)));
+</div>
 
 
-$("clientBaseBudget")?.addEventListener("input",updateClientTotal);$("additionalDesignFee")?.addEventListener("input",updateClientTotal);$("clientCancelEdit")?.addEventListener("click",resetClientForm);$("clientsBody")?.addEventListener("click",e=>{const b=e.target.closest(".edit-client-btn");if(b)editClient(b.dataset.clientId)});$("paymentForm").onsubmit=e=>{e.preventDefault();save("addPayment",e.target)};$("expenseForm").onsubmit=e=>{e.preventDefault();save("addExpense",e.target)};$("receiptInput").onchange=e=>{let f=e.target.files[0];if($("receiptFileName"))$("receiptFileName").textContent=f?`${f.name} selected`:`Optional — you can take a photo or upload a receipt. No receipt is also allowed.`};$("userForm").onsubmit=e=>{e.preventDefault();save("upsertUser",e.target)};
-$("toolForm").onsubmit=async e=>{
-  e.preventDefault();
-  try{
-    let p=formObj(e.target);p.token=session.token;p.clientId=selectedClientId;if(!p.clientId)throw Error("Select an Active Project before recording a tool.");
-    await api("addTool",p);toast("Tool borrowing record saved.");e.target.reset();
-    $("toolBorrowedDate").value=today();await loadTools();
-  }catch(x){toast(x.message||String(x))}
-};
-$("toolClearBtn").onclick=()=>$("toolForm").reset();
-$("refreshToolsBtn").onclick=loadTools;$("receiptProjectFilter")?.addEventListener("change",loadReceipts);$("refreshReceiptsBtn")?.addEventListener("click",loadReceipts);
-$("saveCashBalanceBtn").onclick=async()=>{
-  try{
-    let balance=Number($("cashBalanceInput").value);
-    if(!Number.isFinite(balance)||balance<0)throw Error("Enter a valid balance.");
-    let o=await api("updateCashBalance",{token:session.token,account:$("cashAccount").value,balance,notes:$("cashBalanceNotes").value});
-    $("cashBankValue").textContent=peso(o.bankBalance);$("cashOnHandValue").textContent=peso(o.cashOnHand);$("cashTotalValue").textContent=peso(o.totalCash);
-    toast("Cash balance updated.");
-  }catch(x){toast(x.message)}
-};
-$("clientForm").onsubmit=e=>{e.preventDefault();save("upsertClient",e.target)};$("inviteForm").onsubmit=e=>{e.preventDefault();save("changeInvite",e.target)};
-$("reopenBtn").onclick=async()=>{try{await api("reopenRegistration",{token:session.token});toast("LIWO Executive registration reopened.");await loadUsers()}catch(x){toast(x.message)}};
-document.querySelectorAll('[name="date"]').forEach(x=>x.value=today());if($("toolBorrowedDate"))$("toolBorrowedDate").value=today();
-let old=sessionStorage.getItem("cf_session");if(old){try{session=JSON.parse(old);showApp();switchPage("dashboard");refresh().catch(err=>{console.error("Restored dashboard initialization failed:",err);toast(err.message||"Dashboard data could not be loaded.")})}catch{sessionStorage.removeItem("cf_session");session=null;}}});
-
-async function loadTools(){
-  const body=$("toolsBody");
-  if(!body||!session?.token)return;
-  try{
-    const o=await api("listTools",{token:session.token,clientId:selectedClientId||""});
-    const tools=Array.isArray(o?.tools)?o.tools:[];
-    body.innerHTML=tools.map(x=>{
-      const st=String(x.status||"Borrowed");
-      const action=(st==="Borrowed"||st==="Overdue")&&x.row!=null
-        ? `<button type="button" class="secondary return-tool-btn" data-row="${esc(x.row)}">Mark Returned</button>` : "—";
-      return `<tr><td>${esc(x.tool||"—")}</td><td>${esc(x.toolId||"—")}</td><td>${esc(x.borrower||"—")}</td><td>${esc(x.project||"—")}</td><td>${esc(x.borrowed||"—")}</td><td>${esc(x.expectedReturn||"—")}</td><td>${esc(st)}</td><td>${esc(x.enteredBy||"—")}</td><td>${action}</td></tr>`;
-    }).join("")||'<tr><td colspan="9" style="text-align:center;padding:20px">No tool records yet.</td></tr>';
-  }catch(x){
-    const msg=String(x?.message||x||"");
-    body.innerHTML=`<tr><td colspan="9" style="text-align:center;padding:20px;color:#718395">${/unknown action|not found/i.test(msg)?"Tool records are not available from the connected server yet.":"Unable to load tool records. Please refresh."}</td></tr>`;
-  }
-}
-
-async function loadCash(){
-  try{
-    let o=await api("cashBalances",{token:session.token});
-    $("cashBankValue").textContent=peso(o.bankBalance);
-    $("cashOnHandValue").textContent=peso(o.cashOnHand);
-    $("cashTotalValue").textContent=peso(o.totalCash);
-  }catch(x){toast(x.message)}
-}
-
-async function loadReceipts(){ try{
-  let project=$("receiptProjectFilter")?.value||selectedClientId||"";
-  let o=await api("listReceipts",{token:session.token,project,clientId:project});
-  let sel=$("receiptProjectFilter");
-  if(sel&&sel.options.length<=1)(o.projects||[]).forEach(p=>{
-    let op=document.createElement("option");op.value=p.id||p.value||p.name||p;
-    op.textContent=p.name||p.project||p.value||p;sel.appendChild(op)
-  });
-  let grid=$("receiptGrid"),list=o.receipts||[];
-  if($("receiptCount"))$("receiptCount").textContent="Receipts ("+list.length+")";
-  if(!grid)return;
-  grid.innerHTML=list.length?list.map(x=>{
-    let img=x.mimeType&&x.mimeType.indexOf("image/")===0;
-    let thumb=x.preview
-      ? `<img src="${esc(x.preview)}" alt="Receipt" style="width:100%;height:150px;object-fit:cover;border-radius:12px">`
-      : img ? `<div style="font-size:42px;text-align:center;padding:35px 0">🧾</div>`
-      : `<div style="font-size:42px;text-align:center;padding:35px 0">📄</div>`;
-    let size=x.size?((Number(x.size)/1048576).toFixed(2)+" MB"):"";
-    let url=x.url||x.webViewLink||x.fileUrl||"";
-    return `<article class="receipt-card">
-      ${thumb}
-      <div style="padding:12px">
-        <div style="font-weight:700">${esc(x.name||"Receipt")}</div>
-        <div style="color:#718395;margin-top:4px">${esc(x.project||"")}</div>
-        ${size?`<div style="color:#718395;font-size:12px;margin-top:3px">${esc(size)}</div>`:""}
-        ${url?`<a href="${esc(url)}" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-top:10px">Open Receipt</a>`:""}
-      </div>
-    </article>`;
-  }).join(""):'<div class="empty-state">No receipts found.</div>';
-}catch(x){toast(x.message)} }
-document.addEventListener("DOMContentLoaded",()=>{
-  const createBtn=document.getElementById("createAccountBtn");
-  const backBtn=document.getElementById("backToLogin");
-  const intro=document.getElementById("loginIntro");
-  const loginForm=document.getElementById("loginForm");
-  const registerForm=document.getElementById("registerForm");
-  const or=document.querySelector(".auth-or");
-  const security=document.querySelector(".security-note");
-  const footer=document.querySelector(".auth-footer");
-  function showLogin(){
-    loginForm.classList.remove("hidden"); registerForm.classList.add("hidden");
-    intro.classList.remove("hidden"); or?.classList.remove("hidden"); createBtn?.classList.remove("hidden");
-    security?.classList.remove("hidden"); footer?.classList.remove("hidden");
-  }
-  function showRegister(){
-    loginForm.classList.add("hidden"); registerForm.classList.remove("hidden");
-    intro.classList.add("hidden"); or?.classList.add("hidden"); createBtn?.classList.add("hidden");
-    security?.classList.add("hidden"); footer?.classList.add("hidden");
-  }
-  createBtn?.addEventListener("click",showRegister);
-  backBtn?.addEventListener("click",showLogin);
-  document.querySelectorAll(".password-toggle").forEach(btn=>{
-    btn.addEventListener("click",()=>{
-      const input=document.getElementById(btn.dataset.target);
-      if(!input)return;
-      input.type=input.type==="password"?"text":"password";
-      btn.textContent=input.type==="password"?"◉":"◌";
-    });
-  });
-  document.getElementById("forgotBtn")?.addEventListener("click",()=>toast("Please contact the LIWO administrator to reset your account."));
-});
-</script>
 
 
-<script id="liwo-premium-operational-runtime">
-(function(){
- const ids=["toolsPage","cashPage","receiptsPage"];
- function fix(){
-   const active=document.querySelector(".page.active");
-   const operational=active && ids.includes(active.id);
-   document.body.classList.toggle("liwO-operational-page",!!operational);
-   const scope=document.getElementById("globalProjectScope");
-   if(scope && operational){
-     scope.style.display="none";scope.style.height="0";scope.style.minHeight="0";
-     scope.style.maxHeight="0";scope.style.margin="0";scope.style.padding="0";scope.style.overflow="hidden";
-   }
-   ids.forEach(id=>{
-     const el=document.getElementById(id);
-     if(!el)return;
-     if(el.classList.contains("active")){
-       el.style.display="block";el.style.height="auto";el.style.minHeight="0";el.style.maxHeight="none";
-     }
-   });
- }
- document.addEventListener("DOMContentLoaded",fix);
- window.addEventListener("load",fix);
- document.addEventListener("click",e=>{
-   if(e.target.closest(".nav button,.mobile-nav button")){
-     requestAnimationFrame(fix);setTimeout(fix,50);setTimeout(fix,150);
-   }
- });
-})();
-</script>
 
 
-<script id="liwo-final-vertical-navigation-fix">
-(function(){
-  function top(){
-    try{
-      window.scrollTo({top:0,left:0,behavior:'instant'});
-      document.documentElement.scrollTop=0;
-      document.body.scrollTop=0;
-    }catch(e){ window.scrollTo(0,0); }
-  }
-  document.addEventListener('click',function(e){
-    var b=e.target.closest('.nav button,.mobile-nav button,[data-page]');
-    if(!b) return;
-    setTimeout(top,0);
-    setTimeout(top,80);
-    setTimeout(top,180);
-  },true);
-})();
-</script>
+
+
+
+
 </body></html>`);
   w.document.close();w.focus();setTimeout(()=>w.print(),500);
 }
@@ -2770,8 +2448,6 @@ function switchPage(p){
   }
   document.querySelectorAll(".page").forEach(x=>{let active=x.id===p+"Page";x.classList.toggle("hidden",!active);x.classList.toggle("active",active)});
   document.querySelectorAll(".nav button,.mobile-nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===p));
-  /* Always start each module at the top so a previous dashboard scroll position cannot create a giant blank gap. */
-  try{window.scrollTo({top:0,left:0,behavior:"instant"});document.documentElement.scrollTop=0;document.body.scrollTop=0;}catch(e){window.scrollTo(0,0)}
   $("pageTitle").textContent={dashboard:"Dashboard",projectDashboard:"Project Financials",payments:"Client Payments",expenses:"Fund Transactions",budget:"Budget vs Actual",activity:"Activity Log",clients:"Clients / Projects",tools:"Construction Tools",cash:"Cash Position",receipts:"Receipts",reports:"Reports / Export",users:"User Management"}[p]||"Dashboard";
   if(p==="projectDashboard"){fillClients();loadProjectFinancialDashboard();}
   if(p==="users"){loadUsers();if(session?.user?.role==="Admin")loadReportSettings();}
@@ -3302,36 +2978,7 @@ document.addEventListener("DOMContentLoaded",()=>{
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',window.bindLIWOPrintControls);else window.bindLIWOPrintControls();
 })();
 </script>
-<script id="liwo-operational-page-guard">
-(function(){
-  function sync(){
-    var active=document.querySelector('.page.active');
-    var operational=!!active && /^(toolsPage|cashPage|receiptsPage)$/.test(active.id);
-    document.body.classList.toggle('liwO-operational-page',operational);
-    ['toolsPage','cashPage','receiptsPage'].forEach(function(id){
-      var el=document.getElementById(id);
-      if(!el)return;
-      if(el.classList.contains('active')){
-        el.style.display='block';
-        el.style.height='auto';
-        el.style.minHeight='0';
-        el.style.margin='0';
-        el.style.padding='0';
-      }else{
-        el.style.display='none';
-      }
-    });
-  }
-  document.addEventListener('DOMContentLoaded',function(){
-    sync();
-    document.querySelectorAll('.nav button,.mobile-nav button').forEach(function(btn){
-      btn.addEventListener('click',function(){setTimeout(sync,20);setTimeout(sync,150);});
-    });
-  });
-  window.addEventListener('load',sync);
-})();
-</script>
-
+</body>
 <script id="liwo-admin-report-final-fix">
 (function(){
   function admin(){
@@ -3380,7 +3027,7 @@ document.addEventListener("DOMContentLoaded",()=>{
 })();
 </script>
 
-
+</html>
 
 <style id="liwo-responsive-layout-final">
 /* LIWO final responsive layout correction */
@@ -3458,246 +3105,60 @@ tbody:empty{display:none!important}
   },true);
 })();
 </script>
-
-
-
-
-<script id="liwo-definitive-navigation-fix">
+<script id="liwo-navigation-space-guard">
 (function(){
-  function role(){return String(window.session&&window.session.user&&window.session.user.role||'').trim().toLowerCase();}
-  function syncUsers(){
-    var admin=role()==='admin';
+  function activate(page){
+    if(!page)return;
+    document.querySelectorAll('.page').forEach(function(el){
+      var on=el.id===page+'Page';
+      el.classList.toggle('active',on);
+      el.classList.toggle('hidden',!on);
+      el.style.display=on?'block':'none';
+      el.style.height='auto';
+      el.style.minHeight='0';
+    });
+  }
+  document.addEventListener('DOMContentLoaded',function(){
+    document.querySelectorAll('.nav button,.mobile-nav button').forEach(function(btn){
+      btn.addEventListener('click',function(){setTimeout(function(){activate(btn.dataset.page)},0)},true);
+    });
+  });
+})();
+</script>
+<script id="liwo-admin-session-visibility">
+(function(){
+  function sync(){
+    var admin=String(window.session?.user?.role||'').trim().toLowerCase()==='admin';
     var nav=document.getElementById('usersNav'),mobile=document.getElementById('mobileUsersNav'),page=document.getElementById('usersPage');
     if(nav)nav.classList.toggle('hidden',!admin);
     if(mobile)mobile.classList.toggle('hidden',!admin);
-    if(!admin&&page){page.classList.add('hidden');page.classList.remove('active');page.style.display='none';}
-  }
-  function activate(page){
-    if(page==='users'&&role()!=='admin') page='dashboard';
-    document.querySelectorAll('.page').forEach(function(el){
-      var on=el.id===page+'Page';
-      el.classList.toggle('active',on);el.classList.toggle('hidden',!on);
-      el.style.display=on?'block':'none';
-      el.style.height='auto';el.style.minHeight='0';el.style.margin='0';el.style.padding='0';
-    });
-    var scope=document.getElementById('globalProjectScope');
-    var op=/^(tools|cash|receipts)$/.test(page);
-    if(scope){scope.style.display=op?'none':'';if(op){scope.style.height='0';scope.style.minHeight='0';scope.style.margin='0';scope.style.padding='0';}}
-    syncUsers();
-    try{window.scrollTo({top:0,left:0,behavior:'instant'});document.documentElement.scrollTop=0;document.body.scrollTop=0;}catch(e){window.scrollTo(0,0)}
-  }
-  document.addEventListener('DOMContentLoaded',function(){
-    syncUsers();
-    document.querySelectorAll('.nav button,.mobile-nav button').forEach(function(btn){
-      btn.addEventListener('click',function(){setTimeout(function(){activate(btn.dataset.page);},0);setTimeout(function(){activate(btn.dataset.page);},120);},true);
-    });
-  });
-  window.addEventListener('load',syncUsers);
-})();
-</script>
-
-<script id="liwo-final-vertical-navigation-fix">
-(function(){
-  function top(){
-    try{
-      window.scrollTo({top:0,left:0,behavior:'instant'});
-      document.documentElement.scrollTop=0;
-      document.body.scrollTop=0;
-    }catch(e){ window.scrollTo(0,0); }
-  }
-  document.addEventListener('click',function(e){
-    var b=e.target.closest('.nav button,.mobile-nav button,[data-page]');
-    if(!b) return;
-    setTimeout(top,0);
-    setTimeout(top,80);
-    setTimeout(top,180);
-  },true);
-})();
-</script>
-
-<!-- Final page-layout and access-control guard.  Kept last so it wins over legacy layout patches above. -->
-<style id="liwo-page-gap-and-user-access-final">
-/* The project scope strip is not used on these standalone pages and must never reserve space. */
-body.liwO-standalone-page #globalProjectScope{
-  display:none!important;
-  width:0!important;
-  height:0!important;
-  min-height:0!important;
-  max-height:0!important;
-  margin:0!important;
-  padding:0!important;
-  border:0!important;
-  overflow:hidden!important;
-}
-
-/* Do not let a legacy fixed/minimum height create a blank area above page content. */
-#toolsPage,
-#cashPage,
-#receiptsPage,
-#usersPage,
-#toolsPage.active,
-#cashPage.active,
-#receiptsPage.active,
-#usersPage.active{
-  display:none;
-  position:static!important;
-  height:auto!important;
-  min-height:0!important;
-  max-height:none!important;
-  margin:0!important;
-  padding:0!important;
-  overflow:visible!important;
-}
-#toolsPage.active,
-#cashPage.active,
-#receiptsPage.active,
-#usersPage.active{display:block!important;}
-#toolsPage.active > *,
-#cashPage.active > *,
-#receiptsPage.active > *,
-#usersPage.active > *{
-  position:static!important;
-  height:auto!important;
-  min-height:0!important;
-  max-height:none!important;
-}
-#toolsPage.active > :first-child,
-#cashPage.active > :first-child,
-#receiptsPage.active > :first-child,
-#usersPage.active > :first-child{margin-top:0!important;}
-
-/* User Management is an administrator-only page in both desktop and mobile navigation. */
-body:not(.liwo-admin-session) #usersNav,
-body:not(.liwo-admin-session) #mobileUsersNav,
-body:not(.liwo-admin-session) #usersPage{display:none!important;}
-</style>
-
-<script id="liwo-page-gap-and-user-access-final-script">
-(function(){
-  var standalone={tools:true,cash:true,receipts:true,users:true};
-  function isAdmin(){
-    return String(window.session&&window.session.user&&window.session.user.role||'').trim().toLowerCase()==='admin';
-  }
-  function sync(){
-    var active=document.querySelector('.page.active');
-    var page=active ? active.id.replace(/Page$/,'') : '';
-    var standalonePage=!!standalone[page];
-    document.body.classList.toggle('liwO-standalone-page',standalonePage);
-
-    var nav=document.getElementById('usersNav');
-    var mobileNav=document.getElementById('mobileUsersNav');
-    var usersPage=document.getElementById('usersPage');
-    var admin=isAdmin();
-    if(nav){nav.classList.toggle('hidden',!admin);nav.style.display=admin?'':'none';}
-    if(mobileNav){mobileNav.classList.toggle('hidden',!admin);mobileNav.style.display=admin?'':'none';}
-    if(!admin && usersPage){
-      usersPage.classList.remove('active');
-      usersPage.classList.add('hidden');
-      usersPage.style.display='none';
-    }
-
-    /* Clear inline dimensions left by earlier navigation handlers. */
-    var scope=document.getElementById('globalProjectScope');
-    if(scope && standalonePage){
-      scope.style.display='none';
-      scope.style.height='0';
-      scope.style.minHeight='0';
-      scope.style.maxHeight='0';
-      scope.style.margin='0';
-      scope.style.padding='0';
+    if(!admin && page && !page.classList.contains('hidden')){
+      if(typeof window.switchPage==='function')window.switchPage('dashboard');
+      else {page.classList.add('hidden');page.classList.remove('active');page.style.display='none';}
     }
   }
+  window.syncLIWOAdminVisibility=sync;
   document.addEventListener('DOMContentLoaded',sync);
-  window.addEventListener('load',sync);
-  document.addEventListener('click',function(event){
-    if(event.target.closest('.nav button,.mobile-nav button,[data-page]')){
-      setTimeout(sync,0);
-      setTimeout(sync,150);
+  var timer=setInterval(function(){
+    if(typeof window.showApp==='function'){
+      clearInterval(timer);
+      if(!window.showApp.__liwoAdminWrapped){
+        var original=window.showApp;
+        var wrapped=function(){var result=original.apply(this,arguments);sync();return result};
+        wrapped.__liwoAdminWrapped=true;
+        window.showApp=wrapped;
+      }
+      sync();
+    }
+  },50);
+  document.addEventListener('click',function(e){
+    var b=e.target.closest('[data-page="users"]');
+    if(b && String(window.session?.user?.role||'').trim().toLowerCase()!=='admin'){
+      e.preventDefault();e.stopImmediatePropagation();
+      sync();
+      if(typeof window.toast==='function')window.toast('User Management is available to administrators only.');
     }
   },true);
-  var originalShowApp=window.showApp;
-  if(typeof originalShowApp==='function'){
-    window.showApp=function(){var result=originalShowApp.apply(this,arguments);sync();return result;};
-  }
-  var originalSwitchPage=window.switchPage;
-  if(typeof originalSwitchPage==='function'){
-    window.switchPage=function(page){
-      if(page==='users'&&!isAdmin()) page='dashboard';
-      var result=originalSwitchPage.call(this,page);
-      sync();
-      return result;
-    };
-  }
-})();
-</script>
-<style id="liwo-single-page-visibility-final">
-/* One module at a time: legacy rules must never expose inactive pages. */
-.page{display:none!important;}
-.page.active{display:block!important;}
-.page.hidden{display:none!important;}
-.page.active.hidden{display:none!important;}
-</style>
-<script id="liwo-single-page-visibility-final-script">
-(function(){
-  function admin(){
-    return String(window.session&&window.session.user&&window.session.user.role||'').trim().toLowerCase()==='admin';
-  }
-  function pageExists(name){
-    return !!document.getElementById(name+'Page');
-  }
-  function applyPage(name){
-    if(name==='users'&&!admin()) name='dashboard';
-    if(!pageExists(name)) name='dashboard';
-    document.querySelectorAll('.page').forEach(function(page){
-      var visible=page.id===name+'Page';
-      page.classList.toggle('active',visible);
-      page.classList.toggle('hidden',!visible);
-      page.style.setProperty('display',visible?'block':'none','important');
-      page.setAttribute('aria-hidden',visible?'false':'true');
-    });
-    document.querySelectorAll('.nav button,.mobile-nav button').forEach(function(button){
-      button.classList.toggle('active',button.dataset.page===name);
-    });
-    var scope=document.getElementById('globalProjectScope');
-    if(scope){
-      var standalone=/^(tools|cash|receipts|users)$/.test(name);
-      scope.style.setProperty('display',standalone?'none':'','important');
-      if(standalone){
-        scope.style.setProperty('height','0','important');
-        scope.style.setProperty('min-height','0','important');
-        scope.style.setProperty('margin','0','important');
-        scope.style.setProperty('padding','0','important');
-      }
-    }
-    var usersNav=document.getElementById('usersNav');
-    var mobileUsersNav=document.getElementById('mobileUsersNav');
-    [usersNav,mobileUsersNav].forEach(function(button){
-      if(!button)return;
-      button.classList.toggle('hidden',!admin());
-      button.style.setProperty('display',admin()?'':'none','important');
-    });
-    return name;
-  }
-  function currentPage(){
-    var page=document.querySelector('.page.active');
-    return page ? page.id.replace(/Page$/,'') : 'dashboard';
-  }
-  function install(){
-    var previous=window.switchPage;
-    window.switchPage=function(name){
-      if(name==='users'&&!admin()) name='dashboard';
-      try{
-        return typeof previous==='function' ? previous.call(this,name) : undefined;
-      }finally{
-        applyPage(name);
-        try{window.scrollTo(0,0);}catch(e){}
-      }
-    };
-    applyPage(currentPage());
-  }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',install);
-  else install();
-  window.addEventListener('load',function(){applyPage(currentPage());});
 })();
 </script>
 </body></html>
