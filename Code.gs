@@ -11,7 +11,13 @@ const CONFIG = {
 
   RECEIPT_FOLDER_NAME: "LIWO Finance Receipts",
   MAX_RECEIPT_BYTES: 5 * 1024 * 1024,
-  REPORT_FOLDER_NAME: "LIWO Finance Reports"
+  REPORT_FOLDER_NAME: "LIWO Finance Reports",
+  REPORT_RECIPIENTS: [
+    "valezachristian0821@gmail.com",
+    "tristanvelasco4@gmail.com"
+  ],
+  REPORT_WEEKLY_DAY: "SUNDAY",
+  REPORT_WEEKLY_HOUR: 17
 };
 const SHEETS={
  settings:["Key","Value"],
@@ -82,28 +88,8 @@ function getOrCreateReceiptFolder_(){
 }
 
 function getReportRecipients_(){
-  const out = [];
-  const seen = {};
-  ["report_recipients","weekly_report_config"].forEach(function(name){
-    const sh = ss().getSheetByName(name);
-    if(!sh || sh.getLastRow()<2) return;
-    const rows = sh.getDataRange().getValues();
-    rows.slice(1).forEach(function(r){
-      let email = "", enabled = true;
-      if(name==="report_recipients"){
-        email = String(r[0]||"").trim();
-        enabled = r[1]===true || String(r[1]).toLowerCase()==="true" || String(r[1]).toUpperCase()==="YES" || r[1]==="";
-      }else{
-        if(String(r[0]||"").toLowerCase()==="email") email=String(r[1]||"").trim();
-        if(String(r[0]||"").toLowerCase()==="enabled") enabled=String(r[1]||"true").toLowerCase()!=="false";
-      }
-      if(enabled && email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && !seen[email.toLowerCase()]){
-        seen[email.toLowerCase()]=true;
-        out.push(email);
-      }
-    });
-  });
-  return out;
+  // Fixed LIWO automated-report recipients.
+  return (CONFIG.REPORT_RECIPIENTS || []).slice();
 }
 
 function setReportRecipients_(u, emails){
@@ -380,7 +366,7 @@ function installWeeklyReportTrigger_(u){
 
 function runScheduledWeeklyReport(){
   const recipients=getReportRecipients_();
-  if(!recipients.length) return;
+  if(!recipients.length) throw Error("No automated report recipients configured.");
   const rows=getProjectFinancialSummary_();
   const tz=Session.getScriptTimeZone()||"Asia/Manila";
   const now=new Date(), end=Utilities.formatDate(now,tz,"MMM d, yyyy");
@@ -399,6 +385,83 @@ function runScheduledWeeklyReport(){
     attachments:[pdfFile.getBlob()]
   });
   audit_({username:"SYSTEM",role:"Admin"},"WEEKLY_FINANCIAL_REPORT","SYSTEM",label,JSON.stringify({pdfUrl:pdfFile.getUrl(),recipients:recipients}));
+}
+
+
+function setupAutomatedReports(){
+  const recipients=getReportRecipients_();
+  if(!recipients.length) throw Error("No automated report recipients configured.");
+
+  const setupNow=new Date();
+
+  // Store the recipients in the sheet too, so the Admin UI can display them.
+  const sh=ensureSheet_("report_recipients",["Email","Enabled","UpdatedAt","UpdatedBy"]);
+  if(sh.getLastRow()>1) sh.getRange(2,1,sh.getLastRow()-1,4).clearContent();
+  sh.getRange(2,1,recipients.length,4).setValues(
+    recipients.map(function(e){return [e,true,setupNow,"SYSTEM"];})
+  );
+
+  // Save the weekly settings used by the Admin UI.
+  const cfg=ensureSheet_("weekly_report_config",["Key","Value","UpdatedAt","UpdatedBy"]);
+  if(cfg.getLastRow()>1) cfg.getRange(2,1,cfg.getLastRow()-1,4).clearContent();
+  cfg.getRange(2,1,3,4).setValues([
+    ["weeklyEnabled",true,setupNow,"SYSTEM"],
+    ["weeklyDay",CONFIG.REPORT_WEEKLY_DAY,setupNow,"SYSTEM"],
+    ["weeklyHour",CONFIG.REPORT_WEEKLY_HOUR,setupNow,"SYSTEM"]
+  ]);
+
+  const days={
+    SUNDAY:ScriptApp.WeekDay.SUNDAY,MONDAY:ScriptApp.WeekDay.MONDAY,
+    TUESDAY:ScriptApp.WeekDay.TUESDAY,WEDNESDAY:ScriptApp.WeekDay.WEDNESDAY,
+    THURSDAY:ScriptApp.WeekDay.THURSDAY,FRIDAY:ScriptApp.WeekDay.FRIDAY,
+    SATURDAY:ScriptApp.WeekDay.SATURDAY
+  };
+
+  // Remove duplicate LIWO report triggers.
+  ScriptApp.getProjectTriggers().forEach(function(trigger){
+    const fn=trigger.getHandlerFunction();
+    if(fn==="runScheduledWeeklyReport" || fn==="sendMonthlyFinancialReport"){
+      ScriptApp.deleteTrigger(trigger);
+    }
+  });
+
+  ScriptApp.newTrigger("runScheduledWeeklyReport")
+    .timeBased()
+    .onWeekDay(days[CONFIG.REPORT_WEEKLY_DAY])
+    .atHour(Number(CONFIG.REPORT_WEEKLY_HOUR))
+    .create();
+
+  ScriptApp.newTrigger("sendMonthlyFinancialReport")
+    .timeBased()
+    .onMonthDay(1)
+    .atHour(8)
+    .create();
+
+  return {
+    ok:true,
+    recipients:recipients,
+    weeklyDay:CONFIG.REPORT_WEEKLY_DAY,
+    weeklyHour:CONFIG.REPORT_WEEKLY_HOUR,
+    monthlyDay:1,
+    monthlyHour:8
+  };
+}
+
+function sendAutomatedReportTestEmail(){
+  const recipients=getReportRecipients_();
+  if(!recipients.length) throw Error("No automated report recipients configured.");
+
+  MailApp.sendEmail({
+    to:recipients.join(","),
+    subject:"LIWO Finance — Automated Report Test",
+    body:
+      "This is a test email from the LIWO Finance automated reporting system.\n\n"+
+      "Configured recipients:\n"+recipients.join("\n")+
+      "\n\nWeekly reports: Sunday around 5:00 PM.\n"+
+      "Monthly reports: 1st day of each month around 8:00 AM."
+  });
+
+  return {ok:true,recipients:recipients};
 }
 
 
@@ -1436,7 +1499,8 @@ function generateFinancialReport(r,u){
 }
 function escReport_(s){return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':'&quot;',"'":"&#039;"}[m]));}
 function sendMonthlyFinancialReport(){
-  let s=settingsMap(),recipients=String(s.ReportRecipients||"").split(',').map(x=>x.trim()).filter(Boolean);if(!recipients.length)return {ok:false,message:"No ReportRecipients configured."};
+  const recipients=getReportRecipients_();
+  if(!recipients.length) throw Error("No automated report recipients configured.");
   let now=new Date(),start=new Date(now.getFullYear(),now.getMonth()-1,1),end=new Date(now.getFullYear(),now.getMonth(),1),projects=reportDataForPeriod_(start,end),tot=projects.reduce((a,p)=>{a.payments+=p.payments;a.expenses+=p.expenses;a.profit+=p.profit;return a},{payments:0,expenses:0,profit:0});
   let subject='LIWO Monthly Financial Report — '+Utilities.formatDate(start,Session.getScriptTimeZone(),'MMMM yyyy');let html='<p><b>LIWO ENGINEERING CONSULTANCY</b></p><p>'+subject+'</p><p>Client payments: ₱'+tot.payments.toLocaleString('en-PH',{minimumFractionDigits:2})+'<br>Expenses: ₱'+tot.expenses.toLocaleString('en-PH',{minimumFractionDigits:2})+'<br>Cash profit: ₱'+tot.profit.toLocaleString('en-PH',{minimumFractionDigits:2})+'</p><ul>'+projects.map(p=>'<li><b>'+escReport_(p.name)+'</b>: Profit ₱'+p.profit.toLocaleString('en-PH',{minimumFractionDigits:2})+' ('+p.margin.toFixed(1)+'%)</li>').join('')+'</ul>';
   MailApp.sendEmail({to:recipients.join(','),subject,htmlBody:html,body:subject+'\nPayments: ₱'+tot.payments+'\nExpenses: ₱'+tot.expenses+'\nCash Profit: ₱'+tot.profit});return{ok:true,recipients:recipients};
