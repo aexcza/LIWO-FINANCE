@@ -1285,6 +1285,61 @@ body.lw-admin #executivePage .exec-report-admin-only{display:block!important}
 <style id="liwo-detailed-report-styles">
 .report-overview-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:14px}.report-overview-grid>div{border:1px solid var(--line);border-radius:9px;padding:12px}.report-overview-grid span{display:block;color:var(--muted);font-size:10px;margin-bottom:5px}.report-overview-grid strong{font-size:14px}.report-analysis-box{border:1px solid var(--line);border-radius:10px;padding:14px;background:#f9fbfc}.report-analysis-box h3{margin:0 0 7px;font-size:13px}.report-analysis-box p{margin:6px 0;font-size:11px;line-height:1.55}.report-analysis-box p:last-child{font-weight:700}@media(max-width:760px){.report-overview-grid{grid-template-columns:1fr 1fr}.report-analysis-box p{font-size:10px}}
 </style>
+<style id="liwo-report-detail-css">.report-subtotals{border:1px solid var(--line);border-radius:10px;padding:12px;margin-top:12px}.subtotal-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line);font-size:11px}.subtotal-row.grand{font-weight:800;border-bottom:0}.daily-subtotal td{font-weight:700;border-top:1px solid var(--line)}.daily-empty td{color:var(--muted);font-style:italic}@media(max-width:760px){.report-section .table-wrap{overflow-x:auto}.report-section table{min-width:760px}.report-overview-grid{grid-template-columns:1fr 1fr}}@media print{.report-subtotals,.report-analysis-box{break-inside:avoid;page-break-inside:avoid}}</style>
+
+<style id="liwo-report-signatures">
+.report-signature-section{
+  margin-top:28px;
+  padding-top:20px;
+  border-top:1px solid var(--line);
+  break-inside:avoid;
+  page-break-inside:avoid;
+}
+.report-signature-section h3{
+  margin:0 0 28px;
+  font-size:14px;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+.report-signature-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:28px;
+}
+.report-signature{
+  min-height:105px;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+}
+.report-signature .signature-line{
+  width:100%;
+  max-width:230px;
+  border-top:1px solid #222;
+  margin-bottom:10px;
+}
+.report-signature strong{
+  font-size:10px;
+  line-height:1.4;
+}
+.report-signature span{
+  margin-top:3px;
+  color:var(--muted);
+  font-size:9px;
+  line-height:1.4;
+}
+@media(max-width:760px){
+  .report-signature-grid{grid-template-columns:1fr;gap:24px}
+  .report-signature{min-height:92px}
+}
+@media print{
+  .report-signature-section{margin-top:24px}
+  .report-signature-grid{grid-template-columns:repeat(3,1fr);gap:18px}
+  .report-signature strong{font-size:9px}
+  .report-signature span{font-size:8px}
+}
+</style>
+
 </head>
 <body>
 <div id="liwoLoadingOverlay" aria-hidden="true">
@@ -1597,23 +1652,31 @@ body.lw-admin #executivePage .exec-report-admin-only{display:block!important}
   </label>
 </div>
 
-<div class="grid report-controls"><label>Report Period<select id="reportPeriod"><option value="all">All available records</option><option value="week">Last 7 Days — Weekly Money Report</option><option value="month">This Month — Monthly Money Report</option></select></label><div class="wide report-actions"><button id="printReportBtn" class="primary" type="button">🖨 Print Report</button><button id="saveReportBtn" class="secondary" type="button">📄 Save / Print as PDF</button><button id="exportReportBtn" class="secondary" type="button">⬇ Export CSV</button></div></div></div>
+<div class="grid report-controls"><label>Report Period<select id="reportPeriod"><option value="all">Full Financial Report — All Project Records</option><option value="week">Last 7 Days — Weekly Money Report</option><option value="month">This Month — Monthly Money Report</option></select></label><div class="wide report-actions"><button id="printReportBtn" class="primary" type="button">🖨 Print Report</button><button id="saveReportBtn" class="secondary" type="button">📄 Save / Print as PDF</button><button id="exportReportBtn" class="secondary" type="button">⬇ Export CSV</button></div></div></div>
 <div class="report-period-note" id="reportPeriodNote"><strong>Weekly / Monthly Reports:</strong> Select <b>Last 7 Days</b> or <b>This Month</b> above. The weekly money report uses the rolling last 7 calendar days, including today.</div>
 <div id="reportPreview" class="report-preview"><div class="report-header"><div><h2>LIWO ENGINEERING CONSULTANCY</h2><p>Financial Report</p></div><div class="report-meta"><strong id="reportDate"></strong><span id="reportPeriodLabel"></span><span id="reportProject"></span></div></div>
 <div class="report-summary-grid"><div><span>Contract Budget</span><strong id="rContract">₱0.00</strong></div><div><span>Total Payments</span><strong id="rPayments">₱0.00</strong></div><div><span>Total Expenses</span><strong id="rExpenses">₱0.00</strong></div><div><span>Funds Available</span><strong id="rAvailable">₱0.00</strong></div><div><span>Uncollected Balance</span><strong id="rBalance">₱0.00</strong></div><div><span>Cash Position</span><strong id="rNet">₱0.00</strong></div></div><div class="report-section report-detailed-overview" id="reportDetailedOverview">
+<h3>Detailed Financial Overview</h3>
 <div class="report-overview-grid">
-  <div><span>Report Period</span><strong id="rPeriodDates">—</strong></div>
-  <div><span>Cash In</span><strong id="rCashIn">₱0.00</strong></div>
-  <div><span>Cash Out</span><strong id="rCashOut">₱0.00</strong></div>
-  <div><span>Net Money Movement</span><strong id="rMovement">₱0.00</strong></div>
-  <div><span>Money Moved</span><strong id="rMovementPct">0.0%</strong></div>
-  <div><span>Money Remaining / Uncollected</span><strong id="rRemainingPct">0.0%</strong></div>
+<div><span>Report Period</span><strong id="rPeriodDates">—</strong></div>
+<div><span>Cash In</span><strong id="rCashIn">₱0.00</strong></div>
+<div><span>Cash Out</span><strong id="rCashOut">₱0.00</strong></div>
+<div><span>Net Money Movement</span><strong id="rMovement">₱0.00</strong></div>
+<div><span>Cash In % of Contract</span><strong id="rCashInPct">0.0%</strong></div>
+<div><span>Cash Out % of Contract</span><strong id="rCashOutPct">0.0%</strong></div>
+<div><span>Net Movement % of Contract</span><strong id="rMovementPct">0.0%</strong></div>
+<div><span>Uncollected Balance</span><strong id="rBalance">₱0.00</strong></div>
+<div><span>Uncollected %</span><strong id="rRemainingPct">0.0%</strong></div>
 </div>
-<div class="report-analysis-box">
-  <h3>Detailed Financial Overview</h3>
-  <p id="rDetailedDescription">No report details available.</p>
-  <p id="rLargestMovement">Largest expense movement: —</p>
+<div class="report-analysis-box"><h3>Detailed Financial Overview & Description</h3><p id="rFinancialSummaryText">No financial summary available.</p><p id="rDetailedDescription">No detailed financial description available.</p><p id="rLargestMovement">Largest expense movement: —</p></div>
+<div class="report-subtotals"><h3>Period Totals & Subtotals</h3>
+<div class="subtotal-row"><span>Total Client Payments</span><strong id="rSubtotalPayments">₱0.00</strong></div>
+<div class="subtotal-row"><span>Total Expenses</span><strong id="rSubtotalExpenses">₱0.00</strong></div>
+<div class="subtotal-row"><span>Total Other Income</span><strong id="rSubtotalIncome">₱0.00</strong></div>
+<div class="subtotal-row"><span>Total Refunds</span><strong id="rSubtotalRefunds">₱0.00</strong></div>
+<div class="subtotal-row grand"><span>NET CASH FLOW / MOVEMENT</span><strong id="rSubtotalNet">₱0.00</strong></div></div>
 </div>
+<div class="report-section"><h3>Daily Transactions — Exact Reporting Period</h3><div class="table-wrap"><table><thead><tr><th>Date</th><th>Type</th><th>Category</th><th>Payee / Reference</th><th>Description</th><th>Money In</th><th>Money Out</th><th>Entered By</th></tr></thead><tbody id="reportDailyTransactionsBody"></tbody></table></div></div>
 </div>
 <div class="report-section"><h3>Expense Summary</h3><div class="table-wrap"><table><thead><tr><th>Date</th><th>Type</th><th>Category</th><th>Payee / Supplier</th><th>Description</th><th>Payment Method</th><th>Receipt</th><th>Entered By</th><th>Amount</th></tr></thead><tbody id="reportExpensesBody"></tbody></table></div></div>
 <div class="report-section"><h3>Client Payments</h3><div class="table-wrap"><table><thead><tr><th>Date</th><th>Reference</th><th>Description / Milestone</th><th>Method</th><th>Entered By</th><th>Amount Paid</th></tr></thead><tbody id="reportPaymentsBody"></tbody></table></div></div>
@@ -2030,62 +2093,122 @@ function render(){
 }
 async function save(action,form){let btn=form.querySelector("button");btn.disabled=true;try{let payload=action==="addExpense"?await expensePayload(form):formObj(form);if(action==="addPayment"||action==="addExpense")payload.clientId=selectedClientId||payload.clientId;if(action==="addPayment"||action==="addExpense")if(!payload.clientId)throw Error("Select an Active Project before saving.");await api(action,{token:session.token,...payload});if(action==="upsertClient")resetClientForm();else form.reset();let d=form.querySelector('[name="date"]');if(d)d.value=today();if($("receiptFileName"))$("receiptFileName").textContent="Optional — you can take a photo or upload a receipt. No receipt is also allowed.";toast(action==="addExpense"?(payload.receiptData?"Transaction and receipt saved.":"Transaction saved without a receipt."):"Saved successfully");await refresh()}catch(x){toast(x.message)}finally{btn.disabled=false}}
 function reportRecords(){
-  let id=selectedClientId,period=$("reportPeriod")?.value||"all",client=(data.clients||[]).find(c=>String(c.id)===String(id));
-  if(!id)return{client:null,payments:[],expenses:[],totalPayments:0,totalExpenses:0,contract:0,available:0,balance:0,net:0,budget:[],periodStart:null,periodEnd:null,cashIn:0,cashOut:0,netMovement:0,largestCategory:"—",largestCategoryAmount:0};
-  let payments=(data.payments||[]).filter(x=>String(x.clientId||x.clientID||"")===String(id));
-  let expenses=(data.expenses||[]).filter(x=>String(x.clientId||x.clientID||"")===String(id));
+  const id=String(selectedClientId||"");
+  const period=$("reportPeriod")?.value||"all";
+  const client=(data.clients||[]).find(c=>String(c.id)===id);
+  if(!id)return{client:null,payments:[],expenses:[],totalPayments:0,totalExpenses:0,contract:0,available:0,balance:0,net:0,budget:[],periodStart:null,periodEnd:null,cashIn:0,cashOut:0,netMovement:0,refunds:0,otherIncome:0,largestCategory:"—",largestCategoryAmount:0,categoryTotals:{}};
+
+  let payments=(data.payments||[]).filter(x=>String(x.clientId||x.clientID||"")===id);
+  let expenses=(data.expenses||[]).filter(x=>String(x.clientId||x.clientID||"")===id);
+
   const now=new Date();
   let periodStart=null,periodEnd=null;
-  if(period==="month"){
-    periodStart=new Date(now.getFullYear(),now.getMonth(),1);periodEnd=new Date(now.getFullYear(),now.getMonth()+1,1);
-    payments=payments.filter(x=>{let d=new Date(x.date);return !isNaN(d)&&d>=periodStart&&d<periodEnd});
-    expenses=expenses.filter(x=>{let d=new Date(x.date);return !isNaN(d)&&d>=periodStart&&d<periodEnd});
-  }
+  const dayStart=d=>{let x=new Date(d);x.setHours(0,0,0,0);return x};
   if(period==="week"){
-    periodStart=new Date(now);periodStart.setHours(0,0,0,0);periodStart.setDate(periodStart.getDate()-6);
-    periodEnd=new Date(now);periodEnd.setHours(0,0,0,0);periodEnd.setDate(periodEnd.getDate()+1);
-    const inPeriod=x=>{let d=new Date(x);return !isNaN(d)&&d>=periodStart&&d<periodEnd};
-    payments=payments.filter(x=>inPeriod(x.date));expenses=expenses.filter(x=>inPeriod(x.date));
+    periodStart=dayStart(now); periodStart.setDate(periodStart.getDate()-6);
+    periodEnd=dayStart(now); periodEnd.setDate(periodEnd.getDate()+1);
+  }else if(period==="month"){
+    periodStart=new Date(now.getFullYear(),now.getMonth(),1);
+    periodEnd=new Date(now.getFullYear(),now.getMonth()+1,1);
   }
-  let totalPayments=payments.reduce((a,x)=>a+Number(x.amount||0),0);
-  let totalExpenses=expenses.filter(x=>x.type==="Expense"||!x.type).reduce((a,x)=>a+Number(x.amount||0),0);
-  let refunds=expenses.filter(x=>x.type==="Refund").reduce((a,x)=>a+Number(x.amount||0),0);
-  let income=expenses.filter(x=>x.type==="Other Income").reduce((a,x)=>a+Number(x.amount||0),0);
-  let contract=Number(client?.totalContract??client?.budget??data.summary?.contractAmount??0);
-  let cashIn=totalPayments+refunds+income;
-  let cashOut=totalExpenses;
-  let available=cashIn-cashOut;
-  let balance=Math.max(0,contract-totalPayments);
-  let net=available;
-  let budget=(data.budget||[]).filter(x=>String(x.clientId||x.clientID||id)===String(id)||!x.clientId).map(x=>{let actual=expenses.filter(y=>y.category===x.category&&y.type==="Expense").reduce((a,y)=>a+Number(y.amount||0),0),b=Number(x.budget||0);return{...x,actual,variance:b-actual,used:b?actual/b:0,remaining:Math.max(0,b-actual)}});
-  let cats={};expenses.filter(x=>x.type==="Expense"||!x.type).forEach(x=>{let k=String(x.category||"Uncategorized");cats[k]=(cats[k]||0)+Number(x.amount||0)});
-  let largestCategory="—",largestCategoryAmount=0;Object.keys(cats).forEach(k=>{if(cats[k]>largestCategoryAmount){largestCategory=k;largestCategoryAmount=cats[k]}});
-  return{client,payments,expenses,totalPayments,totalExpenses,contract,available,balance,net,budget,periodStart,periodEnd,cashIn,cashOut,netMovement:cashIn-cashOut,largestCategory,largestCategoryAmount};
+  if(periodStart){
+    const inPeriod=x=>{let d=new Date(x);return !isNaN(d)&&d>=periodStart&&d<periodEnd};
+    payments=payments.filter(x=>inPeriod(x.date));
+    expenses=expenses.filter(x=>inPeriod(x.date));
+  }
+
+  const totalPayments=payments.reduce((a,x)=>a+Number(x.amount||0),0);
+  const totalExpenses=expenses.filter(x=>String(x.type||"Expense")==="Expense"||!x.type).reduce((a,x)=>a+Number(x.amount||0),0);
+  const refunds=expenses.filter(x=>String(x.type)==="Refund").reduce((a,x)=>a+Number(x.amount||0),0);
+  const otherIncome=expenses.filter(x=>String(x.type)==="Other Income").reduce((a,x)=>a+Number(x.amount||0),0);
+  const contract=Number(client?.totalContract??client?.budget??data.summary?.contractAmount??0);
+  const cashIn=totalPayments+refunds+otherIncome;
+  const cashOut=totalExpenses;
+  const netMovement=cashIn-cashOut;
+  const available=cashIn-cashOut;
+  const balance=Math.max(0,contract-totalPayments);
+
+  const budget=(data.budget||[]).filter(x=>String(x.clientId||x.clientID||id)===id||!x.clientId).map(x=>{
+    const actual=expenses.filter(y=>String(y.category||"")===String(x.category||"")&&(y.type==="Expense"||!y.type)).reduce((a,y)=>a+Number(y.amount||0),0);
+    const b=Number(x.budget||0);
+    return{...x,actual,variance:b-actual,used:b?actual/b:0,remaining:Math.max(0,b-actual)};
+  });
+  const categoryTotals={};
+  expenses.filter(x=>x.type==="Expense"||!x.type).forEach(x=>{
+    const k=String(x.category||"Uncategorized");
+    categoryTotals[k]=(categoryTotals[k]||0)+Number(x.amount||0);
+  });
+  let largestCategory="—",largestCategoryAmount=0;
+  Object.keys(categoryTotals).forEach(k=>{if(categoryTotals[k]>largestCategoryAmount){largestCategory=k;largestCategoryAmount=categoryTotals[k]}});
+
+  return{client,payments,expenses,totalPayments,totalExpenses,contract,available,balance,net:netMovement,budget,periodStart,periodEnd,cashIn,cashOut,netMovement,refunds,otherIncome,largestCategory,largestCategoryAmount,categoryTotals};
 }
 function reportClientOptions(){}
+function localISO(d){return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10)}
+function reportDateLabel(d){return new Date(d+"T00:00:00").toLocaleDateString(undefined,{weekday:"long",year:"numeric",month:"long",day:"numeric"})}
 function renderReport(){
   reportClientOptions();
-  let r=reportRecords(),rp=$("reportPeriod")?.value||"all";
-  const fmtDate=d=>d?d.toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"}):"—";
-  const periodText=rp==="week"&&r.periodStart&&r.periodEnd?`${fmtDate(r.periodStart)} – ${fmtDate(new Date(r.periodEnd.getTime()-86400000))}`:rp==="month"&&r.periodStart?`${fmtDate(r.periodStart)} – ${fmtDate(new Date(r.periodEnd.getTime()-86400000))}`:`All available records`;
-  $("reportPeriodLabel").textContent=rp==="week"?"Last 7 Days — Weekly Money Report":rp==="month"?"Monthly Money Report":"Complete Financial Report";
-  $("reportDate").textContent=new Date().toLocaleDateString();$("reportProject").textContent=r.client?(r.client.name+(r.client.reference?" — "+r.client.reference:")):"No Active Project Selected";
+  const r=reportRecords(),rp=$("reportPeriod")?.value||"all";
+  const fmtDate=d=>d?d.toLocaleDateString(undefined,{year:"numeric",month:"long",day:"numeric"}):"—";
+  const endDate=r.periodEnd?new Date(r.periodEnd.getTime()-86400000):null;
+  const periodText=r.periodStart&&endDate?`${fmtDate(r.periodStart)} – ${fmtDate(endDate)}`:"All available records";
+  $("reportPeriodLabel").textContent=rp==="week"?"Weekly Money Report":rp==="month"?"Monthly Money Report":"Complete Financial Report";
+  $("reportDate").textContent=new Date().toLocaleDateString();
+  $("reportProject").textContent=r.client?(r.client.name+(r.client.reference?" — "+r.client.reference:"")):"No Active Project Selected";
+
   $("rContract").textContent=peso(r.contract);$("rPayments").textContent=peso(r.totalPayments);$("rExpenses").textContent=peso(r.totalExpenses);$("rAvailable").textContent=peso(r.available);$("rBalance").textContent=peso(r.balance);$("rNet").textContent=peso(r.net);
   if($("rPeriodDates"))$("rPeriodDates").textContent=periodText;
   if($("rCashIn"))$("rCashIn").textContent=peso(r.cashIn);if($("rCashOut"))$("rCashOut").textContent=peso(r.cashOut);if($("rMovement"))$("rMovement").textContent=peso(r.netMovement);
-  const movedPct=r.contract?((r.cashOut/r.contract)*100):0, remainingPct=r.contract?((r.balance/r.contract)*100):0;
-  if($("rMovementPct"))$("rMovementPct").textContent=movedPct.toFixed(1)+"% of contract";
-  if($("rRemainingPct"))$("rRemainingPct").textContent=remainingPct.toFixed(1)+"% of contract";
+  const collectionPct=r.contract?(r.totalPayments/r.contract*100):0;
+  const cashInPct=r.contract?(r.cashIn/r.contract*100):0;
+  const cashOutPct=r.contract?(r.cashOut/r.contract*100):0;
+  const movementPct=r.contract?(Math.abs(r.netMovement)/r.contract*100):0;
+  const remainingPct=r.contract?(r.balance/r.contract*100):0;
+  const spentOfCashIn=r.cashIn?(r.cashOut/r.cashIn*100):0;
+  if($("rMovementPct"))$("rMovementPct").textContent=movementPct.toFixed(1)+"%";
+  if($("rRemainingPct"))$("rRemainingPct").textContent=remainingPct.toFixed(1)+"%";
+  if($("rCashInPct"))$("rCashInPct").textContent=cashInPct.toFixed(1)+"%";
+  if($("rCashOutPct"))$("rCashOutPct").textContent=cashOutPct.toFixed(1)+"%";
+  if($("rFinancialSummaryText"))$("rFinancialSummaryText").textContent=`${periodText}: ${peso(r.totalPayments)} in client payments, ${peso(r.totalExpenses)} in expenses, ${peso(r.cashIn)} total cash inflow and ${peso(r.cashOut)} total cash outflow. Net cash movement was ${peso(r.netMovement)}. ${r.contract?`Collections reached ${collectionPct.toFixed(1)}% of the contract, with ${peso(r.balance)} (${remainingPct.toFixed(1)}%) still uncollected.`:"Contract value is unavailable for contract-based percentages."}`;
   if($("rDetailedDescription")){
-    const collection=r.contract?((r.totalPayments/r.contract)*100):0,budgetUsed=r.contract?((r.totalExpenses/r.contract)*100):0;
-    const scope=rp==="week"?"the last 7 calendar days":rp==="month"?"the current calendar month":"all available records";
-    $("rDetailedDescription").textContent=`For ${scope}, this project recorded ${peso(r.totalPayments)} in client payments and ${peso(r.totalExpenses)} in expenses. Cash in was ${peso(r.cashIn)} and cash out was ${peso(r.cashOut)}, producing a net money movement of ${peso(r.netMovement)}. ${r.contract?`Client collections are ${collection.toFixed(1)}% of the contract value, while expenses represent ${budgetUsed.toFixed(1)}% of the contract value.`:"Contract value is not available for percentage analysis."} The remaining uncollected balance is ${peso(r.balance)}.`;
+    const direction=r.netMovement>0?"positive":r.netMovement<0?"negative":"neutral";
+    const largest=r.largestCategoryAmount?`${r.largestCategory} was the largest expense category at ${peso(r.largestCategoryAmount)}, accounting for ${r.totalExpenses?(r.largestCategoryAmount/r.totalExpenses*100).toFixed(1):"0.0"}% of total expenses.`:"No expense category was recorded.";
+    $("rDetailedDescription").textContent=`Detailed Financial Description for ${periodText}. This project recorded ${peso(r.totalPayments)} in client collections and ${peso(r.totalExpenses)} in project expenses. Additional cash inflows from refunds and other income totaled ${peso(r.refunds+r.otherIncome)}, bringing total cash inflow to ${peso(r.cashIn)}. Total cash outflow was ${peso(r.cashOut)}, resulting in a ${direction} net cash movement of ${peso(r.netMovement)}. Cash inflow represented ${cashInPct.toFixed(1)}% of the contract value and cash outflow represented ${cashOutPct.toFixed(1)}%. The net movement represented ${movementPct.toFixed(1)}% of the contract value. Expenses consumed ${spentOfCashIn.toFixed(1)}% of cash inflows during this period. ${r.contract?`The project contract value is ${peso(r.contract)}; ${peso(r.totalPayments)} has been collected (${collectionPct.toFixed(1)}%), leaving ${peso(r.balance)} outstanding (${remainingPct.toFixed(1)}%).`:"No contract value was available for collection and balance percentages."} ${largest} The complete day-by-day transaction schedule and subtotals below support these figures.`;
   }
-  if($("rLargestMovement"))$("rLargestMovement").textContent=r.largestCategoryAmount?`Largest expense movement: ${r.largestCategory} at ${peso(r.largestCategoryAmount)} (${r.totalExpenses?((r.largestCategoryAmount/r.totalExpenses)*100).toFixed(1):"0.0"}% of period expenses).`:`Largest expense movement: No expense activity recorded for this period.`;
+  if($("rLargestMovement"))$("rLargestMovement").textContent=r.largestCategoryAmount?`Largest expense movement: ${r.largestCategory} — ${peso(r.largestCategoryAmount)} (${r.totalExpenses?(r.largestCategoryAmount/r.totalExpenses*100).toFixed(1):"0.0"}% of period expenses).`:"Largest expense movement: No expense activity recorded for this period.";
+  if($("rSubtotalPayments"))$("rSubtotalPayments").textContent=peso(r.totalPayments);
+  if($("rSubtotalExpenses"))$("rSubtotalExpenses").textContent=peso(r.totalExpenses);
+  if($("rSubtotalIncome"))$("rSubtotalIncome").textContent=peso(r.otherIncome);
+  if($("rSubtotalRefunds"))$("rSubtotalRefunds").textContent=peso(r.refunds);
+  if($("rSubtotalNet"))$("rSubtotalNet").textContent=peso(r.netMovement);
+
   $("reportPreparedBy").textContent=session?.user?.name?`Prepared by ${session.user.name}`:"";
-  $("reportExpensesBody").innerHTML=r.expenses.map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.type||"Expense")}</td><td>${esc(x.category)}</td><td>${esc(x.payee)}</td><td>${esc(x.description)}</td><td>${esc(x.method)}</td><td>${x.receiptUrl?`<a class="receipt-link" href="${esc(x.receiptUrl)}" target="_blank" rel="noopener">View</a>`:"—"}</td><td>${esc(x.enteredBy)}</td><td>${peso(x.amount)}</td></tr>`).join("")||`<tr><td colspan="9" class="empty">No expenses for this report.</td></tr>`;
-  $("reportPaymentsBody").innerHTML=r.payments.map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.reference)}</td><td>${esc(x.description)}</td><td>${esc(x.method)}</td><td>${esc(x.enteredBy)}</td><td>${peso(x.amount)}</td></tr>`).join("")||`<tr><td colspan="6" class="empty">No payments for this report.</td></tr>`;
-  $("reportBudgetBody").innerHTML=r.budget.map(x=>`<tr><td>${esc(x.category)}</td><td>${peso(x.budget)}</td><td>${peso(x.actual)}</td><td>${peso(x.variance)}</td><td>${(Number(x.used||0)*100).toFixed(1)}%</td><td>${peso(x.remaining)}</td></tr>`).join("")||`<tr><td colspan="6" class="empty">No budget data.</td></tr>`;
+  $("reportExpensesBody").innerHTML=r.expenses.map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.type||"Expense")}</td><td>${esc(x.category||"—")}</td><td>${esc(x.payee||"—")}</td><td>${esc(x.description||"—")}</td><td>${esc(x.method||"—")}</td><td>${x.receiptUrl?`<a class="receipt-link" href="${esc(x.receiptUrl)}" target="_blank" rel="noopener">View</a>`:"—"}</td><td>${esc(x.enteredBy||"—")}</td><td>${peso(x.amount)}</td></tr>`).join("")||`<tr><td colspan="9" class="empty">No expenses for this report.</td></tr>`;
+  $("reportPaymentsBody").innerHTML=r.payments.map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.reference||"—")}</td><td>${esc(x.description||"—")}</td><td>${esc(x.method||"—")}</td><td>${esc(x.enteredBy||"—")}</td><td>${peso(x.amount)}</td></tr>`).join("")||`<tr><td colspan="6" class="empty">No payments for this report.</td></tr>`;
+  $("reportBudgetBody").innerHTML=r.budget.map(x=>`<tr><td>${esc(x.category||"—")}</td><td>${peso(x.budget)}</td><td>${peso(x.actual)}</td><td>${peso(x.variance)}</td><td>${(Number(x.used||0)*100).toFixed(1)}%</td><td>${peso(x.remaining)}</td></tr>`).join("")||`<tr><td colspan="6" class="empty">No budget data.</td></tr>`;
+
+  const dailyBody=$("reportDailyTransactionsBody");
+  if(dailyBody){
+    const allRows=[
+      ...r.payments.map(x=>({...x,_kind:"Client Payment",_in:Number(x.amount||0),_out:0,_category:"Client Payment",_ref:x.reference||"—"})),
+      ...r.expenses.map(x=>({...x,_kind:x.type||"Expense",_in:(x.type==="Other Income"||x.type==="Refund")?Number(x.amount||0):0,_out:(x.type==="Expense"||!x.type)?Number(x.amount||0):0,_category:x.category||x.type||"Transaction",_ref:x.payee||x.supplier||"—"}))
+    ];
+    if(r.periodStart&&r.periodEnd){
+      let rows=[];
+      for(let d=new Date(r.periodStart);d<r.periodEnd;d.setDate(d.getDate()+1)){
+        const k=localISO(d), items=allRows.filter(x=>localISO(new Date(x.date))===k);
+        if(!items.length) rows.push(`<tr class="daily-empty"><td>${esc(reportDateLabel(k))}</td><td colspan="7">No transactions recorded</td></tr>`);
+        else{
+          let dayIn=0,dayOut=0;
+          items.forEach(x=>{dayIn+=x._in;dayOut+=x._out;rows.push(`<tr><td>${esc(reportDateLabel(k))}</td><td>${esc(x._kind)}</td><td>${esc(x._category)}</td><td>${esc(x._ref)}</td><td>${esc(x.description||x.milestone||"—")}</td><td>${x._in?peso(x._in):"—"}</td><td>${x._out?peso(x._out):"—"}</td><td>${esc(x.enteredBy||"—")}</td></tr>`)});
+          rows.push(`<tr class="daily-subtotal"><td colspan="5"><strong>Daily Subtotal — ${esc(reportDateLabel(k))}</strong></td><td><strong>${peso(dayIn)}</strong></td><td><strong>${peso(dayOut)}</strong></td><td><strong>Net ${peso(dayIn-dayOut)}</strong></td></tr>`);
+        }
+      }
+      dailyBody.innerHTML=rows.join("");
+    }else{
+      dailyBody.innerHTML=allRows.sort((a,b)=>String(a.date).localeCompare(String(b.date))).map(x=>`<tr><td>${esc(x.date||"—")}</td><td>${esc(x._kind)}</td><td>${esc(x._category)}</td><td>${esc(x._ref)}</td><td>${esc(x.description||"—")}</td><td>${x._in?peso(x._in):"—"}</td><td>${x._out?peso(x._out):"—"}</td><td>${esc(x.enteredBy||"—")}</td></tr>`).join("")||`<tr><td colspan="8" class="empty">No transactions recorded.</td></tr>`;
+    }
+  }
 }
 function printReport(){
   renderReport();
@@ -2098,7 +2221,29 @@ function printReport(){
   const styles=[...document.querySelectorAll('style')].map(x=>x.textContent).join("\\n");
   const css='body{background:#fff!important;margin:0;padding:0;font-family:Arial,sans-serif;color:#111}.report-preview{display:block!important;max-width:none!important;width:100%!important;border:0!important;box-shadow:none!important;margin:0!important;padding:0!important;overflow:visible!important}.report-preview .table-wrap{overflow:visible!important;width:100%!important}.report-preview table{width:100%!important;min-width:0!important;border-collapse:collapse!important;table-layout:auto!important}.report-preview thead{display:table-header-group!important}.report-preview tr{break-inside:avoid!important;page-break-inside:avoid!important}.report-preview th,.report-preview td{font-size:9px!important;padding:5px!important}.report-preview a{color:#123451;text-decoration:none}@page{size:'+settings.size+' '+settings.orientation+';margin:10mm}';
   w.document.open();
-  w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>LIWO Financial Report</title><style>'+styles+'\\n'+css+'</style></head><body>'+source.outerHTML+'</body></html>');
+  w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>LIWO Financial Report</title><style>'+styles+'\\n'+css+'</style></head><body>'+source.outerHTML+'
+<div class="report-signature-section" id="reportSignatureSection">
+  <h3>Prepared / Reviewed By</h3>
+  <div class="report-signature-grid">
+    <div class="report-signature">
+      <div class="signature-line"></div>
+      <strong>ENGR. GODWIN TRISTAN VELASCO, SO2</strong>
+      <span>Registered Civil Engineer</span>
+    </div>
+    <div class="report-signature">
+      <div class="signature-line"></div>
+      <strong>ENGR. CHRISTIAN VALEZA, SO2</strong>
+      <span>Registered Civil Engineer</span>
+    </div>
+    <div class="report-signature">
+      <div class="signature-line"></div>
+      <strong>VISMARK NAVARRO</strong>
+      <span>BIM Modeler / Architectural Designer</span>
+    </div>
+  </div>
+</div>
+
+</body></html>');
   w.document.close();w.focus();setTimeout(()=>w.print(),500);
 }
 
