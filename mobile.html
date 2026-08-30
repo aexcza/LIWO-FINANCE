@@ -1270,6 +1270,18 @@ body.lw-admin #executivePage .exec-report-admin-only{display:block!important}
 @media(max-width:900px){.admin-report-grid{grid-template-columns:1fr;padding:12px}.admin-report-actions{padding:0 12px 12px}.report-print-options{grid-template-columns:1fr;gap:8px}}
 @media print{html,body{width:auto!important;min-width:0!important;overflow:visible!important;background:#fff!important}.report-preview{width:100%!important;max-width:none!important;margin:0!important;padding:0!important;border:0!important;box-shadow:none!important;overflow:visible!important}.report-preview .table-wrap{overflow:visible!important;width:100%!important}.report-preview table{width:100%!important;min-width:0!important;table-layout:auto!important;border-collapse:collapse!important}.report-preview thead{display:table-header-group!important}.report-preview tr{break-inside:avoid!important;page-break-inside:avoid!important}.report-print-options{display:none!important}}
 </style>
+
+<style id="liwo-profile-edit">
+.profile-edit-field{display:block!important;margin-top:14px!important;margin-bottom:5px!important;color:var(--muted)!important;font-size:11px!important;font-weight:700!important}
+.profile-edit-input{width:100%;box-sizing:border-box;border:1px solid var(--line);background:#fff;border-radius:9px;padding:10px 11px;font:inherit;font-size:13px;outline:none}
+.profile-edit-input:focus{border-color:#2d7fb1;box-shadow:0 0 0 3px rgba(45,127,177,.12)}
+.profile-help{display:block;margin-top:8px;color:var(--muted);font-size:10px;line-height:1.4}
+.profile-button-row{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:18px}
+.profile-button-row button{width:100%}
+.profile-button-row .profile-save{margin-top:0}
+@media(max-width:430px){.profile-button-row{grid-template-columns:1fr}.profile-button-row .profile-save{order:2}}
+</style>
+
 </head>
 <body>
 <div id="liwoLoadingOverlay" aria-hidden="true">
@@ -1788,8 +1800,16 @@ body.lw-admin #executivePage .exec-report-admin-only{display:block!important}
       <div class="profile-info">
         <span>Name</span><strong id="profileModalName">Admin</strong>
         <span style="margin-top:10px">Role</span><strong id="profileModalRole">Administrator</strong>
+        <label class="profile-edit-field" for="profileUsernameInput">Username</label>
+        <input id="profileUsernameInput" class="profile-edit-input" type="text" autocomplete="username" maxlength="50" placeholder="Your username">
+        <label class="profile-edit-field" for="profileCurrentPasswordInput">Current password</label>
+        <input id="profileCurrentPasswordInput" class="profile-edit-input" type="password" autocomplete="current-password" placeholder="Enter current password to change username">
+        <small class="profile-help">Changing your username will not change your password or financial records.</small>
       </div>
-      <button id="profileDoneBtn" class="primary profile-save" type="button">Done</button>
+      <div class="profile-button-row">
+        <button id="profileUsernameSaveBtn" class="primary" type="button">Save Username</button>
+        <button id="profileDoneBtn" class="secondary profile-save" type="button">Done</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1870,9 +1890,12 @@ function applyProfilePhoto(){
 function openProfile(){
   if(!session?.user)return;
   const name=session.user.name||session.user.username,role=session.user.role==="Admin"?"Administrator":"LIWO Executives";
-  $("profileModalName").textContent=name;$("profileModalRole").textContent=role;applyProfilePhoto();$("profileModal").classList.remove("hidden");closeHeaderMenus();
+  $("profileModalName").textContent=name;$("profileModalRole").textContent=role;
+  if($("profileUsernameInput"))$("profileUsernameInput").value=session.user.username||"";
+  if($("profileCurrentPasswordInput"))$("profileCurrentPasswordInput").value="";
+  applyProfilePhoto();$("profileModal").classList.remove("hidden");closeHeaderMenus();
 }
-function closeProfile(){$("profileModal")?.classList.add("hidden");$("profilePhotoInput").value=""}
+function closeProfile(){$("profileModal")?.classList.add("hidden");if($("profilePhotoInput"))$("profilePhotoInput").value="";if($("profileCurrentPasswordInput"))$("profileCurrentPasswordInput").value=""}
 function saveProfilePhoto(file){
   if(!file)return;
   if(!file.type.startsWith("image/")){toast("Please select an image file.");return}
@@ -1882,19 +1905,75 @@ function saveProfilePhoto(file){
   reader.readAsDataURL(file);
 }
 function removeProfilePhoto(){try{localStorage.removeItem(profileStorageKey())}catch{}applyProfilePhoto();toast("Profile photo removed.")}
+async function saveProfileUsername(){
+  if(!session?.token||!session?.user)return;
+  const input=$("profileUsernameInput"),pass=$("profileCurrentPasswordInput"),btn=$("profileUsernameSaveBtn");
+  const username=String(input?.value||"").trim(),current=String(session.user.username||"").trim();
+  if(!username){toast("Username is required.");return}
+  if(username===current){toast("That is already your username.");return}
+  if(username.length<3){toast("Username must be at least 3 characters.");return}
+  if(!pass?.value){toast("Enter your current password to change your username.");return}
+  if(btn)btn.disabled=true;
+  try{
+    const oldKey=profileStorageKey();
+    const oldPhoto=getProfilePhoto();
+    const d=await api("changeOwnUsername",{token:session.token,newUsername:username,currentPassword:pass.value});
+    if(!d?.ok)throw Error(d?.error||"Unable to change username.");
+    session.user.username=d.user.username;
+    if(d.user.name!==undefined)session.user.name=d.user.name;
+    sessionStorage.setItem("cf_session",JSON.stringify(session));
+    if(oldPhoto){try{localStorage.removeItem(oldKey);localStorage.setItem(`cf_profile_photo_${session.user.username}`,oldPhoto)}catch{}}
+    $("profileCurrentPasswordInput").value="";
+    $("profileUsernameInput").value=session.user.username;
+    const name=session.user.name||session.user.username;
+    $("currentUser").textContent=name+" • "+session.user.username;
+    $("topName").textContent=name;
+    $("menuUserName").textContent=name;
+    applyProfilePhoto();
+    toast("Username updated successfully.");
+  }catch(e){toast(e.message||String(e))}
+  finally{if(btn)btn.disabled=false}
+}
 function updateClientTotal(){const b=Number($("clientBaseBudget")?.value||0),a=Number($("additionalDesignFee")?.value||0);if($("clientTotalContract"))$("clientTotalContract").value=(b+a).toFixed(2)}
 function editClient(id){const c=(data.clients||[]).find(x=>String(x.id)===String(id));if(!c)return;const f=$("clientForm");f.elements.id.value=c.id;f.elements.name.value=c.name||"";f.elements.budget.value=c.budget||0;f.elements.additionalDesignFee.value=c.additionalDesignFee||0;f.elements.reference.value=c.reference||"";f.elements.active.value=c.active?"TRUE":"FALSE";f.elements.additionalDesignNotes.value=c.additionalDesignNotes||"";updateClientTotal();$("clientSaveBtn").textContent="Save Client / Project Changes";$("clientCancelEdit").classList.remove("hidden");switchPage("clients");window.scrollTo({top:0,behavior:"smooth"})}
 function resetClientForm(){const f=$("clientForm");f.reset();f.elements.id.value="";f.elements.additionalDesignFee.value="0";updateClientTotal();$("clientSaveBtn").textContent="+ Add Client / Project";$("clientCancelEdit").classList.add("hidden")}
 async function refresh(){try{data=await api("dashboard",{token:session.token,clientId:selectedClientId});if(!selectedClientId&&data.clients&&data.clients.length){selectedClientId=data.clients[0].id;data=await api("dashboard",{token:session.token,clientId:selectedClientId})}render()}catch(x){toast(x.message);if(/session|auth|token/i.test(x.message))logout()}}
 function fillClients(){
  const clients=data.clients||[];
- const opts=clients.length?clients.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}${c.reference?" — "+esc(c.reference):""}</option>`).join(""):'<option value="">No clients/projects</option>';
- ["paymentClient","expenseClient","milestoneClient"].forEach(id=>{let el=$(id);if(el)el.value=selectedClientId||""});
- 
- 
+ const opts=clients.length
+   ?clients.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}${c.reference?" — "+esc(c.reference):""}</option>`).join("")
+   :'<option value="">No clients/projects</option>';
+
+ const dashboardClient=$("dashboardClient");
+ if(dashboardClient){
+   dashboardClient.innerHTML=opts;
+   if(selectedClientId && clients.some(c=>String(c.id)===String(selectedClientId))){
+     dashboardClient.value=String(selectedClientId);
+   }else if(clients.length){
+     selectedClientId=String(clients[0].id);
+     dashboardClient.value=selectedClientId;
+   }else{
+     dashboardClient.value="";
+     selectedClientId="";
+   }
+ }
+
+ ["paymentClient","expenseClient","milestoneClient"].forEach(id=>{
+   let el=$(id);
+   if(el)el.value=selectedClientId||"";
+ });
+
  const c=clients.find(x=>String(x.id)===String(selectedClientId));
- const scope=$("globalProjectScopeName");if(scope)scope.textContent=c?(c.name+(c.reference?" — "+c.reference:"")):"Select a client / project";
- const tp=$("toolProject");if(tp&&c){tp.value=c.name;tp.readOnly=true;tp.classList.add("project-lock");tp.title="Locked to the Active Project."}
+ const scope=$("globalProjectScopeName");
+ if(scope)scope.textContent=c?(c.name+(c.reference?" — "+c.reference:"")):"Select a client / project";
+
+ const tp=$("toolProject");
+ if(tp&&c){
+   tp.value=c.name;
+   tp.readOnly=true;
+   tp.classList.add("project-lock");
+   tp.title="Locked to the Active Project.";
+ }
 }
 function render(){
  renderNotifications();
@@ -1990,7 +2069,7 @@ async function loadProjectFinancialDashboard(){
 function switchPage(p){document.querySelectorAll(".page").forEach(x=>{let active=x.id===p+"Page";x.classList.toggle("hidden",!active);x.classList.toggle("active",active)});document.querySelectorAll(".nav button,.mobile-nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===p));$("pageTitle").textContent={dashboard:"Dashboard",projectDashboard:"Project Financials",payments:"Client Payments",expenses:"Fund Transactions",budget:"Budget vs Actual",activity:"Activity Log",clients:"Clients / Projects",tools:"Construction Tools",cash:"Cash Position",receipts:"Receipts",reports:"Reports / Export",users:"User Management",executive:"Executive Dashboard"}[p]||"Dashboard";if(p==="projectDashboard"){fillClients();loadProjectFinancialDashboard();}if(p==="users"){loadUsers();if(session?.user?.role==="Admin")loadReportSettings();}if(p==="reports"){renderReport();window.bindLIWOPrintControls?.();}if(p==="tools")loadTools();if(p==="cash")loadCash();if(p==="receipts")loadReceipts()}
 async function __liwoOriginalLoadUsers(){try{let o=await api("listUsers",{token:session.token});data.users=o.users;data.financeCount=o.financeCount;data.financeRegistrationOpen=o.financeRegistrationOpen;data.clients=o.clients;render()}catch(x){toast(x.message)}}
 document.addEventListener("DOMContentLoaded",()=>{
-$("loginTab").onclick=()=>tabs(false);$("registerTab").onclick=()=>tabs(true);$("loginForm").onsubmit=login;$("registerForm").onsubmit=register;$("logoutBtn").onclick=logout;$("menuLogoutBtn").onclick=logout;$("refreshBtn").onclick=refresh;$("printReportBtn").onclick=printReport;$("saveReportBtn").onclick=printReport;$("exportReportBtn").onclick=exportReportCSV;$("reportPeriod").onchange=renderReport;$("notificationBtn").onclick=toggleNotificationMenu;$("userMenuBtn").onclick=toggleUserMenu;$("markNotificationsRead").onclick=markNotificationsRead;$("profileMenuBtn").onclick=openProfile;$("profileCloseBtn").onclick=closeProfile;$("profileDoneBtn").onclick=closeProfile;$("profilePhotoInput").onchange=e=>saveProfilePhoto(e.target.files[0]);$("removeProfilePhotoBtn").onclick=removeProfilePhoto;$("profileModal").onclick=e=>{if(e.target.id==="profileModal")closeProfile()};document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeHeaderMenus();closeProfile()}});document.addEventListener("click",e=>{if(!e.target.closest(".top-user"))closeHeaderMenus()});
+$("loginTab").onclick=()=>tabs(false);$("registerTab").onclick=()=>tabs(true);$("loginForm").onsubmit=login;$("registerForm").onsubmit=register;$("logoutBtn").onclick=logout;$("menuLogoutBtn").onclick=logout;$("refreshBtn").onclick=refresh;$("printReportBtn").onclick=printReport;$("saveReportBtn").onclick=printReport;$("exportReportBtn").onclick=exportReportCSV;$("reportPeriod").onchange=renderReport;$("notificationBtn").onclick=toggleNotificationMenu;$("userMenuBtn").onclick=toggleUserMenu;$("markNotificationsRead").onclick=markNotificationsRead;$("profileMenuBtn").onclick=openProfile;$("profileCloseBtn").onclick=closeProfile;$("profileDoneBtn").onclick=closeProfile;$("profilePhotoInput").onchange=e=>saveProfilePhoto(e.target.files[0]);$("removeProfilePhotoBtn").onclick=removeProfilePhoto;$("profileUsernameSaveBtn").onclick=saveProfileUsername;$("profileModal").onclick=e=>{if(e.target.id==="profileModal")closeProfile()};document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeHeaderMenus();closeProfile()}});document.addEventListener("click",e=>{if(!e.target.closest(".top-user"))closeHeaderMenus()});
 document.querySelectorAll(".nav button,.mobile-nav button").forEach(b=>b.onclick=()=>switchPage(b.dataset.page));
 $("dashboardClient").onchange=async()=>{selectedClientId=$("dashboardClient").value;await refresh()};document.querySelectorAll("[data-project-nav]").forEach(b=>b.addEventListener("click",()=>switchPage(b.dataset.projectNav)));
 
