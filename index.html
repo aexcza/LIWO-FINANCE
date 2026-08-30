@@ -1128,6 +1128,55 @@ th{background:#f3f7f9;color:#4e6678;letter-spacing:.045em;text-transform:upperca
 .liwo-report-records-footer{margin-top:10px;padding-top:6px;border-top:1px solid #dfe6eb;text-align:center;color:#687781;font-size:7.5px;font-weight:700;letter-spacing:.05em}
 @media print{.liwo-report-records-footer{display:block!important;margin-top:8px!important;padding-top:5px!important;font-size:7.5px!important;break-inside:avoid!important;page-break-inside:avoid!important}}
 </style>
+
+<style id="liwo-non-report-page-space-fix">
+/* Keep operational pages compact. No page should reserve viewport-sized blank space. */
+.page,
+.page.active,
+#toolsPage,
+#cashPage,
+#receiptsPage{
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow:visible!important;
+  flex:none!important;
+}
+#toolsPage > *,
+#cashPage > *,
+#receiptsPage > *{
+  height:auto!important;
+  min-height:0!important;
+}
+#toolsPage .panel,
+#cashPage .panel,
+#receiptsPage .panel{
+  height:auto!important;
+  min-height:0!important;
+}
+#toolsPage .table-wrap,
+#cashPage .table-wrap,
+#receiptsPage .table-wrap{
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+}
+#toolsPage .table-wrap tbody,
+#cashPage .table-wrap tbody,
+#receiptsPage .table-wrap tbody{
+  height:auto!important;
+  min-height:0!important;
+}
+#toolsPage .receipt-grid,
+#receiptsPage .receipt-grid{
+  height:auto!important;
+  min-height:0!important;
+}
+/* Hide every non-active page even if an older script left an inline display value. */
+.page.hidden:not(.active){display:none!important}
+.page.active{display:block!important}
+</style>
+
 </head>
 <body>
 <div id="liwoLoadingOverlay" aria-hidden="true">
@@ -2023,7 +2072,29 @@ function printReport(){
   </div>
 </div>
 <div class="liwo-report-records-footer" id="liwoReportRecordsFooter">PREPARED FROM LIWO FINANCIAL RECORDS</div>
-</div></body></html>`);
+</div>
+<script id="liwo-navigation-space-guard">
+(function(){
+  function activate(page){
+    if(!page)return;
+    document.querySelectorAll('.page').forEach(function(el){
+      var on=el.id===page+'Page';
+      el.classList.toggle('active',on);
+      el.classList.toggle('hidden',!on);
+      el.style.display=on?'block':'none';
+      el.style.height='auto';
+      el.style.minHeight='0';
+    });
+  }
+  window.addEventListener('DOMContentLoaded',function(){
+    document.querySelectorAll('.nav button,.mobile-nav button').forEach(function(btn){
+      btn.addEventListener('click',function(){ setTimeout(function(){ activate(btn.dataset.page); },0); },true);
+    });
+  });
+})();
+</script>
+
+</body></html>`);
   w.document.close();w.focus();setTimeout(()=>w.print(),500);
 }
 
