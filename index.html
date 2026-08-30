@@ -1478,7 +1478,7 @@ th{background:#f3f7f9;color:#4e6678;letter-spacing:.045em;text-transform:upperca
 <div class="report-section"><h3>Expense Summary</h3><div class="table-wrap"><table><thead><tr><th>Date</th><th>Type</th><th>Category</th><th>Payee / Supplier</th><th>Description</th><th>Payment Method</th><th>Receipt</th><th>Entered By</th><th>Amount</th></tr></thead><tbody id="reportExpensesBody"></tbody></table></div></div>
 <div class="report-section"><h3>Client Payments</h3><div class="table-wrap"><table><thead><tr><th>Date</th><th>Reference</th><th>Description / Milestone</th><th>Method</th><th>Entered By</th><th>Amount Paid</th></tr></thead><tbody id="reportPaymentsBody"></tbody></table></div></div>
 <div class="report-section"><h3>Budget vs Actual</h3><div class="table-wrap"><table><thead><tr><th>Category</th><th>Budget</th><th>Actual</th><th>Variance</th><th>% Used</th><th>Remaining</th></tr></thead><tbody id="reportBudgetBody"></tbody></table></div></div>
-<div class="report-footer"><span>Prepared from LIWO Finance records</span><span id="reportPreparedBy"></span></div></div></section>
+<div class="report-footer"><span>Generated from LIWO Finance</span><span id="reportPreparedBy"></span></div></div></section>
 
 <section id="usersPage" class="page hidden"><div class="panel"><div class="panel-head"><div><h3>User Management — Admin</h3><span class="muted">Manage accounts and LIWO Executive registration</span></div><strong id="registrationStatus"></strong></div>
 <form id="userForm" class="grid"><label>Username<input name="username" required></label><label>Full Name<input name="name" required></label><label>Password<input name="password" type="password" minlength="8" required></label><label>Role<select name="role"><option>Finance</option><option>Admin</option></select></label><label>Active<select name="active"><option value="TRUE">Yes</option><option value="FALSE">No</option></select></label><div><button class="primary">Create / Update User</button></div></form>
@@ -2071,7 +2071,7 @@ function printReport(){
     </div>
   </div>
 </div>
-<div class="liwo-report-records-footer" id="liwoReportRecordsFooter">PREPARED FROM LIWO FINANCIAL RECORDS</div>
+<div class="liwo-report-records-footer" id="liwoReportRecordsFooter">GENERATED FROM LIWO FINANCE</div>
 </div>
 <script id="liwo-navigation-space-guard">
 (function(){
@@ -2092,7 +2092,7 @@ function printReport(){
     });
   });
 })();
-</script>
+<\/script>
 
 </body></html>`);
   w.document.close();w.focus();setTimeout(()=>w.print(),500);
