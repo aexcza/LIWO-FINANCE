@@ -1704,7 +1704,7 @@ async function login(e){
     $("loginError").textContent=x.message||"Unable to sign in.";
   }
 }
-function register(e){e.preventDefault();$("registerError").textContent="";if($("regPassword").value!==$("regConfirm").value){$("registerError").textContent="Passwords do not match.";return}try{await api("registerFinance",{name:$("regName").value.trim(),username:$("regUsername").value.trim(),password:$("regPassword").value,inviteCode:$("regInvite").value});toast("Account created. You can now sign in.");$("loginUsername").value=$("regUsername").value;tabs(false);$("registerForm").reset()}catch(x){$("registerError").textContent=x.message}}
+async function register(e){e.preventDefault();$("registerError").textContent="";if($("regPassword").value!==$("regConfirm").value){$("registerError").textContent="Passwords do not match.";return}try{await api("registerFinance",{name:$("regName").value.trim(),username:$("regUsername").value.trim(),password:$("regPassword").value,inviteCode:$("regInvite").value});toast("Account created. You can now sign in.");$("loginUsername").value=$("regUsername").value;tabs(false);$("registerForm").reset()}catch(x){$("registerError").textContent=x.message}}
 function showApp(){$("loginView").classList.add("hidden");$("appView").classList.remove("hidden");const name=session.user.name||session.user.username;const role=session.user.role||"Finance";$("currentUser").textContent=name+" • "+session.user.username;$("currentRole").textContent=role;$("topName").textContent=name;$("topRole").textContent=role==="Admin"?"Administrator":"LIWO Executives";$("topAvatar").textContent=initials(name);$("menuUserName").textContent=name;$("menuUserRole").textContent=role==="Admin"?"Administrator":"LIWO Executives";applyProfilePhoto();if(session.user.role==="Admin"){$("usersNav").classList.remove("hidden");$("mobileUsersNav").classList.remove("hidden");$("adminDashboard").classList.remove("hidden")}}
 function logout(){closeHeaderMenus();session=null;sessionStorage.removeItem("cf_session");$("appView").classList.add("hidden");$("loginView").classList.remove("hidden")}
 function closeHeaderMenus(){const n=$("notificationDropdown"),u=$("userDropdown");if(n){n.classList.add("hidden");$("notificationBtn")?.setAttribute("aria-expanded","false")}if(u){u.classList.add("hidden");$("userMenuBtn")?.setAttribute("aria-expanded","false")}}
@@ -1987,7 +1987,7 @@ function printReport(){
   const styles=[...document.querySelectorAll('style')].map(x=>x.textContent).join("\\n");
   const css='body{background:#fff!important;margin:0;padding:0;font-family:Arial,sans-serif;color:#111}.report-preview{display:block!important;max-width:none!important;width:100%!important;border:0!important;box-shadow:none!important;margin:0!important;padding:0!important;overflow:visible!important}.report-preview .table-wrap{overflow:visible!important;width:100%!important}.report-preview table{width:100%!important;min-width:0!important;border-collapse:collapse!important;table-layout:auto!important}.report-preview thead{display:table-header-group!important}.report-preview tr{break-inside:avoid!important;page-break-inside:avoid!important}.report-preview th,.report-preview td{font-size:9px!important;padding:5px!important}.report-preview a{color:#123451;text-decoration:none}@page{size:'+settings.size+' '+settings.orientation+';margin:10mm}';
   w.document.open();
-  w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>LIWO Financial Report</title><style>'+styles+'\\n'+css+'</style></head><body>'+source.outerHTML+'
+  w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>LIWO Financial Report</title><style>${styles}\n${css}</style></head><body>${source.outerHTML}
 <div class="report-signature-section" id="reportSignatureSection">
   <h3>Prepared / Reviewed By</h3>
   <div class="report-signature-grid">
@@ -2008,8 +2008,7 @@ function printReport(){
     </div>
   </div>
 </div>
-
-</body></html>');
+</body></html>`);
   w.document.close();w.focus();setTimeout(()=>w.print(),500);
 }
 
