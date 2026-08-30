@@ -1197,6 +1197,14 @@ th{background:#f3f7f9;color:#4e6678;letter-spacing:.045em;text-transform:upperca
 }
 </style>
 
+
+<style id="liwo-reporting-mobile-css">
+@media(max-width:900px){
+  #liwo-report-recipient-config>div:nth-child(2){grid-template-columns:1fr!important}
+  #liwo-report-recipient-config button{width:100%;min-height:44px}
+}
+</style>
+
 </head>
 <body>
 <div id="liwoLoadingOverlay" aria-hidden="true">
@@ -1980,6 +1988,100 @@ body{background:#fff!important;margin:0;padding:0;font-family:Arial,sans-serif;c
 })();
 </script>
 
+
+<div id="receipt-folder-config-note" style="display:none">
+  <span>Receipt storage is controlled by the Google Drive Receipt Folder ID in Code.gs. Project subfolders are created automatically.</span>
+</div>
+
+
+<section id="liwo-report-recipient-config" class="panel" style="margin-top:16px">
+  <div class="panel-head">
+    <div>
+      <h3 style="margin:0">Automated Financial Reports</h3>
+      <p style="margin:4px 0 0;color:#718395">
+        Weekly report every Sunday, plus separate complete project financial reports.
+      </p>
+    </div>
+  </div>
+  <div style="padding:16px;display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px">
+    <label>Report Recipients
+      <textarea id="reportRecipientsInput" rows="3" placeholder="finance@example.com&#10;admin@example.com&#10;owner@example.com"></textarea>
+    </label>
+    <label>Weekly Day
+      <select id="weeklyReportDay">
+        <option>MONDAY</option><option>TUESDAY</option><option>WEDNESDAY</option>
+        <option>THURSDAY</option><option>FRIDAY</option><option>SATURDAY</option>
+        <option selected>SUNDAY</option>
+      </select>
+    </label>
+    <label>Report Hour
+      <input id="weeklyReportHour" type="number" min="0" max="23" value="17">
+    </label>
+  </div>
+  <div style="padding:0 16px 16px;display:flex;gap:8px;flex-wrap:wrap">
+    <button id="saveReportRecipientsBtn" class="primary" type="button">Save Recipients</button>
+    <button id="saveWeeklyReportConfigBtn" class="secondary" type="button">Save Weekly Schedule</button>
+    <button id="enableWeeklyReportBtn" class="secondary" type="button">Enable Weekly Auto-Report</button>
+    <button id="disableWeeklyReportBtn" class="secondary" type="button">Disable Weekly Auto-Report</button>
+    <button id="generateWeeklyReportBtn" class="secondary" type="button">Generate Weekly PDF Now</button>
+    <button id="generateMonthlyReportBtn" class="secondary" type="button">Generate Monthly PDF Now</button>
+    <button id="generateProjectFinancialReportBtn" class="secondary" type="button">Generate Selected Project PDF</button>
+  </div>
+  <div id="reportConfigStatus" style="padding:0 16px 16px;color:#718395"></div>
+</section>
+<script id="liwo-report-recipient-config-script">
+(function(){
+  const $r=id=>document.getElementById(id);
+  const status=m=>{const el=$r("reportConfigStatus");if(el)el.textContent=m||""};
+  async function loadReportConfig(){
+    try{
+      if(!window.session?.token || typeof api!=="function")return;
+      const r=await api("getReportConfig",{token:session.token});
+      const c=r.config||{};
+      if($r("reportRecipientsInput"))$r("reportRecipientsInput").value=(c.recipients||[]).join("\\n");
+      if($r("weeklyReportDay"))$r("weeklyReportDay").value=c.weeklyDay||"SUNDAY";
+      if($r("weeklyReportHour"))$r("weeklyReportHour").value=Number(c.weeklyHour??17);
+      status(c.weeklyEnabled?"Weekly automated report: ENABLED":"Weekly automated report: DISABLED");
+    }catch(e){status(e.message||String(e))}
+  }
+  async function saveRecipients(){
+    const emails=String($r("reportRecipientsInput")?.value||"").split(/[,\n;]+/).map(x=>x.trim()).filter(Boolean);
+    const r=await api("setReportRecipients",{token:session.token,emails});
+    status("Saved "+(r.recipients||[]).length+" report recipient(s).");
+  }
+  async function saveSchedule(enabled){
+    const config={
+      weeklyEnabled:enabled,
+      weeklyDay:$r("weeklyReportDay")?.value||"SUNDAY",
+      weeklyHour:Number($r("weeklyReportHour")?.value||17)
+    };
+    await api("saveReportConfig",{token:session.token,config});
+    const t=await api("installWeeklyReportTrigger",{token:session.token});
+    status(t.enabled?"Weekly report enabled every "+t.day+" around "+t.hour+":00.":"Weekly report disabled.");
+  }
+  $r("saveReportRecipientsBtn")?.addEventListener("click",async()=>{try{await saveRecipients()}catch(e){status(e.message||String(e))}});
+  $r("saveWeeklyReportConfigBtn")?.addEventListener("click",async()=>{try{await saveSchedule(true)}catch(e){status(e.message||String(e))}});
+  $r("enableWeeklyReportBtn")?.addEventListener("click",async()=>{try{await saveSchedule(true)}catch(e){status(e.message||String(e))}});
+  $r("disableWeeklyReportBtn")?.addEventListener("click",async()=>{try{await saveSchedule(false)}catch(e){status(e.message||String(e))}});
+  $r("generateWeeklyReportBtn")?.addEventListener("click",async()=>{
+    try{const r=await api("generateWeeklyReport",{token:session.token});status("Weekly PDF generated and emailed to "+(r.recipients?.length||0)+" recipient(s).");if(r.pdfUrl)window.open(r.pdfUrl,"_blank")}catch(e){status(e.message||String(e))}
+  });
+  $r("generateMonthlyReportBtn")?.addEventListener("click",async()=>{
+    try{const r=await api("generateMonthlyReport",{token:session.token});status("Monthly PDF generated and emailed to "+(r.recipients?.length||0)+" recipient(s).");if(r.pdfUrl)window.open(r.pdfUrl,"_blank")}catch(e){status(e.message||String(e))}
+  });
+  $r("generateProjectFinancialReportBtn")?.addEventListener("click",async()=>{
+    try{
+      const project=$r("dashboardClient")?.value||$r("reportClient")?.value||selectedClientId||"";
+      if(!project)throw Error("Select an Active Project first.");
+      const r=await api("generateProjectFinancialReport",{token:session.token,clientId:project});
+      status("Complete project financial PDF generated and saved to Drive.");
+      if(r.pdfUrl)window.open(r.pdfUrl,"_blank");
+    }catch(e){status(e.message||String(e))}
+  });
+  document.addEventListener("DOMContentLoaded",()=>setTimeout(loadReportConfig,700));
+})();
+</script>
+
 </body></html>`);
   w.document.close();
   w.focus();
@@ -2048,35 +2150,36 @@ async function loadCash(){
   }catch(x){toast(x.message)}
 }
 
-async function loadReceipts(){
-  try{
-    let project=$("receiptProjectFilter")?.value||"";
-    let o=await api("listReceipts",{token:session.token,project});
-    let sel=$("receiptProjectFilter");
-    if(sel&&sel.options.length<=1)(o.projects||[]).forEach(p=>{let op=document.createElement("option");op.value=p;op.textContent=p;sel.appendChild(op)});
-    let grid=$("receiptGrid"),list=o.receipts||[];
-    if($("receiptCount"))$("receiptCount").textContent="Receipts ("+list.length+")";
-    if(!grid)return;
-    grid.innerHTML=list.length?list.map(x=>{
-      let img=x.mimeType&&x.mimeType.indexOf("image/")===0;
-      let thumb=x.preview?`<img src="${x.preview}" alt="Receipt" loading="lazy">`:img?`<div class="receipt-file">🧾</div>`:`<div class="receipt-file">📄</div>`;
-      let size=x.size?((Number(x.size)/1048576).toFixed(2)+" MB"):"";
-      return `<article class="receipt-card"><div class="receipt-thumb">${thumb}</div><div class="receipt-info"><div class="receipt-name" title="${esc(x.name)}">${esc(x.name)}</div><div class="receipt-project">${esc(x.project)}</div><div class="receipt-meta">${esc(size)}</div><div class="receipt-actions"><a class="primary" href="${esc(x.url)}" target="_blank" rel="noopener">Open Receipt</a></div></div></article>`;
-    }).join(""):'<div class="receipt-empty" style="grid-column:1/-1">No receipts found.</div>';
-  }catch(x){
-    const msg=String(x?.message||x||"");
-    const grid=$("receiptGrid");
-    if(/unknown action/i.test(msg)){
-      if($("receiptCount"))$("receiptCount").textContent="Receipts (0)";
-      if(grid)grid.innerHTML='<div class="receipt-empty" style="grid-column:1/-1">No receipts found.</div>';
-      return;
-    }
-    toast(msg);
-  }
-}
-</script>
-<script>
-/* LIWO login UI helpers */
+async function loadReceipts(){ try{
+  let project=$("receiptProjectFilter")?.value||selectedClientId||"";
+  let o=await api("listReceipts",{token:session.token,project,clientId:project});
+  let sel=$("receiptProjectFilter");
+  if(sel&&sel.options.length<=1)(o.projects||[]).forEach(p=>{
+    let op=document.createElement("option");op.value=p.id||p.value||p.name||p;
+    op.textContent=p.name||p.project||p.value||p;sel.appendChild(op)
+  });
+  let grid=$("receiptGrid"),list=o.receipts||[];
+  if($("receiptCount"))$("receiptCount").textContent="Receipts ("+list.length+")";
+  if(!grid)return;
+  grid.innerHTML=list.length?list.map(x=>{
+    let img=x.mimeType&&x.mimeType.indexOf("image/")===0;
+    let thumb=x.preview
+      ? `<img src="${esc(x.preview)}" alt="Receipt" style="width:100%;height:150px;object-fit:cover;border-radius:12px">`
+      : img ? `<div style="font-size:42px;text-align:center;padding:35px 0">🧾</div>`
+      : `<div style="font-size:42px;text-align:center;padding:35px 0">📄</div>`;
+    let size=x.size?((Number(x.size)/1048576).toFixed(2)+" MB"):"";
+    let url=x.url||x.webViewLink||x.fileUrl||"";
+    return `<article class="receipt-card">
+      ${thumb}
+      <div style="padding:12px">
+        <div style="font-weight:700">${esc(x.name||"Receipt")}</div>
+        <div style="color:#718395;margin-top:4px">${esc(x.project||"")}</div>
+        ${size?`<div style="color:#718395;font-size:12px;margin-top:3px">${esc(size)}</div>`:""}
+        ${url?`<a href="${esc(url)}" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-top:10px">Open Receipt</a>`:""}
+      </div>
+    </article>`;
+  }).join(""):'<div class="empty-state">No receipts found.</div>';
+}catch(x){toast(x.message)} }
 document.addEventListener("DOMContentLoaded",()=>{
   const createBtn=document.getElementById("createAccountBtn");
   const backBtn=document.getElementById("backToLogin");
