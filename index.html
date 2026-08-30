@@ -1594,6 +1594,17 @@ body.liwO-operational-page #globalProjectScope,
 }
 </style>
 
+
+<style id="liwo-compared-final-page-visibility">
+/* Use the original index page-isolation model. Only the selected module may occupy layout space. */
+.page:not(.active){display:none!important;visibility:hidden!important;}
+.page.active{display:block!important;visibility:visible!important;}
+.page.hidden{display:none!important;visibility:hidden!important;}
+/* Keep operational modules in normal document flow; never reserve artificial height. */
+#toolsPage.active,#cashPage.active,#receiptsPage.active{position:static!important;height:auto!important;min-height:0!important;max-height:none!important;margin:0!important;overflow:visible!important;}
+#toolsPage:not(.active),#cashPage:not(.active),#receiptsPage:not(.active){display:none!important;height:0!important;min-height:0!important;max-height:0!important;margin:0!important;padding:0!important;overflow:hidden!important;}
+body.liwO-operational-page #globalProjectScope{display:none!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;overflow:hidden!important;}
+</style>
 </head>
 <body>
 <div id="liwoLoadingOverlay" aria-hidden="true">
@@ -2669,123 +2680,13 @@ function printReport(){
 
 
 
-<script id="liwo-operational-gap-runtime-fix">
-(function(){
-  const IDS = ["toolsPage","cashPage","receiptsPage"];
-
-  function normalize(){
-    const active = document.querySelector(".page.active");
-    const isOperational = !!active && IDS.indexOf(active.id) !== -1;
-    document.body.classList.toggle("liwO-operational-page", isOperational);
-
-    const scope = document.getElementById("globalProjectScope");
-    if (scope && isOperational) {
-      scope.style.display = "none";
-      scope.style.height = "0";
-      scope.style.minHeight = "0";
-      scope.style.maxHeight = "0";
-      scope.style.margin = "0";
-      scope.style.padding = "0";
-      scope.style.overflow = "hidden";
-    }
-
-    IDS.forEach(function(id){
-      const el = document.getElementById(id);
-      if(!el) return;
-
-      if(el.classList.contains("active")){
-        el.style.display = "block";
-        el.style.height = "auto";
-        el.style.minHeight = "0";
-        el.style.maxHeight = "none";
-        el.style.margin = "0";
-        el.style.padding = "0";
-        el.style.transform = "none";
-      }else{
-        el.style.display = "none";
-      }
-    });
-  }
-
-  document.addEventListener("DOMContentLoaded", normalize);
-  window.addEventListener("load", normalize);
-
-  document.addEventListener("click", function(e){
-    const btn = e.target.closest(".nav button, .mobile-nav button");
-    if(btn && IDS.indexOf(btn.dataset.page + "Page") !== -1){
-      requestAnimationFrame(normalize);
-      setTimeout(normalize, 30);
-      setTimeout(normalize, 150);
-    }
-  });
-
-  if(window.MutationObserver){
-    const observer = new MutationObserver(function(){
-      if(document.querySelector(".page.active")){
-        normalize();
-      }
-    });
-    document.addEventListener("DOMContentLoaded", function(){
-      observer.observe(document.body, {
-        subtree:true,
-        attributes:true,
-        attributeFilter:["class","style"]
-      });
-    });
-  }
-})();
-</script>
 
 
-<script id="liwo-premium-operational-runtime">
-(function(){
- const ids=["toolsPage","cashPage","receiptsPage"];
- function fix(){
-   const active=document.querySelector(".page.active");
-   const operational=active && ids.includes(active.id);
-   document.body.classList.toggle("liwO-operational-page",!!operational);
-   const scope=document.getElementById("globalProjectScope");
-   if(scope && operational){
-     scope.style.display="none";scope.style.height="0";scope.style.minHeight="0";
-     scope.style.maxHeight="0";scope.style.margin="0";scope.style.padding="0";scope.style.overflow="hidden";
-   }
-   ids.forEach(id=>{
-     const el=document.getElementById(id);
-     if(!el)return;
-     if(el.classList.contains("active")){
-       el.style.display="block";el.style.height="auto";el.style.minHeight="0";el.style.maxHeight="none";
-     }
-   });
- }
- document.addEventListener("DOMContentLoaded",fix);
- window.addEventListener("load",fix);
- document.addEventListener("click",e=>{
-   if(e.target.closest(".nav button,.mobile-nav button")){
-     requestAnimationFrame(fix);setTimeout(fix,50);setTimeout(fix,150);
-   }
- });
-})();
-</script>
 
 
-<script id="liwo-final-vertical-navigation-fix">
-(function(){
-  function top(){
-    try{
-      window.scrollTo({top:0,left:0,behavior:'instant'});
-      document.documentElement.scrollTop=0;
-      document.body.scrollTop=0;
-    }catch(e){ window.scrollTo(0,0); }
-  }
-  document.addEventListener('click',function(e){
-    var b=e.target.closest('.nav button,.mobile-nav button,[data-page]');
-    if(!b) return;
-    setTimeout(top,0);
-    setTimeout(top,80);
-    setTimeout(top,180);
-  },true);
-})();
-</script>
+
+
+
 </body></html>`);
   w.document.close();w.focus();setTimeout(()=>w.print(),500);
 }
