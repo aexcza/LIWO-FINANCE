@@ -3630,4 +3630,74 @@ body:not(.liwo-admin-session) #usersPage{display:none!important;}
   }
 })();
 </script>
+<style id="liwo-single-page-visibility-final">
+/* One module at a time: legacy rules must never expose inactive pages. */
+.page{display:none!important;}
+.page.active{display:block!important;}
+.page.hidden{display:none!important;}
+.page.active.hidden{display:none!important;}
+</style>
+<script id="liwo-single-page-visibility-final-script">
+(function(){
+  function admin(){
+    return String(window.session&&window.session.user&&window.session.user.role||'').trim().toLowerCase()==='admin';
+  }
+  function pageExists(name){
+    return !!document.getElementById(name+'Page');
+  }
+  function applyPage(name){
+    if(name==='users'&&!admin()) name='dashboard';
+    if(!pageExists(name)) name='dashboard';
+    document.querySelectorAll('.page').forEach(function(page){
+      var visible=page.id===name+'Page';
+      page.classList.toggle('active',visible);
+      page.classList.toggle('hidden',!visible);
+      page.style.setProperty('display',visible?'block':'none','important');
+      page.setAttribute('aria-hidden',visible?'false':'true');
+    });
+    document.querySelectorAll('.nav button,.mobile-nav button').forEach(function(button){
+      button.classList.toggle('active',button.dataset.page===name);
+    });
+    var scope=document.getElementById('globalProjectScope');
+    if(scope){
+      var standalone=/^(tools|cash|receipts|users)$/.test(name);
+      scope.style.setProperty('display',standalone?'none':'','important');
+      if(standalone){
+        scope.style.setProperty('height','0','important');
+        scope.style.setProperty('min-height','0','important');
+        scope.style.setProperty('margin','0','important');
+        scope.style.setProperty('padding','0','important');
+      }
+    }
+    var usersNav=document.getElementById('usersNav');
+    var mobileUsersNav=document.getElementById('mobileUsersNav');
+    [usersNav,mobileUsersNav].forEach(function(button){
+      if(!button)return;
+      button.classList.toggle('hidden',!admin());
+      button.style.setProperty('display',admin()?'':'none','important');
+    });
+    return name;
+  }
+  function currentPage(){
+    var page=document.querySelector('.page.active');
+    return page ? page.id.replace(/Page$/,'') : 'dashboard';
+  }
+  function install(){
+    var previous=window.switchPage;
+    window.switchPage=function(name){
+      if(name==='users'&&!admin()) name='dashboard';
+      try{
+        return typeof previous==='function' ? previous.call(this,name) : undefined;
+      }finally{
+        applyPage(name);
+        try{window.scrollTo(0,0);}catch(e){}
+      }
+    };
+    applyPage(currentPage());
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',install);
+  else install();
+  window.addEventListener('load',function(){applyPage(currentPage());});
+})();
+</script>
 </body></html>
