@@ -1676,8 +1676,35 @@ async function api(action,payload={}){
 window.api=api;
 
 function tabs(reg){$("loginForm").classList.toggle("hidden",reg);$("registerForm").classList.toggle("hidden",!reg);$("loginTab").classList.toggle("active",!reg);$("registerTab").classList.toggle("active",reg)}
-async function login(e){e.preventDefault();$("loginError").textContent="";try{let o=await api("login",{username:$("loginUsername").value.trim(),password:$("loginPassword").value});session={token:o.token,user:o.user};sessionStorage.setItem("cf_session",JSON.stringify(session));showApp();await refresh();await loadServerNotifications()}catch(x){$("loginError").textContent=x.message}}
-async function register(e){e.preventDefault();$("registerError").textContent="";if($("regPassword").value!==$("regConfirm").value){$("registerError").textContent="Passwords do not match.";return}try{await api("registerFinance",{name:$("regName").value.trim(),username:$("regUsername").value.trim(),password:$("regPassword").value,inviteCode:$("regInvite").value});toast("Account created. You can now sign in.");$("loginUsername").value=$("regUsername").value;tabs(false);$("registerForm").reset()}catch(x){$("registerError").textContent=x.message}}
+async function login(e){
+  e.preventDefault();
+  $("loginError").textContent="";
+  try{
+    const o=await api("login",{username:$("loginUsername").value.trim(),password:$("loginPassword").value});
+    session={token:o.token,user:o.user};
+    sessionStorage.setItem("cf_session",JSON.stringify(session));
+    showApp();
+    switchPage("dashboard");
+
+    // Do not let a dashboard/project-data error turn a successful
+    // authentication into a failed sign-in.
+    try{
+      await refresh();
+    }catch(err){
+      console.error("Dashboard initialization failed:",err);
+      toast(err.message||"Signed in, but dashboard data could not be loaded.");
+    }
+
+    try{
+      await loadServerNotifications();
+    }catch(err){
+      console.error("Notification initialization failed:",err);
+    }
+  }catch(x){
+    $("loginError").textContent=x.message||"Unable to sign in.";
+  }
+}
+function register(e){e.preventDefault();$("registerError").textContent="";if($("regPassword").value!==$("regConfirm").value){$("registerError").textContent="Passwords do not match.";return}try{await api("registerFinance",{name:$("regName").value.trim(),username:$("regUsername").value.trim(),password:$("regPassword").value,inviteCode:$("regInvite").value});toast("Account created. You can now sign in.");$("loginUsername").value=$("regUsername").value;tabs(false);$("registerForm").reset()}catch(x){$("registerError").textContent=x.message}}
 function showApp(){$("loginView").classList.add("hidden");$("appView").classList.remove("hidden");const name=session.user.name||session.user.username;const role=session.user.role||"Finance";$("currentUser").textContent=name+" • "+session.user.username;$("currentRole").textContent=role;$("topName").textContent=name;$("topRole").textContent=role==="Admin"?"Administrator":"LIWO Executives";$("topAvatar").textContent=initials(name);$("menuUserName").textContent=name;$("menuUserRole").textContent=role==="Admin"?"Administrator":"LIWO Executives";applyProfilePhoto();if(session.user.role==="Admin"){$("usersNav").classList.remove("hidden");$("mobileUsersNav").classList.remove("hidden");$("adminDashboard").classList.remove("hidden")}}
 function logout(){closeHeaderMenus();session=null;sessionStorage.removeItem("cf_session");$("appView").classList.add("hidden");$("loginView").classList.remove("hidden")}
 function closeHeaderMenus(){const n=$("notificationDropdown"),u=$("userDropdown");if(n){n.classList.add("hidden");$("notificationBtn")?.setAttribute("aria-expanded","false")}if(u){u.classList.add("hidden");$("userMenuBtn")?.setAttribute("aria-expanded","false")}}
@@ -2063,7 +2090,7 @@ $("saveCashBalanceBtn").onclick=async()=>{
 $("clientForm").onsubmit=e=>{e.preventDefault();save("upsertClient",e.target)};$("inviteForm").onsubmit=e=>{e.preventDefault();save("changeInvite",e.target)};
 $("reopenBtn").onclick=async()=>{try{await api("reopenRegistration",{token:session.token});toast("LIWO Executive registration reopened.");await loadUsers()}catch(x){toast(x.message)}};
 document.querySelectorAll('[name="date"]').forEach(x=>x.value=today());if($("toolBorrowedDate"))$("toolBorrowedDate").value=today();
-let old=sessionStorage.getItem("cf_session");if(old){try{session=JSON.parse(old);showApp();refresh()}catch{}}});
+let old=sessionStorage.getItem("cf_session");if(old){try{session=JSON.parse(old);showApp();switchPage("dashboard");refresh().catch(err=>{console.error("Restored dashboard initialization failed:",err);toast(err.message||"Dashboard data could not be loaded.")})}catch{sessionStorage.removeItem("cf_session");session=null;}}});
 
 async function loadTools(){
   try{
