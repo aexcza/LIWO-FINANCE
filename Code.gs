@@ -302,21 +302,24 @@ function buildFinancialReportHtml_(periodLabel, rows, reportType){
     const cats=r.categoryBreakdown||[];
     const catRows=cats.map(function(c){
       return "<tr><td>"+esc(c.name)+"</td><td>"+money(c.amount)+"</td><td>"+pct(r.expenses>0?(c.amount/r.expenses)*100:0)+"</td></tr>";
-    }).join("")||'<tr><td colspan="3">No expense categories recorded.</td></tr>';
+    }).join("")||'<tr><td colspan="3" class="empty-row">No expense categories recorded.</td></tr>';
 
-    return '<section class="project">'+
-      '<h2>'+esc(r.project||"Unnamed Project")+(r.reference?' <span class="ref">— '+esc(r.reference)+'</span>':'')+'</h2>'+
-      '<div class="mini"><div><small>Contract Value</small><b>'+money(r.contract)+'</b></div>'+
-      '<div><small>Period Payments</small><b>'+money(r.payments)+'</b></div>'+
-      '<div><small>Period Expenses</small><b>'+money(r.expenses)+'</b></div>'+
-      '<div><small>Net Movement</small><b>'+money(r.netMovement)+'</b></div>'+
-      '<div><small>Contract Collected</small><b>'+pct(r.collectionPct)+'</b></div>'+
-      '<div><small>Funds Spent</small><b>'+pct(r.spentPctOfReceived)+'</b></div>'+
-      '<div><small>Funds Remaining</small><b>'+pct(r.remainingPctOfReceived)+'</b></div>'+
-      '<div><small>Outstanding Contract</small><b>'+money(r.uncollected)+'</b></div></div>'+
-      '<h3>Expense Category Movement</h3>'+
+    return '<section class="project-card">'+
+      '<div class="project-heading"><div><div class="eyebrow">PROJECT FINANCIAL REVIEW</div><h2>'+esc(r.project||"Unnamed Project")+'</h2>'+(r.reference?'<div class="reference">Reference · '+esc(r.reference)+'</div>':'')+'</div>'+
+      '<div class="project-status">'+(r.expenses>r.payments?"ATTENTION":"IN GOOD STANDING")+'</div></div>'+
+      '<div class="mini-grid">'+
+      '<div class="mini-card"><small>Contract Value</small><b>'+money(r.contract)+'</b></div>'+
+      '<div class="mini-card"><small>Period Payments</small><b>'+money(r.payments)+'</b></div>'+
+      '<div class="mini-card"><small>Period Expenses</small><b>'+money(r.expenses)+'</b></div>'+
+      '<div class="mini-card"><small>Net Movement</small><b>'+money(r.netMovement)+'</b></div>'+
+      '<div class="mini-card"><small>Contract Collected</small><b>'+pct(r.collectionPct)+'</b></div>'+
+      '<div class="mini-card"><small>Funds Spent</small><b>'+pct(r.spentPctOfReceived)+'</b></div>'+
+      '<div class="mini-card"><small>Funds Remaining</small><b>'+pct(r.remainingPctOfReceived)+'</b></div>'+
+      '<div class="mini-card"><small>Outstanding Contract</small><b>'+money(r.uncollected)+'</b></div>'+
+      '</div>'+
+      '<div class="section-title">Expense Category Movement</div>'+
       '<table><thead><tr><th>Category</th><th>Amount</th><th>% of Project Expenses</th></tr></thead><tbody>'+catRows+'</tbody></table>'+
-      '<div class="overview"><h3>Detailed Financial Overview</h3><p>'+description+'</p></div>'+
+      '<div class="overview"><div class="overview-label">FINANCIAL COMMENTARY</div><p>'+description+'</p></div>'+
       '</section>';
   }).join("");
 
@@ -325,37 +328,58 @@ function buildFinancialReportHtml_(periodLabel, rows, reportType){
   }
 
   const body=rows.map(function(r){
-    return "<tr><td>"+esc(r.project||"—")+"</td><td>"+esc(r.reference||"—")+"</td>"+
+    return "<tr><td><strong>"+esc(r.project||"—")+"</strong></td><td>"+esc(r.reference||"—")+"</td>"+
       "<td>"+money(r.contract)+"</td><td>"+money(r.payments)+"</td><td>"+money(r.expenses)+"</td>"+
       "<td>"+money(r.otherIncome||0)+"</td><td>"+money(r.refunds||0)+"</td><td>"+money(r.netMovement)+"</td>"+
       "<td>"+pct(r.collectionPct)+"</td><td>"+pct(r.spentPctOfReceived)+"</td></tr>";
-  }).join("")||'<tr><td colspan="10">No project records were available.</td></tr>';
+  }).join("")||'<tr><td colspan="10" class="empty-row">No project records were available.</td></tr>';
 
   const title=reportType+" Financial Report";
-  const css='body{font-family:Arial,sans-serif;color:#17324a;padding:30px;line-height:1.45}'+
-    'h1{margin:0 0 5px}.sub{color:#66798a;margin-bottom:22px}.kpis,.mini{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 20px}'+
-    '.kpi,.mini>div{border:1px solid #d9e2ea;border-radius:8px;padding:10px 13px;min-width:135px}.kpi b,.mini b{display:block;font-size:16px;margin-top:4px}'+
-    'table{width:100%;border-collapse:collapse;font-size:10px;margin:8px 0 18px}th,td{border:1px solid #d9e2ea;padding:7px;text-align:left}th{background:#eef4f8}'+
-    '.project{page-break-inside:avoid;border-top:2px solid #d9e2ea;margin-top:28px;padding-top:18px}.ref{font-size:13px;color:#718395;font-weight:normal}'+
-    '.overview{background:#f7fafc;border:1px solid #d9e2ea;border-radius:8px;padding:14px;margin-top:12px}.overview h3{margin-top:0}.overview p{margin:0}'+
-    '.small{font-size:10px;color:#718395}';
-  return '<!doctype html><html><head><meta charset="utf-8"><style>'+css+'</style></head><body>'+
-    '<h1>LIWO ENGINEERING CONSULTANCY</h1><h2>'+title+'</h2><div class="sub">'+esc(periodLabel)+'</div>'+
-    '<div class="kpis"><div class="kpi">Contract Value<b>'+money(totalContract)+'</b></div>'+
-    '<div class="kpi">Period Money In<b>'+money(totalPayments+totalOtherIncome)+'</b></div>'+
-    '<div class="kpi">Period Money Out<b>'+money(totalExpenses+totalRefunds)+'</b></div>'+
-    '<div class="kpi">Net Movement<b>'+money(netMovement)+'</b></div>'+
-    '<div class="kpi">Collected<b>'+pct(collectionPct)+'</b></div>'+
-    '<div class="kpi">Spent of Payments<b>'+pct(spentPct)+'</b></div>'+
-    '<div class="kpi">Remaining of Payments<b>'+pct(remainingPct)+'</b></div>'+
-    '<div class="kpi">Outstanding<b>'+money(totalUncollected)+'</b></div></div>'+
-    '<h2>Project-by-Project Financial Summary</h2>'+
-    '<table><thead><tr><th>Project</th><th>Reference</th><th>Contract</th><th>Payments</th><th>Expenses</th><th>Other Income</th><th>Refunds</th><th>Net Movement</th><th>Collected %</th><th>Spent %</th></tr></thead><tbody>'+body+'</tbody></table>'+
-    '<h2>Detailed Financial Overview by Project</h2>'+projectSections+
-    '<p class="small">Reporting figures are restricted to the stated reporting period. Contract collection and outstanding balance use cumulative client payments so the project balance remains accurate, while money movement and expense analysis use only transactions within the stated period.</p>'+
-    '</body></html>';
-}
+  const generated=Utilities.formatDate(new Date(),Session.getScriptTimeZone()||"Asia/Manila","MMMM d, yyyy · h:mm a");
+  const css=
+    '@page{size:A4;margin:12mm 11mm 14mm}'+
+    'body{margin:0;background:#eef2f5;color:#18344a;font-family:Arial,Helvetica,sans-serif;font-size:10px;line-height:1.45}'+
+    '.page{max-width:900px;margin:0 auto;background:#fff;padding:34px 38px;box-sizing:border-box}'+
+    '.topbar{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:22px;border-bottom:3px solid #123451;margin-bottom:22px}'+
+    '.brand{letter-spacing:2px;font-size:10px;font-weight:800;color:#123451}.brand-name{font-size:20px;letter-spacing:.3px;margin-top:6px;font-weight:800;color:#123451}.brand-sub{font-size:10px;color:#718395;margin-top:4px}'+
+    '.report-meta{text-align:right}.report-meta .type{display:inline-block;background:#123451;color:#fff;padding:6px 9px;border-radius:3px;font-size:8px;font-weight:800;letter-spacing:1px}.report-meta .date{display:block;margin-top:8px;color:#718395;font-size:9px}'+
+    'h1{font-size:28px;line-height:1.15;margin:0;color:#123451}.sub{font-size:11px;color:#66798a;margin-top:7px}.intro{margin:20px 0 18px;padding:13px 15px;background:#f6f8fa;border-left:4px solid #c88722;color:#52697b;font-size:10px}'+
+    '.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:0 0 24px}.kpi{border:1px solid #dce4ea;border-radius:5px;padding:12px 12px;background:#fff;min-height:52px;box-sizing:border-box}.kpi span{display:block;text-transform:uppercase;letter-spacing:.5px;font-size:7.5px;color:#718395;font-weight:700}.kpi b{display:block;color:#123451;font-size:13px;margin-top:7px}.kpi.accent{background:#123451;border-color:#123451}.kpi.accent span,.kpi.accent b{color:#fff}'+
+    '.section-head{display:flex;justify-content:space-between;align-items:end;border-bottom:1px solid #dce4ea;padding-bottom:8px;margin:18px 0 9px}.section-head h2{margin:0;font-size:14px;color:#123451}.section-head span{font-size:8px;color:#718395}'+
+    'table{width:100%;border-collapse:collapse;font-size:8.2px;margin:0 0 17px;page-break-inside:auto}thead{display:table-header-group}tr{page-break-inside:avoid}th{background:#123451;color:#fff;text-transform:uppercase;letter-spacing:.35px;font-size:7.2px;padding:8px 6px;text-align:left;border:1px solid #123451}td{padding:7px 6px;border:1px solid #dce4ea;vertical-align:top}tbody tr:nth-child(even){background:#f8fafb}.empty-row{color:#718395;text-align:center;font-style:italic}'+
+    '.project-card{page-break-inside:avoid;border:1px solid #dce4ea;border-radius:6px;margin:18px 0;padding:17px;background:#fff}.project-heading{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;border-bottom:1px solid #e2e8ed;padding-bottom:12px}.eyebrow{font-size:7px;letter-spacing:1.2px;font-weight:800;color:#c88722}.project-card h2{font-size:16px;color:#123451;margin:4px 0 2px}.reference{font-size:8px;color:#718395}.project-status{font-size:7px;letter-spacing:.6px;font-weight:800;padding:5px 7px;border:1px solid #d6e0e7;border-radius:3px;color:#52697b;white-space:nowrap}.mini-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:13px 0 16px}.mini-card{background:#f7f9fa;border:1px solid #e2e8ed;border-radius:4px;padding:8px}.mini-card small{display:block;font-size:7px;color:#718395;text-transform:uppercase;letter-spacing:.25px}.mini-card b{display:block;font-size:10px;color:#17364f;margin-top:4px}.section-title{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:#123451;margin:5px 0 7px}.overview{background:#f7f9fa;border:1px solid #e0e7ec;border-radius:5px;padding:12px;margin-top:10px}.overview-label{font-size:7px;letter-spacing:1px;font-weight:800;color:#c88722;margin-bottom:5px}.overview p{margin:0;color:#52697b;font-size:9px;line-height:1.55}'+
+    '.notes{font-size:8px;color:#718395;margin-top:17px;padding-top:10px;border-top:1px solid #dce4ea}.signatures{page-break-inside:avoid;margin-top:28px;padding-top:17px;border-top:2px solid #123451}.signatures h3{font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:#123451;margin:0 0 20px}.signature-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:30px}.signature{min-height:70px;display:flex;flex-direction:column;justify-content:flex-end}.signature-line{width:210px;border-top:1px solid #273b4a;margin-bottom:7px}.signature strong{font-size:8.5px;color:#17364f}.signature span{font-size:7.5px;color:#718395;margin-top:2px}.footer{display:flex;justify-content:space-between;gap:20px;margin-top:25px;padding-top:10px;border-top:1px solid #dce4ea;font-size:7.5px;color:#81909c}.confidential{font-weight:800;letter-spacing:.4px;color:#52697b}'+
+    '@media print{body{background:#fff}.page{max-width:none;margin:0;padding:0}.project-card{break-inside:avoid}.kpi,.mini-card{break-inside:avoid}}';
 
+  return '<!doctype html><html><head><meta charset="utf-8"><title>'+esc(title)+'</title><style>'+css+'</style></head><body>'+
+    '<main class="page">'+
+    '<header class="topbar"><div><div class="brand">LIWO</div><div class="brand-name">LIWO ENGINEERING CONSULTANCY</div><div class="brand-sub">Finance & Project Management</div></div>'+
+    '<div class="report-meta"><span class="type">'+esc(reportType.toUpperCase())+' REPORT</span><span class="date">Generated '+esc(generated)+'</span></div></header>'+
+    '<h1>'+esc(title)+'</h1><div class="sub">'+esc(periodLabel)+'</div>'+
+    '<div class="intro">This report provides a management-level view of project financial activity for the stated reporting period. The attached document is intended for internal financial review, project monitoring, and record-keeping.</div>'+
+    '<div class="kpis">'+
+    '<div class="kpi"><span>Contract Value</span><b>'+money(totalContract)+'</b></div>'+
+    '<div class="kpi"><span>Period Money In</span><b>'+money(totalPayments+totalOtherIncome)+'</b></div>'+
+    '<div class="kpi"><span>Period Money Out</span><b>'+money(totalExpenses+totalRefunds)+'</b></div>'+
+    '<div class="kpi accent"><span>Net Movement</span><b>'+money(netMovement)+'</b></div>'+
+    '<div class="kpi"><span>Collected</span><b>'+pct(collectionPct)+'</b></div>'+
+    '<div class="kpi"><span>Spent of Payments</span><b>'+pct(spentPct)+'</b></div>'+
+    '<div class="kpi"><span>Remaining of Payments</span><b>'+pct(remainingPct)+'</b></div>'+
+    '<div class="kpi"><span>Outstanding</span><b>'+money(totalUncollected)+'</b></div>'+
+    '</div>'+
+    '<div class="section-head"><h2>Portfolio Financial Summary</h2><span>'+rows.length+' project(s) included</span></div>'+
+    '<table><thead><tr><th>Project</th><th>Reference</th><th>Contract</th><th>Payments</th><th>Expenses</th><th>Other Income</th><th>Refunds</th><th>Net Movement</th><th>Collected %</th><th>Spent %</th></tr></thead><tbody>'+body+'</tbody></table>'+
+    '<div class="section-head"><h2>Detailed Financial Review by Project</h2><span>'+esc(reportType)+' reporting period</span></div>'+
+    projectSections+
+    '<div class="notes">Reporting figures are restricted to the stated reporting period. Contract collection and outstanding balance use cumulative client payments so the project balance remains accurate, while money movement and expense analysis use only transactions within the stated period.</div>'+
+    '<section class="signatures"><h3>Reviewed and Approved by</h3><div class="signature-grid">'+
+    '<div class="signature"><div class="signature-line"></div><strong>ENGR. GODWIN TRISTAN VELASCO, SO2</strong><span>Registered Civil Engineer</span></div>'+
+    '<div class="signature"><div class="signature-line"></div><strong>ENGR. CHRISTIAN VALEZA, SO2</strong><span>Registered Civil Engineer</span></div>'+
+    '<div class="signature"><div class="signature-line"></div><strong>VISMARK NAVARRO</strong><span>Architectural Designer / BIM Modeler</span></div>'+
+    '</div></section>'+
+    '<footer class="footer"><span class="confidential">LIWO FINANCE · CONFIDENTIAL FINANCIAL REPORT</span><span>Generated from LIWO Finance</span></footer>'+
+    '</main></body></html>';
+}
 
 function buildAutomatedReportEmailHtml_(type,label){
   const isMonthly=String(type||"").toLowerCase()==="monthly";
@@ -363,29 +387,34 @@ function buildAutomatedReportEmailHtml_(type,label){
   const accent="#123451";
   const gold="#c88722";
   const safeLabel=String(label||"Financial Report").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-  return '<!doctype html><html><body style="margin:0;padding:0;background:#f3f6f8;font-family:Arial,Helvetica,sans-serif;color:#17364f;">'
-    +'<div style="padding:28px 14px;">'
-    +'<div style="max-width:680px;margin:0 auto;background:#ffffff;border:1px solid #dfe7ee;border-radius:16px;overflow:hidden;">'
-    +'<div style="background:'+accent+';padding:26px 30px;">'
-    +'<div style="font-size:12px;letter-spacing:2px;font-weight:700;color:#dbe7ef;">LIWO ENGINEERING CONSULTANCY</div>'
-    +'<div style="margin-top:8px;font-size:25px;line-height:1.2;font-weight:800;color:#ffffff;">Financial Report</div>'
-    +'<div style="margin-top:7px;font-size:13px;color:#dbe7ef;">Automated '+reportType.toLowerCase()+' financial reporting</div>'
+  return '<!doctype html><html><body style="margin:0;padding:0;background:#eef2f5;font-family:Arial,Helvetica,sans-serif;color:#17364f;">'
+    +'<div style="padding:32px 12px;">'
+    +'<div style="max-width:700px;margin:0 auto;background:#ffffff;border:1px solid #dbe3e9;border-radius:14px;overflow:hidden;">'
+    +'<div style="background:'+accent+';padding:28px 32px 25px;">'
+    +'<div style="font-size:11px;letter-spacing:2.2px;font-weight:800;color:#d9e5ec;">LIWO</div>'
+    +'<div style="margin-top:5px;font-size:21px;line-height:1.25;font-weight:800;color:#ffffff;">LIWO ENGINEERING CONSULTANCY</div>'
+    +'<div style="margin-top:7px;font-size:12px;color:#cbdbe5;">Finance &amp; Project Management</div>'
     +'</div>'
-    +'<div style="padding:30px;">'
-    +'<div style="display:inline-block;padding:7px 11px;border-radius:999px;background:#f8f1e5;color:'+gold+';font-size:11px;font-weight:800;letter-spacing:.8px;">'+reportType+' REPORT</div>'
-    +'<h2 style="margin:14px 0 6px;font-size:21px;line-height:1.35;color:'+accent+';">'+safeLabel+'</h2>'
-    +'<p style="margin:0 0 24px;color:#607487;font-size:14px;line-height:1.6;">Your automated LIWO Finance report is ready. The complete financial report is attached as a PDF for review and record-keeping.</p>'
-    +'<div style="border:1px solid #e2e9ee;border-radius:12px;background:#f8fafc;padding:17px 18px;margin-bottom:24px;">'
-    +'<div style="font-size:12px;font-weight:800;color:'+accent+';margin-bottom:7px;">REPORT DELIVERY</div>'
-    +'<div style="font-size:13px;line-height:1.7;color:#516578;">The attached PDF contains the detailed financial information for the reporting period, including project financial summaries and supporting report sections.</div>'
+    +'<div style="height:4px;background:'+gold+';"></div>'
+    +'<div style="padding:30px 32px;">'
+    +'<div style="display:inline-block;padding:6px 10px;border-radius:3px;background:#f7efe2;color:'+gold+';font-size:9px;font-weight:800;letter-spacing:1px;">AUTOMATED '+reportType+' REPORT</div>'
+    +'<h1 style="margin:15px 0 7px;font-size:23px;line-height:1.3;color:'+accent+';">Financial Report Ready</h1>'
+    +'<div style="font-size:13px;font-weight:700;color:#52697b;line-height:1.5;">'+safeLabel+'</div>'
+    +'<p style="margin:17px 0 22px;font-size:13px;line-height:1.7;color:#607487;">Your scheduled LIWO Finance report has been generated successfully. The complete premium financial report is attached to this email as a PDF for review and record-keeping.</p>'
+    +'<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;margin:0 0 22px;">'
+    +'<tr><td style="padding:0 5px 0 0;width:50%;"><div style="border:1px solid #dfe6eb;border-radius:8px;padding:15px;background:#f8fafb;"><div style="font-size:9px;font-weight:800;letter-spacing:.7px;color:'+gold+';">REPORT TYPE</div><div style="margin-top:5px;font-size:13px;font-weight:800;color:'+accent+';">'+reportType+' FINANCIAL REPORT</div></div></td>'
+    +'<td style="padding:0 0 0 5px;width:50%;"><div style="border:1px solid #dfe6eb;border-radius:8px;padding:15px;background:#f8fafb;"><div style="font-size:9px;font-weight:800;letter-spacing:.7px;color:'+gold+';">ATTACHMENT</div><div style="margin-top:5px;font-size:13px;font-weight:800;color:'+accent+';">Premium PDF Report</div></div></td></tr></table>'
+    +'<div style="border-left:4px solid '+gold+';background:#f7f9fa;padding:14px 16px;margin-bottom:24px;">'
+    +'<div style="font-size:11px;font-weight:800;color:'+accent+';">WHAT’S INSIDE</div>'
+    +'<div style="margin-top:5px;font-size:12px;line-height:1.65;color:#607487;">Portfolio financial summary, project-level financial review, expense movement, management commentary, reporting-period notes, and executive review/signature section.</div>'
     +'</div>'
-    +'<div style="border-top:1px solid #e5ebef;padding-top:20px;font-size:12px;line-height:1.7;color:#6a7c8b;">'
+    +'<div style="padding-top:18px;border-top:1px solid #e2e8ed;font-size:11px;line-height:1.7;color:#718395;">'
     +'<strong style="color:'+accent+';">LIWO Finance</strong><br>'
     +'Automated Financial Reporting System<br>'
-    +'This is an automatically generated email. Please keep the attached report for your records.'
+    +'This is an automatically generated message. Please retain the attached report for your records.'
     +'</div>'
     +'</div>'
-    +'<div style="background:#f8fafc;border-top:1px solid #e5ebef;padding:16px 30px;text-align:center;font-size:11px;color:#7b8b97;">Generated from LIWO Finance</div>'
+    +'<div style="background:#f7f9fa;border-top:1px solid #e2e8ed;padding:15px 32px;text-align:center;font-size:9px;color:#7b8b97;">LIWO ENGINEERING CONSULTANCY · Generated from LIWO Finance</div>'
     +'</div></div></body></html>';
 }
 
