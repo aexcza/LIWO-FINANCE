@@ -329,7 +329,7 @@ textarea{min-height:82px;resize:vertical}
 }
 
 .receipt-help{font-size:11px;color:var(--muted);margin-top:5px}.receipt-file{display:flex;align-items:center;gap:8px}.receipt-file input{padding:8px}.receipt-link{color:var(--blue);font-weight:700;text-decoration:none}.receipt-link:hover{text-decoration:underline}
-.report-detail-text{line-height:1.7;border:1px solid #d9e2ea;border-radius:10px;padding:14px;background:#f7fafc}</style>
+</style>
 
 <style>
 .user-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
@@ -1594,11 +1594,10 @@ body.lw-admin #executivePage .exec-report-admin-only{display:block!important}
   </label>
 </div>
 
-<div class="grid report-controls"><label>Report Period<select id="reportPeriod"><option value="all">All available records</option><option value="week">Last 7 Days — Weekly Money Report</option><option value="month">Previous Month — Monthly Money Report</option></select></label><div class="wide report-actions"><button id="printReportBtn" class="primary" type="button">🖨 Print Report</button><button id="saveReportBtn" class="secondary" type="button">📄 Save / Print as PDF</button><button id="exportReportBtn" class="secondary" type="button">⬇ Export CSV</button></div></div></div>
-<div class="report-period-note" id="reportPeriodNote"><strong>Weekly / Monthly Reports:</strong> Select <b>Last 7 Days</b> or <b>Previous Month</b> above. The weekly money report uses the rolling last 7 calendar days, including today; the monthly report uses the previous completed calendar month.</div>
+<div class="grid report-controls"><label>Report Period<select id="reportPeriod"><option value="all">All available records</option><option value="week">Last 7 Days — Weekly Money Report</option><option value="month">This Month — Monthly Money Report</option></select></label><div class="wide report-actions"><button id="printReportBtn" class="primary" type="button">🖨 Print Report</button><button id="saveReportBtn" class="secondary" type="button">📄 Save / Print as PDF</button><button id="exportReportBtn" class="secondary" type="button">⬇ Export CSV</button></div></div></div>
+<div class="report-period-note" id="reportPeriodNote"><strong>Weekly / Monthly Reports:</strong> Select <b>Last 7 Days</b> or <b>This Month</b> above. The weekly money report uses the rolling last 7 calendar days, including today.</div>
 <div id="reportPreview" class="report-preview"><div class="report-header"><div><h2>LIWO ENGINEERING CONSULTANCY</h2><p>Financial Report</p></div><div class="report-meta"><strong id="reportDate"></strong><span id="reportPeriodLabel"></span><span id="reportProject"></span></div></div>
 <div class="report-summary-grid"><div><span>Contract Budget</span><strong id="rContract">₱0.00</strong></div><div><span>Total Payments</span><strong id="rPayments">₱0.00</strong></div><div><span>Total Expenses</span><strong id="rExpenses">₱0.00</strong></div><div><span>Funds Available</span><strong id="rAvailable">₱0.00</strong></div><div><span>Uncollected Balance</span><strong id="rBalance">₱0.00</strong></div><div><span>Cash Position</span><strong id="rNet">₱0.00</strong></div></div>
-<div class="report-section" id="reportDetailedOverview"><h3>Detailed Financial Overview</h3><div id="reportDetailedOverviewBody" class="report-detail-text"></div></div>
 <div class="report-section"><h3>Expense Summary</h3><div class="table-wrap"><table><thead><tr><th>Date</th><th>Type</th><th>Category</th><th>Payee / Supplier</th><th>Description</th><th>Payment Method</th><th>Receipt</th><th>Entered By</th><th>Amount</th></tr></thead><tbody id="reportExpensesBody"></tbody></table></div></div>
 <div class="report-section"><h3>Client Payments</h3><div class="table-wrap"><table><thead><tr><th>Date</th><th>Reference</th><th>Description / Milestone</th><th>Method</th><th>Entered By</th><th>Amount Paid</th></tr></thead><tbody id="reportPaymentsBody"></tbody></table></div></div>
 <div class="report-section"><h3>Budget vs Actual</h3><div class="table-wrap"><table><thead><tr><th>Category</th><th>Budget</th><th>Actual</th><th>Variance</th><th>% Used</th><th>Remaining</th></tr></thead><tbody id="reportBudgetBody"></tbody></table></div></div>
@@ -1939,7 +1938,28 @@ async function saveProfileUsername(){
 function updateClientTotal(){const b=Number($("clientBaseBudget")?.value||0),a=Number($("additionalDesignFee")?.value||0);if($("clientTotalContract"))$("clientTotalContract").value=(b+a).toFixed(2)}
 function editClient(id){const c=(data.clients||[]).find(x=>String(x.id)===String(id));if(!c)return;const f=$("clientForm");f.elements.id.value=c.id;f.elements.name.value=c.name||"";f.elements.budget.value=c.budget||0;f.elements.additionalDesignFee.value=c.additionalDesignFee||0;f.elements.reference.value=c.reference||"";f.elements.active.value=c.active?"TRUE":"FALSE";f.elements.additionalDesignNotes.value=c.additionalDesignNotes||"";updateClientTotal();$("clientSaveBtn").textContent="Save Client / Project Changes";$("clientCancelEdit").classList.remove("hidden");switchPage("clients");window.scrollTo({top:0,behavior:"smooth"})}
 function resetClientForm(){const f=$("clientForm");f.reset();f.elements.id.value="";f.elements.additionalDesignFee.value="0";updateClientTotal();$("clientSaveBtn").textContent="+ Add Client / Project";$("clientCancelEdit").classList.add("hidden")}
-async function refresh(){try{data=await api("dashboard",{token:session.token,clientId:selectedClientId});if(!selectedClientId&&data.clients&&data.clients.length){selectedClientId=data.clients[0].id;data=await api("dashboard",{token:session.token,clientId:selectedClientId})}render()}catch(x){toast(x.message);if(/session|auth|token/i.test(x.message))logout()}}
+async function refresh(){
+  try{
+    // The dashboard endpoint requires a project ID, so load the user's
+    // project list first when the app starts with no active project.
+    if(!selectedClientId){
+      const list=await api("listClients",{token:session.token});
+      const clients=Array.isArray(list?.clients)?list.clients:[];
+      if(!clients.length){
+        data={clients:[],summary:{},payments:[],expenses:[],budget:[],recent:[],activity:[]};
+        render();
+        return;
+      }
+      selectedClientId=String(clients[0].id||"");
+    }
+    if(!selectedClientId)throw Error("No active client/project is available.");
+    data=await api("dashboard",{token:session.token,clientId:selectedClientId});
+    render();
+  }catch(x){
+    toast(x.message||String(x));
+    if(/session|auth|token/i.test(String(x.message||x)))logout();
+  }
+}
 function fillClients(){
  const clients=data.clients||[];
  const opts=clients.length
@@ -1998,16 +2018,9 @@ function reportRecords(){
   let payments=(data.payments||[]).filter(x=>String(x.clientId||x.clientID||"")===String(id));
   let expenses=(data.expenses||[]).filter(x=>String(x.clientId||x.clientID||"")===String(id));
   if(period==="month"){
-    // Previous completed calendar month, matching the automated monthly report.
-    const now=new Date();
-    const firstThisMonth=new Date(now.getFullYear(),now.getMonth(),1);
-    const firstPreviousMonth=new Date(now.getFullYear(),now.getMonth()-1,1);
-    const inPreviousMonth=x=>{
-      const d=new Date(x);
-      return !isNaN(d) && d>=firstPreviousMonth && d<firstThisMonth;
-    };
-    payments=payments.filter(x=>inPreviousMonth(x.date));
-    expenses=expenses.filter(x=>inPreviousMonth(x.date));
+    let d=new Date(),ym=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
+    payments=payments.filter(x=>String(x.date||"").slice(0,7)===ym);
+    expenses=expenses.filter(x=>String(x.date||"").slice(0,7)===ym);
   }
   if(period==="week"){
     // Rolling last 7 calendar days, including today.
@@ -2022,42 +2035,7 @@ function reportRecords(){
   return{client,payments,expenses,totalPayments,totalExpenses,contract,available,balance:Math.max(0,contract-totalPayments),net:available-totalExpenses,budget}
 }
 function reportClientOptions(){}
-function renderReport(){
-  reportClientOptions();
-  let r=reportRecords();
-  let rp=$("reportPeriod")?.value||"all";
-  const now=new Date();
-  let periodLabel="Complete Financial Report";
-  if(rp==="week"){
-    const end=new Date(now.getFullYear(),now.getMonth(),now.getDate());
-    const start=new Date(now.getFullYear(),now.getMonth(),now.getDate()-6);
-    periodLabel="Last 7 Days — "+start.toLocaleDateString(undefined,{month:"long",day:"numeric",year:"numeric"})+" – "+end.toLocaleDateString(undefined,{month:"long",day:"numeric",year:"numeric"});
-  }else if(rp==="month"){
-    const start=new Date(now.getFullYear(),now.getMonth()-1,1);
-    const end=new Date(now.getFullYear(),now.getMonth(),0);
-    periodLabel="Previous Month — "+start.toLocaleDateString(undefined,{month:"long",day:"numeric",year:"numeric"})+" – "+end.toLocaleDateString(undefined,{month:"long",day:"numeric",year:"numeric"});
-  }
-  $("reportPeriodLabel").textContent=periodLabel;
-  $("reportDate").textContent=new Date().toLocaleDateString();
-$("reportProject").textContent=r.client?(r.client.name+(r.client.reference?" — "+r.client.reference:"")):"No Active Project Selected";$("rContract").textContent=peso(r.contract);$("rPayments").textContent=peso(r.totalPayments);$("rExpenses").textContent=peso(r.totalExpenses);$("rAvailable").textContent=peso(r.available);$("rBalance").textContent=peso(r.balance);$("rNet").textContent=peso(r.net);$("reportPreparedBy").textContent=session?.user?.name?`Prepared by ${session.user.name}`:"";$("reportExpensesBody").innerHTML=r.expenses.map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.type||"Expense")}</td><td>${esc(x.category)}</td><td>${esc(x.payee)}</td><td>${esc(x.description)}</td><td>${esc(x.method)}</td><td>${x.receiptUrl?`<a class="receipt-link" href="${esc(x.receiptUrl)}" target="_blank" rel="noopener">View</a>`:"—"}</td><td>${esc(x.enteredBy)}</td><td>${peso(x.amount)}</td></tr>`).join("")||`<tr><td colspan="9" class="empty">No expenses for this report.</td></tr>`;$("reportPaymentsBody").innerHTML=r.payments.map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.reference)}</td><td>${esc(x.description)}</td><td>${esc(x.method)}</td><td>${esc(x.enteredBy)}</td><td>${peso(x.amount)}</td></tr>`).join("")||`<tr><td colspan="6" class="empty">No payments for this report.</td></tr>`;$("reportBudgetBody").innerHTML=r.budget.map(x=>`<tr><td>${esc(x.category)}</td><td>${peso(x.budget)}</td><td>${peso(x.actual)}</td><td>${peso(x.variance)}</td><td>${(Number(x.used||0)*100).toFixed(1)}%</td><td>${peso(x.remaining)}</td></tr>`).join("")||`<tr><td colspan="6" class="empty">No budget data.</td></tr>`;
-  const cats={};
-  r.expenses.filter(x=>x.type==="Expense"||!x.type).forEach(x=>{const k=x.category||"Uncategorized";cats[k]=(cats[k]||0)+Number(x.amount||0)});
-  const ranked=Object.entries(cats).sort((a,b)=>b[1]-a[1]);
-  const top=ranked[0], totalExp=r.totalExpenses||0;
-  const spentPct=r.totalPayments?totalExp/r.totalPayments*100:0;
-  const remainingPct=r.totalPayments?(r.totalPayments-totalExp)/r.totalPayments*100:0;
-  const collectedPct=r.contract?r.totalPayments/r.contract*100:0;
-  const detail=$("reportDetailedOverviewBody");
-  if(detail){
-    let s=`For <b>${esc(r.client?.name||"the selected project")}</b>, the reporting period is <b>${esc(periodLabel)}</b>. `;
-    s+=`Client payments during the period totaled <b>${peso(r.totalPayments)}</b>, while recorded expenses totaled <b>${peso(totalExp)}</b>. `;
-    s+=`That represents <b>${spentPct.toFixed(1)}%</b> of period payments spent, leaving <b>${remainingPct.toFixed(1)}%</b> of period payments after expenses. `;
-    if(r.contract) s+=`Cumulative client payments represent <b>${collectedPct.toFixed(1)}%</b> of the contract value, with <b>${peso(r.balance)}</b> remaining uncollected. `;
-    if(top) s+=`The largest expense movement was <b>${esc(top[0])}</b> at <b>${peso(top[1])}</b>, or <b>${(totalExp?top[1]/totalExp*100:0).toFixed(1)}%</b> of project expenses.`;
-    else s+=`No categorized expense movement was recorded during this period.`;
-    detail.innerHTML=s;
-  }
-}
+function renderReport(){reportClientOptions();let r=reportRecords();let rp=$("reportPeriod")?.value||"all";$("reportPeriodLabel").textContent=rp==="week"?"Last 7 Days — Weekly Money Report":rp==="month"?"Monthly Money Report":"Complete Financial Report";$("reportDate").textContent=new Date().toLocaleDateString();$("reportProject").textContent=r.client?(r.client.name+(r.client.reference?" — "+r.client.reference:"")):"No Active Project Selected";$("rContract").textContent=peso(r.contract);$("rPayments").textContent=peso(r.totalPayments);$("rExpenses").textContent=peso(r.totalExpenses);$("rAvailable").textContent=peso(r.available);$("rBalance").textContent=peso(r.balance);$("rNet").textContent=peso(r.net);$("reportPreparedBy").textContent=session?.user?.name?`Prepared by ${session.user.name}`:"";$("reportExpensesBody").innerHTML=r.expenses.map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.type||"Expense")}</td><td>${esc(x.category)}</td><td>${esc(x.payee)}</td><td>${esc(x.description)}</td><td>${esc(x.method)}</td><td>${x.receiptUrl?`<a class="receipt-link" href="${esc(x.receiptUrl)}" target="_blank" rel="noopener">View</a>`:"—"}</td><td>${esc(x.enteredBy)}</td><td>${peso(x.amount)}</td></tr>`).join("")||`<tr><td colspan="9" class="empty">No expenses for this report.</td></tr>`;$("reportPaymentsBody").innerHTML=r.payments.map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.reference)}</td><td>${esc(x.description)}</td><td>${esc(x.method)}</td><td>${esc(x.enteredBy)}</td><td>${peso(x.amount)}</td></tr>`).join("")||`<tr><td colspan="6" class="empty">No payments for this report.</td></tr>`;$("reportBudgetBody").innerHTML=r.budget.map(x=>`<tr><td>${esc(x.category)}</td><td>${peso(x.budget)}</td><td>${peso(x.actual)}</td><td>${peso(x.variance)}</td><td>${(Number(x.used||0)*100).toFixed(1)}%</td><td>${peso(x.remaining)}</td></tr>`).join("")||`<tr><td colspan="6" class="empty">No budget data.</td></tr>`}
 function printReport(){
   renderReport();
   window.bindLIWOPrintControls?.();
