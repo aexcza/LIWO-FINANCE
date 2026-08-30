@@ -1177,6 +1177,32 @@ th{background:#f3f7f9;color:#4e6678;letter-spacing:.045em;text-transform:upperca
 .page.active{display:block!important}
 </style>
 
+
+<style id="liwo-global-page-height-fix">
+/* Prevent any app page from reserving viewport-sized blank space. */
+#appView .page,
+#appView .page.active,
+#appView .page.hidden,
+#usersPage,
+#usersPage.active,
+#toolsPage,
+#cashPage,
+#receiptsPage{
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  flex:none!important;
+}
+#appView .page.active{display:block!important;}
+#appView .page.hidden{display:none!important;}
+#usersPage > .panel,
+#toolsPage > .panel,
+#cashPage > .panel,
+#receiptsPage > .panel{
+  height:auto!important;
+  min-height:0!important;
+}
+</style>
 </head>
 <body>
 <div id="liwoLoadingOverlay" aria-hidden="true">
