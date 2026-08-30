@@ -1885,7 +1885,45 @@ function removeProfilePhoto(){try{localStorage.removeItem(profileStorageKey())}c
 function updateClientTotal(){const b=Number($("clientBaseBudget")?.value||0),a=Number($("additionalDesignFee")?.value||0);if($("clientTotalContract"))$("clientTotalContract").value=(b+a).toFixed(2)}
 function editClient(id){const c=(data.clients||[]).find(x=>String(x.id)===String(id));if(!c)return;const f=$("clientForm");f.elements.id.value=c.id;f.elements.name.value=c.name||"";f.elements.budget.value=c.budget||0;f.elements.additionalDesignFee.value=c.additionalDesignFee||0;f.elements.reference.value=c.reference||"";f.elements.active.value=c.active?"TRUE":"FALSE";f.elements.additionalDesignNotes.value=c.additionalDesignNotes||"";updateClientTotal();$("clientSaveBtn").textContent="Save Client / Project Changes";$("clientCancelEdit").classList.remove("hidden");switchPage("clients");window.scrollTo({top:0,behavior:"smooth"})}
 function resetClientForm(){const f=$("clientForm");f.reset();f.elements.id.value="";f.elements.additionalDesignFee.value="0";updateClientTotal();$("clientSaveBtn").textContent="+ Add Client / Project";$("clientCancelEdit").classList.add("hidden")}
-async function refresh(){try{data=await api("dashboard",{token:session.token,clientId:selectedClientId});if(!selectedClientId&&data.clients&&data.clients.length){selectedClientId=data.clients[0].id;data=await api("dashboard",{token:session.token,clientId:selectedClientId})}render()}catch(x){toast(x.message);if(/session|auth|token/i.test(x.message))logout()}}
+let projectSwitchSerial=0;
+function syncActiveProjectControls(){
+  ["dashboardClient","paymentClient","expenseClient","projectDashboardClient","milestoneClient","reportClient","receiptProjectFilter"].forEach(id=>{
+    const el=$(id);
+    if(!el||!selectedClientId)return;
+    if([...el.options].some(o=>String(o.value)===String(selectedClientId)))el.value=selectedClientId;
+  });
+  const c=(data?.clients||[]).find(x=>String(x.id)===String(selectedClientId));
+  const label=c?(c.name+(c.reference?" — "+c.reference:"")):"Select a client / project";
+  if($("globalProjectScopeName"))$("globalProjectScopeName").textContent=label;
+  if($("projectLabel"))$("projectLabel").textContent=c?(c.name+(c.reference?" • "+c.reference:"")):"Select a client/project";
+}
+async function refreshCurrentProjectModule(){
+  if(!session?.token||!selectedClientId)return;
+  const active=document.querySelector(".page.active")?.id||"";
+  if(active==="projectDashboardPage")await loadProjectFinancialDashboard();
+  else if(active==="toolsPage")await loadTools();
+  else if(active==="receiptsPage")await loadReceipts();
+  else if(active==="reportsPage"){renderReport();window.bindLIWOPrintControls?.();}
+}
+async function refresh(){
+  const serial=++projectSwitchSerial;
+  try{
+    data=await api("dashboard",{token:session.token,clientId:selectedClientId});
+    if(!selectedClientId&&data.clients&&data.clients.length){selectedClientId=data.clients[0].id;data=await api("dashboard",{token:session.token,clientId:selectedClientId})}
+    if(serial!==projectSwitchSerial)return;
+    render();
+    syncActiveProjectControls();
+    await refreshCurrentProjectModule();
+  }catch(x){toast(x.message);if(/session|auth|token/i.test(x.message))logout()}
+}
+async function setActiveProject(id){
+  id=String(id||"");
+  if(!id)return;
+  if(String(selectedClientId)===id){syncActiveProjectControls();await refreshCurrentProjectModule();return}
+  selectedClientId=id;
+  syncActiveProjectControls();
+  await refresh();
+}
 function fillClients(){
  const clients=data.clients||[];
  const opts=clients.length?clients.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}${c.reference?" — "+esc(c.reference):""}</option>`).join(""):'<option value="">No clients/projects</option>';
@@ -1937,7 +1975,7 @@ function printReport(){
   const styles=[...document.querySelectorAll('style')].map(x=>x.textContent).join("\\n");
   const css='body{background:#fff!important;margin:0;padding:0;font-family:Arial,sans-serif;color:#111}.report-preview{display:block!important;max-width:none!important;width:100%!important;border:0!important;box-shadow:none!important;margin:0!important;padding:0!important;overflow:visible!important}.report-preview .table-wrap{overflow:visible!important;width:100%!important}.report-preview table{width:100%!important;min-width:0!important;border-collapse:collapse!important;table-layout:auto!important}.report-preview thead{display:table-header-group!important}.report-preview tr{break-inside:avoid!important;page-break-inside:avoid!important}.report-preview th,.report-preview td{font-size:9px!important;padding:5px!important}.report-preview a{color:#123451;text-decoration:none}@page{size:'+settings.size+' '+settings.orientation+';margin:10mm}';
   w.document.open();
-  w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>LIWO Financial Report</title><style>'+styles+'\\n'+css+'</style></head><body>'+source.outerHTML+'</body></html>');
+  w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>LIWO Financial Report</title><style>'+styles+'\\n'+css+'</style></head><body>'+source.outerHTML+'\n</body></html>');
   w.document.close();w.focus();setTimeout(()=>w.print(),500);
 }
 
@@ -1987,12 +2025,13 @@ async function loadProjectFinancialDashboard(){
     const rr=await api("listReceipts",{token:session.token,clientId:id,project:id}); const list=rr.receipts||[]; set("pdReceiptCount",list.length); body("pdReceiptsBody",list.slice(0,8).map(x=>`<tr><td>${esc(x.name||"Receipt")}</td><td>${esc(x.createdAt||"—")}</td><td>${esc(x.status||x.verification||"Pending")}</td></tr>`).join("")||'<tr><td colspan="3" class="empty">No receipts for this project.</td></tr>');
   }catch(e){set("pdReceiptCount",0);body("pdReceiptsBody",'<tr><td colspan="3" class="empty">No receipts available.</td></tr>')}
 }
-function switchPage(p){document.querySelectorAll(".page").forEach(x=>{let active=x.id===p+"Page";x.classList.toggle("hidden",!active);x.classList.toggle("active",active)});document.querySelectorAll(".nav button,.mobile-nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===p));$("pageTitle").textContent={dashboard:"Dashboard",projectDashboard:"Project Financials",payments:"Client Payments",expenses:"Fund Transactions",budget:"Budget vs Actual",activity:"Activity Log",clients:"Clients / Projects",tools:"Construction Tools",cash:"Cash Position",receipts:"Receipts",reports:"Reports / Export",users:"User Management",executive:"Executive Dashboard"}[p]||"Dashboard";if(p==="projectDashboard"){fillClients();loadProjectFinancialDashboard();}if(p==="users"){loadUsers();if(session?.user?.role==="Admin")loadReportSettings();}if(p==="reports"){renderReport();window.bindLIWOPrintControls?.();}if(p==="tools")loadTools();if(p==="cash")loadCash();if(p==="receipts")loadReceipts()}
+function switchPage(p){document.querySelectorAll(".page").forEach(x=>{let active=x.id===p+"Page";x.classList.toggle("hidden",!active);x.classList.toggle("active",active)});document.querySelectorAll(".nav button,.mobile-nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===p));$("pageTitle").textContent={dashboard:"Dashboard",projectDashboard:"Project Financials",payments:"Client Payments",expenses:"Fund Transactions",budget:"Budget vs Actual",activity:"Activity Log",clients:"Clients / Projects",tools:"Construction Tools",cash:"Cash Position",receipts:"Receipts",reports:"Reports / Export",users:"User Management",executive:"Executive Dashboard"}[p]||"Dashboard";if(p==="projectDashboard"){fillClients();loadProjectFinancialDashboard();}if(p==="users"){loadUsers();if(session?.user?.role==="Admin")loadReportSettings();}if(p==="reports"){renderReport();window.bindLIWOPrintControls?.();}if(p==="tools")loadTools();if(p==="cash")loadCash();if(p==="receipts")loadReceipts();syncActiveProjectControls()}
 async function __liwoOriginalLoadUsers(){try{let o=await api("listUsers",{token:session.token});data.users=o.users;data.financeCount=o.financeCount;data.financeRegistrationOpen=o.financeRegistrationOpen;data.clients=o.clients;render()}catch(x){toast(x.message)}}
 document.addEventListener("DOMContentLoaded",()=>{
-$("loginTab").onclick=()=>tabs(false);$("registerTab").onclick=()=>tabs(true);$("loginForm").onsubmit=login;$("registerForm").onsubmit=register;$("logoutBtn").onclick=logout;$("menuLogoutBtn").onclick=logout;$("refreshBtn").onclick=refresh;$("printReportBtn").onclick=printReport;$("saveReportBtn").onclick=printReport;$("exportReportBtn").onclick=exportReportCSV;$("reportClient").onchange=()=>{selectedClientId=$("reportClient").value;renderReport()};$("reportPeriod").onchange=renderReport;$("notificationBtn").onclick=toggleNotificationMenu;$("userMenuBtn").onclick=toggleUserMenu;$("markNotificationsRead").onclick=markNotificationsRead;$("profileMenuBtn").onclick=openProfile;$("profileCloseBtn").onclick=closeProfile;$("profileDoneBtn").onclick=closeProfile;$("profilePhotoInput").onchange=e=>saveProfilePhoto(e.target.files[0]);$("removeProfilePhotoBtn").onclick=removeProfilePhoto;$("profileModal").onclick=e=>{if(e.target.id==="profileModal")closeProfile()};document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeHeaderMenus();closeProfile()}});document.addEventListener("click",e=>{if(!e.target.closest(".top-user"))closeHeaderMenus()});
+$("loginTab").onclick=()=>tabs(false);$("registerTab").onclick=()=>tabs(true);$("loginForm").onsubmit=login;$("registerForm").onsubmit=register;$("logoutBtn").onclick=logout;$("menuLogoutBtn").onclick=logout;$("refreshBtn").onclick=refresh;$("printReportBtn").onclick=printReport;$("saveReportBtn").onclick=printReport;$("exportReportBtn").onclick=exportReportCSV;$("reportClient").onchange=async()=>{await setActiveProject($("reportClient").value)};$("reportPeriod").onchange=renderReport;$("notificationBtn").onclick=toggleNotificationMenu;$("userMenuBtn").onclick=toggleUserMenu;$("markNotificationsRead").onclick=markNotificationsRead;$("profileMenuBtn").onclick=openProfile;$("profileCloseBtn").onclick=closeProfile;$("profileDoneBtn").onclick=closeProfile;$("profilePhotoInput").onchange=e=>saveProfilePhoto(e.target.files[0]);$("removeProfilePhotoBtn").onclick=removeProfilePhoto;$("profileModal").onclick=e=>{if(e.target.id==="profileModal")closeProfile()};document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeHeaderMenus();closeProfile()}});document.addEventListener("click",e=>{if(!e.target.closest(".top-user"))closeHeaderMenus()});
 document.querySelectorAll(".nav button,.mobile-nav button").forEach(b=>b.onclick=()=>switchPage(b.dataset.page));
-$("dashboardClient").onchange=async()=>{selectedClientId=$("dashboardClient").value;await refresh()};$("projectDashboardClient")?.addEventListener("change",async e=>{selectedClientId=e.target.value;await refresh();switchPage("projectDashboard")});document.querySelectorAll("[data-project-nav]").forEach(b=>b.addEventListener("click",()=>switchPage(b.dataset.projectNav)));
+$("dashboardClient").onchange=async()=>{await setActiveProject($("dashboardClient").value)};$("projectDashboardClient")?.addEventListener("change",async e=>{await setActiveProject(e.target.value);switchPage("projectDashboard")});document.querySelectorAll("[data-project-nav]").forEach(b=>b.addEventListener("click",()=>switchPage(b.dataset.projectNav)));
+
 $("paymentClient").onchange=()=>{$("paymentClient").value=selectedClientId||$("paymentClient").value;toast("Client / Project is locked to the Active Project. Change the Active Project at the top.")};
 $("expenseClient").onchange=()=>{$("expenseClient").value=selectedClientId||$("expenseClient").value;toast("Client / Project is locked to the Active Project. Change the Active Project at the top.")};
 $("clientBaseBudget")?.addEventListener("input",updateClientTotal);$("additionalDesignFee")?.addEventListener("input",updateClientTotal);$("clientCancelEdit")?.addEventListener("click",resetClientForm);$("clientsBody")?.addEventListener("click",e=>{const b=e.target.closest(".edit-client-btn");if(b)editClient(b.dataset.clientId)});$("paymentForm").onsubmit=e=>{e.preventDefault();save("addPayment",e.target)};$("expenseForm").onsubmit=e=>{e.preventDefault();save("addExpense",e.target)};$("receiptInput").onchange=e=>{let f=e.target.files[0];if($("receiptFileName"))$("receiptFileName").textContent=f?`${f.name} selected`:`Optional — you can take a photo or upload a receipt. No receipt is also allowed.`};$("userForm").onsubmit=e=>{e.preventDefault();save("upsertUser",e.target)};
@@ -2005,7 +2044,7 @@ $("toolForm").onsubmit=async e=>{
   }catch(x){toast(x.message||String(x))}
 };
 $("toolClearBtn").onclick=()=>$("toolForm").reset();
-$("refreshToolsBtn").onclick=loadTools;$("receiptProjectFilter")?.addEventListener("change",loadReceipts);$("refreshReceiptsBtn")?.addEventListener("click",loadReceipts);
+$("refreshToolsBtn").onclick=loadTools;$("receiptProjectFilter")?.addEventListener("change",async e=>{await setActiveProject(e.target.value)});$("refreshReceiptsBtn")?.addEventListener("click",loadReceipts);
 $("saveCashBalanceBtn").onclick=async()=>{
   try{
     let balance=Number($("cashBalanceInput").value);
@@ -2537,9 +2576,9 @@ document.addEventListener("DOMContentLoaded",()=>{
  const q=id=>document.getElementById(id); const money=v=>'₱'+Number(v||0).toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2});
  function syncAdminUI(){document.body.classList.toggle('lw-admin',String(session?.user?.role||'').toLowerCase()==='admin');}
 
- window.loadExecutiveDashboard=async function(){syncAdminUI();if(!window.session?.token)return;try{const d=await api('executiveDashboard',{token:session.token});if(q('exContract'))q('exContract').textContent=money(d.totals.contract);if(q('exPayments'))q('exPayments').textContent=money(d.totals.payments);if(q('exExpenses'))q('exExpenses').textContent=money(d.totals.expenses);if(q('exProfit'))q('exProfit').textContent=money(d.totals.profit);if(q('exOutstanding'))q('exOutstanding').textContent=money(d.totals.outstanding);if(q('exMargin'))q('exMargin').textContent=Number(d.totals.margin||0).toFixed(1)+'%';if(q('exHealthSummary'))q('exHealthSummary').textContent=`${d.healthy} Healthy · ${d.attention} Attention · ${d.critical} Critical`;if(q('executiveProjectsBody'))q('executiveProjectsBody').innerHTML=(d.projects||[]).map(p=>`<tr><td><strong>${esc(p.name)}</strong></td><td>${esc(p.reference||'—')}</td><td>${money(p.budget)}</td><td>${money(p.totalPayments)}</td><td>${money(p.totalExpenses)}</td><td>${money(p.cashProfit)}</td><td>${Number(p.margin||0).toFixed(1)}%</td><td>${money(p.outstanding)}</td><td><span class="health-badge ${String(p.status).toLowerCase()}">${esc(p.status)}</span></td></tr>`).join('')||'<tr><td colspan="9" class="empty">No active projects.</td></tr>';if(session.user.role==='Admin' && document.getElementById('adminAutomatedReportsPanel'))loadReportSettings()}catch(e){if(q('executiveProjectsBody'))q('executiveProjectsBody').innerHTML='<tr><td colspan="9" class="empty">Unable to load executive dashboard.</td></tr>'}};
+ window.loadExecutiveDashboard=async function(){syncAdminUI();if(!window.session?.token)return;try{const d=await api('executiveDashboard',{token:session.token});if(q('exContract'))q('exContract').textContent=money(d.totals.contract);if(q('exPayments'))q('exPayments').textContent=money(d.totals.payments);if(q('exExpenses'))q('exExpenses').textContent=money(d.totals.expenses);if(q('exProfit'))q('exProfit').textContent=money(d.totals.profit);if(q('exOutstanding'))q('exOutstanding').textContent=money(d.totals.outstanding);if(q('exMargin'))q('exMargin').textContent=Number(d.totals.margin||0).toFixed(1)+'%';if(q('exHealthSummary'))q('exHealthSummary').textContent=`${d.healthy} Healthy · ${d.attention} Attention · ${d.critical} Critical`;if(q('executiveProjectsBody'))q('executiveProjectsBody').innerHTML=(d.projects||[]).map(p=>`<tr><td><strong>${esc(p.name)}</strong></td><td>${esc(p.reference||'—')}</td><td>${money(p.budget)}</td><td>${money(p.totalPayments)}</td><td>${money(p.totalExpenses)}</td><td>${money(p.cashProfit)}</td><td>${Number(p.margin||0).toFixed(1)}%</td><td>${money(p.outstanding)}</td><td><span class="health-badge ${String(p.status).toLowerCase()}">${esc(p.status)}</span></td></tr>`).join('')||'<tr><td colspan="9" class="empty">No active projects.</td></tr>';if(String(session?.user?.role||'').toLowerCase()==='admin' && document.getElementById('adminAutomatedReportsPanel'))loadReportSettings()}catch(e){if(q('executiveProjectsBody'))q('executiveProjectsBody').innerHTML='<tr><td colspan="9" class="empty">Unable to load executive dashboard.</td></tr>'}};
  async function loadReportSettings(){
-   if(session?.user?.role!=='Admin'||!q('adminAutomatedReportsPanel'))return;
+   if(String(session?.user?.role||'').toLowerCase()!=='admin'||!q('adminAutomatedReportsPanel'))return;
    try{const d=await api('getReportConfig',{token:session.token});const c=d.config||{};if(q('reportRecipients'))q('reportRecipients').value=(c.recipients||[]).join(', ');if(q('adminWeeklyReportDay'))q('adminWeeklyReportDay').value=c.weeklyDay||'SUNDAY';if(q('adminWeeklyReportHour'))q('adminWeeklyReportHour').value=Number(c.weeklyHour??17);if(q('reportAutomationStatus'))q('reportAutomationStatus').textContent=c.weeklyEnabled?'Weekly automated report: ENABLED':'Weekly automated report: DISABLED';if(q('reportAutomationBadge')){q('reportAutomationBadge').textContent=c.weeklyEnabled?'ENABLED':'DISABLED';q('reportAutomationBadge').className='status-badge '+(c.weeklyEnabled?'status-enabled':'status-disabled')}}catch(e){if(q('reportAutomationStatus'))q('reportAutomationStatus').textContent=e.message||String(e)}}
  async function saveAdminReportConfig(enabled){const config={weeklyEnabled:enabled,weeklyDay:q('adminWeeklyReportDay')?.value||'SUNDAY',weeklyHour:Number(q('adminWeeklyReportHour')?.value||17)};await api('saveReportConfig',{token:session.token,config});const t=await api('installWeeklyReportTrigger',{token:session.token});if(q('reportAutomationStatus'))q('reportAutomationStatus').textContent=t.enabled?'Weekly report enabled every '+t.day+' around '+t.hour+':00.':'Weekly report disabled.'}
  function bind(){
@@ -2551,11 +2590,11 @@ document.addEventListener("DOMContentLoaded",()=>{
   q('disableWeeklyReportBtn')?.addEventListener('click',async()=>{try{await saveAdminReportConfig(false);toast('Weekly auto-report disabled.')}catch(e){toast(e.message||String(e))}});
   q('generateWeeklyReportBtn')?.addEventListener('click',async()=>{try{const d=await api('generateWeeklyReport',{token:session.token});if(q('reportAutomationStatus'))q('reportAutomationStatus').textContent='Weekly PDF generated and emailed to '+(d.recipients?.length||0)+' recipient(s).';if(d.pdfUrl)window.open(d.pdfUrl,'_blank')}catch(e){toast(e.message||String(e))}});
   q('generateMonthlyReportBtn')?.addEventListener('click',async()=>{try{const d=await api('generateMonthlyReport',{token:session.token});if(q('reportAutomationStatus'))q('reportAutomationStatus').textContent='Monthly PDF generated and emailed to '+(d.recipients?.length||0)+' recipient(s).';if(d.pdfUrl)window.open(d.pdfUrl,'_blank')}catch(e){toast(e.message||String(e))}});
-  if(session?.user?.role==='Admin')loadReportSettings();
+  if(String(session?.user?.role||'').toLowerCase()==='admin')loadReportSettings();
   window.bindLIWOPrintControls?.();
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{syncAdminUI();bind()});else{syncAdminUI();bind();}
-  const oldSwitch=window.switchPage;if(typeof oldSwitch==='function')window.switchPage=function(p){oldSwitch(p);if(p==='executive')loadExecutiveDashboard();if(p==='users'&&session?.user?.role==='Admin')loadReportSettings()};
+  const oldSwitch=window.switchPage;if(typeof oldSwitch==='function')window.switchPage=function(p){oldSwitch(p);if(p==='executive')loadExecutiveDashboard();if(p==='users'&&String(session?.user?.role||'').toLowerCase()==='admin')loadReportSettings()};
  window.renderMobileAlertCenter=window.renderMobileAlertCenter||function(){const box=q('mobileAlertCenter');if(!box||!window.data)return;const a=data.smart?.alerts||[];if(!a.length){box.classList.add('hidden');return}box.classList.remove('hidden');box.innerHTML='<div class="ma-head"><span>⚠ Attention</span><span>'+a.length+'</span></div>'+a.slice(0,4).map(x=>`<div class="ma-item ${escF(x.level||'attention')}"><b>${escF(x.title)}</b><br>${escF(x.detail)}</div>`).join('')};
  const oldRender=window.render;if(typeof oldRender==='function')window.render=function(){const r=oldRender.apply(this,arguments);try{renderMobileAlertCenter()}catch(e){}return r};
  const origLoadReceipts=window.loadReceipts;if(typeof origLoadReceipts==='function')window.loadReceipts=async function(){await origLoadReceipts.apply(this,arguments);const grid=q('receiptGrid');if(!grid)return;const search=(q('receiptSearchInput')?.value||'').toLowerCase().trim(),status=q('receiptStatusFilter')?.value||'';const cards=[...grid.querySelectorAll('.receipt-card')];let shown=0;cards.forEach(c=>{const text=c.textContent.toLowerCase(),st=(c.querySelector('.receipt-verify span')?.textContent||'').trim();const ok=(!search||text.includes(search))&&(!status||st===status);c.style.display=ok?'':'none';if(ok)shown++});if(q('receiptStats'))q('receiptStats').textContent=cards.length?`${shown} shown`:'No receipts'};
@@ -2592,7 +2631,66 @@ document.addEventListener("DOMContentLoaded",()=>{
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',window.bindLIWOPrintControls);else window.bindLIWOPrintControls();
 })();
 </script>
-</body></html>
+
+<script id="liwo-admin-report-visibility-fix">
+(function(){
+  function isAdmin(){
+    return String(window.session?.user?.role || '').trim().toLowerCase() === 'admin';
+  }
+  function syncAdminReportPanel(){
+    const panel=document.getElementById('adminAutomatedReportsPanel');
+    if(!panel) return;
+    if(isAdmin()){
+      panel.style.display='';
+      panel.hidden=false;
+      panel.classList.remove('hidden');
+      if(typeof window.loadReportSettings==='function'){
+        try{ window.loadReportSettings(); }catch(e){}
+      }
+    }else{
+      panel.remove();
+    }
+  }
+  window.syncLIWOAdminReportPanel=syncAdminReportPanel;
+  document.addEventListener('DOMContentLoaded',function(){
+    syncAdminReportPanel();
+    setTimeout(syncAdminReportPanel,300);
+    setTimeout(syncAdminReportPanel,1200);
+  });
+})();
+</script>
+
+</body>
+
+<script id="liwo-admin-report-visibility-fix">
+(function(){
+  function isAdmin(){
+    return String(window.session?.user?.role || '').trim().toLowerCase() === 'admin';
+  }
+  function syncAdminReportPanel(){
+    const panel=document.getElementById('adminAutomatedReportsPanel');
+    if(!panel) return;
+    if(isAdmin()){
+      panel.style.display='';
+      panel.hidden=false;
+      panel.classList.remove('hidden');
+      if(typeof window.loadReportSettings==='function'){
+        try{ window.loadReportSettings(); }catch(e){}
+      }
+    }else{
+      panel.remove();
+    }
+  }
+  window.syncLIWOAdminReportPanel=syncAdminReportPanel;
+  document.addEventListener('DOMContentLoaded',function(){
+    syncAdminReportPanel();
+    setTimeout(syncAdminReportPanel,300);
+    setTimeout(syncAdminReportPanel,1200);
+  });
+})();
+</script>
+
+</html>
 
 <style id="liwo-responsive-layout-final">
 /* LIWO dedicated mobile layout correction */
