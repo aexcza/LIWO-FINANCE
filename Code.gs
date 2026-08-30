@@ -356,6 +356,39 @@ function buildFinancialReportHtml_(periodLabel, rows, reportType){
     '</body></html>';
 }
 
+
+function buildAutomatedReportEmailHtml_(type,label){
+  const isMonthly=String(type||"").toLowerCase()==="monthly";
+  const reportType=isMonthly?"MONTHLY":"WEEKLY";
+  const accent="#123451";
+  const gold="#c88722";
+  const safeLabel=String(label||"Financial Report").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  return '<!doctype html><html><body style="margin:0;padding:0;background:#f3f6f8;font-family:Arial,Helvetica,sans-serif;color:#17364f;">'
+    +'<div style="padding:28px 14px;">'
+    +'<div style="max-width:680px;margin:0 auto;background:#ffffff;border:1px solid #dfe7ee;border-radius:16px;overflow:hidden;">'
+    +'<div style="background:'+accent+';padding:26px 30px;">'
+    +'<div style="font-size:12px;letter-spacing:2px;font-weight:700;color:#dbe7ef;">LIWO ENGINEERING CONSULTANCY</div>'
+    +'<div style="margin-top:8px;font-size:25px;line-height:1.2;font-weight:800;color:#ffffff;">Financial Report</div>'
+    +'<div style="margin-top:7px;font-size:13px;color:#dbe7ef;">Automated '+reportType.toLowerCase()+' financial reporting</div>'
+    +'</div>'
+    +'<div style="padding:30px;">'
+    +'<div style="display:inline-block;padding:7px 11px;border-radius:999px;background:#f8f1e5;color:'+gold+';font-size:11px;font-weight:800;letter-spacing:.8px;">'+reportType+' REPORT</div>'
+    +'<h2 style="margin:14px 0 6px;font-size:21px;line-height:1.35;color:'+accent+';">'+safeLabel+'</h2>'
+    +'<p style="margin:0 0 24px;color:#607487;font-size:14px;line-height:1.6;">Your automated LIWO Finance report is ready. The complete financial report is attached as a PDF for review and record-keeping.</p>'
+    +'<div style="border:1px solid #e2e9ee;border-radius:12px;background:#f8fafc;padding:17px 18px;margin-bottom:24px;">'
+    +'<div style="font-size:12px;font-weight:800;color:'+accent+';margin-bottom:7px;">REPORT DELIVERY</div>'
+    +'<div style="font-size:13px;line-height:1.7;color:#516578;">The attached PDF contains the detailed financial information for the reporting period, including project financial summaries and supporting report sections.</div>'
+    +'</div>'
+    +'<div style="border-top:1px solid #e5ebef;padding-top:20px;font-size:12px;line-height:1.7;color:#6a7c8b;">'
+    +'<strong style="color:'+accent+';">LIWO Finance</strong><br>'
+    +'Automated Financial Reporting System<br>'
+    +'This is an automatically generated email. Please keep the attached report for your records.'
+    +'</div>'
+    +'</div>'
+    +'<div style="background:#f8fafc;border-top:1px solid #e5ebef;padding:16px 30px;text-align:center;font-size:11px;color:#7b8b97;">Generated from LIWO Finance</div>'
+    +'</div></div></body></html>';
+}
+
 function generateWeeklyFinancialReport_(u){
   adminOnly(u);
   const tz=Session.getScriptTimeZone()||"Asia/Manila";
@@ -382,7 +415,7 @@ function generateWeeklyFinancialReport_(u){
     MailApp.sendEmail({
       to:recipients.join(","),
       subject:"LIWO Finance — "+label,
-      htmlBody:"<p>Please find attached the automated LIWO weekly financial report.</p><p><b>Period:</b> "+label+"</p>",
+      htmlBody:buildAutomatedReportEmailHtml_("Weekly",label),
       attachments:[pdfFile.getBlob()]
     });
   }
@@ -410,7 +443,7 @@ function generateMonthlyFinancialReport_(u){
     MailApp.sendEmail({
       to:recipients.join(","),
       subject:"LIWO Finance — "+label,
-      htmlBody:"<p>Please find attached the automated LIWO monthly financial report.</p><p><b>Reporting period:</b> "+label+"</p>",
+      htmlBody:buildAutomatedReportEmailHtml_("Monthly",label),
       attachments:[pdfFile.getBlob()]
     });
   }
@@ -457,7 +490,7 @@ function runScheduledWeeklyReport(){
   MailApp.sendEmail({
     to:recipients.join(","),
     subject:"LIWO Finance — "+label,
-    htmlBody:"<p>Please find attached the automated LIWO weekly financial report.</p><p><b>Reporting period:</b> "+label+"</p>",
+    htmlBody:buildAutomatedReportEmailHtml_("Weekly",label),
     attachments:[pdfFile.getBlob()]
   });
   audit_({username:"SYSTEM",name:"SYSTEM",role:"Admin"},"WEEKLY_FINANCIAL_REPORT","SYSTEM",label,JSON.stringify({pdfUrl:pdfFile.getUrl(),recipients:recipients,start:startKey,end:endKey}));
@@ -561,7 +594,8 @@ function sendAutomatedReportTestEmail(u) {
   MailApp.sendEmail({
     to: recipients.join(","),
     subject: subject,
-    body: body
+    body: body,
+    htmlBody: buildAutomatedReportEmailHtml_("Weekly","Automated Report System Test")
   });
 
   audit(
@@ -1634,7 +1668,7 @@ function sendMonthlyFinancialReport(){
   MailApp.sendEmail({
     to:recipients.join(","),
     subject:"LIWO Finance — "+label,
-    htmlBody:"<p>Please find attached the automated LIWO monthly financial report.</p><p><b>Reporting period:</b> "+label+"</p>",
+    htmlBody:buildAutomatedReportEmailHtml_("Monthly",label),
     attachments:[pdfFile.getBlob()]
   });
   audit_({username:"SYSTEM",name:"SYSTEM",role:"Admin"},"MONTHLY_FINANCIAL_REPORT","SYSTEM",label,JSON.stringify({pdfUrl:pdfFile.getUrl(),recipients:recipients}));
