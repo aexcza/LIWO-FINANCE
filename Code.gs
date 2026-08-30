@@ -88,7 +88,17 @@ function getOrCreateReceiptFolder_(){
 }
 
 function getReportRecipients_(){
-  // Fixed LIWO automated-report recipients.
+  // Admin-controlled recipients stored in report_recipients.
+  // Fall back to the configured defaults until the Admin saves recipients.
+  const sh=ss().getSheetByName("report_recipients");
+  if(sh && sh.getLastRow()>1){
+    const out=sh.getDataRange().getValues().slice(1).filter(function(r){
+      const email=String(r[0]||"").trim();
+      const enabled=String(r[1]).toLowerCase()!=="false";
+      return enabled && email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }).map(function(r){return String(r[0]).trim().toLowerCase();});
+    if(out.length) return Array.from(new Set(out));
+  }
   return (CONFIG.REPORT_RECIPIENTS || []).slice();
 }
 
@@ -140,10 +150,22 @@ function saveReportConfig_(u, cfg){
   return {ok:true,config:getReportConfig_(u).config};
 }
 
-function getProjectFinancialSummary_(){
+function getProjectFinancialSummary_(startDate,endDate){
   const clients=readSheet_("clients");
   const payments=readSheet_("payments");
   const expenses=readSheet_("expenses");
+  const tz=Session.getScriptTimeZone()||"Asia/Manila";
+  const hasRange=!!(startDate||endDate);
+  const startKey=startDate?Utilities.formatDate(new Date(startDate),tz,"yyyy-MM-dd"):null;
+  const endKey=endDate?Utilities.formatDate(new Date(endDate),tz,"yyyy-MM-dd"):null;
+  const inRange=function(value){
+    if(!hasRange)return true;
+    if(value===""||value===null||value===undefined)return false;
+    const d=new Date(value);
+    if(isNaN(d.getTime()))return false;
+    const key=Utilities.formatDate(d,tz,"yyyy-MM-dd");
+    return (!startKey||key>=startKey) && (!endKey||key<=endKey);
+  };
 
   const projectMap={};
   clients.forEach(function(c){
@@ -162,31 +184,36 @@ function getProjectFinancialSummary_(){
     };
   });
 
+  // Keep a separate lifetime payment total so a rolling weekly report can
+  // show weekly activity while still showing the true outstanding balance.
+  const lifetimePayments={};
   payments.forEach(function(p){
     const id=String(p.ClientID||"").trim();
     if(!projectMap[id])return;
-    projectMap[id].payments += Number(p.Amount||0)||0;
+    const amount=Number(p.Amount||0)||0;
+    lifetimePayments[id]=(lifetimePayments[id]||0)+amount;
+    if(inRange(p.Date)) projectMap[id].payments += amount;
   });
 
   expenses.forEach(function(e){
     const id=String(e.ClientID||"").trim();
-    if(!projectMap[id])return;
+    if(!projectMap[id] || !inRange(e.Date))return;
     projectMap[id].expenses += Number(e.Amount||0)||0;
   });
 
   return Object.keys(projectMap).map(function(id){
     const x=projectMap[id];
-    x.uncollected=Math.max(0,x.contract-x.payments);
+    const collected=hasRange?(lifetimePayments[id]||0):x.payments;
+    x.uncollected=Math.max(0,x.contract-collected);
     x.profit=x.payments-x.expenses;
     x.margin=x.payments>0?(x.profit/x.payments)*100:0;
-    x.collectionPct=x.contract>0?(x.payments/x.contract)*100:0;
+    x.collectionPct=x.contract>0?(collected/x.contract)*100:0;
     x.budgetUsed=x.contract>0?(x.expenses/x.contract)*100:0;
     x.health=x.budgetUsed>=100 || x.profit<0 ? "Critical" :
       (x.budgetUsed>=80 || x.collectionPct<50 ? "Attention" : "Healthy");
     return x;
   });
 }
-
 function buildFinancialReportHtml_(periodLabel, rows){
   let totalContract=0,totalPayments=0,totalExpenses=0,totalProfit=0,totalUncollected=0;
   let healthy=0,attention=0,critical=0;
@@ -292,20 +319,23 @@ function buildFinancialReportHtml_(periodLabel, rows){
 
 function generateWeeklyFinancialReport_(u){
   adminOnly(u);
-  const rows=getProjectFinancialSummary_();
   const tz=Session.getScriptTimeZone()||"Asia/Manila";
   const now=new Date();
-  const end=Utilities.formatDate(now,tz,"MMM d, yyyy");
+  // Rolling last 7 calendar days, including today.
+  const endDate=new Date(now);
   const startDate=new Date(now.getTime()-6*24*60*60*1000);
+  const startKey=Utilities.formatDate(startDate,tz,"yyyy-MM-dd");
+  const endKey=Utilities.formatDate(endDate,tz,"yyyy-MM-dd");
   const start=Utilities.formatDate(startDate,tz,"MMM d, yyyy");
+  const end=Utilities.formatDate(endDate,tz,"MMM d, yyyy");
   const label="Weekly Financial Report: "+start+" – "+end;
+  const rows=getProjectFinancialSummary_(startDate,endDate);
   const html=buildFinancialReportHtml_(label,rows);
 
   const folder=getOrCreateReceiptFolder_();
-  const blob=Utilities.newBlob(html,"text/html","LIWO Weekly Financial Report "+Utilities.formatDate(now,tz,"yyyy-MM-dd")+".html");
-  const file=folder.createFile(blob);
-  const pdf=file.getAs(MimeType.PDF).setName("LIWO Weekly Financial Report "+Utilities.formatDate(now,tz,"yyyy-MM-dd")+".pdf");
-  const pdfFile=folder.createFile(pdf);
+  const base="LIWO Weekly Financial Report "+endKey;
+  const file=folder.createFile(Utilities.newBlob(html,"text/html",base+".html"));
+  const pdfFile=folder.createFile(file.getAs(MimeType.PDF).setName(base+".pdf"));
   try{file.setTrashed(true)}catch(_){}
 
   const recipients=getReportRecipients_();
@@ -313,14 +343,13 @@ function generateWeeklyFinancialReport_(u){
     MailApp.sendEmail({
       to:recipients.join(","),
       subject:"LIWO Finance — "+label,
-      htmlBody:"<p>Please find attached the automated LIWO weekly financial report.</p><p>"+label+"</p>",
+      htmlBody:"<p>Please find attached the automated LIWO weekly financial report.</p><p><b>Period:</b> "+label+"</p>",
       attachments:[pdfFile.getBlob()]
     });
   }
-  audit_(u,"WEEKLY_FINANCIAL_REPORT","SYSTEM",label,JSON.stringify({pdfUrl:pdfFile.getUrl(),recipients:recipients}));
+  audit_(u,"WEEKLY_FINANCIAL_REPORT","SYSTEM",label,JSON.stringify({pdfUrl:pdfFile.getUrl(),recipients:recipients,start:startKey,end:endKey}));
   return {ok:true,period:label,pdfUrl:pdfFile.getUrl(),recipients:recipients,projects:rows};
 }
-
 function generateMonthlyFinancialReport_(u){
   adminOnly(u);
   const rows=getProjectFinancialSummary_();
@@ -367,26 +396,31 @@ function installWeeklyReportTrigger_(u){
 function runScheduledWeeklyReport(){
   const recipients=getReportRecipients_();
   if(!recipients.length) throw Error("No automated report recipients configured.");
-  const rows=getProjectFinancialSummary_();
   const tz=Session.getScriptTimeZone()||"Asia/Manila";
-  const now=new Date(), end=Utilities.formatDate(now,tz,"MMM d, yyyy");
-  const start=Utilities.formatDate(new Date(now.getTime()-6*24*60*60*1000),tz,"MMM d, yyyy");
+  const now=new Date();
+  const endDate=new Date(now);
+  const startDate=new Date(now.getTime()-6*24*60*60*1000);
+  const startKey=Utilities.formatDate(startDate,tz,"yyyy-MM-dd");
+  const endKey=Utilities.formatDate(endDate,tz,"yyyy-MM-dd");
+  const start=Utilities.formatDate(startDate,tz,"MMM d, yyyy");
+  const end=Utilities.formatDate(endDate,tz,"MMM d, yyyy");
   const label="Weekly Financial Report: "+start+" – "+end;
+  const rows=getProjectFinancialSummary_(startDate,endDate);
   const html=buildFinancialReportHtml_(label,rows);
   const folder=getOrCreateReceiptFolder_();
-  const base="LIWO Weekly Financial Report "+Utilities.formatDate(now,tz,"yyyy-MM-dd");
+  const base="LIWO Weekly Financial Report "+endKey;
   const file=folder.createFile(Utilities.newBlob(html,"text/html",base+".html"));
   const pdfFile=folder.createFile(file.getAs(MimeType.PDF).setName(base+".pdf"));
   try{file.setTrashed(true)}catch(_){}
   MailApp.sendEmail({
     to:recipients.join(","),
     subject:"LIWO Finance — "+label,
-    htmlBody:"<p>Your automated LIWO weekly financial report is attached.</p>",
+    htmlBody:"<p>Your automated LIWO weekly financial report is attached.</p><p><b>Period:</b> "+label+"</p>",
     attachments:[pdfFile.getBlob()]
   });
-  audit_({username:"SYSTEM",role:"Admin"},"WEEKLY_FINANCIAL_REPORT","SYSTEM",label,JSON.stringify({pdfUrl:pdfFile.getUrl(),recipients:recipients}));
+  audit_({username:"SYSTEM",name:"SYSTEM",role:"Admin"},"WEEKLY_FINANCIAL_REPORT","SYSTEM",label,JSON.stringify({pdfUrl:pdfFile.getUrl(),recipients:recipients,start:startKey,end:endKey}));
+  return {ok:true,period:label,pdfUrl:pdfFile.getUrl(),recipients:recipients,projects:rows};
 }
-
 
 function setupAutomatedReports(){
   const recipients=getReportRecipients_();
@@ -396,19 +430,25 @@ function setupAutomatedReports(){
 
   // Store the recipients in the sheet too, so the Admin UI can display them.
   const sh=ensureSheet_("report_recipients",["Email","Enabled","UpdatedAt","UpdatedBy"]);
-  if(sh.getLastRow()>1) sh.getRange(2,1,sh.getLastRow()-1,4).clearContent();
-  sh.getRange(2,1,recipients.length,4).setValues(
-    recipients.map(function(e){return [e,true,setupNow,"SYSTEM"];})
-  );
+  // Only seed the sheet when it has no recipients yet. Do not overwrite
+  // recipients later selected by the Administrator from the web app.
+  if(sh.getLastRow()<=1){
+    sh.getRange(2,1,recipients.length,4).setValues(
+      recipients.map(function(e){return [e,true,setupNow,"SYSTEM"];})
+    );
+  }
 
-  // Save the weekly settings used by the Admin UI.
+  // Seed the weekly settings only when they do not already exist.
+  // This prevents running setupAutomatedReports() from silently resetting
+  // a schedule chosen by the Administrator in the web app.
   const cfg=ensureSheet_("weekly_report_config",["Key","Value","UpdatedAt","UpdatedBy"]);
-  if(cfg.getLastRow()>1) cfg.getRange(2,1,cfg.getLastRow()-1,4).clearContent();
-  cfg.getRange(2,1,3,4).setValues([
-    ["weeklyEnabled",true,setupNow,"SYSTEM"],
-    ["weeklyDay",CONFIG.REPORT_WEEKLY_DAY,setupNow,"SYSTEM"],
-    ["weeklyHour",CONFIG.REPORT_WEEKLY_HOUR,setupNow,"SYSTEM"]
-  ]);
+  if(cfg.getLastRow()<=1){
+    cfg.getRange(2,1,3,4).setValues([
+      ["weeklyEnabled",true,setupNow,"SYSTEM"],
+      ["weeklyDay",CONFIG.REPORT_WEEKLY_DAY,setupNow,"SYSTEM"],
+      ["weeklyHour",CONFIG.REPORT_WEEKLY_HOUR,setupNow,"SYSTEM"]
+    ]);
+  }
 
   const days={
     SUNDAY:ScriptApp.WeekDay.SUNDAY,MONDAY:ScriptApp.WeekDay.MONDAY,
@@ -425,11 +465,14 @@ function setupAutomatedReports(){
     }
   });
 
-  ScriptApp.newTrigger("runScheduledWeeklyReport")
-    .timeBased()
-    .onWeekDay(days[CONFIG.REPORT_WEEKLY_DAY])
-    .atHour(Number(CONFIG.REPORT_WEEKLY_HOUR))
-    .create();
+  const savedCfg=getReportConfig_({role:"Admin",username:"SYSTEM",name:"SYSTEM"}).config;
+  if(savedCfg.weeklyEnabled){
+    ScriptApp.newTrigger("runScheduledWeeklyReport")
+      .timeBased()
+      .onWeekDay(days[savedCfg.weeklyDay]||ScriptApp.WeekDay.SUNDAY)
+      .atHour(Number(savedCfg.weeklyHour)||17)
+      .create();
+  }
 
   ScriptApp.newTrigger("sendMonthlyFinancialReport")
     .timeBased()
@@ -440,30 +483,56 @@ function setupAutomatedReports(){
   return {
     ok:true,
     recipients:recipients,
-    weeklyDay:CONFIG.REPORT_WEEKLY_DAY,
-    weeklyHour:CONFIG.REPORT_WEEKLY_HOUR,
+    weeklyDay:savedCfg.weeklyDay,
+    weeklyHour:savedCfg.weeklyHour,
     monthlyDay:1,
     monthlyHour:8
   };
 }
 
-function sendAutomatedReportTestEmail(){
-  const recipients=getReportRecipients_();
-  if(!recipients.length) throw Error("No automated report recipients configured.");
+function sendAutomatedReportTestEmail(u) {
+  // Direct executions from the Apps Script editor do not provide
+  // the web-app user object. Treat those executions as a system/admin test.
+  if (u && typeof u === "object") {
+    adminOnly(u);
+  } else {
+    u = {
+      username: "SYSTEM",
+      name: "LIWO Administrator",
+      role: "Admin"
+    };
+  }
+
+  const recipients = getReportRecipients_();
+
+  if (!recipients || !recipients.length) {
+    throw new Error("No automated report recipients configured.");
+  }
+
+  const subject = "LIWO Finance - Automated Report Test";
+  const body =
+    "This is a test email from the LIWO Finance automated reporting system.\n\n" +
+    "Recipients:\n" +
+    recipients.join("\n") +
+    "\n\nThe automated email system is working correctly.";
 
   MailApp.sendEmail({
-    to:recipients.join(","),
-    subject:"LIWO Finance — Automated Report Test",
-    body:
-      "This is a test email from the LIWO Finance automated reporting system.\n\n"+
-      "Configured recipients:\n"+recipients.join("\n")+
-      "\n\nWeekly reports: Sunday around 5:00 PM.\n"+
-      "Monthly reports: 1st day of each month around 8:00 AM."
+    to: recipients.join(","),
+    subject: subject,
+    body: body
   });
 
-  return {ok:true,recipients:recipients};
-}
+  audit(
+    "AUTOMATED_REPORT_TEST",
+    u,
+    "Automated financial report test email sent to: " + recipients.join(", ")
+  );
 
+  return {
+    ok: true,
+    recipients: recipients
+  };
+}
 
 function generateProjectFinancialReport_(u, clientId){
   adminOnly(u);
@@ -552,6 +621,7 @@ case"saveReportConfig":return json(withAuth(r,saveReportConfig_));
 case"installWeeklyReportTrigger":return json(withAuth(r,installWeeklyReportTrigger_));
 case"generateWeeklyReport":return json(withAuth(r,generateWeeklyFinancialReport_));
 case"generateMonthlyReport":return json(withAuth(r,generateMonthlyFinancialReport_));
+case"sendAutomatedReportTestEmail":return json(withAuth(r,sendAutomatedReportTestEmail));
 case"generateProjectFinancialReport":return json(withAuth(r,function(rr,uu){return generateProjectFinancialReport_(uu,rr.clientId);}));
 case"generateFinancialReport":return json(withAuth(r,generateFinancialReport));case"installMonthlyReportTrigger":return json(withAuth(r,installMonthlyReportTrigger));case"sendMonthlyFinancialReport":return json(withAuth(r,sendMonthlyFinancialReport));case"projectFinancialDashboard":return json(withAuth(r,projectFinancialDashboard));case"projectDashboard":return json(withAuth(r,projectFinancialDashboard));case"projectWorkspace":return json(withAuth(r,projectFinancialDashboard));
 case"addPayment":return json(withAuth(r,addPayment));case"addExpense":return json(withAuth(r,addExpense));case"listUsers":return json(withAuth(r,listUsers));
