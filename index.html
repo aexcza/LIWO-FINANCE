@@ -1129,7 +1129,7 @@ th{background:#f3f7f9;color:#4e6678;letter-spacing:.045em;text-transform:upperca
 @media print{.liwo-report-records-footer{display:block!important;margin-top:8px!important;padding-top:5px!important;font-size:7.5px!important;break-inside:avoid!important;page-break-inside:avoid!important}}
 </style>
 
-<style id="liwo-non-report-page-space-fix">
+<style id="liwo-legacy-operational-space-fix">
 /* Keep operational pages compact. No page should reserve viewport-sized blank space. */
 .page,
 .page.active,
@@ -1178,7 +1178,7 @@ th{background:#f3f7f9;color:#4e6678;letter-spacing:.045em;text-transform:upperca
 </style>
 
 
-<style id="liwo-final-operational-spacing-and-admin-guard">
+<style id="liwo-legacy-operational-spacing-admin-guard">
 /* Compact operational pages: remove the oversized vertical gaps on both desktop and mobile. */
 #toolsPage, #cashPage, #receiptsPage{
   height:auto!important; min-height:0!important; padding-bottom:0!important;
@@ -1214,7 +1214,7 @@ body:not(.liwo-admin-session) #usersPage{display:none!important;}
 }
 </style>
 
-<style id="liwo-final-tight-operational-pages">
+<style id="liwo-legacy-tight-operational-pages">
 /* FINAL: eliminate excess vertical whitespace on operational pages. */
 #toolsPage,#cashPage,#receiptsPage{
   margin:0!important;padding:0!important;height:auto!important;min-height:0!important;
@@ -1264,7 +1264,7 @@ main:has(#receiptsPage.active) .topbar{margin-bottom:8px!important;}
 }
 </style>
 
-<style id="liwo-absolute-operational-spacing-fix">
+<style id="liwo-legacy-absolute-operational-spacing-fix">
 /* FINAL OPERATIONAL PAGE FIX — compact layout with no reserved blank viewport space */
 #toolsPage.active, #cashPage.active, #receiptsPage.active{
   display:block!important;
@@ -1336,7 +1336,7 @@ body.liwO-operational-page #globalProjectScope{display:none!important}
 }
 </style>
 
-<style id="liwo-responsive-layout-final">
+<style id="liwo-legacy-responsive-layout">
 /* LIWO final responsive layout correction */
 html,body{margin:0!important;width:100%!important;max-width:100%!important;min-width:0!important;overflow-x:clip!important}
 *,*::before,*::after{box-sizing:border-box}
@@ -1397,6 +1397,95 @@ html,body{margin:0!important;width:100%!important;max-width:100%!important;min-w
 /* Never reserve a tall blank area for an empty data table. */
 tbody:empty{display:none!important}
 </style>
+
+<style id="liwo-desktop-operational-layout">
+/* AUTHORITATIVE DESKTOP LAYOUT
+   Construction Tools, Cash Position and Receipts use natural content height.
+   This intentionally does not affect the mobile frontend. */
+@media (min-width:901px){
+  #toolsPage.active,
+  #cashPage.active,
+  #receiptsPage.active{
+    display:block!important;
+    height:auto!important;
+    min-height:0!important;
+    max-height:none!important;
+    margin:0!important;
+    padding:0!important;
+    position:relative!important;
+    overflow:visible!important;
+  }
+
+  #toolsPage.active > *,
+  #cashPage.active > *,
+  #receiptsPage.active > *,
+  #toolsPage.active .panel,
+  #cashPage.active .panel,
+  #cashPage.active .card,
+  #receiptsPage.active .panel,
+  #toolsPage.active .table-wrap,
+  #cashPage.active .table-wrap,
+  #receiptsPage.active .table-wrap,
+  #toolsPage.active .receipt-grid,
+  #receiptsPage.active .receipt-grid{
+    height:auto!important;
+    min-height:0!important;
+    max-height:none!important;
+  }
+
+  #toolsPage.active .page-heading,
+  #receiptsPage.active .page-heading,
+  #cashPage.active .page-header{
+    margin:0 0 10px!important;
+    padding:0!important;
+    height:auto!important;
+    min-height:0!important;
+  }
+
+  #toolsPage.active .panel,
+  #cashPage.active .panel,
+  #cashPage.active .card,
+  #receiptsPage.active .panel{
+    margin-top:0!important;
+    margin-bottom:10px!important;
+  }
+
+  #toolsPage.active .panel-head,
+  #cashPage.active .panel-head,
+  #receiptsPage.active .panel-head{
+    min-height:0!important;
+  }
+
+  #toolsPage.active .grid{
+    height:auto!important;
+    min-height:0!important;
+  }
+
+  #toolsPage.active .table-wrap,
+  #cashPage.active .table-wrap,
+  #receiptsPage.active .table-wrap{
+    overflow-x:auto!important;
+    overflow-y:visible!important;
+  }
+
+  #cashPage.active .cash-balance-grid{
+    height:auto!important;
+    min-height:0!important;
+    margin-bottom:10px!important;
+  }
+
+  #cashPage.active .cash-balance-card{
+    height:auto!important;
+    min-height:0!important;
+  }
+
+  #receiptsPage.active .receipt-grid{
+    height:auto!important;
+    min-height:0!important;
+  }
+}
+</style>
+
 </head>
 <body>
 <div id="liwoLoadingOverlay" aria-hidden="true">
@@ -2270,7 +2359,37 @@ function printReport(){
   const period=document.getElementById('reportPeriod')?.value||'all';
   const printClass=(period==='week'?'weekly-print ':'')+(period==='week'?(printOrientation==='portrait'?'weekly-portrait':'weekly-landscape'):(period==='month'?'monthly-print':'full-print'));
   const printWrap=period==='week'?'weekly-one-page':(period==='month'?'monthly-one-page':'full-one-page');
-  w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>LIWO Financial Report</title><style>${styles}\n${css}</style></head><body class="${printClass}"><div class="${printWrap}">${source.outerHTML}
+  w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>LIWO Financial Report</title><style>${styles}\n${css}</style>
+<style id="liwo-clean-operational-desktop-fix">
+@media (min-width:901px){
+  /* Keep the three operational pages compact on desktop. */
+  #toolsPage.active, #cashPage.active, #receiptsPage.active{
+    display:block!important; position:relative!important;
+    height:auto!important; min-height:0!important; max-height:none!important;
+    margin:0!important; padding:0!important; overflow:visible!important;
+  }
+  #toolsPage.active > *, #cashPage.active > *, #receiptsPage.active > *{
+    height:auto!important; min-height:0!important; max-height:none!important;
+  }
+  #toolsPage.active .page-heading, #receiptsPage.active .page-heading, #cashPage.active .page-header{
+    margin:0 0 10px!important; padding:0!important; height:auto!important; min-height:0!important;
+  }
+  #toolsPage.active .panel, #cashPage.active .panel, #cashPage.active .card, #receiptsPage.active .panel{
+    height:auto!important; min-height:0!important; margin-top:0!important; margin-bottom:10px!important;
+  }
+  #toolsPage.active .grid{padding:14px!important; gap:12px!important;}
+  #toolsPage.active .table-wrap, #cashPage.active .table-wrap, #receiptsPage.active .table-wrap{
+    height:auto!important; min-height:0!important; max-height:none!important; margin:0!important;
+  }
+  #cashPage.active .cash-balance-grid{height:auto!important; min-height:0!important; margin:0 0 10px!important; gap:10px!important;}
+  #cashPage.active .cash-balance-card{height:auto!important; min-height:0!important;}
+  #receiptsPage.active .receipt-toolbar{padding:10px!important;}
+  #receiptsPage.active .receipt-grid{height:auto!important; min-height:0!important; padding:10px!important; gap:10px!important;}
+  /* The desktop topbar keeps its normal height, but these pages start immediately after it. */
+  main:has(#toolsPage.active) .topbar, main:has(#cashPage.active) .topbar, main:has(#receiptsPage.active) .topbar{margin-bottom:14px!important;}
+}
+</style>
+</head><body class="${printClass}"><div class="${printWrap}">${source.outerHTML}
 <div class="report-signature-section" id="reportSignatureSection">
   <h3>Reviewed and Approved by:</h3>
   <div class="report-signature-grid">
