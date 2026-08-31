@@ -1753,6 +1753,406 @@ tbody:empty{display:none!important;}
   .mobile-note-row.read .mobile-note-dot{background:#c8d4dd!important}
 }
 </style>
+
+<style id="liwo-notification-reference-final">
+/* Final notification treatment based on the supplied reference image. */
+.notification-dropdown .notification-icon.payment,
+.notification-dropdown .notification-icon.bill,
+.notification-dropdown .notification-icon.due,
+.notification-dropdown .notification-icon.overdue,
+.notification-dropdown .notification-icon.project,
+.notification-dropdown .notification-icon.receipt,
+.notification-dropdown .notification-icon.message,
+.notification-dropdown .notification-icon.update{
+  background:#edf5fb!important;color:#1762a0!important;
+}
+.notification-dropdown .notification-icon.payment{background:#e8f7ee!important;color:#18834b!important}
+.notification-dropdown .notification-icon.bill{background:#edf3ff!important;color:#2c68b1!important}
+.notification-dropdown .notification-icon.due{background:#fff3df!important;color:#dc8700!important}
+.notification-dropdown .notification-icon.overdue{background:#ffeded!important;color:#df302c!important}
+.notification-dropdown .notification-icon.project{background:#f2edfb!important;color:#6c4ab0!important}
+.notification-dropdown .notification-icon.receipt{background:#eef7f5!important;color:#16816f!important}
+.notification-dropdown .notification-icon.message{background:#f2edfb!important;color:#6c4ab0!important}
+.notification-dropdown .notification-view-all{
+  width:calc(100% - 24px)!important;
+  margin:8px 12px 10px!important;
+  min-height:38px!important;
+  border:1px solid #e4ebf0!important;
+  border-radius:9px!important;
+  background:#fff!important;
+  color:#27445d!important;
+  font-size:10px!important;
+  font-weight:800!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:8px!important;
+  cursor:pointer!important;
+}
+.notification-dropdown .notification-view-all span{font-size:18px!important;line-height:1!important;color:#66798b!important}
+@media(max-width:900px){
+  .mobile-note-dot.payment{background:#1a9a55!important}
+  .mobile-note-dot.bill{background:#1774c7!important}
+  .mobile-note-dot.due{background:#ee9414!important}
+  .mobile-note-dot.overdue{background:#df302c!important}
+  .mobile-note-dot.project{background:#744bb0!important}
+  .mobile-note-dot.receipt{background:#16816f!important}
+  .mobile-note-dot.message{background:#744bb0!important}
+  .mobile-note-dot.update{background:#1774c7!important}
+  .mobile-note-icon.payment{background:#e8f7ee!important;color:#18834b!important}
+  .mobile-note-icon.bill{background:#edf3ff!important;color:#2c68b1!important}
+  .mobile-note-icon.due{background:#fff3df!important;color:#dc8700!important}
+  .mobile-note-icon.overdue{background:#ffeded!important;color:#df302c!important}
+  .mobile-note-icon.project{background:#f2edfb!important;color:#6c4ab0!important}
+  .mobile-note-icon.receipt{background:#eef7f5!important;color:#16816f!important}
+  .mobile-note-icon.message{background:#f2edfb!important;color:#6c4ab0!important}
+  .mobile-notification-view-all{
+    width:calc(100% - 4px)!important;
+    min-height:36px!important;
+    margin:5px 2px 2px!important;
+    border:1px solid #e4ebf0!important;
+    border-radius:9px!important;
+    background:#fff!important;
+    color:#27445d!important;
+    font-size:9px!important;
+    font-weight:800!important;
+  }
+  .mobile-notification-view-all span{font-size:17px!important;margin-left:3px!important}
+}
+</style>
+
+<style id="liwo-cash-position-premium">
+/* Cash Position section only. No shared/global selectors are changed here. */
+#cashPage{
+  width:100%!important;
+  box-sizing:border-box!important;
+}
+#cashPage .liwo-cash-header{
+  display:flex!important;
+  align-items:center!important;
+  gap:15px!important;
+  margin:4px 0 18px!important;
+}
+#cashPage .liwo-cash-header-icon{
+  width:58px!important;
+  height:58px!important;
+  min-width:58px!important;
+  display:grid!important;
+  place-items:center!important;
+  border-radius:14px!important;
+  background:#eaf2f8!important;
+  color:#185889!important;
+  font-size:24px!important;
+  font-weight:900!important;
+}
+#cashPage .liwo-cash-header h1{
+  margin:0!important;
+  color:#0e2f4d!important;
+  font-size:28px!important;
+  line-height:1.1!important;
+  letter-spacing:-.6px!important;
+}
+#cashPage .liwo-cash-header p{
+  margin:7px 0 0!important;
+  color:#617488!important;
+  font-size:13px!important;
+  line-height:1.35!important;
+}
+#cashPage .liwo-cash-summary{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:14px!important;
+  margin-bottom:16px!important;
+}
+#cashPage .liwo-cash-stat{
+  min-height:92px!important;
+  box-sizing:border-box!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:14px!important;
+  padding:16px 18px!important;
+  background:#fff!important;
+  border:1px solid #e3ebf1!important;
+  border-radius:14px!important;
+  box-shadow:0 6px 20px rgba(19,51,76,.06)!important;
+}
+#cashPage .liwo-cash-stat.total{
+  grid-column:1/-1!important;
+}
+#cashPage .liwo-cash-stat-icon{
+  width:46px!important;
+  height:46px!important;
+  min-width:46px!important;
+  display:grid!important;
+  place-items:center!important;
+  border-radius:50%!important;
+  font-size:19px!important;
+  font-weight:900!important;
+  background:#eaf3fb!important;
+  color:#1664a2!important;
+}
+#cashPage .liwo-cash-stat.hand .liwo-cash-stat-icon{
+  background:#e5f7ee!important;color:#198452!important;
+}
+#cashPage .liwo-cash-stat.total .liwo-cash-stat-icon{
+  background:#f0ebff!important;color:#6942c4!important;
+}
+#cashPage .liwo-cash-stat span{
+  display:block!important;
+  margin-bottom:6px!important;
+  color:#627891!important;
+  font-size:10px!important;
+  font-weight:800!important;
+  letter-spacing:.07em!important;
+  text-transform:uppercase!important;
+}
+#cashPage .liwo-cash-stat strong{
+  display:block!important;
+  color:#102f50!important;
+  font-size:24px!important;
+  line-height:1!important;
+  letter-spacing:-.3px!important;
+}
+#cashPage .liwo-cash-update{
+  background:#fff!important;
+  border:1px solid #e1eaf1!important;
+  border-radius:15px!important;
+  box-shadow:0 7px 24px rgba(19,51,76,.065)!important;
+  padding:20px!important;
+  margin-bottom:15px!important;
+}
+#cashPage .liwo-cash-update-title{
+  display:flex!important;
+  align-items:flex-start!important;
+  gap:13px!important;
+  margin-bottom:19px!important;
+}
+#cashPage .liwo-cash-update-icon{
+  width:50px!important;
+  height:50px!important;
+  min-width:50px!important;
+  display:grid!important;
+  place-items:center!important;
+  border-radius:12px!important;
+  background:#ffe9e8!important;
+  color:#e23932!important;
+  font-size:20px!important;
+  font-weight:900!important;
+}
+#cashPage .liwo-cash-update h2{
+  margin:2px 0 6px!important;
+  color:#123452!important;
+  font-size:21px!important;
+  letter-spacing:-.3px!important;
+}
+#cashPage .liwo-cash-update p{
+  margin:0!important;
+  color:#536a7e!important;
+  font-size:12px!important;
+  line-height:1.5!important;
+  max-width:700px!important;
+}
+#cashPage .cash-balance-actions{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:13px!important;
+  align-items:end!important;
+}
+#cashPage .cash-balance-actions .field{
+  min-width:0!important;
+}
+#cashPage .cash-balance-actions .field label{
+  display:block!important;
+  margin-bottom:7px!important;
+  color:#627891!important;
+  font-size:9px!important;
+  font-weight:800!important;
+  letter-spacing:.06em!important;
+  text-transform:uppercase!important;
+}
+#cashPage .cash-balance-actions input{
+  width:100%!important;
+  box-sizing:border-box!important;
+  min-height:46px!important;
+  border:1px solid #dbe5ed!important;
+  border-radius:10px!important;
+  background:#fbfdff!important;
+  color:#17344f!important;
+  padding:11px 13px!important;
+  font-size:13px!important;
+  outline:none!important;
+}
+#cashPage .cash-balance-actions input:focus{
+  border-color:#83aeca!important;
+  box-shadow:0 0 0 3px rgba(30,99,147,.08)!important;
+}
+#cashPage #saveCashBalanceBtn{
+  grid-column:1/-1!important;
+  width:100%!important;
+  min-height:48px!important;
+  border:0!important;
+  border-radius:10px!important;
+  background:linear-gradient(135deg,#062b4b,#123f64)!important;
+  color:#fff!important;
+  font-weight:800!important;
+  box-shadow:0 7px 15px rgba(7,46,77,.15)!important;
+}
+#cashPage .liwo-cash-note{
+  display:flex!important;
+  align-items:center!important;
+  gap:13px!important;
+  padding:14px 17px!important;
+  border:1px solid #d8e9f5!important;
+  border-radius:13px!important;
+  background:#eef8ff!important;
+  color:#214564!important;
+  font-size:11px!important;
+  line-height:1.45!important;
+  margin-bottom:16px!important;
+}
+#cashPage .liwo-cash-note-icon{
+  width:32px!important;
+  height:32px!important;
+  min-width:32px!important;
+  display:grid!important;
+  place-items:center!important;
+  border-radius:50%!important;
+  background:#1877d2!important;
+  color:#fff!important;
+  font-weight:900!important;
+  font-size:14px!important;
+}
+#cashPage .liwo-cash-note strong{color:#07599b!important}
+#cashPage #cashReconciliationPanel{
+  border-radius:14px!important;
+  border:1px solid #e1eaf1!important;
+  box-shadow:0 5px 18px rgba(19,51,76,.05)!important;
+}
+@media(min-width:901px){
+  #cashPage .liwo-cash-summary{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  #cashPage .cash-balance-actions{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+}
+@media(max-width:900px){
+  #cashPage .liwo-cash-header{
+    gap:10px!important;
+    margin:2px 0 14px!important;
+  }
+  #cashPage .liwo-cash-header-icon{
+    width:42px!important;height:42px!important;min-width:42px!important;
+    border-radius:11px!important;font-size:17px!important;
+  }
+  #cashPage .liwo-cash-header h1{font-size:19px!important}
+  #cashPage .liwo-cash-header p{font-size:9px!important;margin-top:4px!important}
+  #cashPage .liwo-cash-summary{gap:8px!important;margin-bottom:10px!important}
+  #cashPage .liwo-cash-stat{
+    min-height:67px!important;
+    padding:10px!important;
+    gap:8px!important;
+    border-radius:11px!important;
+  }
+  #cashPage .liwo-cash-stat-icon{
+    width:31px!important;height:31px!important;min-width:31px!important;
+    font-size:13px!important;
+  }
+  #cashPage .liwo-cash-stat span{font-size:7px!important;margin-bottom:4px!important}
+  #cashPage .liwo-cash-stat strong{font-size:15px!important}
+  #cashPage .liwo-cash-update{
+    padding:13px!important;border-radius:11px!important;margin-bottom:10px!important;
+  }
+  #cashPage .liwo-cash-update-title{gap:9px!important;margin-bottom:12px!important}
+  #cashPage .liwo-cash-update-icon{
+    width:34px!important;height:34px!important;min-width:34px!important;
+    border-radius:9px!important;font-size:14px!important;
+  }
+  #cashPage .liwo-cash-update h2{font-size:15px!important;margin:1px 0 4px!important}
+  #cashPage .liwo-cash-update p{font-size:8.5px!important;line-height:1.4!important}
+  #cashPage .cash-balance-actions{
+    grid-template-columns:1fr!important;
+    gap:9px!important;
+  }
+  #cashPage .cash-balance-actions .field label{font-size:7px!important;margin-bottom:4px!important}
+  #cashPage .cash-balance-actions input{min-height:37px!important;padding:8px 9px!important;font-size:10px!important;border-radius:8px!important}
+  #cashPage #saveCashBalanceBtn{
+    min-height:39px!important;font-size:10px!important;border-radius:8px!important;
+  }
+  #cashPage .liwo-cash-note{
+    padding:10px 11px!important;gap:8px!important;border-radius:9px!important;
+    font-size:8px!important;margin-bottom:10px!important;
+  }
+  #cashPage .liwo-cash-note-icon{
+    width:25px!important;height:25px!important;min-width:25px!important;font-size:11px!important;
+  }
+}
+@media(max-width:420px){
+  #cashPage .liwo-cash-summary{grid-template-columns:1fr 1fr!important}
+  #cashPage .liwo-cash-stat.total{grid-column:1/-1!important}
+}
+</style>
+
+<style id="liwo-notification-bell-fix">
+/* Notification bell only — isolated fix. */
+.top-user .bell-wrap{
+  position:relative!important;
+  flex:0 0 auto!important;
+  z-index:1100!important;
+}
+.top-user #notificationBtn{
+  position:relative!important;
+  z-index:1101!important;
+  flex:0 0 46px!important;
+  width:46px!important;
+  height:46px!important;
+  margin:0!important;
+}
+.top-user #notificationDropdown{
+  position:absolute!important;
+  top:calc(100% + 10px)!important;
+  right:0!important;
+  left:auto!important;
+  width:360px!important;
+  max-width:calc(100vw - 24px)!important;
+  max-height:480px!important;
+  overflow:auto!important;
+  z-index:1200!important;
+  box-sizing:border-box!important;
+}
+.top-user #notificationDropdown.hidden{
+  display:none!important;
+}
+.top-user #notificationDropdown .dropdown-head{
+  position:sticky!important;
+  top:0!important;
+  z-index:2!important;
+  background:#fff!important;
+}
+.top-user #notificationBadge{
+  z-index:1102!important;
+}
+@media(max-width:900px){
+  .top-user #notificationDropdown{
+    position:fixed!important;
+    top:74px!important;
+    right:12px!important;
+    left:12px!important;
+    width:auto!important;
+    max-width:none!important;
+    max-height:calc(100vh - 88px)!important;
+    border-radius:16px!important;
+    z-index:5000!important;
+  }
+  .mobile-header-actions #mobileNotificationBtn{
+    position:relative!important;
+    z-index:5001!important;
+  }
+  #mobileNotificationCenter{
+    z-index:6000!important;
+  }
+}
+</style>
 </head>
 <body>
 <div id="liwoLoadingOverlay" aria-hidden="true">
@@ -2372,33 +2772,68 @@ tbody:empty{display:none!important;}
 </section>
 
 <section class="page hidden" id="cashPage" data-page-section="cash">
-  <div class="page-header">
-    <div><h1>Cash Position</h1><p>Track the actual money currently held in the bank and on hand.</p></div>
-  </div>
-  <div class="cash-balance-grid">
-    <div class="cash-balance-card">
-      <div class="cash-balance-label">Bank Balance</div>
-      <div class="cash-balance-value" id="cashBankValue">₱0.00</div>
-    </div>
-    <div class="cash-balance-card">
-      <div class="cash-balance-label">Cash On Hand</div>
-      <div class="cash-balance-value" id="cashOnHandValue">₱0.00</div>
-    </div>
-    <div class="cash-balance-card total">
-      <div class="cash-balance-label">Total Cash Available</div>
-      <div class="cash-balance-value" id="cashTotalValue">₱0.00</div>
+  <div class="liwo-cash-header">
+    <div class="liwo-cash-header-icon">▥</div>
+    <div>
+      <h1>Cash Position</h1>
+      <p>Track the actual money currently held in the bank and on hand.</p>
     </div>
   </div>
-  <div class="card">
-    <h2>Update Actual Cash</h2>
-    <p class="muted cash-update-copy">Enter the actual money remaining in the bank and the physical cash on hand. These are tracked separately.</p>
+
+  <div class="liwo-cash-summary">
+    <div class="liwo-cash-stat bank">
+      <div class="liwo-cash-stat-icon">▥</div>
+      <div><span>Bank Balance</span><strong id="cashBankValue">₱0.00</strong></div>
+    </div>
+    <div class="liwo-cash-stat hand">
+      <div class="liwo-cash-stat-icon">▣</div>
+      <div><span>Cash On Hand</span><strong id="cashOnHandValue">₱0.00</strong></div>
+    </div>
+    <div class="liwo-cash-stat total">
+      <div class="liwo-cash-stat-icon">▦</div>
+      <div><span>Total Cash Available</span><strong id="cashTotalValue">₱0.00</strong></div>
+    </div>
+  </div>
+
+  <div class="liwo-cash-update">
+    <div class="liwo-cash-update-title">
+      <div class="liwo-cash-update-icon">▤</div>
+      <div>
+        <h2>Update Actual Cash</h2>
+        <p>Enter the actual money remaining in the bank and the physical cash on hand. These are tracked separately.</p>
+      </div>
+    </div>
     <div class="cash-balance-actions">
-      <div class="field"><label>Remaining Balance in Bank</label><input id="cashBankInput" type="number" min="0" step="0.01" placeholder="0.00"></div>
-      <div class="field"><label>Physical Cash On Hand</label><input id="cashOnHandInput" type="number" min="0" step="0.01" placeholder="0.00"></div>
-      <button class="btn" type="button" id="saveCashBalanceBtn">Update Cash Position</button>
+      <div class="field">
+        <label>Remaining Balance in Bank</label>
+        <input id="cashBankInput" type="number" min="0" step="0.01" placeholder="0.00">
+      </div>
+      <div class="field">
+        <label>Physical Cash On Hand</label>
+        <input id="cashOnHandInput" type="number" min="0" step="0.01" placeholder="0.00">
+      </div>
+      <button class="btn" type="button" id="saveCashBalanceBtn">▣&nbsp; Update Cash Position</button>
     </div>
   </div>
-<div class="panel reconciliation-panel" id="cashReconciliationPanel"><div class="panel-head"><div><h3>Cash Reconciliation</h3><span class="muted">Compare recorded cash with actual balances.</span></div></div><div class="grid"><label>Actual Bank Balance<input id="reconcileBank" type="number" min="0" step="0.01" placeholder="0.00"></label><label>Actual Cash On Hand<input id="reconcileCash" type="number" min="0" step="0.01" placeholder="0.00"></label><label class="wide">Notes<textarea id="reconcileNotes" placeholder="Explain any variance."></textarea></label><div class="wide reconciliation-result" id="reconciliationResult">No reconciliation performed yet.</div><div class="wide"><button class="btn" type="button" id="reconcileCashBtn">Reconcile Cash</button></div></div></div></section>
+
+  <div class="liwo-cash-note">
+    <div class="liwo-cash-note-icon">i</div>
+    <div><strong>Note:</strong> These amounts update your cash position in real-time and help keep your project finances accurate.</div>
+  </div>
+
+  <div class="panel reconciliation-panel" id="cashReconciliationPanel">
+    <div class="panel-head">
+      <div><h3>Cash Reconciliation</h3><span class="muted">Compare recorded cash with actual balances.</span></div>
+    </div>
+    <div class="grid">
+      <label>Actual Bank Balance<input id="reconcileBank" type="number" min="0" step="0.01" placeholder="0.00"></label>
+      <label>Actual Cash On Hand<input id="reconcileCash" type="number" min="0" step="0.01" placeholder="0.00"></label>
+      <label class="wide">Notes<textarea id="reconcileNotes" placeholder="Explain any variance."></textarea></label>
+      <div class="wide reconciliation-result" id="reconciliationResult">No reconciliation performed yet.</div>
+      <div class="wide"><button class="btn" type="button" id="reconcileCashBtn">Reconcile Cash</button></div>
+    </div>
+  </div>
+</section>
 
 <section class="page hidden" id="receiptsPage" data-page-section="receipts">
   <div class="page-heading">
@@ -2589,15 +3024,38 @@ function notificationDetails(x){
   const details=String(x?.details||"").trim();
   return details||"A new transaction or system update was recorded in LIWO Finance.";
 }
+function notificationVisual(x){
+  const text=(String(x?.action||"")+" "+String(x?.details||"")).toLowerCase();
+  if(/overdue/.test(text))return {icon:"!",cls:"overdue"};
+  if(/due today|due soon|due in|deadline/.test(text))return {icon:"◷",cls:"due"};
+  if(/payment|paid|payment recorded|payment completed/.test(text))return {icon:"₱",cls:"payment"};
+  if(/bill|invoice|payable/.test(text))return {icon:"▤",cls:"bill"};
+  if(/project|client|site|milestone/.test(text))return {icon:"♙",cls:"project"};
+  if(/receipt/.test(text))return {icon:"▧",cls:"receipt"};
+  if(/message|announcement|note/.test(text))return {icon:"•",cls:"message"};
+  return {icon:"•",cls:"update"};
+}
+function notificationTimestamp(x){
+  const v=x?.time||x?.timestamp||x?.createdAt||x?.updatedAt||"";
+  const t=new Date(v).getTime();
+  return Number.isFinite(t)?t:NaN;
+}
 function renderNotifications(){
   const list=$("notificationList"),badge=$("notificationBadge");
   if(!list||!badge)return;
   const activities=Array.isArray(data?.activity)?data.activity:[];
   const serverMode=activities.some(x=>Object.prototype.hasOwnProperty.call(x,"unread"));
   const readIds=new Set(getReadNotificationIds());
-  const notifications=activities.map((x,i)=>({x,id:notificationId(x),unread:serverMode?!!x.unread:!readIds.has(notificationId(x)),_i:i,_time:(()=>{const v=x?.time||x?.timestamp||x?.createdAt||x?.updatedAt||"";const t=new Date(v).getTime();return Number.isFinite(t)?t:NaN})()})).sort((a,b)=>{
+  // Always sort by the actual notification timestamp, newest first.
+  const notifications=activities.map((x,i)=>({
+    x,
+    id:notificationId(x),
+    unread:serverMode?!!x.unread:!readIds.has(notificationId(x)),
+    _i:i,
+    _time:notificationTimestamp(x)
+  })).sort((a,b)=>{
     if(Number.isFinite(a._time)&&Number.isFinite(b._time)&&a._time!==b._time)return b._time-a._time;
-    if(Number.isFinite(a._time)!==Number.isFinite(b._time))return Number.isFinite(b._time)?1:-1;
+    if(Number.isFinite(a._time)!==Number.isFinite(b._time))return Number.isFinite(b._time)?-1:1;
     return b._i-a._i;
   });
   const unread=serverMode&&Number.isFinite(Number(data.serverUnreadCount))
@@ -2609,22 +3067,21 @@ function renderNotifications(){
     list.innerHTML='<div class="notification-item"><div><p><strong>NO NOTIFICATIONS</strong></p><small>New messages, updates, transactions, reports, receipts and other financial activity will appear here.</small></div></div>';
     return;
   }
-  list.innerHTML=notifications.map(n=>{
-    const x=n.x, kind=notificationKind(x);
+  list.innerHTML=notifications.slice(0,8).map(n=>{
+    const x=n.x, visual=notificationVisual(x);
     const title=notificationTitle(x);
     const details=notificationDetails(x);
     const actor=x.name||x.username||"LIWO System";
-    const icon=kind==="FINANCIAL UPDATE"?"₱":(/MESSAGE|UPDATE/.test(kind)?"●":"!");
     return `<div class="notification-item ${n.unread?"unread":""}" data-notification-id="${esc(n.id)}">
       <span class="notification-dot ${n.unread?"":"read-dot"}"></span>
-      <span class="notification-icon">${icon}</span>
+      <span class="notification-icon ${visual.cls}">${visual.icon}</span>
       <div class="notification-content">
         <div class="notification-row-top"><p><strong>${esc(title)}</strong></p><small>${x.time?esc(formatNotificationTime(x.time)):""}</small><button type="button" class="notification-more" aria-label="Notification options">•••</button></div>
         <div class="notification-details">${esc(details)}</div>
         <small class="notification-actor">${esc(actor)}</small>
       </div>
     </div>`;
-  }).join("");
+  }).join("") + (notifications.length>8?'<button type="button" class="notification-view-all" id="notificationViewAll">View all notifications <span>›</span></button>':'');
 }
 async function loadServerNotifications(){
   if(!session?.token)return;
@@ -3552,23 +4009,30 @@ document.addEventListener("DOMContentLoaded",()=>{
   }
   function renderCenter(){
     const list=q("mobileNotificationList");if(!list)return;
-    const notes=getNotes().slice().map((x,i)=>{const v=x?.time||x?.timestamp||x?.createdAt||x?.updatedAt||"";const t=new Date(v).getTime();return {...x,_i:i,_time:Number.isFinite(t)?t:NaN};}).sort((a,b)=>{
+    const notes=getNotes().slice().map((x,i)=>{
+      const v=x?.time||x?.timestamp||x?.createdAt||x?.updatedAt||"";
+      const t=new Date(v).getTime();
+      return {...x,_i:i,_time:Number.isFinite(t)?t:NaN};
+    }).sort((a,b)=>{
       if(Number.isFinite(a._time)&&Number.isFinite(b._time)&&a._time!==b._time)return b._time-a._time;
-      if(Number.isFinite(a._time)!==Number.isFinite(b._time))return Number.isFinite(b._time)?1:-1;
+      if(Number.isFinite(a._time)!==Number.isFinite(b._time))return Number.isFinite(b._time)?-1:1;
       return b._i-a._i;
     });
-    list.innerHTML=notes.length?notes.map(x=>{
+    const shown=notes.slice(0,8);
+    list.innerHTML=shown.length?shown.map(x=>{
       const title=typeof notificationTitle==="function"?notificationTitle(x):(x.action||"FINANCE UPDATE");
       const details=typeof notificationDetails==="function"?notificationDetails(x):(x.details||"A finance update was recorded.");
-      const kind=typeof notificationKind==="function"?notificationKind(x):"SYSTEM UPDATE";
-      const icon=kind==="FINANCIAL UPDATE"?"₱":(/MESSAGE|UPDATE/.test(kind)?"●":"!");
+      const visual=typeof notificationVisual==="function"?notificationVisual(x):{icon:"•",cls:"update"};
       return `<button type="button" class="mobile-note-row ${isRead(x)?"read":""}">
-        <i class="mobile-note-dot"></i>
-        <i class="mobile-note-icon">${safe(icon)}</i>
-        <span class="mobile-note-main"><strong>${safe(title)}</strong><span>${safe(details)}</span><span class="mobile-note-meta">${safe(x.name||x.username||"LIWO System")}${x.time?" • "+safe(formatNotificationTime(x.time)):""}</span></span>
+        <i class="mobile-note-dot ${safe(visual.cls)}"></i>
+        <i class="mobile-note-icon ${safe(visual.cls)}">${safe(visual.icon)}</i>
+        <span class="mobile-note-main"><strong>${safe(title)}</strong><span>${safe(details)}</span><span class="mobile-note-meta">${safe(x.name||x.username||"LIWO System")}</span></span>
         <time>${x.time?safe(formatNotificationTime(x.time)):""}</time><b class="mobile-note-more">•••</b>
       </button>`;
     }).join(""):'<div class="mobile-note-empty">No messages, updates, or financial notifications yet.</div>';
+    if(notes.length>8){
+      list.insertAdjacentHTML("beforeend",'<button type="button" class="mobile-notification-view-all">View all notifications <span>›</span></button>');
+    }
     syncBadge();
   }
   function close(){q("mobileNotificationCenter")?.classList.remove("open");}
@@ -3579,7 +4043,21 @@ document.addEventListener("DOMContentLoaded",()=>{
   const oldButton=q("mobileNotificationBtn");
   if(oldButton){const button=oldButton.cloneNode(true);oldButton.replaceWith(button);button.addEventListener("click",e=>{e.stopImmediatePropagation();open();});}
   q("mobileCloseNotifications")?.addEventListener("click",close);q("mobileNotificationCenter")?.addEventListener("click",e=>{if(e.target===q("mobileNotificationCenter"))close();});q("mobileMarkNotifications")?.addEventListener("click",()=>{if(typeof markNotificationsRead==="function")markNotificationsRead();renderCenter();});q("mobileNotificationList")?.addEventListener("click",e=>{if(!e.target.closest(".mobile-note-row"))return;if(typeof markNotificationsRead==="function")markNotificationsRead();close();if(typeof switchPage==="function")switchPage("activity");});
-  document.addEventListener("click",e=>{const item=e.target.closest("#notificationList .notification-item");if(!item)return;if(typeof markNotificationsRead==="function")markNotificationsRead();if(typeof switchPage==="function")switchPage("activity");if(typeof closeHeaderMenus==="function")closeHeaderMenus();});
+  document.addEventListener("click",e=>{
+    const view=e.target.closest("#notificationViewAll,.mobile-notification-view-all");
+    if(view){
+      if(typeof markNotificationsRead==="function")markNotificationsRead();
+      if(typeof closeHeaderMenus==="function")closeHeaderMenus();
+      if(typeof close==="function" && view.classList.contains("mobile-notification-view-all"))close();
+      if(typeof switchPage==="function")switchPage("activity");
+      return;
+    }
+    const item=e.target.closest("#notificationList .notification-item");
+    if(!item)return;
+    if(typeof markNotificationsRead==="function")markNotificationsRead();
+    if(typeof switchPage==="function")switchPage("activity");
+    if(typeof closeHeaderMenus==="function")closeHeaderMenus();
+  });
   renderCenter();syncBadge();
 })();
 </script>
@@ -3709,10 +4187,12 @@ document.addEventListener("DOMContentLoaded",()=>{
         render();
         return;
       }
-      let o=await api("listBills",{token:session.token,clientId:projectId});
+      // Bills are strictly project-scoped by ClientID.
+      // BillID is only the unique record ID used for edit/delete.
+      const o=await api("listBills",{token:session.token,clientId:projectId});
       bills=(Array.isArray(o.bills)?o.bills:[]).filter(b=>{
-        const bid=String(b.clientId??b.clientID??"").trim();
-        return bid===projectId;
+        const billClientId=String(b.clientId??b.clientID??"").trim();
+        return billClientId===projectId;
       });
       render();
     }catch(e){
