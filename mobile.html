@@ -619,6 +619,21 @@ textarea{min-height:82px;resize:vertical}
 @media(max-width:760px){.receipt-toolbar{grid-template-columns:1fr}.receipt-grid{grid-template-columns:1fr 1fr;padding:10px;gap:9px}.receipt-thumb{height:130px}}
 @media(max-width:430px){.receipt-grid{grid-template-columns:1fr}}
 </style>
+
+<style id="liwo-receipt-library-redesign">
+#receiptsPage{color:#102f56}.receipt-library-hero{display:flex;align-items:center;gap:18px;margin:4px 0 22px}.receipt-library-icon{width:74px;height:74px;display:grid;place-items:center;border-radius:18px;background:linear-gradient(135deg,#eee6ff,#faf7ff);color:#7738ef;font-size:34px;font-weight:900}.receipt-library-hero h2{margin:0;color:#102f56;font-size:34px;line-height:1.1;letter-spacing:-1px}.receipt-library-hero h2:after{content:"";display:block;width:41px;height:3px;margin-top:9px;border-radius:9px;background:#f0aa25}.receipt-library-hero p{margin:8px 0 0;color:#49678b;font-size:14px}.receipt-filter-panel,.receipt-library-panel{background:#fff;border:1px solid #e8edf4;border-radius:15px;box-shadow:0 8px 27px rgba(25,55,88,.08)}.receipt-filter-panel{padding:20px 22px;margin-bottom:19px}.receipt-filter-label{display:block;margin:0 0 9px;color:#48648a;font-size:12px;font-weight:850;text-transform:uppercase}.receipt-search-wrap,.receipt-select-wrap,.receipt-library-tools select,.receipt-view,.receipt-refresh{border:1px solid #d7e1ef;border-radius:11px;background:#fff;color:#18375e}.receipt-search-wrap{height:56px;display:flex;align-items:center;gap:13px;padding:0 16px}.receipt-search-wrap span{font-size:30px;color:#557197;line-height:1}.receipt-search-wrap input{border:0!important;box-shadow:none!important;outline:0;width:100%;height:100%;font-size:15px;color:#16365d;background:transparent}.receipt-filter-row{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:18px}.receipt-select-wrap{display:flex;align-items:center;gap:12px;padding:0 13px;height:56px}.receipt-select-wrap span{font-size:23px;color:#1475ef}.receipt-select-wrap select{width:100%;border:0!important;outline:0;box-shadow:none!important;background:transparent;color:#18375e;font-weight:700;font-size:14px}.receipt-refresh{width:100%;height:58px;margin-top:20px;font-size:14px;font-weight:800;cursor:pointer}.receipt-refresh:hover{background:#f5f9fe}.receipt-library-panel{overflow:hidden}.receipt-library-head{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:21px 22px;border-bottom:1px solid #edf1f6}.receipt-gallery-title{display:flex;align-items:center;gap:13px}.receipt-gallery-title i{width:49px;height:49px;display:grid;place-items:center;border-radius:11px;background:#e2f9ea;color:#139c55;font-size:23px;font-style:normal}.receipt-gallery-title h3{margin:0;font-size:18px;color:#102f56}.receipt-library-head>div>span{display:block;margin:4px 0 0 62px;color:#526f91;font-size:12px}.receipt-library-tools{display:flex;gap:8px}.receipt-library-tools select{height:46px;padding:0 31px 0 13px;font-weight:700;font-size:13px}.receipt-view{width:47px;height:46px;font-size:23px;cursor:pointer}.receipt-view.active{background:#092f5c;color:#fff;border-color:#092f5c}.receipt-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;padding:20px!important}.receipt-card{border:1px solid #e4eaf1!important;border-radius:11px!important;box-shadow:0 4px 14px rgba(18,49,83,.07)!important;overflow:hidden;cursor:pointer}.receipt-thumb{height:192px!important;padding:6px;background:#f7f9fc;position:relative}.receipt-thumb img{object-fit:cover}.receipt-file{font-size:44px}.receipt-info{padding:13px!important}.receipt-name{color:#112e55;font-size:14px!important;white-space:normal!important;min-height:34px}.receipt-project,.receipt-meta{display:flex;gap:7px;align-items:flex-start;color:#59718f!important;font-size:11px!important;line-height:1.45;margin-top:9px!important}.receipt-meta{flex-wrap:wrap}.receipt-type{display:inline-block;margin-top:8px;border-radius:5px;padding:3px 6px;color:#fff;font-size:9px;font-weight:900;background:#299567}.receipt-type.pdf{background:#ec4c50}.receipt-type.other{background:#557197}.receipt-actions{margin-top:13px!important}.receipt-actions a{border:1px solid #d9e3ef!important;border-radius:8px!important;background:#fff!important;color:#416083!important;font-size:12px!important;font-weight:800!important}.receipt-list .receipt-card{display:grid;grid-template-columns:128px 1fr}.receipt-list .receipt-thumb{height:128px!important}.receipt-list .receipt-info{display:grid;grid-template-columns:minmax(160px,1.2fr) minmax(150px,1fr) minmax(110px,.7fr) 115px;gap:10px;align-items:center}.receipt-list .receipt-name{min-height:0}.receipt-list .receipt-project,.receipt-list .receipt-meta{margin-top:0!important}.receipt-list .receipt-type{margin:0}.receipt-list .receipt-actions{margin:0!important}.receipt-pagination{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:0 22px 21px;color:#536f91;font-size:12px}.receipt-pagination>div{display:flex;gap:8px}.receipt-page{min-width:38px;height:38px;border:1px solid #dce5f0;border-radius:9px;background:#fff;color:#416083;font-weight:800;cursor:pointer}.receipt-page.active{background:#092f5c;color:#fff;border-color:#092f5c}.receipt-empty{padding:40px!important;color:#688099}
+@media(max-width:900px){.receipt-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.receipt-library-hero h2{font-size:27px}.receipt-library-icon{width:58px;height:58px;font-size:27px}.receipt-list .receipt-info{grid-template-columns:1fr}.receipt-list .receipt-card{grid-template-columns:100px 1fr}.receipt-list .receipt-thumb{height:100px!important}}
+@media(max-width:560px){.receipt-library-hero{gap:12px;margin-bottom:15px}.receipt-library-hero p{font-size:12px}.receipt-filter-panel{padding:15px}.receipt-filter-row{grid-template-columns:1fr;gap:10px;margin-top:10px}.receipt-library-head{align-items:flex-start;flex-direction:column;padding:16px}.receipt-library-tools{width:100%}.receipt-library-tools select{flex:1;min-width:0}.receipt-grid{grid-template-columns:1fr!important;padding:13px!important}.receipt-pagination{padding:0 15px 16px;align-items:flex-start;flex-direction:column}.receipt-list .receipt-card{grid-template-columns:84px 1fr}.receipt-list .receipt-thumb{height:84px!important}.receipt-search-wrap{height:50px}.receipt-select-wrap{height:50px}.receipt-refresh{height:50px;margin-top:12px}}
+</style>
+
+<style id="liwo-cash-reconciliation-redesign">
+#cashReconciliationPanel{padding:18px!important;background:#fff}.reconcile-head{display:flex;align-items:center;gap:11px;margin-bottom:18px}.reconcile-head>span{width:35px;height:35px;display:grid;place-items:center;border-radius:9px;background:#e9f3ff;color:#1477db;font-size:18px}.reconcile-head h3{margin:0;color:#12385f;font-size:15px}.reconcile-head p{margin:3px 0 0;color:#6d8094;font-size:10px}.reconcile-fields{display:grid;gap:12px}.reconcile-fields label,.reconcile-notes{display:block;color:#536f8e;font-size:10px;font-weight:850;text-transform:uppercase;letter-spacing:.02em}.reconcile-input{height:48px;margin-top:7px;display:flex;align-items:center;overflow:hidden;border:1px solid #dae5f1;border-radius:8px;background:#fff}.reconcile-input i,.reconcile-notes i{width:42px;align-self:stretch;display:grid;place-items:center;background:#f6f9fd;color:#1681ea;font-style:normal;font-size:16px}.reconcile-input input{width:100%;height:100%;padding:0 12px!important;border:0!important;box-shadow:none!important;outline:0;font-size:13px;font-weight:800;color:#163b65;background:transparent}.reconcile-total,.reconcile-variance{display:flex;align-items:center;gap:10px;margin-top:12px;padding:11px;border:1px solid #e5ebf3;border-radius:8px;background:#fbfcff}.reconcile-total>span,.reconcile-variance>span{width:32px;height:32px;display:grid;place-items:center;border-radius:7px;background:#f2eaff;color:#884ae6;font-size:17px}.reconcile-total div,.reconcile-variance div{flex:1}.reconcile-total b,.reconcile-variance b{display:block;color:#294b73;font-size:10px;text-transform:uppercase}.reconcile-total small,.reconcile-variance small{display:block;margin-top:2px;color:#71839a;font-size:8px}.reconcile-total strong,.reconcile-variance strong{color:#123b68;font-size:15px}.reconcile-info{display:flex;gap:9px;align-items:center;margin-top:11px;padding:10px 12px;border:1px solid #d8e8fa;border-radius:7px;background:#f0f7ff;color:#3c638c;font-size:9px}.reconcile-info:first-letter{color:#1681ea}.reconcile-notes{margin-top:13px}.reconcile-notes>span{display:flex;margin-top:7px;min-height:61px;border:1px solid #dae5f1;border-radius:8px;overflow:hidden}.reconcile-notes textarea{width:100%;min-height:61px;padding:11px!important;border:0!important;box-shadow:none!important;outline:0;resize:vertical;color:#234467;font-size:11px}.reconcile-variance{background:#fbfdfd}.reconcile-variance>span{background:#e4faee;color:#159b59}.reconcile-variance strong{color:#13945a}.reconciliation-result{margin-top:11px;padding:11px 12px!important;border:1px solid #d7f0e1!important;border-radius:7px!important;background:#effbf4!important;color:#168a55!important;font-size:10px!important}.reconcile-submit{width:100%;height:44px;margin-top:11px;border:0;border-radius:6px;background:#052e66;color:#fff;font-size:12px;font-weight:850;cursor:pointer}.reconcile-submit:hover{background:#0a3f80}@media(min-width:800px){.reconcile-fields{grid-template-columns:1fr 1fr}.reconcile-notes textarea{min-height:72px}}
+</style>
+
+<style id="liwo-tools-redesign">
+#toolsPage{color:#112f55}.tools-library-hero{display:flex;align-items:center;gap:13px;margin:2px 0 18px}.tools-library-hero>span{width:43px;height:43px;display:grid;place-items:center;border-radius:11px;background:#eaf3ff;color:#1476dc;font-size:22px}.tools-library-hero h2{margin:0;color:#112f55;font-size:18px}.tools-library-hero h2:after{content:"";display:block;width:33px;height:2px;margin-top:5px;background:#f1aa27}.tools-library-hero p{margin:5px 0 0;color:#526f8e;font-size:10px}.tools-borrow-panel,.tools-log-panel{padding:14px;border:1px solid #e7edf4;border-radius:13px;background:#fff;box-shadow:0 6px 20px rgba(18,48,82,.06)}.tools-borrow-panel h3,.tools-log-head h3{display:flex;align-items:center;gap:9px;margin:0 0 14px;color:#12365d;font-size:13px}.tools-borrow-panel h3 i,.tools-log-head h3 i{width:28px;height:28px;display:grid;place-items:center;border-radius:8px;background:#eef5ff;color:#287fe0;font-size:15px;font-style:normal}.tools-form{display:grid;grid-template-columns:1fr 1fr;gap:11px}.tools-form label{display:block;color:#506d8c;font-size:9px;font-weight:850;text-transform:uppercase}.tools-form label>span{display:flex;align-items:center;height:42px;margin-top:6px;overflow:hidden;border:1px solid #dbe5f0;border-radius:8px;background:#fff}.tools-form label>span i{width:31px;align-self:stretch;display:grid;place-items:center;background:#f6f9fd;color:#397ebb;font-style:normal;font-size:12px}.tools-form input{width:100%;height:100%;padding:0 9px!important;border:0!important;outline:0;box-shadow:none!important;background:transparent!important;color:#173b63;font-size:10px}.tools-wide{grid-column:1/-1}.tools-actions{display:flex;gap:9px}.tools-actions button,.tools-log-head button{height:38px;border-radius:7px;font-size:10px;font-weight:850;cursor:pointer}.tools-actions button[type=submit]{min-width:175px;border:0;background:#052f69;color:#fff}.tools-actions button[type=button],.tools-log-head button{min-width:82px;border:1px solid #dce6f1;background:#fff;color:#183d68}.tools-reminder{display:flex;align-items:center;gap:10px;margin:12px 0;padding:11px 14px;border:1px solid #dceafa;border-radius:10px;background:#f2f8ff;color:#2475bf;font-size:17px}.tools-reminder span{flex:1;color:#496984;font-size:9px;line-height:1.4}.tools-reminder b{color:#244a72}.tools-reminder>i{font-size:27px;color:#e4a51f;font-style:normal}.tools-log-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px}.tools-log-head h3{margin:0}.tools-log-head h3 i{background:#f2eaff;color:#7c45e9}.tools-log-head button{min-width:72px;height:30px;color:#1872da}.tools-stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:14px}.tools-stat-grid>div{position:relative;min-height:62px;padding:9px;border-radius:9px;background:#f7f9fc}.tools-stat-grid span{display:block;max-width:72%;color:#6a7f94;font-size:7px;font-weight:850;text-transform:uppercase}.tools-stat-grid strong{display:block;margin-top:5px;color:#173b64;font-size:18px}.tools-stat-grid i{position:absolute;right:8px;bottom:9px;width:25px;height:25px;display:grid;place-items:center;border-radius:7px;background:#e8f2ff;color:#3385e7;font-style:normal;font-size:13px}.tools-stat-grid>div:nth-child(2) i{background:#fff2dc;color:#df8d15}.tools-stat-grid>div:nth-child(3) i{background:#e4f8e9;color:#1aa55c}.tools-stat-grid>div:nth-child(4) i{background:#ffe8e8;color:#e44949}.tools-log-table{min-width:760px;border-collapse:collapse}.tools-log-table th{padding:9px 7px!important;color:#607894!important;background:#f5f8fb!important;font-size:8px!important;text-transform:uppercase}.tools-log-table td{padding:9px 7px!important;color:#385777!important;font-size:9px!important}.tool-status{display:inline-block;padding:4px 6px;border-radius:999px;font-weight:800;font-size:8px}.tool-status.borrowed{background:#fff0d9;color:#c77700}.tool-status.overdue{background:#ffe4e4;color:#cc3636}.tool-status.returned{background:#e4f8e9;color:#159453}.return-tool-btn{padding:5px 7px!important;min-height:0!important;font-size:8px!important}@media(max-width:580px){.tools-form{gap:9px}.tools-borrow-panel,.tools-log-panel{padding:11px}.tools-actions button[type=submit]{min-width:0;flex:1}.tools-stat-grid{gap:6px}.tools-stat-grid>div{padding:7px}.tools-stat-grid strong{font-size:15px}.tools-stat-grid i{display:none}.tools-reminder{padding:10px}.tools-library-hero{margin-bottom:12px}}
+</style>
+
 <style id="liwo-user-actions">
 .user-action-cell{white-space:nowrap}
 .user-action-wrap{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
@@ -782,6 +797,32 @@ textarea{min-height:82px;resize:vertical}
 <script id="liwo-initial-loader">
 (function(){
   // Loader is intentionally not shown on page load. It is used only for signup → dashboard.
+})();
+</script>
+
+<script id="liwo-cash-reconciliation-ui">
+(function(){
+  const q=id=>document.getElementById(id),money=n=>new Intl.NumberFormat("en-PH",{style:"currency",currency:"PHP"}).format(Number(n||0));
+  let recordedTotal=0;
+  function actual(){return Math.max(0,Number(q("reconcileBank")?.value||0))+Math.max(0,Number(q("reconcileCash")?.value||0));}
+  function update(){const total=actual(),variance=recordedTotal-total;q("reconcileActualTotal").textContent=money(total);q("reconcileVariance").textContent=money(variance);}
+  async function loadRecorded(){
+    if(typeof session==="undefined"||!session?.token)return;
+    try{const d=await api("cashBalances",{token:session.token});recordedTotal=Number(d.totalCash||0);update();}catch(e){update();}
+  }
+  function bind(){
+    ["reconcileBank","reconcileCash"].forEach(id=>q(id)?.addEventListener("input",update));
+    q("reconcileCashBtn")?.addEventListener("click",async()=>{
+      const bank=Number(q("reconcileBank").value),cash=Number(q("reconcileCash").value),notes=q("reconcileNotes").value.trim();
+      if(!Number.isFinite(bank)||bank<0||!Number.isFinite(cash)||cash<0){toast("Enter valid actual bank and cash-on-hand balances.");return;}
+      const button=q("reconcileCashBtn");button.disabled=true;
+      try{const r=await api("reconcileCash",{token:session.token,actualBank:bank,actualCashOnHand:cash,notes});recordedTotal=Number(r.expectedBank||0)+Number(r.expectedCashOnHand||0);update();q("reconciliationResult").textContent=`✓ Reconciliation saved. Variance: ${money(r.variance)}`;toast("Cash reconciliation saved.");}
+      catch(e){toast(e.message||String(e));}
+      finally{button.disabled=false;}
+    });
+    const oldSwitch=window.switchPage;if(typeof oldSwitch==="function")window.switchPage=function(page){const result=oldSwitch.apply(this,arguments);if(page==="cash")loadRecorded();return result;};
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind);else bind();
 })();
 </script>
 
@@ -2715,56 +2756,30 @@ tbody:empty{display:none!important;}
 
 
 <section class="page hidden" id="toolsPage" data-page-section="tools">
-  <div class="page-heading">
-    <div>
-      <h2>Construction Tools</h2>
-      <div class="muted">Track construction tools, borrowers, projects, and return dates.</div>
-    </div>
-  </div>
+  <div class="tools-library-hero"><span>▣</span><div><h2>Construction Tools</h2><p>Track construction tools, borrowers, projects, and return dates.</p></div></div>
 
-  <div class="panel">
-    <div class="panel-head"><h3>Record Tool Borrowing</h3></div>
-    <form id="toolForm" class="grid" style="padding:15px">
-      <div>
-        <label>Tool / Equipment</label>
-        <input name="tool" id="toolName" placeholder="e.g. Rotary Hammer" required>
-      </div>
-      <div>
-        <label>Tool ID / Serial No.</label>
-        <input name="toolId" id="toolId" placeholder="Optional">
-      </div>
-      <div>
-        <label>Borrowed By</label>
-        <input name="borrower" id="toolBorrower" placeholder="Name of worker/person" required>
-      </div>
-      <div>
-        <label>Project</label>
-        <input name="project" id="toolProject" placeholder="Project / client">
-      </div>
-      <div>
-        <label>Date Borrowed</label>
-        <input name="borrowed" id="toolBorrowedDate" type="date" required>
-      </div>
-      <div>
-        <label>Expected Return</label>
-        <input name="expectedReturn" id="toolReturnDate" type="date">
-      </div>
-      <div class="wide">
-        <label>Notes</label>
-        <input name="notes" id="toolNotes" placeholder="Condition, accessories, remarks, etc.">
-      </div>
-      <div class="wide" style="display:flex;gap:8px">
-        <button class="primary" type="submit">Save Borrowing Record</button>
-        <button class="secondary" type="button" id="toolClearBtn">Clear</button>
-      </div>
+  <div class="tools-borrow-panel">
+    <h3><i>▧</i> Record Tool Borrowing</h3>
+    <form id="toolForm" class="tools-form">
+      <label>Tool / Equipment<span><i>⚒</i><input name="tool" id="toolName" placeholder="e.g. Rotary Hammer" required></span></label>
+      <label>Tool ID / Serial No.<span><i>◇</i><input name="toolId" id="toolId" placeholder="Optional"></span></label>
+      <label>Borrowed By<span><i>♙</i><input name="borrower" id="toolBorrower" placeholder="Name of worker/person" required></span></label>
+      <label>Project<span><i>▥</i><input name="project" id="toolProject" placeholder="Project / client"></span></label>
+      <label>Date Borrowed<span><i>□</i><input name="borrowed" id="toolBorrowedDate" type="date" required></span></label>
+      <label>Expected Return<span><i>□</i><input name="expectedReturn" id="toolReturnDate" type="date"></span></label>
+      <label class="tools-wide">Notes<span><i>▤</i><input name="notes" id="toolNotes" placeholder="Condition, accessories, remarks, etc."></span></label>
+      <div class="tools-actions tools-wide"><button type="submit">▣&nbsp; Save Borrowing Record</button><button type="button" id="toolClearBtn">×&nbsp; Clear</button></div>
     </form>
   </div>
 
-  <div class="panel">
-    <div class="panel-head"><h3>Tool Borrowing Log</h3><button class="secondary" type="button" id="refreshToolsBtn">Refresh</button></div>
+  <div class="tools-reminder">● <span><b>Make sure tools are returned in good condition.</b><br>Update the return date once the tool is returned.</span><i>⚒</i></div>
+
+  <div class="tools-log-panel">
+    <div class="tools-log-head"><h3><i>☷</i> Tool Borrowing Log</h3><button type="button" id="refreshToolsBtn">↻&nbsp; Refresh</button></div>
+    <div class="tools-stat-grid"><div><span>Total Tools Borrowed</span><strong id="toolTotalCount">0</strong><i>▣</i></div><div><span>Currently Out</span><strong id="toolOutCount">0</strong><i>◷</i></div><div><span>Returned</span><strong id="toolReturnedCount">0</strong><i>✓</i></div><div><span>Overdue</span><strong id="toolOverdueCount">0</strong><i>!</i></div></div>
     <div class="table-wrap">
-      <table>
-        <thead><tr><th>Tool</th><th>ID</th><th>Borrowed By</th><th>Project</th><th>Borrowed</th><th>Expected Return</th><th>Status</th><th>Entered By</th></tr></thead>
+      <table class="tools-log-table">
+        <thead><tr><th>Tool / Equipment</th><th>ID / Serial No.</th><th>Borrowed By</th><th>Project</th><th>Date Borrowed</th><th>Expected Return</th><th>Status</th><th>Actions</th></tr></thead>
         <tbody id="toolsBody"><tr><td colspan="9" style="text-align:center;padding:20px">No tool records yet.</td></tr></tbody>
       </table>
     </div>
@@ -2822,46 +2837,43 @@ tbody:empty{display:none!important;}
   </div>
 
   <div class="panel reconciliation-panel" id="cashReconciliationPanel">
-    <div class="panel-head">
-      <div><h3>Cash Reconciliation</h3><span class="muted">Compare recorded cash with actual balances.</span></div>
+    <div class="reconcile-head"><span>⚖</span><div><h3>Cash Reconciliation</h3><p>Compare recorded cash with actual balances.</p></div></div>
+    <div class="reconcile-fields">
+      <label>Actual Bank Balance<span class="reconcile-input"><i>▥</i><input id="reconcileBank" type="number" min="0" step="0.01" placeholder="₱0.00"></span></label>
+      <label>Actual Cash On Hand<span class="reconcile-input"><i>▣</i><input id="reconcileCash" type="number" min="0" step="0.01" placeholder="₱0.00"></span></label>
     </div>
-    <div class="grid">
-      <label>Actual Bank Balance<input id="reconcileBank" type="number" min="0" step="0.01" placeholder="0.00"></label>
-      <label>Actual Cash On Hand<input id="reconcileCash" type="number" min="0" step="0.01" placeholder="0.00"></label>
-      <label class="wide">Notes<textarea id="reconcileNotes" placeholder="Explain any variance."></textarea></label>
-      <div class="wide reconciliation-result" id="reconciliationResult">No reconciliation performed yet.</div>
-      <div class="wide"><button class="btn" type="button" id="reconcileCashBtn">Reconcile Cash</button></div>
-    </div>
+    <div class="reconcile-total"><span>▦</span><div><b>Total Actual Cash</b><small>Bank Balance + Cash On Hand</small></div><strong id="reconcileActualTotal">₱0.00</strong></div>
+    <div class="reconcile-info">● <span>The total actual cash is the sum of your bank balance and cash on hand.</span></div>
+    <label class="reconcile-notes">Notes<span><i>▤</i><textarea id="reconcileNotes" placeholder="Explain any variance."></textarea></span></label>
+    <div class="reconcile-variance"><span>⌁</span><div><b>Variance</b><small>Recorded Total Cash − Total Actual Cash</small></div><strong id="reconcileVariance">₱0.00</strong></div>
+    <div class="reconciliation-result" id="reconciliationResult">●&nbsp; No reconciliation performed yet.</div>
+    <button class="reconcile-submit" type="button" id="reconcileCashBtn">↻&nbsp; Reconcile Cash</button>
   </div>
 </section>
 
 <section class="page hidden" id="receiptsPage" data-page-section="receipts">
-  <div class="page-heading">
-    <div>
-      <h2>Receipts</h2>
-      <div class="muted">View attached receipts by project or browse the complete receipt library.</div>
-    </div>
+  <div class="receipt-library-hero">
+    <div class="receipt-library-icon">▤</div>
+    <div><h2>Receipts</h2><p>View all uploaded receipts by project or browse the complete receipt library.</p></div>
   </div>
 
-  <div class="panel">
-    <div class="receipt-toolbar" style="padding:15px">
-      <div>
-        <label>Project / Receipt Folder</label>
-        <div class="receipt-enhanced-controls"><input id="receiptSearchInput" type="search" placeholder="Search receipt name, project…"><select id="receiptStatusFilter"><option value="">All Statuses</option><option>Pending</option><option>Verified</option><option>Rejected</option></select></div><select id="receiptProjectFilter">
-          <option value="">All Projects — All Receipts</option>
-        </select>
-      </div>
-      <button class="secondary" type="button" id="refreshReceiptsBtn">Refresh Receipts</button>
+  <div class="receipt-filter-panel">
+    <label class="receipt-filter-label" for="receiptSearchInput">Project / Receipt Folder</label>
+    <div class="receipt-search-wrap"><span>⌕</span><input id="receiptSearchInput" type="search" placeholder="Search receipt name, project…"></div>
+    <div class="receipt-filter-row">
+      <label class="receipt-select-wrap"><span>▱</span><select id="receiptProjectFilter"><option value="">All Projects / Folders</option></select></label>
+      <label class="receipt-select-wrap"><span>◇</span><select id="receiptTypeFilter"><option value="">All Categories / Types</option><option value="image">Images</option><option value="pdf">PDF Documents</option><option value="other">Other Files</option></select></label>
     </div>
+    <button class="receipt-refresh" type="button" id="refreshReceiptsBtn">↻&nbsp; Refresh Receipts</button>
   </div>
 
-  <div class="panel" style="margin-top:12px">
-    <div class="panel-head">
-      <div><h3 id="receiptCount">Receipts</h3><span id="receiptStats" class="muted"></span></div>
+  <div class="receipt-library-panel">
+    <div class="receipt-library-head">
+      <div><div class="receipt-gallery-title"><i>▤</i><h3 id="receiptCount">Receipts Gallery</h3></div><span id="receiptStats">Showing newest receipts first</span></div>
+      <div class="receipt-library-tools"><select id="receiptSort" aria-label="Receipt order"><option value="newest">↕&nbsp; Newest First</option><option value="oldest">↕&nbsp; Oldest First</option><option value="name">A–Z&nbsp; Name</option></select><button type="button" class="receipt-view active" data-receipt-view="grid" aria-label="Gallery view">▦</button><button type="button" class="receipt-view" data-receipt-view="list" aria-label="List view">☷</button></div>
     </div>
-    <div class="receipt-grid" id="receiptGrid">
-      <div class="receipt-empty" style="grid-column:1/-1">Loading receipts...</div>
-    </div>
+    <div class="receipt-grid" id="receiptGrid"><div class="receipt-empty" style="grid-column:1/-1">Loading receipts...</div></div>
+    <div class="receipt-pagination"><span id="receiptPageInfo">Loading receipts…</span><div id="receiptPages"></div></div>
   </div>
 </section>
 </main>
@@ -3043,7 +3055,10 @@ function notificationTimestamp(x){
 function renderNotifications(){
   const list=$("notificationList"),badge=$("notificationBadge");
   if(!list||!badge)return;
-  const activities=Array.isArray(data?.activity)?data.activity:[];
+  // Keep the notification feed separate from the dashboard activity feed.
+  // Refreshing the dashboard used to overwrite notifications, leaving a badge
+  // count with an empty dropdown (or the reverse).
+  const activities=Array.isArray(data?.notifications)?data.notifications:(Array.isArray(data?.activity)?data.activity:[]);
   const serverMode=activities.some(x=>Object.prototype.hasOwnProperty.call(x,"unread"));
   const readIds=new Set(getReadNotificationIds());
   // Always sort by the actual notification timestamp, newest first.
@@ -3088,17 +3103,20 @@ async function loadServerNotifications(){
   try{
     let o=await api("notifications",{token:session.token,limit:500});
     data=data||{};
-    data.activity=Array.isArray(o.notifications)?o.notifications:[];
-    data.serverUnreadCount=Number.isFinite(Number(o.unreadCount))?Number(o.unreadCount):data.activity.filter(x=>x&&x.unread).length;
+    data.notifications=Array.isArray(o.notifications)?o.notifications:[];
+    data.serverUnreadCount=Number.isFinite(Number(o.unreadCount))?Number(o.unreadCount):data.notifications.filter(x=>x&&x.unread).length;
     renderNotifications();
   }catch(e){console.error(e)}
 }
 function markNotificationsRead(){
-  const ids=(data?.activity||[]).map(x=>notificationId(x));
+  const items=Array.isArray(data?.notifications)?data.notifications:(data?.activity||[]);
+  const ids=items.map(x=>notificationId(x));
   saveReadNotificationIds(ids);
-  if(Array.isArray(data?.activity))data.activity=data.activity.map(x=>({...x,unread:false}));
+  if(Array.isArray(data?.notifications))data.notifications=data.notifications.map(x=>({...x,unread:false}));
   data.serverUnreadCount=0;
   renderNotifications();
+  // Persist the read state without waiting to close the notification menu.
+  if(session?.token)api("markNotificationsRead",{token:session.token}).catch(()=>{});
   toast('Notifications marked as read.');
 }
 function profileStorageKey(){return session?.user?.username?`cf_profile_photo_${session.user.username}`:"cf_profile_photo"}
@@ -3514,15 +3532,22 @@ async function loadTools(){
   try{
     const o=await api("listTools",{token:session.token,clientId:selectedClientId||""});
     const tools=Array.isArray(o?.tools)?o.tools:[];
+    const setCount=(id,value)=>{const el=$(id);if(el)el.textContent=value;};
+    const currentlyOut=tools.filter(x=>["Borrowed","Overdue"].includes(String(x.status||"Borrowed")));
+    setCount("toolTotalCount",tools.length);
+    setCount("toolOutCount",currentlyOut.filter(x=>String(x.status||"Borrowed")==="Borrowed").length);
+    setCount("toolReturnedCount",tools.filter(x=>String(x.status||"")==="Returned").length);
+    setCount("toolOverdueCount",tools.filter(x=>String(x.status||"")==="Overdue").length);
     body.innerHTML=tools.map(x=>{
       const st=String(x.status||"Borrowed");
+      const statusClass=st.toLowerCase().replace(/[^a-z]/g,"");
       const action=(st==="Borrowed"||st==="Overdue")&&x.row!=null
         ? `<button type="button" class="secondary return-tool-btn" data-row="${esc(x.row)}">Mark Returned</button>` : "—";
-      return `<tr><td>${esc(x.tool||"—")}</td><td>${esc(x.toolId||"—")}</td><td>${esc(x.borrower||"—")}</td><td>${esc(x.project||"—")}</td><td>${esc(x.borrowed||"—")}</td><td>${esc(x.expectedReturn||"—")}</td><td>${esc(st)}</td><td>${esc(x.enteredBy||"—")}</td><td>${action}</td></tr>`;
-    }).join("")||'<tr><td colspan="9" style="text-align:center;padding:20px">No tool records yet.</td></tr>';
+      return `<tr><td><strong>${esc(x.tool||"—")}</strong></td><td>${esc(x.toolId||"—")}</td><td>${esc(x.borrower||"—")}</td><td>${esc(x.project||"—")}</td><td>${esc(x.borrowed||"—")}</td><td>${esc(x.expectedReturn||"—")}</td><td><span class="tool-status ${esc(statusClass)}">${esc(st)}</span></td><td>${action}</td></tr>`;
+    }).join("")||'<tr><td colspan="8" style="text-align:center;padding:20px">No tool records yet.</td></tr>';
   }catch(x){
     const msg=String(x?.message||x||"");
-    body.innerHTML=`<tr><td colspan="9" style="text-align:center;padding:20px;color:#718395">${/unknown action|not found/i.test(msg)?"Tool records are not available from the connected server yet.":"Unable to load tool records. Please refresh."}</td></tr>`;
+    body.innerHTML=`<tr><td colspan="8" style="text-align:center;padding:20px;color:#718395">${/unknown action|not found/i.test(msg)?"Tool records are not available from the connected server yet.":"Unable to load tool records. Please refresh."}</td></tr>`;
   }
 }
 
@@ -3754,36 +3779,47 @@ document.addEventListener("DOMContentLoaded",()=>{
 <script id="liwo-receipt-click-script">
 (function(){
   const escR=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+  const q=id=>document.getElementById(id), perPage=8;
+  let receipts=[],page=1,view="grid";
+  const date=v=>{const d=new Date(v);return isNaN(d)?"Date unavailable":d.toLocaleDateString("en-PH",{month:"short",day:"numeric",year:"numeric"})};
+  const kind=x=>/^image\//i.test(x.mimeType||"")?"image":/pdf/i.test(x.mimeType||"")?"pdf":"other";
+  const label=k=>k==="image"?"IMAGE":k==="pdf"?"PDF":"FILE";
+  function filtered(){
+    const search=(q("receiptSearchInput")?.value||"").toLowerCase().trim(),type=q("receiptTypeFilter")?.value||"",sort=q("receiptSort")?.value||"newest";
+    const list=receipts.filter(x=>{const text=`${x.name||""} ${x.project||""}`.toLowerCase();return (!search||text.includes(search))&&(!type||kind(x)===type)});
+    return list.sort((a,b)=>sort==="name"?String(a.name||"").localeCompare(String(b.name||"")):sort==="oldest"?new Date(a.createdAt)-new Date(b.createdAt):new Date(b.createdAt)-new Date(a.createdAt));
+  }
+  function render(){
+    const grid=q("receiptGrid"),all=filtered(),total=Math.max(1,Math.ceil(all.length/perPage)); page=Math.min(page,total);
+    const slice=all.slice((page-1)*perPage,page*perPage); if(!grid)return;
+    grid.classList.toggle("receipt-list",view==="list");
+    q("receiptCount").textContent=`Receipts Gallery (${all.length})`;
+    q("receiptStats").textContent=all.length?"Showing newest receipts first":"No receipts match these filters";
+    if(!all.length){grid.innerHTML='<div class="receipt-empty" style="grid-column:1/-1">No receipts found for this selection.</div>';}else grid.innerHTML=slice.map(x=>{
+      const fileKind=kind(x),url=x.url||x.viewUrl||"",preview=x.preview||x.viewUrl||url;
+      const thumb=fileKind==="image"?`<img src="${escR(preview)}" alt="${escR(x.name||"Receipt")}" loading="lazy">`:`<div class="receipt-file">${fileKind==="pdf"?"PDF":"▤"}</div>`;
+      const size=x.size?`${(Number(x.size)/1048576).toFixed(2)} MB`:"";
+      return `<article class="receipt-card" data-receipt-url="${escR(url)}"><div class="receipt-thumb">${thumb}</div><div class="receipt-info"><div><div class="receipt-name" title="${escR(x.name||"Receipt")}">${escR(x.name||"Receipt")}</div><span class="receipt-type ${fileKind}">${label(fileKind)}</span></div><div class="receipt-project">▱ <span>${escR(x.project||"Unassigned")}</span></div><div class="receipt-meta">▣ <span>${date(x.createdAt)}${size?` · ${escR(size)}`:""}</span></div><div class="receipt-actions">${url?`<a href="${escR(url)}" target="_blank" rel="noopener noreferrer">◉&nbsp; View</a>`:"<span>Unavailable</span>"}</div></div></article>`;
+    }).join("");
+    q("receiptPageInfo").textContent=all.length?`Showing ${(page-1)*perPage+1} to ${Math.min(page*perPage,all.length)} of ${all.length} receipts`:"No receipts";
+    const pages=q("receiptPages");if(pages)pages.innerHTML=total>1?Array.from({length:total},(_,i)=>`<button class="receipt-page ${i+1===page?"active":""}" type="button" data-page="${i+1}">${i+1}</button>`).join(""):"";
+  }
   window.loadReceipts=async function(){
     try{
       if(typeof api!=="function")throw Error("API unavailable.");
-      const project=document.getElementById("receiptProjectFilter")?.value||((data?.clients||[]).find(x=>String(x.id)===String(selectedClientId))?.name||"");if(document.getElementById("receiptProjectFilter")&&selectedClientId)document.getElementById("receiptProjectFilter").value=project;
+      const project=q("receiptProjectFilter")?.value||"";
       const o=await api("listReceipts",{token:session.token,project});
-      const sel=document.getElementById("receiptProjectFilter");
+      const sel=q("receiptProjectFilter");
       if(sel && sel.options.length===1){
         (o.projects||[]).forEach(p=>{const op=document.createElement("option");op.value=p;op.textContent=p;sel.appendChild(op);});
       }
-      const list=o.receipts||[],grid=document.getElementById("receiptGrid"),count=document.getElementById("receiptCount");
-      if(count)count.textContent=`Receipts (${list.length})`;
-      if(!grid)return;
-      if(!list.length){grid.innerHTML='<div class="receipt-empty" style="grid-column:1/-1">No receipts found for this selection.</div>';return;}
-      grid.innerHTML=list.map(x=>{
-        const isImg=/^image\\//i.test(x.mimeType||"");
-        const thumb=isImg?`<img src="${escR(x.url)}" alt="Receipt" loading="lazy">`:`<div class="receipt-file">📄</div>`;
-        return `<article class="receipt-card" data-receipt-url="${escR(x.url)}">
-          <div class="receipt-thumb">${thumb}</div><div class="receipt-info">
-          <div class="receipt-name" title="${escR(x.name)}">${escR(x.name)}</div>
-          <div class="receipt-project">${escR(x.project||"")}</div>
-          <div class="receipt-meta">${x.size?((Number(x.size)/1024/1024).toFixed(2)+" MB"):""} · ${escR(x.createdAt||"")}</div>
-          <div class="receipt-actions"><a class="primary" href="${escR(x.url)}" target="_blank" rel="noopener noreferrer">Open Receipt</a></div>
-          </div></article>`;
-      }).join("");
+      receipts=Array.isArray(o.receipts)?o.receipts:[];page=1;render();
     }catch(e){
       const msg=String(e?.message||e||"");
-      const grid=document.getElementById("receiptGrid");
+      const grid=q("receiptGrid");
       if(/unknown action/i.test(msg)){
-        const count=document.getElementById("receiptCount");
-        if(count)count.textContent="Receipts (0)";
+        const count=q("receiptCount");
+        if(count)count.textContent="Receipts Gallery (0)";
         if(grid)grid.innerHTML='<div class="receipt-empty" style="grid-column:1/-1">No receipts found.</div>';
         return;
       }
@@ -3794,8 +3830,12 @@ document.addEventListener("DOMContentLoaded",()=>{
     const card=e.target.closest("#receiptsPage .receipt-card");
     if(card && !e.target.closest("a,button,select")){const url=card.getAttribute("data-receipt-url");if(url)window.open(url,"_blank","noopener,noreferrer");}
   });
-  document.getElementById("receiptProjectFilter")?.addEventListener("change",loadReceipts);
-  document.getElementById("refreshReceiptsBtn")?.addEventListener("click",loadReceipts);
+  q("receiptProjectFilter")?.addEventListener("change",loadReceipts);
+  q("refreshReceiptsBtn")?.addEventListener("click",loadReceipts);
+  q("receiptSearchInput")?.addEventListener("input",()=>{page=1;render()});
+  q("receiptTypeFilter")?.addEventListener("change",()=>{page=1;render()});
+  q("receiptSort")?.addEventListener("change",render);
+  document.addEventListener("click",e=>{const b=e.target.closest(".receipt-page");if(b){page=Number(b.dataset.page)||1;render();}const v=e.target.closest("[data-receipt-view]");if(v){view=v.dataset.receiptView;document.querySelectorAll(".receipt-view").forEach(x=>x.classList.toggle("active",x===v));render();}});
 })();
 </script>
 
@@ -3996,7 +4036,7 @@ document.addEventListener("DOMContentLoaded",()=>{
 (function(){
   const q=id=>document.getElementById(id);
   const safe=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
-  const getNotes=()=>Array.isArray(window.data?.activity)?window.data.activity:[];
+  const getNotes=()=>Array.isArray(window.data?.notifications)?window.data.notifications:(Array.isArray(window.data?.activity)?window.data.activity:[]);
   const isRead=x=>typeof getReadNotificationIds==="function"&&getReadNotificationIds().includes(notificationId(x));
   function syncBadge(){
     const notes=getNotes();
@@ -4087,8 +4127,6 @@ document.addEventListener("DOMContentLoaded",()=>{
   const oldSwitch=window.switchPage;if(typeof oldSwitch==='function')window.switchPage=function(p){oldSwitch(p);if(p==='executive')loadExecutiveDashboard();if(p==='users'&&String(session?.user?.role||'').trim().toLowerCase()==='admin')loadReportSettings()};
  window.renderMobileAlertCenter=window.renderMobileAlertCenter||function(){const box=q('mobileAlertCenter');if(!box||!window.data)return;const a=data.smart?.alerts||[];if(!a.length){box.classList.add('hidden');return}box.classList.remove('hidden');box.innerHTML='<div class="ma-head"><span>⚠ Attention</span><span>'+a.length+'</span></div>'+a.slice(0,4).map(x=>`<div class="ma-item ${escF(x.level||'attention')}"><b>${escF(x.title)}</b><br>${escF(x.detail)}</div>`).join('')};
  const oldRender=window.render;if(typeof oldRender==='function')window.render=function(){const r=oldRender.apply(this,arguments);try{renderMobileAlertCenter()}catch(e){}return r};
- const origLoadReceipts=window.loadReceipts;if(typeof origLoadReceipts==='function')window.loadReceipts=async function(){await origLoadReceipts.apply(this,arguments);const grid=q('receiptGrid');if(!grid)return;const search=(q('receiptSearchInput')?.value||'').toLowerCase().trim(),status=q('receiptStatusFilter')?.value||'';const cards=[...grid.querySelectorAll('.receipt-card')];let shown=0;cards.forEach(c=>{const text=c.textContent.toLowerCase(),st=(c.querySelector('.receipt-verify span')?.textContent||'').trim();const ok=(!search||text.includes(search))&&(!status||st===status);c.style.display=ok?'':'none';if(ok)shown++});if(q('receiptStats'))q('receiptStats').textContent=cards.length?`${shown} shown`:'No receipts'};
- ['receiptSearchInput','receiptStatusFilter'].forEach(id=>q(id)?.addEventListener('input',()=>window.loadReceipts?.()));
  q('approvalPanel')?.remove();
 })();
 </script>
@@ -4178,7 +4216,10 @@ document.addEventListener("DOMContentLoaded",()=>{
     }).join(""):'<tr><td colspan="6" class="liwo-bill-empty">No bills found.</td></tr>';
   }
   async function load(){
-    if(!window.session?.token){bills=[];render();return;}
+    // `session` is declared with `let` in the main script, so it is not a
+    // `window` property. Checking window.session made every tracker reload
+    // appear signed out and cleared bills that were successfully saved.
+    if(typeof session==="undefined"||!session?.token){bills=[];render();return;}
     try{
       // Bills are project-scoped. Always load only the currently selected project.
       const projectId=String(window.selectedClientId||selectedClientId||"").trim();
@@ -4254,7 +4295,7 @@ document.addEventListener("DOMContentLoaded",()=>{
     render();
   }
   window.loadLIWOBills=()=>{init();load();};
-  document.addEventListener("DOMContentLoaded",()=>{init();if(window.session?.token)load();});
+  document.addEventListener("DOMContentLoaded",()=>{init();if(typeof session!=="undefined"&&session?.token)load();});
 })();
 </script>
 </body>
@@ -4481,17 +4522,17 @@ document.addEventListener("DOMContentLoaded",()=>{
         try{
           let o=await api("notifications",{token:session.token,limit:500});
           data=data||{};
-          data.activity=Array.isArray(o.notifications)?o.notifications:[];
-          data.serverUnreadCount=Number.isFinite(Number(o.unreadCount))?Number(o.unreadCount):data.activity.filter(x=>x&&x.unread).length;
+          data.notifications=Array.isArray(o.notifications)?o.notifications:[];
+          data.serverUnreadCount=Number.isFinite(Number(o.unreadCount))?Number(o.unreadCount):data.notifications.filter(x=>x&&x.unread).length;
           const list=q("mobileNotificationList");
           if(list){
-            const notes=data.activity.slice().reverse();
+            const notes=data.notifications.slice().sort((a,b)=>new Date(b.time||0)-new Date(a.time||0));
             list.innerHTML=notes.length?notes.map(x=>{
               const title=typeof notificationTitle==="function"?notificationTitle(x):(x.action||"FINANCE UPDATE");
               const details=typeof notificationDetails==="function"?notificationDetails(x):(x.details||"A new transaction or system update was recorded in LIWO Finance.");
-              const kind=typeof notificationKind==="function"?notificationKind(x):"SYSTEM UPDATE";
-              const read=typeof getReadNotificationIds==="function"&&getReadNotificationIds().includes(notificationId(x));
-              return `<button type="button" class="mobile-note-row ${read?"read":""}"><i class="mobile-note-dot"></i><span><strong>${safe(title)}<em>${safe(kind)}</em></strong><span>${safe(details)}</span><span>${safe(x.name||x.username||"LIWO System")}${x.time?" • "+safe(formatNotificationTime(x.time)):""}</span></span></button>`;
+              const visual=typeof notificationVisual==="function"?notificationVisual(x):{icon:"•",cls:"update"};
+              const read=!x.unread;
+              return `<button type="button" class="mobile-note-row ${read?"read":""}"><i class="mobile-note-dot ${safe(visual.cls)}"></i><i class="mobile-note-icon ${safe(visual.cls)}">${safe(visual.icon)}</i><span class="mobile-note-main"><strong>${safe(title)}</strong><span>${safe(details)}</span></span><time>${x.time?safe(formatNotificationTime(x.time)):""}</time><b class="mobile-note-more">•••</b></button>`;
             }).join(""):"<div class=\"mobile-note-empty\">No messages, updates, or financial notifications yet.</div>";
           }
           const badge=q("mobileNotificationBadge"),unread=Number(data.serverUnreadCount||0);
@@ -4556,7 +4597,7 @@ document.addEventListener("DOMContentLoaded",()=>{
   // Keep mobile notification badge synchronized even when the desktop notification
   // center is not present/visible.
   setInterval(()=>{try{
-    const notes=Array.isArray(data?.activity)?data.activity:[];
+    const notes=Array.isArray(data?.notifications)?data.notifications:(Array.isArray(data?.activity)?data.activity:[]);
     const unread=Number.isFinite(Number(data?.serverUnreadCount))?Number(data.serverUnreadCount):notes.filter(x=>!(typeof getReadNotificationIds==="function"&&getReadNotificationIds().includes(notificationId(x)))).length;
     const b=q("mobileNotificationBadge"); if(b){b.textContent=unread>99?"99+":String(unread);b.style.display=unread?"grid":"none";}
   }catch(_){}},5000);
@@ -4618,6 +4659,11 @@ document.addEventListener("DOMContentLoaded",()=>{
   window.addEventListener("load",()=>{calculate();});
 })();
 </script>
+
+<style id="liwo-notification-polish">
+#notificationDropdown{width:375px!important;max-height:560px!important;border:1px solid #dde6ef!important;border-radius:12px!important;box-shadow:0 14px 35px rgba(12,36,62,.16)!important}.notification-dropdown .dropdown-head{padding:14px 16px!important}.notification-dropdown .dropdown-head strong{color:#17395f!important;font-size:16px!important}.notification-dropdown .dropdown-action{color:#2871c7!important;font-size:11px!important}.notification-item{position:relative;gap:10px!important;padding:12px 14px!important;background:#fff!important}.notification-item.unread{background:#fbfdff!important}.notification-dot{width:7px!important;height:7px!important;margin-top:18px!important}.notification-icon{width:38px;height:38px;display:grid;place-items:center;border-radius:50%;font-size:19px;flex:none;background:#e8f5ec;color:#16964d}.notification-icon.bill{background:#eaf2ff;color:#2672db}.notification-icon.due{background:#fff3df;color:#ec9718}.notification-icon.overdue{background:#ffeded;color:#e74747}.notification-icon.project{background:#f1ebff;color:#7650ce}.notification-content{width:100%}.notification-row-top{display:flex;align-items:flex-start;gap:8px}.notification-row-top p{flex:1}.notification-row-top small{margin:1px 0 0!important;white-space:nowrap}.notification-more{border:0;background:transparent;color:#617b95;letter-spacing:1px;font-weight:800}.notification-details{font-size:11px!important;color:#536e8b!important}.notification-actor{display:none!important}.notification-view-all{width:calc(100% - 24px);height:37px;margin:12px;border:1px solid #dde7f1;border-radius:8px;background:#fff;color:#315678;font-size:11px;font-weight:800;cursor:pointer}.notification-view-all span{float:right;font-size:19px;line-height:12px}
+@media(max-width:900px){.mobile-notification-sheet{border-radius:12px 12px 0 0!important;max-height:92vh!important}.mobile-notification-head{padding:14px 17px!important}.mobile-notification-head strong{font-size:16px!important}.mobile-notification-head button{background:transparent!important;color:#2871c7!important;padding:5px!important}.mobile-note-row{position:relative;gap:9px!important;align-items:flex-start;padding:12px 10px!important}.mobile-note-dot{margin-top:17px!important;width:7px!important;height:7px!important}.mobile-note-icon{width:37px;height:37px;display:grid;place-items:center;flex:none;border-radius:50%;background:#e8f5ec;color:#16964d;font-size:18px;font-style:normal}.mobile-note-icon.bill{background:#eaf2ff;color:#2672db}.mobile-note-icon.due{background:#fff3df;color:#ec9718}.mobile-note-icon.overdue{background:#ffeded;color:#e74747}.mobile-note-icon.project{background:#f1ebff;color:#7650ce}.mobile-note-main{min-width:0;flex:1}.mobile-note-main strong{color:#17395f!important;font-size:11px!important}.mobile-note-main>span{color:#56708c!important;font-size:10px!important;line-height:1.4!important}.mobile-note-row time{color:#6d8196;font-size:9px;white-space:nowrap}.mobile-note-more{color:#627b94;font-size:12px;letter-spacing:1px}.mobile-notification-view-all{display:flex;align-items:center;justify-content:space-between;width:100%;margin:8px 0 0;padding:11px 5px;border:1px solid #dce6f0;border-radius:8px;background:#fff;color:#315678;font-size:11px;font-weight:800}}
+</style>
 
 <script id="liwo-mobile-edit-final-fix">
 (function(){

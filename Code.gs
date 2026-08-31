@@ -1600,21 +1600,60 @@ function updateBill(r,u){
   adminOrFinance_(u);
   const id=String(r.id||r.billId||"").trim();
   if(!id)throw Error("Bill ID is required.");
-  const sh=billSheet_();if(!sh)throw Error("Bills sheet not found.");const v=sh.getDataRange().getValues();
-  const i=v.slice(1).findIndex(function(x){return String(x[1]||"")===id;});
+
+  const sh=billSheet_();
+  if(!sh)throw Error("Bills sheet not found.");
+
+  const v=sh.getDataRange().getValues();
+  const m=billHeaderMap_(sh);
+  const cId=billCol_(m,["BillID","Bill Id","ID","Id"],1);
+  const cClient=billCol_(m,["ClientID","Client Id","ProjectID","Project Id"],2);
+  const cName=billCol_(m,["Bill / Payee","Bill/Payee","Bill Payee","Payee","Vendor","Name"],3);
+  const cCategory=billCol_(m,["Category","Type"],4);
+  const cDue=billCol_(m,["DueDate","Due Date","Date Due"],5);
+  const cAmount=billCol_(m,["Amount","Bill Amount","Total"],6);
+  const cStatus=billCol_(m,["Status"],7);
+  const cNotes=billCol_(m,["Notes","Remarks"],8);
+  const cEntered=billCol_(m,["Entered By","EnteredBy","CreatedBy"],9);
+  const cUsername=billCol_(m,["Username","User Name"],10);
+  const cUpdated=billCol_(m,["UpdatedAt","Updated At","LastUpdated"],11);
+
+  const i=v.slice(1).findIndex(function(x){return String(x[cId]||"").trim()===id;});
   if(i<0)throw Error("Bill not found.");
-  const row=i+2,old=v[i+1],clientId=String(r.clientId??old[2]??"").trim();
-  if(clientId)requireClient_(clientId,true);
-  const name=String(r.name??old[3]??"").trim();
+
+  const row=i+2,old=v[i+1];
+  const clientId=String(r.clientId??old[cClient]??"").trim();
+  if(!clientId)throw Error("Client / project ID is required.");
+  requireClient_(clientId,true);
+
+  const name=String(r.name??old[cName]??"").trim();
   if(!name)throw Error("Bill / Payee is required.");
-  const amount=num(r.amount??old[6]);
+  const amount=num(r.amount??old[cAmount]);
   if(amount<0)throw Error("Bill amount cannot be negative.");
-  const status=String(r.status??old[7]??"Pending");
+  const status=String(r.status??old[cStatus]??"Pending");
   if(["Pending","Ongoing","Paid"].indexOf(status)<0)throw Error("Invalid bill status.");
+
+  // Verify the record being edited belongs to the selected project.
+  const storedClientId=String(old[cClient]??"").trim();
+  if(storedClientId && storedClientId!==clientId)
+    throw Error("Project scope violation: this bill belongs to another project.");
+
   const now=new Date();
-  sh.getRange(row,2,1,11).setValues([[id,clientId,name,String(r.category??old[4]??"Other"),r.dueDate??old[5]??"",amount,status,String(r.notes??old[8]??""),old[9]||u.name,old[10]||u.username,now]]);
+  const set=(col,value)=>{if(col>=0 && col<sh.getLastColumn())sh.getRange(row,col+1).setValue(value);};
+  set(cClient,clientId);
+  set(cName,name);
+  set(cCategory,String(r.category??old[cCategory]??"Other"));
+  set(cDue,r.dueDate??old[cDue]??"");
+  set(cAmount,amount);
+  set(cStatus,status);
+  set(cNotes,String(r.notes??old[cNotes]??""));
+  set(cEntered,old[cEntered]||u.name);
+  set(cUsername,old[cUsername]||u.username);
+  set(cUpdated,now);
+  SpreadsheetApp.flush();
+
   audit("EDIT_BILL",u,name+" | "+amount+" | "+status);
-  return {ok:true,id,clientId,message:"Bill updated."};
+  return{ok:true,id,clientId,message:"Bill updated."};
 }
 function editBill(r,u){return updateBill(r,u);}
 
@@ -1622,13 +1661,36 @@ function deleteBill(r,u){
   adminOrFinance_(u);
   const id=String(r.id||r.billId||"").trim();
   if(!id)throw Error("Bill ID is required.");
-  const sh=billSheet_();if(!sh)throw Error("Bills sheet not found.");const v=sh.getDataRange().getValues();
-  const i=v.slice(1).findIndex(function(x){return String(x[1]||"")===id;});
+
+  const sh=billSheet_();
+  if(!sh)throw Error("Bills sheet not found.");
+
+  const v=sh.getDataRange().getValues(),m=billHeaderMap_(sh);
+  const cId=billCol_(m,["BillID","Bill Id","ID","Id"],1);
+  const cClient=billCol_(m,["ClientID","Client Id","ProjectID","Project Id"],2);
+  const cName=billCol_(m,["Bill / Payee","Bill/Payee","Bill Payee","Payee","Vendor","Name"],3);
+  const cAmount=billCol_(m,["Amount","Bill Amount","Total"],6);
+  const cStatus=billCol_(m,["Status"],7);
+
+  const i=v.slice(1).findIndex(function(x){return String(x[cId]||"").trim()===id;});
   if(i<0)throw Error("Bill not found.");
-  const row=i+2,old=v[i+1],clientId=String(old[2]||"");
-  audit("DELETE_BILL",u,(clientId?((clientNameMap()[clientId]||{}).name+" | "):"")+String(old[3]||"")+" | "+num(old[6])+" | "+String(old[7]||""));
+
+  const row=i+2,old=v[i+1],storedClientId=String(old[cClient]||"").trim();
+  const requestedClientId=String(r.clientId||"").trim();
+  if(requestedClientId && storedClientId && requestedClientId!==storedClientId)
+    throw Error("Project scope violation: this bill belongs to another project.");
+
+  const clientId=storedClientId||requestedClientId;
+  if(!clientId)throw Error("Client / project ID is required.");
+  requireClient_(clientId,true);
+
+  audit("DELETE_BILL",u,
+    (clientNameMap()[clientId]?.name?clientNameMap()[clientId].name+" | ":"")+
+    String(old[cName]||"")+" | "+num(old[cAmount])+" | "+String(old[cStatus]||"")
+  );
   sh.deleteRow(row);
-  return {ok:true,id,clientId,message:"Bill deleted."};
+  SpreadsheetApp.flush();
+  return{ok:true,id,clientId,message:"Bill deleted."};
 }
 
 function listUsers(r,u){adminOnly(u);let set=settingsMap(),uv=rows("users"),fc=uv.filter(x=>String(x[3])==="Finance"&&String(x[4]).toLowerCase()!=="false").length;return{ok:true,users:uv.map(x=>({username:x[0],name:x[1],role:x[3],active:String(x[4]).toLowerCase()!=="false"})),financeCount:fc,financeRegistrationOpen:String(set.RegistrationOpen).toLowerCase()!=="false",clients:clientObjects(false)}}
