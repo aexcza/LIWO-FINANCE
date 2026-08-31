@@ -2192,7 +2192,14 @@ function renderNotifications(){
   const activities=Array.isArray(data?.activity)?data.activity:[];
   const serverMode=activities.some(x=>Object.prototype.hasOwnProperty.call(x,"unread"));
   const readIds=new Set(getReadNotificationIds());
-  const notifications=activities.map(x=>({x,id:notificationId(x),unread:serverMode?!!x.unread:!readIds.has(notificationId(x))})).sort((a,b)=>{const ta=new Date(a.x?.timestamp||a.x?.createdAt||a.x?.updatedAt||0).getTime()||0;const tb=new Date(b.x?.timestamp||b.x?.createdAt||b.x?.updatedAt||0).getTime()||0;return tb-ta;});
+  const notifications=activities.map((x,i)=>({x,id:notificationId(x),unread:serverMode?!!x.unread:!readIds.has(notificationId(x)),_i:i})).sort((a,b)=>{
+    const av=a.x?.time||a.x?.timestamp||a.x?.createdAt||a.x?.updatedAt||"";
+    const bv=b.x?.time||b.x?.timestamp||b.x?.createdAt||b.x?.updatedAt||"";
+    const ta=new Date(av).getTime(),tb=new Date(bv).getTime();
+    if(Number.isFinite(ta)&&Number.isFinite(tb)&&ta!==tb)return tb-ta;
+    if(Number.isFinite(ta)!==Number.isFinite(tb))return Number.isFinite(tb)?1:-1;
+    return b._i-a._i;
+  });
   const unread=serverMode&&Number.isFinite(Number(data.serverUnreadCount))
     ?Number(data.serverUnreadCount)
     :notifications.filter(n=>n.unread).length;
@@ -3143,7 +3150,14 @@ document.addEventListener("DOMContentLoaded",()=>{
   }
   function renderCenter(){
     const list=q("mobileNotificationList");if(!list)return;
-    const notes=getNotes().slice().reverse();
+    const notes=getNotes().slice().map((x,i)=>({...x,_i:i})).sort((a,b)=>{
+      const av=a?.time||a?.timestamp||a?.createdAt||a?.updatedAt||"";
+      const bv=b?.time||b?.timestamp||b?.createdAt||b?.updatedAt||"";
+      const ta=new Date(av).getTime(),tb=new Date(bv).getTime();
+      if(Number.isFinite(ta)&&Number.isFinite(tb)&&ta!==tb)return tb-ta;
+      if(Number.isFinite(ta)!==Number.isFinite(tb))return Number.isFinite(tb)?1:-1;
+      return b._i-a._i;
+    });
     list.innerHTML=notes.length?notes.map(x=>{
       const title=typeof notificationTitle==="function"?notificationTitle(x):(x.action||"FINANCE UPDATE");
       const details=typeof notificationDetails==="function"?notificationDetails(x):(x.details||"A finance update was recorded.");
