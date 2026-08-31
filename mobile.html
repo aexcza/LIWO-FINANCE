@@ -2868,27 +2868,6 @@ tbody:empty{display:none!important;}
   </div>
 </section>
 
-<style id="liwo-cash-project-history">
-.cash-project-banner{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 16px;padding:12px 15px;border:1px solid #dfe8ee;border-radius:12px;background:#f7fafc;color:#607487}
-.cash-project-banner span{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
-.cash-project-banner strong{color:#173d59;font-size:13px;text-align:right}
-.cash-history-panel{margin-top:16px}
-.cash-history-wrap{width:100%;overflow-x:auto}
-.cash-history-table{width:100%;border-collapse:collapse;min-width:820px}
-.cash-history-table th,.cash-history-table td{padding:10px 11px;border-bottom:1px solid #e8eef2;text-align:left;font-size:11px;vertical-align:top}
-.cash-history-table th{font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:#62778a;background:#f8fafb}
-.cash-history-table td{color:#29465c}
-.cash-history-status{display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;font-size:9px;font-weight:800}
-.cash-history-status.matched{background:#e7f7ee;color:#197044}
-.cash-history-status.variance{background:#fff0e8;color:#a94718}
-.cash-history-variance-positive{font-weight:800}
-.cash-history-variance-zero{font-weight:800;color:#197044}
-@media(max-width:900px){
-  .cash-project-banner{padding:10px 12px}
-  .cash-project-banner strong{max-width:62%;font-size:11px}
-  .cash-history-table{min-width:760px}
-}
-</style>
 <section class="page hidden" id="cashPage" data-page-section="cash">
   <div class="liwo-cash-header">
     <div class="liwo-cash-header-icon">▥</div>
@@ -2896,10 +2875,6 @@ tbody:empty{display:none!important;}
       <h1>Cash Position</h1>
       <p>Track the actual money currently held in the bank and on hand.</p>
     </div>
-  </div>
-  <div class="cash-project-banner">
-    <span>Active Project</span>
-    <strong id="cashProjectName">Select a client / project</strong>
   </div>
 
   <div class="liwo-cash-summary">
@@ -2953,33 +2928,6 @@ tbody:empty{display:none!important;}
       <label class="wide">Notes<textarea id="reconcileNotes" placeholder="Explain any variance."></textarea></label>
       <div class="wide reconciliation-result" id="reconciliationResult">No reconciliation performed yet.</div>
       <div class="wide"><button class="btn" type="button" id="reconcileCashBtn">Reconcile Cash</button></div>
-    </div>
-  </div>
-  <div class="panel cash-history-panel" id="cashReconciliationHistoryPanel">
-    <div class="panel-head">
-      <div>
-        <h3>Cash Reconciliation History</h3>
-        <span class="muted">Saved reconciliation records for the active project only.</span>
-      </div>
-      <button class="secondary" type="button" id="refreshCashHistoryBtn">↻ Refresh History</button>
-    </div>
-    <div class="cash-history-wrap">
-      <table class="cash-history-table">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Recorded Cash</th>
-            <th>Actual Cash</th>
-            <th>Variance</th>
-            <th>Status</th>
-            <th>Notes</th>
-            <th>Reconciled By</th>
-          </tr>
-        </thead>
-        <tbody id="cashHistoryBody">
-          <tr><td colspan="7" class="empty">No reconciliation records for this project.</td></tr>
-        </tbody>
-      </table>
     </div>
   </div>
 </section>
@@ -3719,7 +3667,7 @@ async function loadTools(){
 
 async function loadCash(){
   try{
-    let o=await api("cashBalances",{token:session.token,clientId:selectedClientId||""});
+    let o=await api("cashBalances",{token:session.token});
     $("cashBankValue").textContent=peso(o.bankBalance);
     $("cashOnHandValue").textContent=peso(o.cashOnHand);
     $("cashTotalValue").textContent=peso(o.totalCash);
@@ -4159,126 +4107,21 @@ document.addEventListener("DOMContentLoaded",()=>{
 
 <script id="liwo-simple-cash-position">
 (function(){
-  const q=id=>document.getElementById(id);
-  const money=v=>new Intl.NumberFormat("en-PH",{style:"currency",currency:"PHP"}).format(Number(v||0));
-  const escHtml=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
-  const activeProjectId=()=>String(window.selectedClientId||selectedClientId||q("dashboardClient")?.value||"").trim();
-
-  function render(d){
-    if(!d)return;
-    const bank=Number(d.bankBalance||0),onHand=Number(d.cashOnHand||0);
-    q("cashBankValue").textContent=money(bank);
-    q("cashOnHandValue").textContent=money(onHand);
-    q("cashTotalValue").textContent=money(Number(d.totalCash??bank+onHand));
-    if(q("cashBankInput"))q("cashBankInput").value=bank;
-    if(q("cashOnHandInput"))q("cashOnHandInput").value=onHand;
-    if(q("cashProjectName"))q("cashProjectName").textContent=d.projectName||"Select a client / project";
+  function render(o){
+    if(!o)return;
+    const money=v=>new Intl.NumberFormat("en-PH",{style:"currency",currency:"PHP"}).format(Number(v||0));
+    const bank=Number(o.bankBalance||0),onHand=Number(o.cashOnHand||0);
+    document.getElementById("cashBankValue").textContent=money(bank);
+    document.getElementById("cashOnHandValue").textContent=money(onHand);
+    document.getElementById("cashTotalValue").textContent=money(Number(o.totalCash??bank+onHand));
+    document.getElementById("cashBankInput").value=bank||"";
+    document.getElementById("cashOnHandInput").value=onHand||"";
   }
-
-  function renderHistory(list){
-    const body=q("cashHistoryBody");
-    if(!body)return;
-    if(!Array.isArray(list)||!list.length){
-      body.innerHTML='<tr><td colspan="7" class="empty">No reconciliation records for this project.</td></tr>';
-      return;
-    }
-    body.innerHTML=list.map(x=>{
-      const variance=Number(x.variance||0);
-      const matched=Math.abs(variance)<0.005;
-      const stamp=x.timestamp?new Date(x.timestamp).toLocaleString("en-PH",{dateStyle:"medium",timeStyle:"short"}):"—";
-      return `<tr>
-        <td>${escHtml(stamp)}</td>
-        <td>${money(x.expectedTotal)}</td>
-        <td>${money(x.actualTotal)}</td>
-        <td class="${matched?"cash-history-variance-zero":"cash-history-variance-positive"}">${variance>0?"+":""}${money(variance)}</td>
-        <td><span class="cash-history-status ${matched?"matched":"variance"}">${matched?"Matched":"Variance"}</span></td>
-        <td>${escHtml(x.notes||"—")}</td>
-        <td>${escHtml(x.reconciledBy||"—")}</td>
-      </tr>`;
-    }).join("");
-  }
-
-  async function load(){
-    if(!window.session?.token)return;
-    const clientId=activeProjectId();
-    if(!clientId){
-      if(q("cashProjectName"))q("cashProjectName").textContent="Select a client / project";
-      if(q("cashHistoryBody"))q("cashHistoryBody").innerHTML='<tr><td colspan="7" class="empty">Select an active project to view cash records.</td></tr>';
-      return;
-    }
-    try{
-      const d=await api("cashBalances",{token:session.token,clientId});
-      render(d);
-      await loadHistory(clientId);
-    }catch(e){toast(e.message||String(e))}
-  }
-
-  async function loadHistory(clientId=activeProjectId()){
-    if(!window.session?.token||!clientId)return;
-    try{
-      const d=await api("listCashReconciliations",{token:session.token,clientId});
-      renderHistory(d.reconciliations||[]);
-    }catch(e){
-      const body=q("cashHistoryBody");
-      if(body)body.innerHTML='<tr><td colspan="7" class="empty">Unable to load reconciliation history.</td></tr>';
-      console.error(e);
-    }
-  }
-
+  async function load(){if(!window.session?.token)return;try{render(await api("cashBalances",{token:session.token}));}catch(e){toast(e.message||String(e));}}
   document.addEventListener("DOMContentLoaded",()=>{
-    const old=q("saveCashBalanceBtn");
-    if(old){
-      const button=old.cloneNode(true);
-      old.replaceWith(button);
-      button.addEventListener("click",async()=>{
-        try{
-          const clientId=activeProjectId();
-          if(!clientId)throw Error("Select an Active Project before updating cash position.");
-          const bank=Number(q("cashBankInput").value),onHand=Number(q("cashOnHandInput").value);
-          if(!Number.isFinite(bank)||bank<0||!Number.isFinite(onHand)||onHand<0)
-            throw Error("Enter valid amounts for both Bank and Cash On Hand.");
-          button.disabled=true;
-          render(await api("updateCashBalances",{token:session.token,clientId,bankBalance:bank,cashOnHand:onHand}));
-          toast("Cash position updated for the selected project.");
-        }catch(e){toast(e.message||String(e))}
-        finally{button.disabled=false}
-      });
-    }
-
-    q("reconcileCashBtn")?.addEventListener("click",async()=>{
-      const btn=q("reconcileCashBtn");
-      try{
-        const clientId=activeProjectId();
-        if(!clientId)throw Error("Select an Active Project before reconciling cash.");
-        const actualBank=Number(q("reconcileBank").value);
-        const actualCashOnHand=Number(q("reconcileCash").value);
-        if(!Number.isFinite(actualBank)||actualBank<0||!Number.isFinite(actualCashOnHand)||actualCashOnHand<0)
-          throw Error("Enter valid actual bank and cash-on-hand balances.");
-        btn.disabled=true;
-        const d=await api("reconcileCash",{token:session.token,clientId,actualBank,actualCashOnHand,notes:q("reconcileNotes").value});
-        const matched=Math.abs(Number(d.variance||0))<0.005;
-        q("reconciliationResult").innerHTML=
-          `<strong>${matched?"Reconciled — No Variance":"Reconciled — Variance Detected"}</strong>
-           <span>Recorded: ${money(d.expectedTotal)} · Actual: ${money(d.actualTotal)} · Variance: ${money(d.variance)}</span>`;
-        q("reconcileBank").value="";
-        q("reconcileCash").value="";
-        q("reconcileNotes").value="";
-        await loadHistory(clientId);
-        toast(matched?"Cash reconciled with no variance.":"Cash reconciliation saved with a variance.");
-      }catch(e){toast(e.message||String(e))}
-      finally{btn.disabled=false}
-    });
-
-    q("refreshCashHistoryBtn")?.addEventListener("click",()=>loadHistory());
-    window.loadCash=load;
-    window.loadLIWOCash=load;
-  });
-
-  // Reload immediately when the active project changes.
-  document.addEventListener("change",e=>{
-    if(e.target?.id==="dashboardClient" && document.getElementById("cashPage")?.classList.contains("active")){
-      setTimeout(load,0);
-    }
+    const old=document.getElementById("saveCashBalanceBtn"),button=old.cloneNode(true);old.replaceWith(button);
+    button.addEventListener("click",async()=>{try{const bank=Number(document.getElementById("cashBankInput").value),onHand=Number(document.getElementById("cashOnHandInput").value);if(!Number.isFinite(bank)||bank<0||!Number.isFinite(onHand)||onHand<0)throw Error("Enter valid amounts for both Bank and Cash On Hand.");button.disabled=true;render(await api("updateCashBalances",{token:session.token,bankBalance:bank,cashOnHand:onHand}));toast("Bank and cash-on-hand balances updated.");}catch(e){toast(e.message||String(e));}finally{button.disabled=false;}});
+    window.loadCash=load;window.loadLIWOCash=load;
   });
 })();
 </script>
