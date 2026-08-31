@@ -1365,6 +1365,13 @@ tbody:empty{display:none!important;}
 @media(max-width:900px){.calculator-hero{display:block;padding:18px}.calculator-categories{margin-top:14px;display:grid;grid-template-columns:repeat(2,1fr)}.calculator-categories span{border-right:1px solid var(--line,#dce5eb);border-bottom:1px solid var(--line,#dce5eb)}.calculator-layout,.calculator-bottom-grid{grid-template-columns:1fr}.calculator-grid{grid-template-columns:1fr 1fr}.calc-fields,.converter-grid{grid-template-columns:1fr}.calc-result strong{font-size:21px}}
 @media(max-width:520px){.calculator-grid{grid-template-columns:1fr}.calculator-hero-copy{align-items:flex-start}.calculator-hero-icon{flex:0 0 48px;width:48px;height:48px}.calc-result{grid-template-columns:1fr}.calc-result div{border-right:0;border-bottom:1px solid #dceee4}.calc-result div:last-child{border-bottom:0}}
 </style>
+<style id="liwo-mobile-finance-fix-style">
+@media(max-width:900px){
+  .liwo-edit-payment,.liwo-edit-expense{padding:6px 9px!important;font-size:10px!important;white-space:nowrap}
+  #paymentsPage .table-wrap,#expensesPage .table-wrap,#budgetPage .table-wrap{overflow-x:auto!important}
+  #paymentsPage table,#expensesPage table,#budgetPage table{min-width:820px}
+}
+</style>
 </head>
 <body>
 <div id="liwoLoadingOverlay" aria-hidden="true">
@@ -1564,12 +1571,11 @@ tbody:empty{display:none!important;}
     <div class="project-alert-card"><div class="project-card-head"><h3>Attention Center</h3><span id="pdAlertCount" class="project-chip">0 items</span></div><div id="pdAlerts"><div class="project-empty">No attention items for this project.</div></div></div>
   </div>
   <div class="project-two-col">
-    <div class="project-health-card"><div class="project-card-head"><h3>Payment Milestones</h3><span id="pdMilestoneCount" class="project-chip">0</span></div><div class="project-table-wrap"><table class="project-table"><thead><tr><th>Milestone</th><th>Due</th><th>Amount</th><th>Status</th></tr></thead><tbody id="pdMilestones"></tbody></table></div></div>
     <div class="project-health-card"><div class="project-card-head"><div><h3>Budget by Category</h3><span class="muted">Budget allocations for this project only.</span></div><button type="button" class="secondary" id="saveProjectBudgetBtn">Save Project Budget</button></div><div class="project-table-wrap project-budget-editor"><table class="project-table"><thead><tr><th>Category</th><th>Project Budget</th><th>Actual</th><th>Used</th></tr></thead><tbody id="pdBudget"></tbody></table></div><div class="project-budget-note">Changing these values affects only the selected project. Actual spending remains based on approved transactions assigned to this project.</div></div>
   </div>
   <div class="project-two-col">
-    <div class="project-health-card"><div class="project-card-head"><h3>Client Payments</h3><span id="pdPaymentCount" class="project-chip">0</span></div><div class="project-table-wrap"><table class="project-table"><thead><tr><th>Date</th><th>Reference</th><th>Description</th><th>Amount</th></tr></thead><tbody id="pdPaymentsBody"></tbody></table></div></div>
-    <div class="project-health-card"><div class="project-card-head"><h3>Fund Transactions</h3><span id="pdExpenseCount" class="project-chip">0</span></div><div class="project-table-wrap"><table class="project-table"><thead><tr><th>Date</th><th>Type</th><th>Category</th><th>Amount</th><th>Status</th></tr></thead><tbody id="pdExpensesBody"></tbody></table></div></div>
+    <div class="project-health-card"><div class="project-card-head"><h3>Client Payments</h3><span id="pdPaymentCount" class="project-chip">0</span></div><div class="project-table-wrap"><table class="project-table"><thead><tr><th>Date</th><th>Reference</th><th>Description</th><th>Amount</th><th>Edit</th></tr></thead><tbody id="pdPaymentsBody"></tbody></table></div></div>
+    <div class="project-health-card"><div class="project-card-head"><h3>Fund Transactions</h3><span id="pdExpenseCount" class="project-chip">0</span></div><div class="project-table-wrap"><table class="project-table"><thead><tr><th>Date</th><th>Type</th><th>Category</th><th>Amount</th><th>Status</th><th>Edit</th></tr></thead><tbody id="pdExpensesBody"></tbody></table></div></div>
   </div>
   <div class="project-two-col">
     <div class="project-health-card"><div class="project-card-head"><h3>Construction Tools</h3><span id="pdToolCount" class="project-chip">0</span></div><div class="project-table-wrap"><table class="project-table"><thead><tr><th>Tool</th><th>Borrowed By</th><th>Return</th><th>Status</th></tr></thead><tbody id="pdToolsBody"></tbody></table></div></div>
@@ -1599,12 +1605,12 @@ tbody:empty{display:none!important;}
 <section id="paymentsPage" class="page hidden">
 <div class="panel"><div class="panel-head"><h3>Record Client Payment</h3></div><form id="paymentForm" class="grid">
 <input type="hidden" name="clientId" id="paymentClient"><label>Date<input name="date" type="date" required></label><label>Payment Reference<input name="reference"></label>
-<label class="wide">Description / Milestone<input name="description" required></label><label>Due Amount<input name="dueAmount" type="number" min="0" step=".01"></label><label>Amount Paid<input name="amount" type="number" min="0" step=".01" required></label>
+<label class="wide">Description<input name="description" required></label><label>Amount Paid<input name="amount" type="number" min="0" step=".01" required></label>
 <label>Payment Method<select name="method"><option>Cash</option><option>Bank Transfer</option><option>Check</option><option>GCash</option><option>Maya</option><option>Other</option></select></label>
 <label class="wide">Notes<textarea name="notes"></textarea></label><div class="wide"><button class="primary">Save Payment</button></div>
 </form></div>
-<div class="panel"><div class="panel-head"><h3>Payment History</h3></div><div class="table-wrap"><table><thead><tr><th>Client / Project</th><th>Date</th><th>Reference</th><th>Milestone</th><th>Amount</th><th>Method</th><th>Entered By</th></tr></thead><tbody id="paymentsBody"></tbody></table></div></div>
-<div class="panel milestone-panel" id="milestonesPanel"><div class="panel-head"><div><h3>Payment Milestones</h3><span class="muted">Track upcoming, overdue, and paid client payment milestones.</span></div></div><form id="milestoneForm" class="grid milestone-form"><input type="hidden" id="milestoneClient" name="clientId"><label>Milestone<input name="milestone" placeholder="e.g. Foundation completion" required></label><label>Due Date<input name="dueDate" type="date" required></label><label>Amount<input name="amount" type="number" min="0" step="0.01" required></label><label>Status<select name="status"><option>Upcoming</option><option>Paid</option><option>Cancelled</option></select></label><label>Paid Amount<input name="paidAmount" type="number" min="0" step="0.01" value="0"></label><label class="wide">Notes<textarea name="notes" placeholder="Optional notes"></textarea></label><div class="wide"><button class="primary" type="submit">Add Milestone</button></div></form><div class="table-wrap"><table><thead><tr><th>Milestone</th><th>Due</th><th>Amount</th><th>Paid</th><th>Status</th><th>Notes</th></tr></thead><tbody id="milestonesBody"></tbody></table></div></div></section>
+<div class="panel"><div class="panel-head"><h3>Payment History</h3></div><div class="table-wrap"><table><thead><tr><th>Client / Project</th><th>Date</th><th>Reference</th><th>Description</th><th>Amount</th><th>Method</th><th>Entered By</th><th>Edit</th></tr></thead><tbody id="paymentsBody"></tbody></table></div></div>
+<!-- Payment milestones removed: client payments are the single payment record. --></section>
 
 <section id="expensesPage" class="page hidden">
 <div class="panel"><div class="panel-head"><h3>Record Fund Transaction</h3></div><form id="expenseForm" class="grid">
@@ -1616,7 +1622,7 @@ tbody:empty{display:none!important;}
 <label class="wide">Notes<textarea name="notes"></textarea></label>
 <div class="wide"><button class="primary">Save Transaction</button></div>
 </form></div>
-<div class="panel"><div class="panel-head"><h3>Fund Transaction History</h3></div><div class="table-wrap"><table><thead><tr><th>Client / Project</th><th>Date</th><th>Type</th><th>Category</th><th>Payee</th><th>Description</th><th>Amount</th><th>Receipt</th><th>Status</th><th>Entered By</th></tr></thead><tbody id="expensesBody"></tbody></table></div></div>
+<div class="panel"><div class="panel-head"><h3>Fund Transaction History</h3></div><div class="table-wrap"><table><thead><tr><th>Client / Project</th><th>Date</th><th>Type</th><th>Category</th><th>Payee</th><th>Description</th><th>Amount</th><th>Receipt</th><th>Status</th><th>Entered By</th><th>Edit</th></tr></thead><tbody id="expensesBody"></tbody></table></div></div>
 </section>
 
 <section id="budgetPage" class="page hidden"><div class="panel"><div class="panel-head"><h3>Budget vs Actual</h3></div><div class="table-wrap"><table><thead><tr><th>Category</th><th>Budget</th><th>Actual</th><th>Variance</th><th>% Used</th><th>Remaining</th></tr></thead><tbody id="budgetBody"></tbody></table></div></div></section>
@@ -2299,7 +2305,7 @@ function fillClients(){
    }
  }
 
- ["paymentClient","expenseClient","milestoneClient"].forEach(id=>{
+ ["paymentClient","expenseClient"].forEach(id=>{
    let el=$(id);
    if(el)el.value=selectedClientId||"";
  });
@@ -2323,10 +2329,27 @@ function render(){
  $("sContract").textContent=peso(s.contractAmount);$("sCollected").textContent=peso(s.totalPayments);$("sSpent").textContent=peso(s.totalExpenses);$("sLeft").textContent=peso(s.budgetRemaining);$("sUncollected").textContent=peso(s.outstandingBalance);
  let pct=s.contractAmount?Math.min(100,(s.totalExpenses/s.contractAmount)*100):0;let deg=pct*3.6;$("piePercent").textContent=pct.toFixed(1)+"%";$("pieSpent").textContent=peso(s.totalExpenses);$("pieRemaining").textContent=peso(s.budgetRemaining);$("budgetPie").style.background=`conic-gradient(#24618d 0deg ${deg}deg,#e6edf2 ${deg}deg 360deg)`;
  $("recentBody").innerHTML=(data.recent||[]).map(x=>`<tr><td>${esc(x.clientName)}</td><td>${esc(x.date)}</td><td>${esc(x.type)}</td><td>${esc(x.description)}</td><td>${peso(x.amount)}</td><td>${esc(x.enteredBy)}</td></tr>`).join("")||'<tr><td colspan="5" class="empty">No transactions yet.</td></tr>';
- $("paymentsBody").innerHTML=(data.payments||[]).map(x=>`<tr><td>${esc(x.clientName)}</td><td>${esc(x.date)}</td><td>${esc(x.reference)}</td><td>${esc(x.description)}</td><td>${peso(x.amount)}</td><td>${esc(x.method)}</td><td>${esc(x.enteredBy)}</td></tr>`).join("")||'<tr><td colspan="7" class="empty">No client payments yet.</td></tr>';
- $("expensesBody").innerHTML=(data.expenses||[]).map(x=>`<tr><td>${esc(x.clientName)}</td><td>${esc(x.date)}</td><td>${esc(x.type)}</td><td>${esc(x.category)}</td><td>${esc(x.payee)}</td><td>${esc(x.description)}</td><td>${peso(x.amount)}</td><td>${x.receiptUrl?`<a class="receipt-link" href="${esc(x.receiptUrl)}" target="_blank" rel="noopener">View</a>`:"—"}</td><td>${esc(x.enteredBy)}</td></tr>`).join("")||'<tr><td colspan="9" class="empty">No fund transactions yet.</td></tr>';
- $("budgetBody").innerHTML=(data.budget||[]).map(x=>`<tr><td>${esc(x.category)}</td><td>${peso(x.budget)}</td><td>${peso(x.actual)}</td><td>${peso(x.variance)}</td><td>${(Number(x.used||0)*100).toFixed(1)}%</td><td>${peso(x.remaining)}</td></tr>`).join("");
- $("activityBody").innerHTML=(data.activity||[]).map(x=>`<tr><td>${esc(x.time)}</td><td>${esc(x.action)}</td><td>${esc(x.username)}</td><td>${esc(x.name)}</td><td>${esc(x.details)}</td></tr>`).join("")||'<tr><td colspan="5" class="empty">No activity yet.</td></tr>';
+ // Project financial health — calculated from the selected project's live dashboard data.
+ const healthContract=Number(s.contractAmount||0),healthPaid=Number(s.totalPayments||0),healthSpent=Number(s.totalExpenses||0);
+ const healthUsed=healthContract?Math.min(100,Math.max(0,healthSpent/healthContract*100)):0;
+ const healthCollection=healthContract?Math.min(100,Math.max(0,healthPaid/healthContract*100)):0;
+ const healthOutstanding=Math.max(0,healthContract-healthPaid);
+ const healthState=healthUsed>=100?"critical":(healthUsed>=85||healthCollection<50?"attention":"healthy");
+ const healthText=healthState==="critical"?"Budget exceeded":healthState==="attention"?"Needs attention":"Healthy";
+ if($("projectHealthBadge")){$("projectHealthBadge").textContent=healthText;$("projectHealthBadge").className="health-badge "+healthState}
+ if($("healthBudgetUsed"))$("healthBudgetUsed").textContent=healthUsed.toFixed(1)+"%";
+ if($("healthCollection"))$("healthCollection").textContent=healthCollection.toFixed(1)+"%";
+ if($("healthUncollected"))$("healthUncollected").textContent=peso(healthOutstanding);
+ const alerts=[];if(healthUsed>=100)alerts.push(["critical","Budget exceeded",`Expenses have reached ${healthUsed.toFixed(1)}% of the contract budget.`]);
+ else if(healthUsed>=85)alerts.push(["attention","Budget is nearly used",`${healthUsed.toFixed(1)}% of the contract budget has been spent.`]);
+ if(healthCollection<50&&healthOutstanding>0)alerts.push(["attention","Collections need attention",`${peso(healthOutstanding)} remains uncollected.`]);
+ if($("smartAlertCount"))$("smartAlertCount").textContent=alerts.length;
+ if($("smartAlerts"))$("smartAlerts").innerHTML=alerts.length?alerts.map(a=>`<div class="smart-alert ${a[0]}"><i class="alert-dot"></i><div><strong>${esc(a[1])}</strong><small>${esc(a[2])}</small></div></div>`).join(""):'<div class="smart-alert-empty">No attention items.</div>';
+
+ $("paymentsBody").innerHTML=(data.payments||[]).map((x,i)=>`<tr><td>${esc(x.clientName)}</td><td>${esc(x.date)}</td><td>${esc(x.reference)}</td><td>${esc(x.description)}</td><td>${peso(x.amount)}</td><td>${esc(x.method)}</td><td>${esc(x.enteredBy)}</td><td><button type="button" class="secondary liwo-edit-payment" data-payment-index="${i}">Edit</button></td></tr>`).join("")||'<tr><td colspan="8" class="empty">No client payments yet.</td></tr>';
+ $("expensesBody").innerHTML=(data.expenses||[]).map((x,i)=>`<tr><td>${esc(x.clientName)}</td><td>${esc(x.date)}</td><td>${esc(x.type)}</td><td>${esc(x.category)}</td><td>${esc(x.payee)}</td><td>${esc(x.description)}</td><td>${peso(x.amount)}</td><td>${x.receiptUrl?`<a class="receipt-link" href="${esc(x.receiptUrl)}" target="_blank" rel="noopener">View</a>`:"—"}</td><td>${esc(x.status||"Recorded")}</td><td><button type="button" class="secondary liwo-edit-expense" data-expense-index="${i}">Edit</button></td></tr>`).join("")||'<tr><td colspan="10" class="empty">No fund transactions yet.</td></tr>';
+ $("budgetBody").innerHTML=(data.budget||[]).map(x=>`<tr><td>${esc(x.category)}</td><td>${peso(x.budget)}</td><td>${peso(x.actual)}</td><td>${peso(x.variance)}</td><td>${(Number(x.used||0)*100).toFixed(1)}%</td><td>${peso(x.remaining)}</td></tr>`).join("")||'<tr><td colspan="6" class="empty">No budget data for the selected project.</td></tr>';
+$("activityBody").innerHTML=(data.activity||[]).map(x=>`<tr><td>${esc(x.time)}</td><td>${esc(x.action)}</td><td>${esc(x.username)}</td><td>${esc(x.name)}</td><td>${esc(x.details)}</td></tr>`).join("")||'<tr><td colspan="5" class="empty">No activity yet.</td></tr>';
  if(session.user.role==="Admin"&&data.users){
    const usersBody=$("usersBody");
    if(usersBody) usersBody.innerHTML=data.users.map(x=>`<tr><td>${esc(x.username)}</td><td>${esc(x.name)}</td><td>${esc(x.role==="Finance"?"LIWO Executive":x.role)}</td><td>${x.active?"Yes":"No"}</td><td><div class="user-actions">${String(x.username).toLowerCase()===String(session.user.username).toLowerCase()?`<span class="muted">Current account</span>`:x.active?`<button type="button" class="user-action-btn deactivate" data-user-action="deactivate" data-username="${esc(x.username)}">Deactivate</button>`:`<button type="button" class="user-action-btn reactivate" data-user-action="reactivate" data-username="${esc(x.username)}">Reactivate</button>`}<button type="button" class="user-action-btn delete" data-user-action="delete" data-username="${esc(x.username)}">Delete</button></div></td></tr>`).join("");
@@ -2502,7 +2525,9 @@ function printReport(){
   </div>
 </div>
 <div class="liwo-report-records-footer" id="liwoReportRecordsFooter">GENERATED FROM LIWO FINANCE</div>
-</div></body>
+</div>
+
+</body>
 
 </html>`);
   w.document.close();w.focus();setTimeout(()=>w.print(),500);
@@ -2543,8 +2568,8 @@ async function loadProjectFinancialDashboard(){
   const healthText=health==="critical"?"Budget exceeded":health==="attention"?"Needs attention":"Healthy";
   set("pdHealthText",healthText);
   const badge=$("pdHealthBadge")||$("projectHealthBadge"); if(badge){badge.textContent=healthText;badge.className="health-badge "+health;}
-  body("pdPaymentsBody",payments.slice().sort((a,b)=>String(b.date||"").localeCompare(String(a.date||""))).slice(0,8).map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.reference||"—")}</td><td>${esc(x.description||"—")}</td><td>${peso(x.amount)}</td></tr>`).join("")||'<tr><td colspan="4" class="empty">No client payments for this project.</td></tr>');
-  body("pdExpensesBody",expenses.slice().sort((a,b)=>String(b.date||"").localeCompare(String(a.date||""))).slice(0,8).map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.type||"Expense")}</td><td>${esc(x.category||"—")}</td><td>${peso(x.amount)}</td><td>${esc(x.status||"Recorded")}</td></tr>`).join("")||'<tr><td colspan="5" class="empty">No fund transactions for this project.</td></tr>');
+  body("pdPaymentsBody",payments.slice().sort((a,b)=>String(b.date||"").localeCompare(String(a.date||""))).slice(0,8).map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.reference||"—")}</td><td>${esc(x.description||"—")}</td><td>${peso(x.amount)}</td><td><button type="button" class="secondary liwo-edit-payment" data-payment-id="${esc(x.id||x.paymentId||x.row||"")}" data-project-id="${esc(id)}">Edit</button></td></tr>`).join("")||'<tr><td colspan="5" class="empty">No client payments for this project.</td></tr>');
+  body("pdExpensesBody",expenses.slice().sort((a,b)=>String(b.date||"").localeCompare(String(a.date||""))).slice(0,8).map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.type||"Expense")}</td><td>${esc(x.category||"—")}</td><td>${peso(x.amount)}</td><td>${esc(x.status||"Recorded")}</td><td><button type="button" class="secondary liwo-edit-expense" data-expense-id="${esc(x.id||x.expenseId||x.row||"")}" data-project-id="${esc(id)}">Edit</button></td></tr>`).join("")||'<tr><td colspan="6" class="empty">No fund transactions for this project.</td></tr>');
   const recent=[...payments.map(x=>({date:x.date,type:"Client Payment",description:x.description||x.reference||"Payment",amount:Number(x.amount||0),enteredBy:x.enteredBy})),...expenses.map(x=>({date:x.date,type:x.type||"Expense",description:x.description||x.category||"Transaction",amount:Number(x.amount||0),enteredBy:x.enteredBy}))].sort((a,b)=>String(b.date||"").localeCompare(String(a.date||""))).slice(0,10);
   body("pdRecentBody",recent.map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.type)}</td><td>${esc(x.description)}</td><td>${peso(x.amount)}</td><td>${esc(x.enteredBy||"—")}</td></tr>`).join("")||'<tr><td colspan="5" class="empty">No recent activity for this project.</td></tr>');
   try{
@@ -2554,7 +2579,7 @@ async function loadProjectFinancialDashboard(){
     const rr=await api("listReceipts",{token:session.token,clientId:id,project:id}); const list=rr.receipts||[]; set("pdReceiptCount",list.length); body("pdReceiptsBody",list.slice(0,8).map(x=>`<tr><td>${esc(x.name||"Receipt")}</td><td>${esc(x.createdAt||"—")}</td><td>${esc(x.status||x.verification||"Pending")}</td></tr>`).join("")||'<tr><td colspan="3" class="empty">No receipts for this project.</td></tr>');
   }catch(e){set("pdReceiptCount",0);body("pdReceiptsBody",'<tr><td colspan="3" class="empty">No receipts available.</td></tr>')}
 }
-function switchPage(p){document.querySelectorAll(".page").forEach(x=>{let active=x.id===p+"Page";x.classList.toggle("hidden",!active);x.classList.toggle("active",active)});document.querySelectorAll(".nav button,.mobile-nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===p));$("pageTitle").textContent={dashboard:"Dashboard",projectDashboard:"Project Financials",payments:"Client Payments",expenses:"Fund Transactions",budget:"Budget vs Actual",activity:"Activity Log",clients:"Clients / Projects",tools:"Construction Tools",cash:"Cash Position",receipts:"Receipts",reports:"Reports / Export",users:"User Management",calculator:"Calculator",executive:"Executive Dashboard"}[p]||"Dashboard";if(p==="projectDashboard"){fillClients();loadProjectFinancialDashboard();}if(p==="users"){loadUsers();if(session?.user?.role==="Admin")loadReportSettings();}if(p==="reports"){renderReport();window.bindLIWOPrintControls?.();}if(p==="tools")loadTools();if(p==="cash")loadCash();if(p==="receipts")loadReceipts()}
+function switchPage(p){document.querySelectorAll(".page").forEach(x=>{let active=x.id===p+"Page";x.classList.toggle("hidden",!active);x.classList.toggle("active",active)});document.querySelectorAll(".nav button,.mobile-nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===p));$("pageTitle").textContent={dashboard:"Dashboard",projectDashboard:"Project Financials",payments:"Client Payments",expenses:"Fund Transactions",budget:"Budget vs Actual",activity:"Activity Log",clients:"Clients / Projects",tools:"Construction Tools",cash:"Cash Position",receipts:"Receipts",reports:"Reports / Export",users:"User Management",calculator:"Calculator",executive:"Executive Dashboard"}[p]||"Dashboard";if(p==="projectDashboard"){fillClients();loadProjectFinancialDashboard();}if(p==="budget"){refresh().catch(e=>toast(e.message||String(e)));}if(p==="executive"){loadExecutiveDashboard();}if(p==="users"){loadUsers();if(session?.user?.role==="Admin")loadReportSettings();}if(p==="reports"){renderReport();window.bindLIWOPrintControls?.();}if(p==="tools")loadTools();if(p==="cash")loadCash();if(p==="receipts")loadReceipts()}
 async function __liwoOriginalLoadUsers(){try{let o=await api("listUsers",{token:session.token});data.users=o.users;data.financeCount=o.financeCount;data.financeRegistrationOpen=o.financeRegistrationOpen;data.clients=o.clients;render()}catch(x){toast(x.message)}}
 document.addEventListener("DOMContentLoaded",()=>{
 $("loginTab").onclick=()=>tabs(false);$("registerTab").onclick=()=>tabs(true);$("loginForm").onsubmit=login;$("registerForm").onsubmit=register;$("logoutBtn").onclick=logout;$("menuLogoutBtn").onclick=logout;$("refreshBtn").onclick=refresh;$("printReportBtn").onclick=printReport;$("saveReportBtn").onclick=printReport;$("exportReportBtn").onclick=exportReportCSV;$("reportPeriod").onchange=renderReport;$("notificationBtn").onclick=toggleNotificationMenu;$("userMenuBtn").onclick=toggleUserMenu;$("markNotificationsRead").onclick=markNotificationsRead;$("profileMenuBtn").onclick=openProfile;$("profileCloseBtn").onclick=closeProfile;$("profileDoneBtn").onclick=closeProfile;$("profilePhotoInput").onchange=e=>saveProfilePhoto(e.target.files[0]);$("removeProfilePhotoBtn").onclick=removeProfilePhoto;$("profileUsernameSaveBtn").onclick=saveProfileUsername;$("profileModal").onclick=e=>{if(e.target.id==="profileModal")closeProfile()};document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeHeaderMenus();closeProfile()}});document.addEventListener("click",e=>{if(!e.target.closest(".top-user"))closeHeaderMenus()});
@@ -3221,6 +3246,187 @@ document.addEventListener("DOMContentLoaded",()=>{
 })();
 </script>
 
+<script id="liwo-mobile-finance-fixes">
+(function(){
+  const q=id=>document.getElementById(id);
+  const money=v=>'₱'+Number(v||0).toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const safe=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+  function setVal(form,name,value){const el=form?.elements?.namedItem(name);if(el)el.value=value??"";}
+
+  // Editing is intentionally confined to payment and fund-transaction records.
+  async function callEdit(primary, fallback, payload){
+    try{return await api(primary,{token:session.token,...payload});}
+    catch(e){
+      if(/unknown action|not found|invalid action/i.test(String(e?.message||e))) return await api(fallback,{token:session.token,...payload});
+      throw e;
+    }
+  }
+
+  function openPaymentEdit(x){
+    const f=q("paymentForm"); if(!f||!x)return;
+    setVal(f,"clientId",x.clientId||x.clientID||selectedClientId);
+    setVal(f,"date",x.date||""); setVal(f,"reference",x.reference||"");
+    setVal(f,"description",x.description||""); setVal(f,"amount",x.amount??""); setVal(f,"method",x.method||"Cash"); setVal(f,"notes",x.notes||"");
+    f.dataset.editingPayment="1";
+    f.dataset.editPaymentId=x.id||x.paymentId||x.row||"";
+    const b=f.querySelector("button[type=submit]");
+    if(b)b.textContent="Save Payment Changes";
+    switchPage("payments");
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
+
+  function openExpenseEdit(x){
+    const f=q("expenseForm"); if(!f||!x)return;
+    setVal(f,"clientId",x.clientId||x.clientID||selectedClientId);
+    setVal(f,"date",x.date||""); setVal(f,"type",x.type||"Expense"); setVal(f,"category",x.category||"Other");
+    setVal(f,"payee",x.payee||""); setVal(f,"description",x.description||""); setVal(f,"amount",x.amount??"");
+    setVal(f,"method",x.method||"Cash"); setVal(f,"reference",x.reference||""); setVal(f,"approvedBy",x.approvedBy||""); setVal(f,"notes",x.notes||"");
+    f.dataset.editingExpense="1";
+    f.dataset.editExpenseId=x.id||x.expenseId||x.row||"";
+    const b=f.querySelector("button[type=submit]");
+    if(b)b.textContent="Save Transaction Changes";
+    switchPage("expenses");
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
+
+  async function savePaymentEdit(f){
+    const payload=formObj(f);
+    payload.clientId=selectedClientId||payload.clientId;
+    payload.id=f.dataset.editPaymentId;
+    payload.paymentId=f.dataset.editPaymentId;
+    payload.row=f.dataset.editPaymentId;
+    await callEdit("updatePayment","editPayment",payload);
+    delete f.dataset.editingPayment; delete f.dataset.editPaymentId;
+    f.reset(); if(f.elements.date)f.elements.date.value=today();
+    const b=f.querySelector("button[type=submit>"); if(b)b.textContent="Save Payment";
+    await refresh(); toast("Client payment updated.");
+  }
+
+  async function saveExpenseEdit(f){
+    const payload=await expensePayload(f);
+    payload.clientId=selectedClientId||payload.clientId;
+    payload.id=f.dataset.editExpenseId;
+    payload.expenseId=f.dataset.editExpenseId;
+    payload.row=f.dataset.editExpenseId;
+    await callEdit("updateExpense","editExpense",payload);
+    delete f.dataset.editingExpense; delete f.dataset.editExpenseId;
+    f.reset(); if(f.elements.date)f.elements.date.value=today();
+    const b=f.querySelector("button[type=submit]"); if(b)b.textContent="Save Transaction";
+    if(q("receiptFileName"))q("receiptFileName").textContent="Optional — you can take a photo or upload a receipt. No receipt is also allowed.";
+    await refresh(); toast("Fund transaction updated.");
+  }
+
+  document.addEventListener("click",e=>{
+    const pb=e.target.closest(".liwo-edit-payment");
+    if(pb){
+      const idx=pb.dataset.paymentIndex;
+      const list=Array.isArray(data?.payments)?data.payments:[];
+      const x=idx!=null?list[Number(idx)]:list.find(v=>String(v.id||v.paymentId||v.row)===String(pb.dataset.paymentId));
+      if(x)openPaymentEdit(x); else toast("Payment record could not be located.");
+      return;
+    }
+    const eb=e.target.closest(".liwo-edit-expense");
+    if(eb){
+      const idx=eb.dataset.expenseIndex;
+      const list=Array.isArray(data?.expenses)?data.expenses:[];
+      const x=idx!=null?list[Number(idx)]:list.find(v=>String(v.id||v.expenseId||v.row)===String(eb.dataset.expenseId));
+      if(x)openExpenseEdit(x); else toast("Transaction record could not be located.");
+    }
+  });
+
+  document.addEventListener("DOMContentLoaded",()=>{
+    const pf=q("paymentForm"),ef=q("expenseForm");
+    if(pf)pf.addEventListener("submit",async e=>{
+      if(!pf.dataset.editingPayment)return;
+      e.preventDefault();
+      const b=pf.querySelector("button[type=submit>"); if(b)b.disabled=true;
+      try{await savePaymentEdit(pf);}catch(err){toast(err.message||String(err));}finally{if(b)b.disabled=false;}
+    },true);
+    if(ef)ef.addEventListener("submit",async e=>{
+      if(!ef.dataset.editingExpense)return;
+      e.preventDefault();
+      const b=ef.querySelector("button[type=submit>"); if(b)b.disabled=true;
+      try{await saveExpenseEdit(ef);}catch(err){toast(err.message||String(err));}finally{if(b)b.disabled=false;}
+    },true);
+
+    // Budget tab must render current data even if entered directly from the mobile drawer.
+    document.querySelectorAll('[data-mobile-page="budget"],[data-page="budget"]').forEach(b=>b.addEventListener("click",()=>setTimeout(()=>refresh().catch(()=>{}),0)));
+
+    // Mobile notification bell opens the mobile notification sheet directly.
+    const bell=q("mobileNotificationBtn");
+    if(bell && !bell.dataset.lwDirectNotification){
+      bell.dataset.lwDirectNotification="1";
+      bell.addEventListener("click",async e=>{
+        e.preventDefault(); e.stopImmediatePropagation();
+        try{
+          if(typeof loadServerNotifications==="function")await loadServerNotifications();
+          const sheet=q("mobileNotificationCenter");
+          if(sheet)sheet.classList.add("open");
+          if(typeof renderNotifications==="function")renderNotifications();
+        }catch(err){toast(err.message||String(err));}
+      },true);
+    }
+  });
+
+  // Executive fallback: if the backend executiveDashboard action is unavailable,
+  // build the company view from the existing listClients + dashboard endpoints.
+  const originalExec=window.loadExecutiveDashboard;
+  window.loadExecutiveDashboard=async function(){
+    if(!session?.token)return;
+    try{
+      const d=await api("executiveDashboard",{token:session.token});
+      return renderExec(d);
+    }catch(err){
+      try{
+        const list=await api("listClients",{token:session.token});
+        const clients=(list.clients||[]).filter(c=>c.active!==false);
+        const projects=[];
+        for(const c of clients){
+          try{
+            const d=await api("dashboard",{token:session.token,clientId:c.id});
+            const s=d.summary||{};
+            const contract=Number(s.contractAmount??c.totalContract??c.budget??0);
+            const payments=Number(s.totalPayments||0),expenses=Number(s.totalExpenses||0);
+            const profit=Number(s.cashPosition??payments-expenses);
+            projects.push({name:c.name,reference:c.reference,budget:contract,totalPayments:payments,totalExpenses:expenses,cashProfit:profit,margin:contract?profit/contract*100:0,outstanding:Math.max(0,contract-payments),status:(expenses/Math.max(1,contract))>=1?"Critical":(payments/Math.max(1,contract)<.5?"Attention":"Healthy")});
+          }catch(_){}
+        }
+        const totals=projects.reduce((a,p)=>({contract:a.contract+p.budget,payments:a.payments+p.totalPayments,expenses:a.expenses+p.totalExpenses,profit:a.profit+p.cashProfit,outstanding:a.outstanding+p.outstanding}),{contract:0,payments:0,expenses:0,profit:0,outstanding:0});
+        return renderExec({totals,projects});
+      }catch(e){
+        const body=q("executiveProjectsBody"); if(body)body.innerHTML=`<tr><td colspan="9" class="empty">${safe(e.message||"Unable to load executive dashboard.")}</td></tr>`;
+      }
+    }
+  };
+
+  function renderExec(d){
+    const t=d.totals||{};
+    if(q("exContract"))q("exContract").textContent=money(t.contract);
+    if(q("exPayments"))q("exPayments").textContent=money(t.payments);
+    if(q("exExpenses"))q("exExpenses").textContent=money(t.expenses);
+    if(q("exProfit"))q("exProfit").textContent=money(t.profit);
+    if(q("exOutstanding"))q("exOutstanding").textContent=money(t.outstanding);
+    if(q("exMargin"))q("exMargin").textContent=(t.contract?Number(t.profit||0)/Number(t.contract)*100:0).toFixed(1)+"%";
+    if(q("exHealthSummary")){
+      const ps=d.projects||[];
+      const healthy=ps.filter(p=>String(p.status).toLowerCase()==="healthy").length;
+      const attention=ps.filter(p=>String(p.status).toLowerCase()==="attention").length;
+      const critical=ps.filter(p=>String(p.status).toLowerCase()==="critical").length;
+      q("exHealthSummary").textContent=`${d.healthy??healthy} Healthy · ${d.attention??attention} Attention · ${d.critical??critical} Critical`;
+    }
+    if(q("executiveProjectsBody"))q("executiveProjectsBody").innerHTML=(d.projects||[]).map(p=>`<tr><td><strong>${safe(p.name)}</strong></td><td>${safe(p.reference||"—")}</td><td>${money(p.budget)}</td><td>${money(p.totalPayments)}</td><td>${money(p.totalExpenses)}</td><td>${money(p.cashProfit)}</td><td>${Number(p.margin||0).toFixed(1)}%</td><td>${money(p.outstanding)}</td><td><span class="health-badge ${String(p.status||"healthy").toLowerCase()}">${safe(p.status||"Healthy")}</span></td></tr>`).join("")||'<tr><td colspan="9" class="empty">No active projects.</td></tr>';
+    return d;
+  }
+
+  // Keep mobile notification badge synchronized even when the desktop notification
+  // center is not present/visible.
+  setInterval(()=>{try{
+    const notes=Array.isArray(data?.activity)?data.activity:[];
+    const unread=Number.isFinite(Number(data?.serverUnreadCount))?Number(data.serverUnreadCount):notes.filter(x=>!(typeof getReadNotificationIds==="function"&&getReadNotificationIds().includes(notificationId(x)))).length;
+    const b=q("mobileNotificationBadge"); if(b){b.textContent=unread>99?"99+":String(unread);b.style.display=unread?"grid":"none";}
+  }catch(_){}},5000);
+})();
+</script>
 </html>
 
 <script id="liwo-calculator-script">
