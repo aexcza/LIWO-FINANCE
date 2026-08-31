@@ -3267,9 +3267,16 @@ document.addEventListener("DOMContentLoaded",()=>{
   async function load(){
     if(!window.session?.token){bills=[];render();return;}
     try{
-      const o=await api("listBills",{token:session.token,clientId:selectedClientId||""});
-      bills=Array.isArray(o.bills)?o.bills:[];render();
-    }catch(e){render();if(typeof toast==="function")toast(e.message||String(e));}
+      // Bill Tracker is a persistent ledger. Do not restrict the server query
+      // to the currently selected project, otherwise a successfully saved bill
+      // can disappear from the tracker when its project filter differs.
+      let o=await api("listBills",{token:session.token});
+      bills=Array.isArray(o.bills)?o.bills:[];
+      render();
+    }catch(e){
+      render();
+      if(typeof toast==="function")toast(e.message||String(e));
+    }
   }
   function init(){
     const f=q("billForm");if(!f||f.dataset.bound)return;f.dataset.bound="1";
@@ -3283,8 +3290,20 @@ document.addEventListener("DOMContentLoaded",()=>{
       const payload={token:session.token,id,name,category:f.elements.category.value,dueDate:f.elements.dueDate.value,amount,status:f.elements.status.value,notes:f.elements.notes.value.trim(),clientId:selectedClientId||""};
       const btn=q("billSaveBtn");if(btn)btn.disabled=true;
       try{
-        await api(id?"updateBill":"addBill",payload);
-        reset();await load();
+        const result=await api(id?"updateBill":"addBill",payload);
+        // The backend write is authoritative. If it returns the saved bill,
+        // retain it immediately so the tracker reflects the save even if the
+        // subsequent list request is briefly stale.
+        const saved=result?.bill||result?.record||result?.data?.bill;
+        if(saved){
+          const savedId=String(saved.id??saved.billId??id??"");
+          if(savedId){
+            bills=bills.filter(b=>String(b.id??b.billId??"")!==savedId);
+            bills.push(saved);
+          }
+        }
+        reset();
+        await load();
         if(typeof toast==="function")toast(id?"Bill updated and recorded in Activity Log.":"Bill saved and recorded in Activity Log.");
       }catch(err){if(typeof toast==="function")toast(err.message||String(err));else alert(err.message||String(err));}
       finally{if(btn)btn.disabled=false;}
@@ -3379,7 +3398,9 @@ document.addEventListener("DOMContentLoaded",()=>{
     setVal(f,"date",x.date||""); setVal(f,"reference",x.reference||"");
     setVal(f,"description",x.description||""); setVal(f,"amount",x.amount??""); setVal(f,"method",x.method||"Cash"); setVal(f,"notes",x.notes||"");
     f.dataset.editingPayment="1";
-    f.dataset.editPaymentId=x.id||x.paymentId||x.row||"";
+    f.dataset.editPaymentId=x.id??x.paymentId??x.row??"";
+    f.dataset.editPaymentRow=x.row??"";
+    f.dataset.editPaymentProjectId=x.clientId??x.clientID??selectedClientId??"";
     f.dataset.editPaymentDate=x.date||""; f.dataset.editPaymentReference=x.reference||""; f.dataset.editPaymentDescription=x.description||""; f.dataset.editPaymentAmount=String(x.amount??"");
     const b=f.querySelector("button[type=submit]");
     if(b)b.textContent="Save Payment Changes";
@@ -3403,13 +3424,21 @@ document.addEventListener("DOMContentLoaded",()=>{
 
   async function savePaymentEdit(f){
     const payload=formObj(f);
-    payload.clientId=selectedClientId||payload.clientId;
-    payload.id=f.dataset.editPaymentId;
-    payload.paymentId=f.dataset.editPaymentId;
-    payload.row=f.dataset.editPaymentId;
-    payload.originalDate=f.dataset.editPaymentDate||payload.date; payload.originalReference=f.dataset.editPaymentReference||payload.reference; payload.originalDescription=f.dataset.editPaymentDescription||payload.description; payload.originalAmount=Number(f.dataset.editPaymentAmount||payload.amount);
+    const projectId=f.dataset.editPaymentProjectId||payload.clientId||selectedClientId||"";
+    const id=f.dataset.editPaymentId??"";
+    const row=f.dataset.editPaymentRow??"";
+    payload.clientId=projectId;
+    payload.clientID=projectId;
+    payload.id=id;
+    payload.paymentId=id;
+    // Keep the backend row identifier separate from the payment id.
+    if(row!=="")payload.row=row;
+    payload.originalDate=f.dataset.editPaymentDate||payload.date;
+    payload.originalReference=f.dataset.editPaymentReference||payload.reference;
+    payload.originalDescription=f.dataset.editPaymentDescription||payload.description;
+    payload.originalAmount=Number(f.dataset.editPaymentAmount||payload.amount);
     await callEdit("updatePayment","editPayment",payload);
-    delete f.dataset.editingPayment; delete f.dataset.editPaymentId;
+    delete f.dataset.editingPayment; delete f.dataset.editPaymentId; delete f.dataset.editPaymentRow; delete f.dataset.editPaymentProjectId;
     f.reset(); if(f.elements.date)f.elements.date.value=today();
     const b=f.querySelector("button[type=submit]"); if(b)b.textContent="Save Payment";
     await refresh(); toast("Client payment updated.");
@@ -3431,12 +3460,19 @@ document.addEventListener("DOMContentLoaded",()=>{
 
   async function deletePaymentRecord(x){
     if(!x)return;
-    const id=x.id||x.paymentId||x.row||"";
-    if(!id){toast("This payment has no record ID and cannot be deleted.");return;}
+    const id=x.id??x.paymentId??x.row??"";
+    const row=x.row??"";
+    if(id===""&&row===""){toast("This payment has no record ID and cannot be deleted.");return;}
+    const projectId=x.clientId??x.clientID??selectedClientId??"";
     const label=x.description||x.reference||"this client payment";
     if(!confirm(`Delete ${label}?\n\nThis action cannot be undone.`))return;
     try{
-      await callEdit("deletePayment","deletePayment",{clientId:x.clientId||x.clientID||selectedClientId,id,paymentId:id,row:id,date:x.date,reference:x.reference,description:x.description,amount:x.amount});
+      await callEdit("deletePayment","deletePayment",{
+        clientId:projectId,clientID:projectId,
+        id:id,paymentId:id,
+        ...(row!==""?{row}:{}),
+        date:x.date,reference:x.reference,description:x.description,amount:x.amount
+      });
       await refresh();
       toast("Client payment deleted.");
     }catch(err){toast(err.message||String(err));}
@@ -3662,10 +3698,18 @@ document.addEventListener("DOMContentLoaded",()=>{
   const q=id=>document.getElementById(id);
   async function updateRecord(action,f,id){
     const payload=action==="updateExpense"?await expensePayload(f):formObj(f);
-    payload.token=session.token; payload.clientId=selectedClientId||payload.clientId;
-    payload.id=id; payload.row=id;
-    if(action==="updatePayment")payload.paymentId=id;
-    if(action==="updateExpense")payload.expenseId=id;
+    payload.token=session.token;
+    if(action==="updatePayment"){
+      const projectId=f.dataset.editPaymentProjectId||payload.clientId||selectedClientId||"";
+      const row=f.dataset.editPaymentRow??"";
+      payload.clientId=projectId; payload.clientID=projectId;
+      payload.id=id; payload.paymentId=id;
+      if(row!=="")payload.row=row;
+    }else{
+      payload.clientId=selectedClientId||payload.clientId;
+      payload.id=id; payload.row=id;
+      if(action==="updateExpense")payload.expenseId=id;
+    }
     try{return await api(action,payload);}
     catch(e){
       if(/unknown action|not found|invalid action/i.test(String(e?.message||e))){
