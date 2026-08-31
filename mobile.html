@@ -38,7 +38,7 @@ textarea{min-height:82px;resize:vertical}
 .nav{margin-top:34px;display:grid;gap:5px}.nav button{border:0;background:transparent;text-align:left;color:#1b3049;padding:12px 13px;border-radius:9px;font-size:15px;display:flex;align-items:center;gap:12px}
 .nav button:hover,.nav button.active{background:var(--navy);color:#fff;font-weight:800}
 .nav button::before{display:inline-grid;place-items:center;width:22px;height:22px;font-size:17px;opacity:.9}
-.nav button[data-page="dashboard"]::before{content:"⌂"}.nav button[data-page="payments"]::before{content:"▣"}.nav button[data-page="expenses"]::before{content:"↕"}
+.nav button[data-page="dashboard"]::before{content:"⌂"}.nav button[data-page="payments"]::before{content:"▣"}.nav button[data-page="expenses"]::before{content:"↕"}.nav button[data-page="bills"]::before{content:"₱"}
 .nav button[data-page="budget"]::before{content:"◔"}.nav button[data-page="activity"]::before{content:"▤"}.nav button[data-page="clients"]::before{content:"♙"}.nav button[data-page="reports"]::before{content:"▤";font-weight:700}.nav button[data-page="users"]::before{content:"♧"}
 .profile{border-top:1px solid var(--line);padding:16px 5px 0;font-size:13px}.profile .muted{margin-top:3px}.link-btn{border:0;background:none;padding:8px 0;color:var(--blue);font-weight:700}
 
@@ -1495,6 +1495,7 @@ tbody:empty{display:none!important;}
       <button data-mobile-page="dashboard" class="active"><i>⌂</i><span>Dashboard</span></button><button data-mobile-page="executive"><i>▦</i><span>Executive</span></button><button data-mobile-page="projectDashboard"><i>▦</i><span>Project Financials</span></button>
       <button data-mobile-page="payments"><i>▣</i><span>Client Payments</span></button>
       <button data-mobile-page="expenses"><i>↕</i><span>Fund Transactions</span></button>
+      <button data-mobile-page="bills"><i>₱</i><span>Bills</span></button>
       <button data-mobile-page="budget"><i>◔</i><span>Budget vs Actual</span></button>
       <button data-mobile-page="activity"><i>▤</i><span>Activity Log</span></button>
       <button data-mobile-page="clients"><i>♙</i><span>Clients / Projects</span></button>
@@ -1514,6 +1515,7 @@ tbody:empty{display:none!important;}
 <button data-page="dashboard" class="active">Dashboard</button><button data-page="projectDashboard">Project Financials</button>
 <button data-page="payments">Client Payments</button>
 <button data-page="expenses">Fund Transactions</button>
+<button data-page="bills">Bills</button>
 <button data-page="budget">Budget vs Actual</button>
 <button data-page="activity">Activity Log</button>
 <button data-page="clients" id="clientsNav">Clients / Projects</button>
@@ -1623,6 +1625,34 @@ tbody:empty{display:none!important;}
 <div class="wide"><button class="primary">Save Transaction</button></div>
 </form></div>
 <div class="panel"><div class="panel-head"><h3>Fund Transaction History</h3></div><div class="table-wrap"><table><thead><tr><th>Client / Project</th><th>Date</th><th>Type</th><th>Category</th><th>Payee</th><th>Description</th><th>Amount</th><th>Receipt</th><th>Status</th><th>Entered By</th><th>Edit</th><th>Delete</th></tr></thead><tbody id="expensesBody"></tbody></table></div></div>
+</section>
+
+<section id="billsPage" class="page hidden">
+<div class="panel">
+  <div class="panel-head"><div><h3>Bills</h3><span class="muted">Track bills that need to be paid and their current status.</span></div></div>
+  <form id="billForm" class="grid">
+    <input type="hidden" name="id">
+    <label>Bill / Payee<input name="name" type="text" required placeholder="e.g. Meralco, Supplier"></label>
+    <label>Category<select name="category"><option>Utilities</option><option>Materials</option><option>Suppliers</option><option>Labor</option><option>Permits</option><option>Rent</option><option>Loans</option><option>Other</option></select></label>
+    <label>Due Date<input name="dueDate" type="date" required></label>
+    <label>Amount<input name="amount" type="number" min="0" step=".01" required></label>
+    <label>Status<select name="status"><option>Ongoing</option><option>Pending</option><option>Paid</option></select></label>
+    <label class="wide">Notes<textarea name="notes" placeholder="Optional notes"></textarea></label>
+    <div class="wide"><button id="billSaveBtn" class="primary" type="submit">Save Bill</button> <button id="billCancelBtn" class="secondary hidden" type="button">Cancel Edit</button></div>
+  </form>
+</div>
+<div class="panel">
+  <div class="panel-head">
+    <div><h3>Bill Tracker</h3><span class="muted">Use the filters to view all, paid, ongoing, pending, or overdue bills.</span></div>
+    <select id="billFilter" aria-label="Filter bills"><option value="All">All</option><option value="Paid">Paid</option><option value="Ongoing">Ongoing</option><option value="Pending">Pending</option><option value="Overdue">Overdue</option></select>
+  </div>
+  <div class="summary-grid" style="margin-bottom:12px">
+    <div class="summary-card"><span>Total Bills</span><strong id="billCount">0</strong></div>
+    <div class="summary-card"><span>To Pay</span><strong id="billOutstanding">₱0.00</strong></div>
+    <div class="summary-card"><span>Paid</span><strong id="billPaidTotal">₱0.00</strong></div>
+  </div>
+  <div class="table-wrap"><table><thead><tr><th>Bill / Payee</th><th>Category</th><th>Due Date</th><th>Amount</th><th>Status</th><th>Notes</th><th>Edit</th><th>Delete</th></tr></thead><tbody id="billsBody"></tbody></table></div>
+</div>
 </section>
 
 <section id="budgetPage" class="page hidden"><div class="panel"><div class="panel-head"><h3>Budget vs Actual</h3></div><div class="table-wrap"><table><thead><tr><th>Category</th><th>Budget</th><th>Actual</th><th>Variance</th><th>% Used</th><th>Remaining</th></tr></thead><tbody id="budgetBody"></tbody></table></div></div></section>
@@ -2579,7 +2609,7 @@ async function loadProjectFinancialDashboard(){
     const rr=await api("listReceipts",{token:session.token,clientId:id,project:id}); const list=rr.receipts||[]; set("pdReceiptCount",list.length); body("pdReceiptsBody",list.slice(0,8).map(x=>`<tr><td>${esc(x.name||"Receipt")}</td><td>${esc(x.createdAt||"—")}</td><td>${esc(x.status||x.verification||"Pending")}</td></tr>`).join("")||'<tr><td colspan="3" class="empty">No receipts for this project.</td></tr>');
   }catch(e){set("pdReceiptCount",0);body("pdReceiptsBody",'<tr><td colspan="3" class="empty">No receipts available.</td></tr>')}
 }
-function switchPage(p){document.querySelectorAll(".page").forEach(x=>{let active=x.id===p+"Page";x.classList.toggle("hidden",!active);x.classList.toggle("active",active)});document.querySelectorAll(".nav button,.mobile-nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===p));$("pageTitle").textContent={dashboard:"Dashboard",projectDashboard:"Project Financials",payments:"Client Payments",expenses:"Fund Transactions",budget:"Budget vs Actual",activity:"Activity Log",clients:"Clients / Projects",tools:"Construction Tools",cash:"Cash Position",receipts:"Receipts",reports:"Reports / Export",users:"User Management",calculator:"Calculator",executive:"Executive Dashboard"}[p]||"Dashboard";if(p==="projectDashboard"){fillClients();loadProjectFinancialDashboard();}if(p==="budget"){refresh().catch(e=>toast(e.message||String(e)));}if(p==="executive"){loadExecutiveDashboard();}if(p==="users"){loadUsers();if(session?.user?.role==="Admin")loadReportSettings();}if(p==="reports"){renderReport();window.bindLIWOPrintControls?.();}if(p==="tools")loadTools();if(p==="cash")loadCash();if(p==="receipts")loadReceipts()}
+function switchPage(p){document.querySelectorAll(".page").forEach(x=>{let active=x.id===p+"Page";x.classList.toggle("hidden",!active);x.classList.toggle("active",active)});document.querySelectorAll(".nav button,.mobile-nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===p));$("pageTitle").textContent={dashboard:"Dashboard",projectDashboard:"Project Financials",payments:"Client Payments",expenses:"Fund Transactions",budget:"Budget vs Actual",bills:"Bills",activity:"Activity Log",clients:"Clients / Projects",tools:"Construction Tools",cash:"Cash Position",receipts:"Receipts",reports:"Reports / Export",users:"User Management",calculator:"Calculator",executive:"Executive Dashboard"}[p]||"Dashboard";if(p==="projectDashboard"){fillClients();loadProjectFinancialDashboard();}if(p==="budget"){refresh().catch(e=>toast(e.message||String(e)));}if(p==="executive"){loadExecutiveDashboard();}if(p==="users"){loadUsers();if(session?.user?.role==="Admin")loadReportSettings();}if(p==="reports"){renderReport();window.bindLIWOPrintControls?.();}if(p==="bills"){window.loadLIWOBills?.();}if(p==="tools")loadTools();if(p==="cash")loadCash();if(p==="receipts")loadReceipts()}
 async function __liwoOriginalLoadUsers(){try{let o=await api("listUsers",{token:session.token});data.users=o.users;data.financeCount=o.financeCount;data.financeRegistrationOpen=o.financeRegistrationOpen;data.clients=o.clients;render()}catch(x){toast(x.message)}}
 document.addEventListener("DOMContentLoaded",()=>{
 $("loginTab").onclick=()=>tabs(false);$("registerTab").onclick=()=>tabs(true);$("loginForm").onsubmit=login;$("registerForm").onsubmit=register;$("logoutBtn").onclick=logout;$("menuLogoutBtn").onclick=logout;$("refreshBtn").onclick=refresh;$("printReportBtn").onclick=printReport;$("saveReportBtn").onclick=printReport;$("exportReportBtn").onclick=exportReportCSV;$("reportPeriod").onchange=renderReport;$("notificationBtn").onclick=toggleNotificationMenu;$("userMenuBtn").onclick=toggleUserMenu;$("markNotificationsRead").onclick=markNotificationsRead;$("profileMenuBtn").onclick=openProfile;$("profileCloseBtn").onclick=closeProfile;$("profileDoneBtn").onclick=closeProfile;$("profilePhotoInput").onchange=e=>saveProfilePhoto(e.target.files[0]);$("removeProfilePhotoBtn").onclick=removeProfilePhoto;$("profileUsernameSaveBtn").onclick=saveProfileUsername;$("profileModal").onclick=e=>{if(e.target.id==="profileModal")closeProfile()};document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeHeaderMenus();closeProfile()}});document.addEventListener("click",e=>{if(!e.target.closest(".top-user"))closeHeaderMenus()});
@@ -3197,6 +3227,87 @@ document.addEventListener("DOMContentLoaded",()=>{
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',window.bindLIWOPrintControls);else window.bindLIWOPrintControls();
 })();
 </script>
+
+<script id="liwo-mobile-bills">
+(function(){
+  "use strict";
+  const q=id=>document.getElementById(id);
+  const today=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`};
+  const money=n=>`₱${Number(n||0).toLocaleString("en-PH",{minimumFractionDigits:2,maximumFractionDigits:2})}`;
+  const safe=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+  let bills=[];
+  function effectiveStatus(x){
+    if(String(x.status)==="Paid")return "Paid";
+    if(x.dueDate && String(x.dueDate).slice(0,10)<today())return "Overdue";
+    return x.status||"Pending";
+  }
+  function reset(){
+    const f=q("billForm");if(!f)return;
+    f.reset();f.elements.id.value="";q("billSaveBtn").textContent="Save Bill";q("billCancelBtn").classList.add("hidden");
+    f.elements.dueDate.value=today();f.elements.status.value="Ongoing";
+  }
+  function edit(id){
+    const x=bills.find(b=>String(b.id)===String(id));if(!x)return;
+    const f=q("billForm");
+    f.elements.id.value=x.id;f.elements.name.value=x.name||"";f.elements.category.value=x.category||"Other";
+    f.elements.dueDate.value=String(x.dueDate||"").slice(0,10)||today();f.elements.amount.value=x.amount??"";f.elements.status.value=x.status||"Ongoing";f.elements.notes.value=x.notes||"";
+    q("billSaveBtn").textContent="Update Bill";q("billCancelBtn").classList.remove("hidden");f.scrollIntoView({behavior:"smooth",block:"start"});
+  }
+  function render(){
+    const filter=q("billFilter")?.value||"All", body=q("billsBody");if(!body)return;
+    const filtered=bills.filter(x=>filter==="All"||effectiveStatus(x)===filter);
+    const paid=bills.filter(x=>String(x.status)==="Paid").reduce((s,x)=>s+Number(x.amount||0),0);
+    const outstanding=bills.filter(x=>String(x.status)!=="Paid").reduce((s,x)=>s+Number(x.amount||0),0);
+    q("billCount").textContent=bills.length;q("billOutstanding").textContent=money(outstanding);q("billPaidTotal").textContent=money(paid);
+    body.innerHTML=filtered.length?filtered.slice().sort((a,b)=>String(a.dueDate||"").localeCompare(String(b.dueDate||""))).map(x=>{
+      const st=effectiveStatus(x), cls=st==="Paid"?"status-closed":(st==="Overdue"?"status-danger":"status-open");
+      return `<tr><td>${safe(x.name)}</td><td>${safe(x.category)}</td><td>${safe(String(x.dueDate||"").slice(0,10)||"—")}</td><td>${money(x.amount)}</td><td><span class="${cls}">${safe(st)}</span></td><td>${safe(x.notes||"—")}</td><td><button type="button" class="secondary bill-edit" data-id="${safe(x.id)}">Edit</button></td><td><button type="button" class="secondary bill-delete" data-id="${safe(x.id)}" style="color:#b42318;border-color:#f0b7b2;">Delete</button></td></tr>`;
+    }).join(""):'<tr><td colspan="8" class="empty">No bills found.</td></tr>';
+  }
+  async function load(){
+    if(!window.session?.token){bills=[];render();return;}
+    try{
+      const o=await api("listBills",{token:session.token,clientId:selectedClientId||""});
+      bills=Array.isArray(o.bills)?o.bills:[];render();
+    }catch(e){render();if(typeof toast==="function")toast(e.message||String(e));}
+  }
+  function init(){
+    const f=q("billForm");if(!f||f.dataset.bound)return;f.dataset.bound="1";
+    f.elements.dueDate.value=today();
+    f.addEventListener("submit",async e=>{
+      e.preventDefault();
+      const name=f.elements.name.value.trim(), amount=Number(f.elements.amount.value), id=f.elements.id.value||"";
+      if(!name)return typeof toast==="function"?toast("Enter a bill or payee."):alert("Enter a bill or payee.");
+      if(!Number.isFinite(amount)||amount<0)return typeof toast==="function"?toast("Enter a valid amount."):alert("Enter a valid amount.");
+      if(!window.session?.token)return typeof toast==="function"?toast("Please sign in first."):alert("Please sign in first.");
+      const payload={token:session.token,id,name,category:f.elements.category.value,dueDate:f.elements.dueDate.value,amount,status:f.elements.status.value,notes:f.elements.notes.value.trim(),clientId:selectedClientId||""};
+      const btn=q("billSaveBtn");if(btn)btn.disabled=true;
+      try{
+        await api(id?"updateBill":"addBill",payload);
+        reset();await load();
+        if(typeof toast==="function")toast(id?"Bill updated and recorded in Activity Log.":"Bill saved and recorded in Activity Log.");
+      }catch(err){if(typeof toast==="function")toast(err.message||String(err));else alert(err.message||String(err));}
+      finally{if(btn)btn.disabled=false;}
+    });
+    q("billCancelBtn").addEventListener("click",reset);
+    q("billFilter").addEventListener("change",render);
+    q("billsBody").addEventListener("click",async e=>{
+      const editBtn=e.target.closest(".bill-edit"), delBtn=e.target.closest(".bill-delete");
+      if(editBtn){edit(editBtn.dataset.id);return;}
+      if(delBtn){
+        const id=delBtn.dataset.id;if(!confirm("Delete this bill? This action cannot be undone."))return;
+        try{
+          await api("deleteBill",{token:session.token,id,clientId:selectedClientId||""});
+          await load();if(typeof toast==="function")toast("Bill deleted and recorded in Activity Log.");
+        }catch(err){if(typeof toast==="function")toast(err.message||String(err));else alert(err.message||String(err));}
+      }
+    });
+    render();
+  }
+  window.loadLIWOBills=()=>{init();load();};
+  document.addEventListener("DOMContentLoaded",()=>{init();if(window.session?.token)load();});
+})();
+</script>
 </body>
 <script id="liwo-admin-report-final-fix">
 (function(){
@@ -3323,7 +3434,7 @@ document.addEventListener("DOMContentLoaded",()=>{
     const label=x.description||x.reference||"this client payment";
     if(!confirm(`Delete ${label}?\n\nThis action cannot be undone.`))return;
     try{
-      await callEdit("deletePayment","deleteClientPayment",{clientId:x.clientId||x.clientID||selectedClientId,id,paymentId:id,row:id});
+      await callEdit("deletePayment","deletePayment",{clientId:x.clientId||x.clientID||selectedClientId,id,paymentId:id,row:id});
       await refresh();
       toast("Client payment deleted.");
     }catch(err){toast(err.message||String(err));}
