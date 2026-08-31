@@ -3247,7 +3247,7 @@ document.addEventListener("DOMContentLoaded",()=>{
     f.elements.dueDate.value=today();f.elements.status.value="Ongoing";
   }
   function edit(id){
-    const x=bills.find(b=>String(b.id)===String(id));if(!x)return;
+    const x=bills.find(b=>String(b.id??b.billId)===String(id));if(!x)return;
     const f=q("billForm");
     f.elements.id.value=x.id;f.elements.name.value=x.name||"";f.elements.category.value=x.category||"Other";
     f.elements.dueDate.value=String(x.dueDate||"").slice(0,10)||today();f.elements.amount.value=x.amount??"";f.elements.status.value=x.status||"Ongoing";f.elements.notes.value=x.notes||"";

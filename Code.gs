@@ -1425,14 +1425,82 @@ function updateExpense(r,u){
 }
 function editExpense(r,u){ return updateExpense(r,u); }
 
+/*
+ * Bills Tracker reader.
+ * Supports the current Bills sheet and older sheets/layouts such as
+ * "Bills", "Bill Tracker", and "Bills Tracker". Existing records are read
+ * by header name so older column ordering does not hide saved bills.
+ */
+function billSheet_(){
+  const s=ss();
+  const preferred=["bills","Bills","Bill Tracker","Bills Tracker"];
+  for(let i=0;i<preferred.length;i++){
+    const sh=s.getSheetByName(preferred[i]);
+    if(sh)return sh;
+  }
+  const all=s.getSheets();
+  for(let i=0;i<all.length;i++){
+    const n=String(all[i].getName()||"").toLowerCase().replace(/[^a-z0-9]/g,"");
+    if(n==="bills"||n==="billtracker")return all[i];
+  }
+  return null;
+}
+function billHeaderMap_(sh){
+  const headers=sh.getRange(1,1,1,sh.getLastColumn()).getValues()[0],map={};
+  headers.forEach(function(h,i){
+    const k=String(h||"").trim().toLowerCase().replace(/[^a-z0-9]/g,"");
+    if(k)map[k]=i;
+  });
+  return map;
+}
+function billCol_(m,names,fallback){
+  for(let i=0;i<names.length;i++){
+    const k=String(names[i]).toLowerCase().replace(/[^a-z0-9]/g,"");
+    if(Object.prototype.hasOwnProperty.call(m,k))return m[k];
+  }
+  return fallback;
+}
 function listBills(r,u){
   adminOrFinance_(u);
   const requested=String(r.clientId||"").trim();
   const cm=clientNameMap();
-  const items=rows("bills").map(function(x,i){
-    const clientId=String(x[2]||"").trim();
-    return {row:i+2,timestamp:x[0],id:String(x[1]||""),clientId,clientName:(cm[clientId]||{}).name||"",name:String(x[3]||""),category:String(x[4]||"Other"),dueDate:x[5],amount:num(x[6]),status:String(x[7]||"Pending"),notes:String(x[8]||""),enteredBy:String(x[9]||""),username:String(x[10]||""),updatedAt:x[11]||x[0]};
-  });
+  const sh=billSheet_();
+  if(!sh || sh.getLastRow()<2)return {ok:true,bills:[]};
+
+  const values=sh.getDataRange().getValues(),m=billHeaderMap_(sh);
+  const cTimestamp=billCol_(m,["Timestamp","CreatedAt","Date"],0);
+  const cId=billCol_(m,["BillID","Bill Id","ID","Id"],1);
+  const cClient=billCol_(m,["ClientID","Client Id","ProjectID","Project Id"],2);
+  const cName=billCol_(m,["Bill / Payee","Bill/Payee","Bill Payee","Payee","Vendor","Name"],3);
+  const cCategory=billCol_(m,["Category","Type"],4);
+  const cDue=billCol_(m,["DueDate","Due Date","Date Due"],5);
+  const cAmount=billCol_(m,["Amount","Bill Amount","Total"],6);
+  const cStatus=billCol_(m,["Status"],7);
+  const cNotes=billCol_(m,["Notes","Remarks"],8);
+  const cEntered=billCol_(m,["Entered By","EnteredBy","CreatedBy"],9);
+  const cUsername=billCol_(m,["Username","User Name"],10);
+  const cUpdated=billCol_(m,["UpdatedAt","Updated At","LastUpdated"],11);
+
+  const items=values.slice(1).map(function(x,i){
+    const clientId=String(x[cClient]??"").trim();
+    const id=String(x[cId]??"").trim();
+    const timestamp=x[cTimestamp]??"";
+    const name=String(x[cName]??"").trim();
+    const amount=num(x[cAmount]);
+    if(!id && !clientId && !name && !amount && !x[cDue])return null;
+    return {
+      row:i+2,timestamp:timestamp,id:id,clientId:clientId,
+      clientName:(cm[clientId]||{}).name||"",
+      name:name,category:String(x[cCategory]??"Other")||"Other",
+      dueDate:x[cDue]??"",amount:amount,
+      status:String(x[cStatus]??"Pending")||"Pending",
+      notes:String(x[cNotes]??""),
+      enteredBy:String(x[cEntered]??""),
+      username:String(x[cUsername]??""),
+      updatedAt:x[cUpdated]??timestamp
+    };
+  }).filter(Boolean);
+
   const filtered=requested?items.filter(function(x){return x.clientId===requested;}):items;
   filtered.sort(function(a,b){
     const ad=new Date(a.updatedAt||a.timestamp||0).getTime()||0;
@@ -1453,8 +1521,27 @@ function addBill(r,u){
   const status=String(r.status||"Pending");
   if(["Pending","Ongoing","Paid"].indexOf(status)<0)throw Error("Invalid bill status.");
   const id=Utilities.getUuid(),now=new Date();
-  const sh=ensureSheet_("bills",SHEETS.bills);
-  sh.appendRow([now,id,clientId,name,String(r.category||"Other"),r.dueDate||"",amount,status,String(r.notes||""),u.name,u.username,now]);
+  let sh=billSheet_();
+  if(!sh)sh=ensureSheet_("bills",SHEETS.bills);
+  else ensureHeaders_(sh,SHEETS.bills);
+  const m=billHeaderMap_(sh),row=new Array(sh.getLastColumn()).fill("");
+  const put=function(names,value,fallback){
+    const c=billCol_(m,names,fallback);
+    if(c>=0&&c<row.length)row[c]=value;
+  };
+  put(["Timestamp","CreatedAt","Date"],now,0);
+  put(["BillID","Bill Id","ID","Id"],id,1);
+  put(["ClientID","Client Id","ProjectID","Project Id"],clientId,2);
+  put(["Bill / Payee","Bill/Payee","Bill Payee","Payee","Vendor","Name"],name,3);
+  put(["Category","Type"],String(r.category||"Other"),4);
+  put(["DueDate","Due Date","Date Due"],r.dueDate||"",5);
+  put(["Amount","Bill Amount","Total"],amount,6);
+  put(["Status"],status,7);
+  put(["Notes","Remarks"],String(r.notes||""),8);
+  put(["Entered By","EnteredBy","CreatedBy"],u.name,9);
+  put(["Username","User Name"],u.username,10);
+  put(["UpdatedAt","Updated At","LastUpdated"],now,11);
+  sh.appendRow(row);
   SpreadsheetApp.flush();
   audit("ADD_BILL",u,(clientId?((clientNameMap()[clientId]||{}).name+" | "):"")+name+" | "+amount+" | "+status);
   return {
@@ -1485,7 +1572,7 @@ function updateBill(r,u){
   adminOrFinance_(u);
   const id=String(r.id||r.billId||"").trim();
   if(!id)throw Error("Bill ID is required.");
-  const sh=ensureSheet_("bills",SHEETS.bills),v=sh.getDataRange().getValues();
+  const sh=billSheet_();if(!sh)throw Error("Bills sheet not found.");const v=sh.getDataRange().getValues();
   const i=v.slice(1).findIndex(function(x){return String(x[1]||"")===id;});
   if(i<0)throw Error("Bill not found.");
   const row=i+2,old=v[i+1],clientId=String(r.clientId??old[2]??"").trim();
@@ -1507,7 +1594,7 @@ function deleteBill(r,u){
   adminOrFinance_(u);
   const id=String(r.id||r.billId||"").trim();
   if(!id)throw Error("Bill ID is required.");
-  const sh=ensureSheet_("bills",SHEETS.bills),v=sh.getDataRange().getValues();
+  const sh=billSheet_();if(!sh)throw Error("Bills sheet not found.");const v=sh.getDataRange().getValues();
   const i=v.slice(1).findIndex(function(x){return String(x[1]||"")===id;});
   if(i<0)throw Error("Bill not found.");
   const row=i+2,old=v[i+1],clientId=String(old[2]||"");
