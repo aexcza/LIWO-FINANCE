@@ -1572,6 +1572,187 @@ tbody:empty{display:none!important;}
   #billsPage .liwo-bill-actions-cell button{width:27px!important;height:27px!important;min-height:27px!important;font-size:13px!important;margin-right:3px!important}
 }
 </style>
+
+<style id="liwo-notification-premium-overrides">
+/* Notification bell/dropdown only. Other dashboard sections are intentionally untouched. */
+.notification-dropdown{
+  width:390px!important;
+  max-height:540px!important;
+  border-radius:16px!important;
+  border:1px solid #dfe8ef!important;
+  box-shadow:0 18px 48px rgba(12,38,61,.16)!important;
+}
+.notification-dropdown .dropdown-head{
+  padding:15px 17px!important;
+  background:#fff!important;
+}
+.notification-dropdown .dropdown-head strong{
+  font-size:15px!important;
+  color:#102f4d!important;
+}
+.notification-dropdown .dropdown-action{
+  font-size:10px!important;
+  color:#0756b4!important;
+}
+.notification-dropdown .notification-item{
+  position:relative!important;
+  display:flex!important;
+  align-items:flex-start!important;
+  gap:8px!important;
+  min-height:76px!important;
+  padding:12px 13px!important;
+  background:#fff!important;
+  border-bottom:1px solid #edf1f4!important;
+}
+.notification-dropdown .notification-item.unread{
+  background:#fbfdff!important;
+}
+.notification-dropdown .notification-dot{
+  width:7px!important;height:7px!important;margin:8px 0 0 0!important;
+  border-radius:50%!important;background:#1774c7!important;
+}
+.notification-dropdown .notification-item:nth-child(4n+1) .notification-dot{background:#1a9a55!important}
+.notification-dropdown .notification-item:nth-child(4n+2) .notification-dot{background:#1774c7!important}
+.notification-dropdown .notification-item:nth-child(4n+3) .notification-dot{background:#ee9414!important}
+.notification-dropdown .notification-item:nth-child(4n) .notification-dot{background:#df302c!important}
+.notification-dropdown .notification-icon{
+  width:30px!important;height:30px!important;min-width:30px!important;
+  display:grid!important;place-items:center!important;
+  margin-top:0!important;border-radius:50%!important;
+  background:#edf5fb!important;color:#1762a0!important;
+  font-size:13px!important;font-weight:900!important;
+}
+.notification-dropdown .notification-item:nth-child(4n+1) .notification-icon{background:#e8f7ee!important;color:#18834b!important}
+.notification-dropdown .notification-item:nth-child(4n+3) .notification-icon{background:#fff3df!important;color:#dc8700!important}
+.notification-dropdown .notification-item:nth-child(4n) .notification-icon{background:#ffeded!important;color:#df302c!important}
+.notification-dropdown .notification-content{
+  flex:1 1 auto!important;
+  min-width:0!important;
+}
+.notification-dropdown .notification-row-top{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto auto!important;
+  align-items:start!important;
+  gap:7px!important;
+}
+.notification-dropdown .notification-row-top p{
+  display:block!important;margin:0!important;
+}
+.notification-dropdown .notification-row-top p strong{
+  font-size:11px!important;line-height:1.25!important;color:#102d49!important;
+}
+.notification-dropdown .notification-row-top>small{
+  margin:0!important;
+  white-space:nowrap!important;
+  font-size:8px!important;
+  color:#708194!important;
+}
+.notification-dropdown .notification-more{
+  border:0!important;background:transparent!important;padding:0!important;
+  color:#65788b!important;font-size:11px!important;line-height:1!important;
+  letter-spacing:1px!important;cursor:pointer!important;
+}
+.notification-dropdown .notification-kind{display:none!important}
+.notification-dropdown .notification-details{
+  margin-top:3px!important;
+  font-size:10px!important;
+  line-height:1.38!important;
+  color:#41566c!important;
+}
+.notification-dropdown .notification-actor{
+  margin-top:3px!important;
+  font-size:8px!important;
+  color:#8998a6!important;
+}
+.notification-dropdown .notification-item.unread .notification-details{
+  color:#304b63!important;
+}
+
+/* Mobile notification sheet, matching the supplied reference mockup. */
+@media(max-width:900px){
+  .mobile-notification-center{
+    background:rgba(8,27,44,.18)!important;
+    backdrop-filter:blur(2px)!important;
+  }
+  .mobile-notification-sheet{
+    width:calc(100% - 26px)!important;
+    max-height:78vh!important;
+    margin:0 auto 10px!important;
+    border-radius:15px!important;
+    box-shadow:0 18px 48px rgba(12,38,61,.20)!important;
+    border:1px solid #dfe8ef!important;
+    overflow:hidden!important;
+  }
+  .mobile-notification-head{
+    padding:13px 12px 11px!important;
+    background:#fff!important;
+  }
+  .mobile-notification-head strong{
+    font-size:13px!important;color:#102f4d!important;
+  }
+  .mobile-notification-head button{
+    background:transparent!important;color:#0756b4!important;
+    padding:3px 0!important;border-radius:0!important;font-size:9px!important;
+  }
+  #mobileCloseNotifications{display:none!important}
+  .mobile-notification-list{
+    padding:0 11px 10px!important;
+    max-height:calc(78vh - 52px)!important;
+    overflow:auto!important;
+  }
+  .mobile-note-row{
+    position:relative!important;
+    display:flex!important;
+    align-items:flex-start!important;
+    gap:7px!important;
+    min-height:64px!important;
+    padding:9px 2px!important;
+    border-bottom:1px solid #edf1f4!important;
+    background:#fff!important;
+  }
+  .mobile-note-dot{
+    width:6px!important;height:6px!important;min-width:6px!important;
+    margin-top:7px!important;background:#1774c7!important;
+  }
+  .mobile-note-row:nth-child(4n+1) .mobile-note-dot{background:#1a9a55!important}
+  .mobile-note-row:nth-child(4n+2) .mobile-note-dot{background:#1774c7!important}
+  .mobile-note-row:nth-child(4n+3) .mobile-note-dot{background:#ee9414!important}
+  .mobile-note-row:nth-child(4n) .mobile-note-dot{background:#df302c!important}
+  .mobile-note-icon{
+    width:28px!important;height:28px!important;min-width:28px!important;
+    display:grid!important;place-items:center!important;border-radius:50%!important;
+    margin-top:0!important;background:#edf5fb!important;color:#1762a0!important;
+    font-style:normal!important;font-size:12px!important;font-weight:900!important;
+  }
+  .mobile-note-row:nth-child(4n+1) .mobile-note-icon{background:#e8f7ee!important;color:#18834b!important}
+  .mobile-note-row:nth-child(4n+3) .mobile-note-icon{background:#fff3df!important;color:#dc8700!important}
+  .mobile-note-row:nth-child(4n) .mobile-note-icon{background:#ffeded!important;color:#df302c!important}
+  .mobile-note-main{
+    min-width:0!important;flex:1 1 auto!important;
+  }
+  .mobile-note-main>strong{
+    display:block!important;font-size:9px!important;line-height:1.25!important;
+    color:#102d49!important;font-weight:800!important;
+  }
+  .mobile-note-main>span:not(.mobile-note-meta){
+    display:block!important;margin-top:2px!important;
+    color:#41566c!important;font-size:8.5px!important;line-height:1.35!important;
+  }
+  .mobile-note-meta{
+    display:block!important;margin-top:3px!important;color:#8998a6!important;
+    font-size:7.5px!important;line-height:1.2!important;
+  }
+  .mobile-note-row>time{
+    white-space:nowrap!important;color:#718296!important;
+    font-size:7.5px!important;padding-top:1px!important;
+  }
+  .mobile-note-more{
+    color:#64778a!important;font-size:9px!important;letter-spacing:1px!important;
+    font-weight:800!important;padding-top:0!important;
+  }
+  .mobile-note-row.read .mobile-note-dot{background:#c8d4dd!important}
+}
+</style>
 </head>
 <body>
 <div id="liwoLoadingOverlay" aria-hidden="true">
@@ -2414,12 +2595,9 @@ function renderNotifications(){
   const activities=Array.isArray(data?.activity)?data.activity:[];
   const serverMode=activities.some(x=>Object.prototype.hasOwnProperty.call(x,"unread"));
   const readIds=new Set(getReadNotificationIds());
-  const notifications=activities.map((x,i)=>({x,id:notificationId(x),unread:serverMode?!!x.unread:!readIds.has(notificationId(x)),_i:i})).sort((a,b)=>{
-    const av=a.x?.time||a.x?.timestamp||a.x?.createdAt||a.x?.updatedAt||"";
-    const bv=b.x?.time||b.x?.timestamp||b.x?.createdAt||b.x?.updatedAt||"";
-    const ta=new Date(av).getTime(),tb=new Date(bv).getTime();
-    if(Number.isFinite(ta)&&Number.isFinite(tb)&&ta!==tb)return tb-ta;
-    if(Number.isFinite(ta)!==Number.isFinite(tb))return Number.isFinite(tb)?1:-1;
+  const notifications=activities.map((x,i)=>({x,id:notificationId(x),unread:serverMode?!!x.unread:!readIds.has(notificationId(x)),_i:i,_time:(()=>{const v=x?.time||x?.timestamp||x?.createdAt||x?.updatedAt||"";const t=new Date(v).getTime();return Number.isFinite(t)?t:NaN})()})).sort((a,b)=>{
+    if(Number.isFinite(a._time)&&Number.isFinite(b._time)&&a._time!==b._time)return b._time-a._time;
+    if(Number.isFinite(a._time)!==Number.isFinite(b._time))return Number.isFinite(b._time)?1:-1;
     return b._i-a._i;
   });
   const unread=serverMode&&Number.isFinite(Number(data.serverUnreadCount))
@@ -2436,12 +2614,14 @@ function renderNotifications(){
     const title=notificationTitle(x);
     const details=notificationDetails(x);
     const actor=x.name||x.username||"LIWO System";
+    const icon=kind==="FINANCIAL UPDATE"?"₱":(/MESSAGE|UPDATE/.test(kind)?"●":"!");
     return `<div class="notification-item ${n.unread?"unread":""}" data-notification-id="${esc(n.id)}">
       <span class="notification-dot ${n.unread?"":"read-dot"}"></span>
+      <span class="notification-icon">${icon}</span>
       <div class="notification-content">
-        <p><strong>${esc(title)}</strong><span class="notification-kind">${esc(kind)}</span></p>
+        <div class="notification-row-top"><p><strong>${esc(title)}</strong></p><small>${x.time?esc(formatNotificationTime(x.time)):""}</small><button type="button" class="notification-more" aria-label="Notification options">•••</button></div>
         <div class="notification-details">${esc(details)}</div>
-        <small>${esc(actor)}${x.time?" • "+esc(formatNotificationTime(x.time)):""}</small>
+        <small class="notification-actor">${esc(actor)}</small>
       </div>
     </div>`;
   }).join("");
@@ -3372,21 +3552,21 @@ document.addEventListener("DOMContentLoaded",()=>{
   }
   function renderCenter(){
     const list=q("mobileNotificationList");if(!list)return;
-    const notes=getNotes().slice().map((x,i)=>({...x,_i:i})).sort((a,b)=>{
-      const av=a?.time||a?.timestamp||a?.createdAt||a?.updatedAt||"";
-      const bv=b?.time||b?.timestamp||b?.createdAt||b?.updatedAt||"";
-      const ta=new Date(av).getTime(),tb=new Date(bv).getTime();
-      if(Number.isFinite(ta)&&Number.isFinite(tb)&&ta!==tb)return tb-ta;
-      if(Number.isFinite(ta)!==Number.isFinite(tb))return Number.isFinite(tb)?1:-1;
+    const notes=getNotes().slice().map((x,i)=>{const v=x?.time||x?.timestamp||x?.createdAt||x?.updatedAt||"";const t=new Date(v).getTime();return {...x,_i:i,_time:Number.isFinite(t)?t:NaN};}).sort((a,b)=>{
+      if(Number.isFinite(a._time)&&Number.isFinite(b._time)&&a._time!==b._time)return b._time-a._time;
+      if(Number.isFinite(a._time)!==Number.isFinite(b._time))return Number.isFinite(b._time)?1:-1;
       return b._i-a._i;
     });
     list.innerHTML=notes.length?notes.map(x=>{
       const title=typeof notificationTitle==="function"?notificationTitle(x):(x.action||"FINANCE UPDATE");
       const details=typeof notificationDetails==="function"?notificationDetails(x):(x.details||"A finance update was recorded.");
       const kind=typeof notificationKind==="function"?notificationKind(x):"SYSTEM UPDATE";
+      const icon=kind==="FINANCIAL UPDATE"?"₱":(/MESSAGE|UPDATE/.test(kind)?"●":"!");
       return `<button type="button" class="mobile-note-row ${isRead(x)?"read":""}">
         <i class="mobile-note-dot"></i>
-        <span><strong>${safe(title)}<em>${safe(kind)}</em></strong><span>${safe(details)}</span><span>${safe(x.name||x.username||"LIWO System")}${x.time?" • "+safe(formatNotificationTime(x.time)):""}</span></span>
+        <i class="mobile-note-icon">${safe(icon)}</i>
+        <span class="mobile-note-main"><strong>${safe(title)}</strong><span>${safe(details)}</span><span class="mobile-note-meta">${safe(x.name||x.username||"LIWO System")}${x.time?" • "+safe(formatNotificationTime(x.time)):""}</span></span>
+        <time>${x.time?safe(formatNotificationTime(x.time)):""}</time><b class="mobile-note-more">•••</b>
       </button>`;
     }).join(""):'<div class="mobile-note-empty">No messages, updates, or financial notifications yet.</div>';
     syncBadge();
