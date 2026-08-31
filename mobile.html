@@ -2192,13 +2192,7 @@ function renderNotifications(){
   const activities=Array.isArray(data?.activity)?data.activity:[];
   const serverMode=activities.some(x=>Object.prototype.hasOwnProperty.call(x,"unread"));
   const readIds=new Set(getReadNotificationIds());
-  const notifications=activities.map((x,idx)=>({x,id:notificationId(x),unread:serverMode?!!x.unread:!readIds.has(notificationId(x)),idx})).sort((a,b)=>{
-    const bt=Date.parse(b.x?.time||"");
-    const at=Date.parse(a.x?.time||"");
-    if(Number.isFinite(bt)&&Number.isFinite(at)&&bt!==at)return bt-at;
-    if(Number.isFinite(bt)!==Number.isFinite(at))return Number.isFinite(bt)?-1:1;
-    return b.idx-a.idx;
-  });
+  const notifications=activities.map(x=>({x,id:notificationId(x),unread:serverMode?!!x.unread:!readIds.has(notificationId(x))}));
   const unread=serverMode&&Number.isFinite(Number(data.serverUnreadCount))
     ?Number(data.serverUnreadCount)
     :notifications.filter(n=>n.unread).length;
@@ -3149,13 +3143,7 @@ document.addEventListener("DOMContentLoaded",()=>{
   }
   function renderCenter(){
     const list=q("mobileNotificationList");if(!list)return;
-    const notes=getNotes().slice().map((x,idx)=>({x,idx})).sort((a,b)=>{
-      const bt=Date.parse(b.x?.time||"");
-      const at=Date.parse(a.x?.time||"");
-      if(Number.isFinite(bt)&&Number.isFinite(at)&&bt!==at)return bt-at;
-      if(Number.isFinite(bt)!==Number.isFinite(at))return Number.isFinite(bt)?-1:1;
-      return b.idx-a.idx;
-    }).map(v=>v.x);
+    const notes=getNotes().slice().reverse();
     list.innerHTML=notes.length?notes.map(x=>{
       const title=typeof notificationTitle==="function"?notificationTitle(x):(x.action||"FINANCE UPDATE");
       const details=typeof notificationDetails==="function"?notificationDetails(x):(x.details||"A finance update was recorded.");
@@ -3303,19 +3291,25 @@ document.addEventListener("DOMContentLoaded",()=>{
       const btn=q("billSaveBtn");if(btn)btn.disabled=true;
       try{
         const result=await api(id?"updateBill":"addBill",payload);
-        // The backend write is authoritative. If it returns the saved bill,
-        // retain it immediately so the tracker reflects the save even if the
-        // subsequent list request is briefly stale.
-        const saved=result?.bill||result?.record||result?.data?.bill;
-        if(saved){
-          const savedId=String(saved.id??saved.billId??id??"");
-          if(savedId){
-            bills=bills.filter(b=>String(b.id??b.billId??"")!==savedId);
-            bills.push(saved);
-          }
+        // The backend returns the generated Bill ID. Build the saved record
+        // locally as well, then re-read the persistent Bills sheet. This keeps
+        // the Bill Tracker in sync even when the web app response is minimal.
+        const savedId=String(result?.id??result?.bill?.id??result?.billId??id??"");
+        if(savedId){
+          const saved={id:savedId,clientId:payload.clientId||"",name,category:payload.category,dueDate:payload.dueDate,amount,status:payload.status,notes:payload.notes,enteredBy:session.user?.name||"",username:session.user?.username||"",timestamp:new Date().toISOString(),updatedAt:new Date().toISOString()};
+          bills=bills.filter(b=>String(b.id??b.billId??"")!==savedId);
+          bills.push(saved);
+          render();
         }
         reset();
-        await load();
+        // Re-read the actual Bills ledger. Retry briefly because Apps Script
+        // can take a moment to expose a just-written spreadsheet row.
+        let loaded=false;
+        for(let attempt=0;attempt<3&&!loaded;attempt++){
+          await load();
+          loaded=bills.some(b=>String(b.id??b.billId??"")===savedId);
+          if(!loaded&&attempt<2)await new Promise(r=>setTimeout(r,350));
+        }
         if(typeof toast==="function")toast(id?"Bill updated and recorded in Activity Log.":"Bill saved and recorded in Activity Log.");
       }catch(err){if(typeof toast==="function")toast(err.message||String(err));else alert(err.message||String(err));}
       finally{if(btn)btn.disabled=false;}
@@ -3470,6 +3464,8 @@ document.addEventListener("DOMContentLoaded",()=>{
     const reference=String(x.reference??"").trim();
     if(reference===""){toast("This payment has no Payment Reference and cannot be deleted.");return;}
     const projectId=x.clientId??x.clientID??selectedClientId??"";
+    const id=x.id??x.paymentId??x.row??"";
+    const row=x.row??"";
     const label=x.description||x.reference||"this client payment";
     if(!confirm(`Delete ${label}?\n\nThis action cannot be undone.`))return;
     try{
@@ -3565,13 +3561,7 @@ document.addEventListener("DOMContentLoaded",()=>{
           data.serverUnreadCount=Number.isFinite(Number(o.unreadCount))?Number(o.unreadCount):data.activity.filter(x=>x&&x.unread).length;
           const list=q("mobileNotificationList");
           if(list){
-            const notes=data.activity.slice().map((x,idx)=>({x,idx})).sort((a,b)=>{
-              const bt=Date.parse(b.x?.time||"");
-              const at=Date.parse(a.x?.time||"");
-              if(Number.isFinite(bt)&&Number.isFinite(at)&&bt!==at)return bt-at;
-              if(Number.isFinite(bt)!==Number.isFinite(at))return Number.isFinite(bt)?-1:1;
-              return b.idx-a.idx;
-            }).map(v=>v.x);
+            const notes=data.activity.slice().reverse();
             list.innerHTML=notes.length?notes.map(x=>{
               const title=typeof notificationTitle==="function"?notificationTitle(x):(x.action||"FINANCE UPDATE");
               const details=typeof notificationDetails==="function"?notificationDetails(x):(x.details||"A new transaction or system update was recorded in LIWO Finance.");

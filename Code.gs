@@ -1434,7 +1434,12 @@ function listBills(r,u){
     return {row:i+2,timestamp:x[0],id:String(x[1]||""),clientId,clientName:(cm[clientId]||{}).name||"",name:String(x[3]||""),category:String(x[4]||"Other"),dueDate:x[5],amount:num(x[6]),status:String(x[7]||"Pending"),notes:String(x[8]||""),enteredBy:String(x[9]||""),username:String(x[10]||""),updatedAt:x[11]||x[0]};
   });
   const filtered=requested?items.filter(function(x){return x.clientId===requested;}):items;
-  return {ok:true,bills:filtered.reverse()};
+  filtered.sort(function(a,b){
+    const ad=new Date(a.updatedAt||a.timestamp||0).getTime()||0;
+    const bd=new Date(b.updatedAt||b.timestamp||0).getTime()||0;
+    return bd-ad;
+  });
+  return {ok:true,bills:filtered};
 }
 
 function addBill(r,u){
@@ -1448,9 +1453,32 @@ function addBill(r,u){
   const status=String(r.status||"Pending");
   if(["Pending","Ongoing","Paid"].indexOf(status)<0)throw Error("Invalid bill status.");
   const id=Utilities.getUuid(),now=new Date();
-  ensureSheet_("bills",SHEETS.bills).appendRow([now,id,clientId,name,String(r.category||"Other"),r.dueDate||"",amount,status,String(r.notes||""),u.name,u.username,now]);
+  const sh=ensureSheet_("bills",SHEETS.bills);
+  sh.appendRow([now,id,clientId,name,String(r.category||"Other"),r.dueDate||"",amount,status,String(r.notes||""),u.name,u.username,now]);
+  SpreadsheetApp.flush();
   audit("ADD_BILL",u,(clientId?((clientNameMap()[clientId]||{}).name+" | "):"")+name+" | "+amount+" | "+status);
-  return {ok:true,id,clientId,message:"Bill saved."};
+  return {
+    ok:true,
+    id:id,
+    clientId:clientId,
+    bill:{
+      row:sh.getLastRow(),
+      timestamp:now,
+      id:id,
+      clientId:clientId,
+      clientName:(clientNameMap()[clientId]||{}).name||"",
+      name:name,
+      category:String(r.category||"Other"),
+      dueDate:r.dueDate||"",
+      amount:amount,
+      status:status,
+      notes:String(r.notes||""),
+      enteredBy:u.name,
+      username:u.username,
+      updatedAt:now
+    },
+    message:"Bill saved."
+  };
 }
 
 function updateBill(r,u){
