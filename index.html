@@ -2570,60 +2570,7 @@ function printReport(){
 
 
 
-<script id="liwo-calculator-script">
-(function(){
-  const $c=id=>document.getElementById(id);
-  const panels={concrete:$c("calcConcrete"),steel:$c("calcSteel"),block:$c("calcBlock"),paint:$c("calcPaint")};
-  const titles={concrete:"Concrete Calculator",steel:"Steel Calculator",block:"Block Calculator",paint:"Paint Calculator"};
-  let current="concrete";
-  function n(id, fallback=0){const v=parseFloat($c(id)?.value);return Number.isFinite(v)?v:fallback}
-  function moneyless(v,dec=2){return Number(v||0).toFixed(dec)}
-  function calculate(){
-    if(current==="concrete"){
-      const volume=n("concreteLength")*n("concreteWidth")*n("concreteThickness");
-      const bags=Math.ceil(volume*5);
-      $c("concreteVolume").textContent=moneyless(volume)+" m³";
-      $c("concreteCement").textContent=bags+" bags";
-    }else if(current==="steel"){
-      const d=n("steelDiameter"), length=n("steelLength"), qty=Math.max(1,n("steelQty",1));
-      const weight=(d*d/162)*length*qty;
-      $c("steelWeight").textContent=moneyless(weight)+" kg";
-      $c("steelFormula").textContent="d² ÷ 162 × length × qty";
-    }else if(current==="block"){
-      const area=n("blockLength")*n("blockHeight"), face=n("blockArea");
-      const count=Math.ceil((area/Math.max(face,.001))*1.05);
-      $c("blockCount").textContent=count.toLocaleString()+" pcs";
-    }else{
-      const area=n("paintArea"), coverage=Math.max(n("paintCoverage"),.1), coats=Math.max(1,n("paintCoats",1));
-      const litres=(area/coverage)*coats;
-      $c("paintLitres").textContent=moneyless(litres)+" L";
-      $c("paintPurchase").textContent=moneyless(litres*1.10)+" L";
-    }
-  }
-  function selectCalc(name){
-    if(!panels[name])return;
-    current=name;
-    Object.keys(panels).forEach(k=>panels[k].classList.toggle("hidden",k!==name));
-    document.querySelectorAll(".calculator-tool-card").forEach(b=>b.classList.toggle("active",b.dataset.calc===name));
-    if($c("calculatorTitle"))$c("calculatorTitle").textContent=titles[name];
-    calculate();
-  }
-  document.querySelectorAll(".calculator-tool-card").forEach(b=>b.addEventListener("click",()=>selectCalc(b.dataset.calc)));
-  $c("calculatorCalculateBtn")?.addEventListener("click",calculate);
-  $c("calculatorResetBtn")?.addEventListener("click",()=>{
-    document.querySelectorAll("#calculatorPage input").forEach(i=>{if(i.id==="concreteLength")i.value=10;if(i.id==="concreteWidth")i.value=5;if(i.id==="concreteThickness")i.value=.15;if(i.id==="steelDiameter")i.value=12;if(i.id==="steelLength")i.value=100;if(i.id==="steelQty")i.value=1;if(i.id==="blockLength")i.value=10;if(i.id==="blockHeight")i.value=3;if(i.id==="blockArea")i.value=.08;if(i.id==="paintArea")i.value=100;if(i.id==="paintCoverage")i.value=10;if(i.id==="paintCoats")i.value=2});
-    calculate();
-  });
-  function converters(){
-    const m=n("metersInput"), s=n("sqmInput"), kg=n("kgInput");
-    $c("feetResult").textContent=$c("metersInput").value!==""?(m*3.28084).toFixed(2)+" ft":"—";
-    $c("sqftResult").textContent=$c("sqmInput").value!==""?(s*10.7639).toFixed(2)+" ft²":"—";
-    $c("lbResult").textContent=$c("kgInput").value!==""?(kg*2.20462).toFixed(2)+" lb":"—";
-  }
-  ["metersInput","sqmInput","kgInput"].forEach(id=>$c(id)?.addEventListener("input",converters));
-  window.addEventListener("load",()=>{calculate();});
-})();
-</script>
+
 
 </body></html>`);
   w.document.close();w.focus();setTimeout(()=>w.print(),500);
@@ -3364,4 +3311,61 @@ document.addEventListener("DOMContentLoaded",()=>{
   },true);
 })();
 </script>
+
+
+<!-- LIWO Calculator: isolated from report-print template -->
+<script id="liwo-calculator-script">
+(function(){
+  const $c=id=>document.getElementById(id);
+  const panels={concrete:$c("calcConcrete"),steel:$c("calcSteel"),block:$c("calcBlock"),paint:$c("calcPaint")};
+  const titles={concrete:"Concrete Calculator",steel:"Steel Calculator",block:"Block Calculator",paint:"Paint Calculator"};
+  let current="concrete";
+  function n(id, fallback=0){const v=parseFloat($c(id)?.value);return Number.isFinite(v)?v:fallback}
+  function moneyless(v,dec=2){return Number(v||0).toFixed(dec)}
+  function calculate(){
+    if(current==="concrete"){
+      const volume=n("concreteLength")*n("concreteWidth")*n("concreteThickness");
+      const bags=Math.ceil(volume*5);
+      $c("concreteVolume").textContent=moneyless(volume)+" m³";
+      $c("concreteCement").textContent=bags+" bags";
+    }else if(current==="steel"){
+      const d=n("steelDiameter"), length=n("steelLength"), qty=Math.max(1,n("steelQty",1));
+      const weight=(d*d/162)*length*qty;
+      $c("steelWeight").textContent=moneyless(weight)+" kg";
+      $c("steelFormula").textContent="d² ÷ 162 × length × qty";
+    }else if(current==="block"){
+      const area=n("blockLength")*n("blockHeight"), face=n("blockArea");
+      const count=Math.ceil((area/Math.max(face,.001))*1.05);
+      $c("blockCount").textContent=count.toLocaleString()+" pcs";
+    }else{
+      const area=n("paintArea"), coverage=Math.max(n("paintCoverage"),.1), coats=Math.max(1,n("paintCoats",1));
+      const litres=(area/coverage)*coats;
+      $c("paintLitres").textContent=moneyless(litres)+" L";
+      $c("paintPurchase").textContent=moneyless(litres*1.10)+" L";
+    }
+  }
+  function selectCalc(name){
+    if(!panels[name])return;
+    current=name;
+    Object.keys(panels).forEach(k=>panels[k].classList.toggle("hidden",k!==name));
+    document.querySelectorAll(".calculator-tool-card").forEach(b=>b.classList.toggle("active",b.dataset.calc===name));
+    if($c("calculatorTitle"))$c("calculatorTitle").textContent=titles[name];
+    calculate();
+  }
+  document.querySelectorAll(".calculator-tool-card").forEach(b=>b.addEventListener("click",()=>selectCalc(b.dataset.calc)));
+  $c("calculatorCalculateBtn")?.addEventListener("click",calculate);
+  $c("calculatorResetBtn")?.addEventListener("click",()=>{
+    document.querySelectorAll("#calculatorPage input").forEach(i=>{if(i.id==="concreteLength")i.value=10;if(i.id==="concreteWidth")i.value=5;if(i.id==="concreteThickness")i.value=.15;if(i.id==="steelDiameter")i.value=12;if(i.id==="steelLength")i.value=100;if(i.id==="steelQty")i.value=1;if(i.id==="blockLength")i.value=10;if(i.id==="blockHeight")i.value=3;if(i.id==="blockArea")i.value=.08;if(i.id==="paintArea")i.value=100;if(i.id==="paintCoverage")i.value=10;if(i.id==="paintCoats")i.value=2});
+    calculate();
+  });
+  function converters(){
+    const m=n("metersInput"), s=n("sqmInput"), kg=n("kgInput");
+    $c("feetResult").textContent=$c("metersInput").value!==""?(m*3.28084).toFixed(2)+" ft":"—";
+    $c("sqftResult").textContent=$c("sqmInput").value!==""?(s*10.7639).toFixed(2)+" ft²":"—";
+    $c("lbResult").textContent=$c("kgInput").value!==""?(kg*2.20462).toFixed(2)+" lb":"—";
+  }
+  ["metersInput","sqmInput","kgInput"].forEach(id=>$c(id)?.addEventListener("input",converters));
+  window.addEventListener("load",()=>{calculate();});
+})();
+</script> 
 </body></html>
