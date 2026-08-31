@@ -1372,6 +1372,206 @@ tbody:empty{display:none!important;}
   #paymentsPage table,#expensesPage table,#budgetPage table{min-width:820px}
 }
 </style>
+
+<style id="liwo-bills-premium">
+/* Bills section only — does not alter shared panels, tables, forms, or other tabs. */
+#billsPage{padding-bottom:8px}
+#billsPage .liwo-bills-form,
+#billsPage .liwo-bill-tracker{
+  border:1px solid #e4edf3!important;
+  border-radius:15px!important;
+  background:#fff!important;
+  box-shadow:0 5px 18px rgba(20,48,72,.055)!important;
+  overflow:hidden!important;
+  margin-bottom:14px!important;
+}
+#billsPage .liwo-bills-title,
+#billsPage .liwo-bill-tracker-head{
+  padding:17px 20px!important;
+  border-bottom:1px solid #edf2f6!important;
+  display:flex!important;
+  justify-content:space-between!important;
+  align-items:center!important;
+  gap:15px!important;
+}
+#billsPage .liwo-bills-title h3,
+#billsPage .liwo-bill-tracker-head h3{
+  margin:0!important;
+  font-size:18px!important;
+  color:#143554!important;
+  letter-spacing:-.2px!important;
+}
+#billsPage .liwo-bills-title span,
+#billsPage .liwo-bill-tracker-head span{
+  display:block!important;
+  margin-top:5px!important;
+  color:#64778a!important;
+  font-size:11px!important;
+  line-height:1.35!important;
+}
+#billsPage .liwo-bill-form-grid{
+  padding:20px!important;
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:16px!important;
+}
+#billsPage .liwo-bill-form-grid label{
+  display:block!important;
+  margin:0!important;
+  color:#718395!important;
+  font-size:10px!important;
+  font-weight:800!important;
+  letter-spacing:.055em!important;
+  text-transform:uppercase!important;
+}
+#billsPage .liwo-bill-form-grid input,
+#billsPage .liwo-bill-form-grid select{
+  width:100%!important;
+  box-sizing:border-box!important;
+  margin-top:7px!important;
+  min-height:44px!important;
+  border:1px solid #dce6ed!important;
+  border-radius:10px!important;
+  background:#fff!important;
+  color:#162c43!important;
+  padding:10px 12px!important;
+  font-size:13px!important;
+  outline:none!important;
+}
+#billsPage .liwo-bill-form-grid input:focus,
+#billsPage .liwo-bill-form-grid select:focus{
+  border-color:#8eb4d0!important;
+  box-shadow:0 0 0 3px rgba(24,91,137,.08)!important;
+}
+#billsPage .liwo-bill-actions{
+  grid-column:1/-1!important;
+  display:flex!important;
+  gap:9px!important;
+  align-items:center!important;
+}
+#billsPage #billSaveBtn{
+  min-height:43px!important;
+  padding:10px 18px!important;
+  border-radius:10px!important;
+  background:linear-gradient(135deg,#092d4c,#123f62)!important;
+  box-shadow:0 5px 12px rgba(9,45,76,.14)!important;
+  font-weight:800!important;
+}
+#billsPage #billCancelBtn{min-height:43px!important;border-radius:10px!important}
+#billsPage .liwo-bill-tracker-head select{
+  width:170px!important;
+  min-height:43px!important;
+  border:1px solid #dce6ed!important;
+  border-radius:10px!important;
+  background:#fff!important;
+  padding:9px 12px!important;
+  color:#243a50!important;
+  font-weight:700!important;
+}
+#billsPage .liwo-bill-summary{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:12px!important;
+  padding:15px 20px!important;
+}
+#billsPage .liwo-bill-stat{
+  position:relative!important;
+  min-height:75px!important;
+  padding:13px 52px 12px 14px!important;
+  border:1px solid #e5edf3!important;
+  border-radius:11px!important;
+  background:linear-gradient(135deg,#fbfdff,#f7fafc)!important;
+  box-sizing:border-box!important;
+}
+#billsPage .liwo-bill-stat span{display:block!important;font-size:10px!important;font-weight:700!important;color:#5f7488!important;margin-bottom:6px!important}
+#billsPage .liwo-bill-stat strong{display:block!important;font-size:18px!important;color:#102b47!important;line-height:1.15!important}
+#billsPage .liwo-bill-stat b{
+  position:absolute!important;right:12px!important;top:50%!important;transform:translateY(-50%)!important;
+  width:34px!important;height:34px!important;border-radius:50%!important;display:grid!important;place-items:center!important;
+  font-size:17px!important;background:#eaf3fb!important;color:#195b93!important;
+}
+#billsPage .liwo-bill-stat.pay span{color:#c97800!important}
+#billsPage .liwo-bill-stat.pay b{background:#fff4df!important;color:#e58b00!important}
+#billsPage .liwo-bill-stat.paid span{color:#178548!important}
+#billsPage .liwo-bill-stat.paid b{background:#eaf8ef!important;color:#1b9850!important}
+#billsPage .liwo-bill-stat.overdue span{color:#d52a25!important}
+#billsPage .liwo-bill-stat.overdue b{background:#fff0ef!important;color:#e0332d!important}
+#billsPage .liwo-bill-table-wrap{width:100%!important;overflow-x:auto!important;-webkit-overflow-scrolling:touch!important}
+#billsPage .liwo-bill-table{width:100%!important;min-width:720px!important;border-collapse:collapse!important}
+#billsPage .liwo-bill-table th{
+  background:#f7f9fb!important;
+  color:#607387!important;
+  font-size:10px!important;
+  letter-spacing:.055em!important;
+  text-transform:uppercase!important;
+  padding:12px 14px!important;
+  border-bottom:1px solid #e7edf2!important;
+}
+#billsPage .liwo-bill-table td{
+  padding:13px 14px!important;
+  border-bottom:1px solid #edf2f5!important;
+  color:#1b3045!important;
+  font-size:12px!important;
+  vertical-align:middle!important;
+}
+#billsPage .liwo-bill-table tbody tr:hover{background:#fbfdff!important}
+#billsPage .liwo-bill-name>div{display:flex!important;align-items:center!important;gap:9px!important;min-width:165px!important}
+#billsPage .liwo-bill-name strong{font-size:12px!important;color:#152d45!important}
+#billsPage .liwo-bill-name small{display:block!important;color:#8291a0!important;font-size:9px!important;margin-top:3px!important;font-weight:500!important}
+#billsPage .liwo-bill-row-icon{
+  width:29px!important;height:29px!important;min-width:29px!important;border-radius:50%!important;display:grid!important;place-items:center!important;
+  background:#edf5fc!important;color:#1760a0!important;font-weight:900!important;
+}
+#billsPage .liwo-bill-category{
+  display:inline-block!important;padding:6px 10px!important;border-radius:999px!important;
+  background:#eaf3ff!important;color:#18518a!important;font-weight:800!important;font-size:10px!important;
+}
+#billsPage .liwo-bill-due{font-weight:700!important;color:#24394e!important}
+#billsPage .liwo-bill-due small{display:block!important;margin-top:3px!important;font-size:9px!important;color:#218647!important;font-weight:700!important}
+#billsPage .liwo-bill-amount{font-weight:800!important;color:#162b43!important}
+#billsPage .liwo-bill-status{
+  display:inline-flex!important;align-items:center!important;gap:2px!important;
+  padding:6px 10px!important;border-radius:999px!important;font-size:10px!important;font-weight:800!important;
+}
+#billsPage .liwo-bill-status.ongoing{background:#fff3dc!important;color:#bd7100!important}
+#billsPage .liwo-bill-status.paid{background:#e8f7ed!important;color:#188348!important}
+#billsPage .liwo-bill-status.overdue{background:#ffebea!important;color:#d62e28!important}
+#billsPage .liwo-bill-actions-cell{white-space:nowrap!important}
+#billsPage .liwo-bill-actions-cell button{
+  width:31px!important;height:31px!important;min-height:31px!important;padding:0!important;margin-right:5px!important;
+  border-radius:8px!important;border:1px solid #dce6ee!important;background:#fff!important;color:#1d5c96!important;
+  font-size:15px!important;line-height:1!important;box-shadow:none!important;
+}
+#billsPage .liwo-bill-actions-cell .liwo-bill-delete{color:#d52e2a!important;border-color:#f0d2d0!important}
+#billsPage .liwo-bill-empty{padding:30px 15px!important;text-align:center!important;color:#8391a0!important;font-size:12px!important}
+
+@media(max-width:760px){
+  #billsPage .liwo-bills-form,#billsPage .liwo-bill-tracker{border-radius:11px!important;margin-bottom:10px!important}
+  #billsPage .liwo-bills-title,#billsPage .liwo-bill-tracker-head{padding:11px 12px!important}
+  #billsPage .liwo-bills-title h3,#billsPage .liwo-bill-tracker-head h3{font-size:13px!important}
+  #billsPage .liwo-bills-title span,#billsPage .liwo-bill-tracker-head span{font-size:8px!important;margin-top:3px!important}
+  #billsPage .liwo-bill-form-grid{grid-template-columns:1fr!important;padding:12px!important;gap:9px!important}
+  #billsPage .liwo-bill-form-grid label{font-size:8px!important}
+  #billsPage .liwo-bill-form-grid input,#billsPage .liwo-bill-form-grid select{min-height:34px!important;margin-top:5px!important;padding:7px 9px!important;border-radius:8px!important;font-size:10px!important}
+  #billsPage .liwo-bill-actions{display:grid!important;grid-template-columns:1fr 1fr!important;gap:7px!important}
+  #billsPage #billSaveBtn,#billsPage #billCancelBtn{width:100%!important;min-height:38px!important;font-size:10px!important;padding:7px 9px!important}
+  #billsPage .liwo-bill-tracker-head{align-items:flex-start!important}
+  #billsPage .liwo-bill-tracker-head select{width:112px!important;min-height:34px!important;font-size:10px!important;padding:6px 8px!important}
+  #billsPage .liwo-bill-summary{grid-template-columns:1fr 1fr!important;gap:7px!important;padding:10px 12px!important}
+  #billsPage .liwo-bill-stat{min-height:59px!important;padding:9px 38px 8px 10px!important;border-radius:9px!important}
+  #billsPage .liwo-bill-stat span{font-size:8px!important;margin-bottom:4px!important}
+  #billsPage .liwo-bill-stat strong{font-size:13px!important}
+  #billsPage .liwo-bill-stat b{width:25px!important;height:25px!important;right:8px!important;font-size:12px!important}
+  #billsPage .liwo-bill-table{min-width:670px!important}
+  #billsPage .liwo-bill-table th{font-size:8px!important;padding:9px 10px!important}
+  #billsPage .liwo-bill-table td{font-size:10px!important;padding:10px!important}
+  #billsPage .liwo-bill-name strong{font-size:10px!important}
+  #billsPage .liwo-bill-name small{font-size:8px!important}
+  #billsPage .liwo-bill-row-icon{width:25px!important;height:25px!important;min-width:25px!important;font-size:10px!important}
+  #billsPage .liwo-bill-category,#billsPage .liwo-bill-status{font-size:8px!important;padding:5px 7px!important}
+  #billsPage .liwo-bill-actions-cell button{width:27px!important;height:27px!important;min-height:27px!important;font-size:13px!important;margin-right:3px!important}
+}
+</style>
 </head>
 <body>
 <div id="liwoLoadingOverlay" aria-hidden="true">
@@ -1628,31 +1828,53 @@ tbody:empty{display:none!important;}
 </section>
 
 <section id="billsPage" class="page hidden">
-<div class="panel">
-  <div class="panel-head"><div><h3>Bills</h3><span class="muted">Track bills that need to be paid and their current status.</span></div></div>
-  <form id="billForm" class="grid">
-    <input type="hidden" name="id">
-    <label>Bill / Payee<input name="name" type="text" required placeholder="e.g. Meralco, Supplier"></label>
-    <label>Category<select name="category"><option>Utilities</option><option>Materials</option><option>Suppliers</option><option>Labor</option><option>Permits</option><option>Rent</option><option>Loans</option><option>Other</option></select></label>
-    <label>Due Date<input name="dueDate" type="date" required></label>
-    <label>Amount<input name="amount" type="number" min="0" step=".01" required></label>
-    <label>Status<select name="status"><option>Ongoing</option><option>Pending</option><option>Paid</option></select></label>
-    <label class="wide">Notes<textarea name="notes" placeholder="Optional notes"></textarea></label>
-    <div class="wide"><button id="billSaveBtn" class="primary" type="submit">Save Bill</button> <button id="billCancelBtn" class="secondary hidden" type="button">Cancel Edit</button></div>
-  </form>
-</div>
-<div class="panel">
-  <div class="panel-head">
-    <div><h3>Bill Tracker</h3><span class="muted">Use the filters to view all, paid, ongoing, pending, or overdue bills.</span></div>
-    <select id="billFilter" aria-label="Filter bills"><option value="All">All</option><option value="Paid">Paid</option><option value="Ongoing">Ongoing</option><option value="Pending">Pending</option><option value="Overdue">Overdue</option></select>
+  <div class="liwo-bills-form panel">
+    <div class="liwo-bills-title">
+      <div>
+        <h3>Bills</h3>
+        <span>Track bills that need to be paid and their current status.</span>
+      </div>
+    </div>
+    <form id="billForm" class="liwo-bill-form-grid">
+      <input type="hidden" name="id">
+      <label>Bill / Payee<input name="name" type="text" required placeholder="e.g. Meralco, Supplier"></label>
+      <label>Category<select name="category"><option>Utilities</option><option>Materials</option><option>Suppliers</option><option>Labor</option><option>Permits</option><option>Rent</option><option>Loans</option><option>Other</option></select></label>
+      <label>Due Date<input name="dueDate" type="date" required></label>
+      <label>Amount<input name="amount" type="number" min="0" step=".01" required placeholder="0.00"></label>
+      <label>Status<select name="status"><option>Ongoing</option><option>Pending</option><option>Paid</option></select></label>
+      <label>Notes (Optional)<input name="notes" type="text" placeholder="Optional notes"></label>
+      <div class="liwo-bill-actions">
+        <button id="billSaveBtn" class="primary" type="submit">▣&nbsp; Save Bill</button>
+        <button id="billCancelBtn" class="secondary hidden" type="button">Cancel Edit</button>
+      </div>
+    </form>
   </div>
-  <div class="summary-grid" style="margin-bottom:12px">
-    <div class="summary-card"><span>Total Bills</span><strong id="billCount">0</strong></div>
-    <div class="summary-card"><span>To Pay</span><strong id="billOutstanding">₱0.00</strong></div>
-    <div class="summary-card"><span>Paid</span><strong id="billPaidTotal">₱0.00</strong></div>
+
+  <div class="liwo-bill-tracker panel">
+    <div class="liwo-bill-tracker-head">
+      <div>
+        <h3>Bill Tracker</h3>
+        <span>Use the filters to view all, paid, ongoing, pending, or overdue bills.</span>
+      </div>
+      <select id="billFilter" aria-label="Filter bills">
+        <option value="All">All</option><option value="Paid">Paid</option><option value="Ongoing">Ongoing</option><option value="Pending">Pending</option><option value="Overdue">Overdue</option>
+      </select>
+    </div>
+
+    <div class="liwo-bill-summary">
+      <div class="liwo-bill-stat total"><span>Total Bills</span><strong id="billCount">0</strong><b>▤</b></div>
+      <div class="liwo-bill-stat pay"><span>To Pay</span><strong id="billOutstanding">₱0.00</strong><b>◷</b></div>
+      <div class="liwo-bill-stat paid"><span>Paid</span><strong id="billPaidTotal">₱0.00</strong><b>✓</b></div>
+      <div class="liwo-bill-stat overdue"><span>Overdue</span><strong id="billOverdueTotal">₱0.00</strong><b>!</b></div>
+    </div>
+
+    <div class="liwo-bill-table-wrap">
+      <table class="liwo-bill-table">
+        <thead><tr><th>Bill / Payee</th><th>Category</th><th>Due Date</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="billsBody"></tbody>
+      </table>
+    </div>
   </div>
-  <div class="table-wrap"><table><thead><tr><th>Bill / Payee</th><th>Category</th><th>Due Date</th><th>Amount</th><th>Status</th><th>Notes</th><th>Edit</th><th>Delete</th></tr></thead><tbody id="billsBody"></tbody></table></div>
-</div>
 </section>
 
 <section id="budgetPage" class="page hidden"><div class="panel"><div class="panel-head"><h3>Budget vs Actual</h3></div><div class="table-wrap"><table><thead><tr><th>Category</th><th>Budget</th><th>Actual</th><th>Variance</th><th>% Used</th><th>Remaining</th></tr></thead><tbody id="budgetBody"></tbody></table></div></div></section>
@@ -3272,11 +3494,30 @@ document.addEventListener("DOMContentLoaded",()=>{
     const filtered=bills.filter(x=>filter==="All"||effectiveStatus(x)===filter);
     const paid=bills.filter(x=>String(x.status)==="Paid").reduce((s,x)=>s+Number(x.amount||0),0);
     const outstanding=bills.filter(x=>String(x.status)!=="Paid").reduce((s,x)=>s+Number(x.amount||0),0);
-    q("billCount").textContent=bills.length;q("billOutstanding").textContent=money(outstanding);q("billPaidTotal").textContent=money(paid);
-    body.innerHTML=filtered.length?filtered.slice().sort((a,b)=>String(a.dueDate||"").localeCompare(String(b.dueDate||""))).map(x=>{
-      const st=effectiveStatus(x), cls=st==="Paid"?"status-closed":(st==="Overdue"?"status-danger":"status-open");
-      return `<tr><td>${safe(x.name)}</td><td>${safe(x.category)}</td><td>${safe(String(x.dueDate||"").slice(0,10)||"—")}</td><td>${money(x.amount)}</td><td><span class="${cls}">${safe(st)}</span></td><td>${safe(x.notes||"—")}</td><td><button type="button" class="secondary bill-edit" data-id="${safe(x.id)}">Edit</button></td><td><button type="button" class="secondary bill-delete" data-id="${safe(x.id)}" style="color:#b42318;border-color:#f0b7b2;">Delete</button></td></tr>`;
-    }).join(""):'<tr><td colspan="8" class="empty">No bills found.</td></tr>';
+    const overdue=bills.filter(x=>effectiveStatus(x)==="Overdue").reduce((s,x)=>s+Number(x.amount||0),0);
+    q("billCount").textContent=bills.length;
+    q("billOutstanding").textContent=money(outstanding);
+    q("billPaidTotal").textContent=money(paid);
+    if(q("billOverdueTotal"))q("billOverdueTotal").textContent=money(overdue);
+
+    body.innerHTML=filtered.length?filtered.slice().sort((a,b)=>{
+      const ad=new Date(a.dueDate||0).getTime()||0,bd=new Date(b.dueDate||0).getTime()||0;
+      return ad-bd;
+    }).map(x=>{
+      const st=effectiveStatus(x);
+      const cls=st==="Paid"?"liwo-bill-status paid":(st==="Overdue"?"liwo-bill-status overdue":"liwo-bill-status ongoing");
+      const icon=st==="Paid"?"✓":(st==="Overdue"?"!":"•");
+      const due=String(x.dueDate||"").slice(0,10)||"—";
+      const note=x.notes?`<small>${safe(x.notes)}</small>`:"";
+      return `<tr>
+        <td class="liwo-bill-name"><div><span class="liwo-bill-row-icon">${st==="Paid"?"✓":(st==="Overdue"?"!":"•")}</span><strong>${safe(x.name||"Bill")}</strong>${note}</div></td>
+        <td><span class="liwo-bill-category">${safe(x.category||"Other")}</span></td>
+        <td class="liwo-bill-due">${safe(due)}<small>${st==="Paid"?"Paid":(st==="Overdue"?"Overdue":"")}</small></td>
+        <td class="liwo-bill-amount">${money(x.amount)}</td>
+        <td><span class="${cls}">${icon}&nbsp; ${safe(st)}</span></td>
+        <td class="liwo-bill-actions-cell"><button type="button" class="liwo-bill-edit bill-edit" data-id="${safe(x.id??x.billId??"")}" aria-label="Edit bill">✎</button><button type="button" class="liwo-bill-delete bill-delete" data-id="${safe(x.id??x.billId??"")}" aria-label="Delete bill">⌫</button></td>
+      </tr>`;
+    }).join(""):'<tr><td colspan="6" class="liwo-bill-empty">No bills found.</td></tr>';
   }
   async function load(){
     if(!window.session?.token){bills=[];render();return;}
@@ -3345,7 +3586,7 @@ document.addEventListener("DOMContentLoaded",()=>{
       if(delBtn){
         const id=delBtn.dataset.id;if(!confirm("Delete this bill? This action cannot be undone."))return;
         try{
-          await api("deleteBill",{token:session.token,id,clientId:projectId});
+          const projectId=String(window.selectedClientId||selectedClientId||"").trim();if(!projectId)throw Error("Select an Active Project first.");await api("deleteBill",{token:session.token,id,clientId:projectId});
           await load();if(typeof toast==="function")toast("Bill deleted and recorded in Activity Log.");
         }catch(err){if(typeof toast==="function")toast(err.message||String(err));else alert(err.message||String(err));}
       }
