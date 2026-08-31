@@ -3423,16 +3423,6 @@ function printReport(){
 <div class="liwo-report-records-footer" id="liwoReportRecordsFooter">GENERATED FROM LIWO FINANCE</div>
 </div>
 
-<script id="liwo-bills-project-sync">
-(function(){
-  function sync(){
-    if(typeof selectedClientId!=="undefined" && selectedClientId) window.selectedClientId=selectedClientId;
-    const s=document.getElementById("dashboardClient");
-    if(s&&s.value) window.selectedClientId=s.value;
-  }
-  document.addEventListener("DOMContentLoaded",sync);
-})();
-</script>
 </body>
 
 </html>`);
@@ -3490,7 +3480,7 @@ async function __liwoOriginalLoadUsers(){try{let o=await api("listUsers",{token:
 document.addEventListener("DOMContentLoaded",()=>{
 $("loginTab").onclick=()=>tabs(false);$("registerTab").onclick=()=>tabs(true);$("loginForm").onsubmit=login;$("registerForm").onsubmit=register;$("logoutBtn").onclick=logout;$("menuLogoutBtn").onclick=logout;$("refreshBtn").onclick=refresh;$("printReportBtn").onclick=printReport;$("saveReportBtn").onclick=printReport;$("exportReportBtn").onclick=exportReportCSV;$("reportPeriod").onchange=renderReport;$("notificationBtn").onclick=toggleNotificationMenu;$("userMenuBtn").onclick=toggleUserMenu;$("markNotificationsRead").onclick=markNotificationsRead;$("profileMenuBtn").onclick=openProfile;$("profileCloseBtn").onclick=closeProfile;$("profileDoneBtn").onclick=closeProfile;$("profilePhotoInput").onchange=e=>saveProfilePhoto(e.target.files[0]);$("removeProfilePhotoBtn").onclick=removeProfilePhoto;$("profileUsernameSaveBtn").onclick=saveProfileUsername;$("profileModal").onclick=e=>{if(e.target.id==="profileModal")closeProfile()};document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeHeaderMenus();closeProfile()}});document.addEventListener("click",e=>{if(!e.target.closest(".top-user"))closeHeaderMenus()});
 document.querySelectorAll(".nav button,.mobile-nav button").forEach(b=>b.onclick=()=>switchPage(b.dataset.page));
-$("dashboardClient").onchange=async()=>{selectedClientId=$("dashboardClient").value;window.selectedClientId=selectedClientId;await refresh();if(typeof window.loadLIWOBills==="function")window.loadLIWOBills()};document.querySelectorAll("[data-project-nav]").forEach(b=>b.addEventListener("click",()=>switchPage(b.dataset.projectNav)));
+$("dashboardClient").onchange=async()=>{selectedClientId=$("dashboardClient").value;await refresh();if(typeof window.loadLIWOBills==="function")window.loadLIWOBills()};document.querySelectorAll("[data-project-nav]").forEach(b=>b.addEventListener("click",()=>switchPage(b.dataset.projectNav)));
 
 
 $("clientBaseBudget")?.addEventListener("input",updateClientTotal);$("additionalDesignFee")?.addEventListener("input",updateClientTotal);$("clientCancelEdit")?.addEventListener("click",resetClientForm);$("clientsBody")?.addEventListener("click",e=>{const b=e.target.closest(".edit-client-btn");if(b)editClient(b.dataset.clientId)});$("paymentForm").onsubmit=e=>{e.preventDefault();save("addPayment",e.target)};$("expenseForm").onsubmit=e=>{e.preventDefault();save("addExpense",e.target)};$("receiptInput").onchange=e=>{let f=e.target.files[0];if($("receiptFileName"))$("receiptFileName").textContent=f?`${f.name} selected`:`Optional — you can take a photo or upload a receipt. No receipt is also allowed.`};$("userForm").onsubmit=e=>{e.preventDefault();save("upsertUser",e.target)};
@@ -4140,221 +4130,129 @@ document.addEventListener("DOMContentLoaded",()=>{
   const money=n=>`₱${Number(n||0).toLocaleString("en-PH",{minimumFractionDigits:2,maximumFractionDigits:2})}`;
   const safe=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
   let bills=[];
-
-  function currentProjectId(){
-    const select=q("dashboardClient");
-    return String(window.selectedClientId || (typeof selectedClientId!=="undefined"?selectedClientId:"") || select?.value || "").trim();
-  }
-
   function effectiveStatus(x){
-    if(String(x?.status||"")==="Paid")return "Paid";
-    if(x?.dueDate && String(x.dueDate).slice(0,10)<today())return "Overdue";
-    return x?.status||"Pending";
+    if(String(x.status)==="Paid")return "Paid";
+    if(x.dueDate && String(x.dueDate).slice(0,10)<today())return "Overdue";
+    return x.status||"Pending";
   }
-
   function reset(){
     const f=q("billForm");if(!f)return;
-    f.reset();
-    if(f.elements.id)f.elements.id.value="";
-    if(q("billSaveBtn"))q("billSaveBtn").textContent="Save Bill";
-    q("billCancelBtn")?.classList.add("hidden");
-    if(f.elements.dueDate)f.elements.dueDate.value=today();
-    if(f.elements.status)f.elements.status.value="Ongoing";
+    f.reset();f.elements.id.value="";q("billSaveBtn").textContent="Save Bill";q("billCancelBtn").classList.add("hidden");
+    f.elements.dueDate.value=today();f.elements.status.value="Ongoing";
   }
-
   function edit(id){
-    const x=bills.find(b=>String(b.id??b.billId)===String(id));
-    if(!x){toast("Bill record not found.");return;}
-    const f=q("billForm");if(!f)return;
-    f.elements.id.value=x.id??x.billId??"";
-    f.elements.name.value=x.name||"";
-    f.elements.category.value=x.category||"Other";
-    f.elements.dueDate.value=String(x.dueDate||"").slice(0,10)||today();
-    f.elements.amount.value=x.amount??"";
-    f.elements.status.value=x.status||"Ongoing";
-    f.elements.notes.value=x.notes||"";
-    q("billSaveBtn").textContent="Update Bill";
-    q("billCancelBtn").classList.remove("hidden");
-    f.scrollIntoView({behavior:"smooth",block:"start"});
+    const x=bills.find(b=>String(b.id??b.billId)===String(id));if(!x)return;
+    const f=q("billForm");
+    f.elements.id.value=x.id;f.elements.name.value=x.name||"";f.elements.category.value=x.category||"Other";
+    f.elements.dueDate.value=String(x.dueDate||"").slice(0,10)||today();f.elements.amount.value=x.amount??"";f.elements.status.value=x.status||"Ongoing";f.elements.notes.value=x.notes||"";
+    q("billSaveBtn").textContent="Update Bill";q("billCancelBtn").classList.remove("hidden");f.scrollIntoView({behavior:"smooth",block:"start"});
   }
-
   function render(){
-    const filter=q("billFilter")?.value||"All", body=q("billsBody");
-    if(!body)return;
-
+    const filter=q("billFilter")?.value||"All", body=q("billsBody");if(!body)return;
     const filtered=bills.filter(x=>filter==="All"||effectiveStatus(x)===filter);
     const paid=bills.filter(x=>String(x.status)==="Paid").reduce((s,x)=>s+Number(x.amount||0),0);
     const outstanding=bills.filter(x=>String(x.status)!=="Paid").reduce((s,x)=>s+Number(x.amount||0),0);
     const overdue=bills.filter(x=>effectiveStatus(x)==="Overdue").reduce((s,x)=>s+Number(x.amount||0),0);
-
-    if(q("billCount"))q("billCount").textContent=bills.length;
-    if(q("billOutstanding"))q("billOutstanding").textContent=money(outstanding);
-    if(q("billPaidTotal"))q("billPaidTotal").textContent=money(paid);
+    q("billCount").textContent=bills.length;
+    q("billOutstanding").textContent=money(outstanding);
+    q("billPaidTotal").textContent=money(paid);
     if(q("billOverdueTotal"))q("billOverdueTotal").textContent=money(overdue);
 
-    body.innerHTML=filtered.length
-      ?filtered.slice().sort((a,b)=>{
-        const at=new Date(a.updatedAt||a.timestamp||a.dueDate||0).getTime()||0;
-        const bt=new Date(b.updatedAt||b.timestamp||b.dueDate||0).getTime()||0;
-        return bt-at;
-      }).map(x=>{
-        const st=effectiveStatus(x);
-        const cls=st==="Paid"?"liwo-bill-status paid":(st==="Overdue"?"liwo-bill-status overdue":"liwo-bill-status ongoing");
-        const icon=st==="Paid"?"✓":(st==="Overdue"?"!":"•");
-        const due=String(x.dueDate||"").slice(0,10)||"—";
-        const note=x.notes?`<small>${safe(x.notes)}</small>`:"";
-        const id=safe(x.id??x.billId??"");
-        return `<tr>
-          <td class="liwo-bill-name"><div><span class="liwo-bill-row-icon">${icon}</span><strong>${safe(x.name||"Bill")}</strong>${note}</div></td>
-          <td><span class="liwo-bill-category">${safe(x.category||"Other")}</span></td>
-          <td class="liwo-bill-due">${safe(due)}<small>${st==="Paid"?"Paid":(st==="Overdue"?"Overdue":"")}</small></td>
-          <td class="liwo-bill-amount">${money(x.amount)}</td>
-          <td><span class="${cls}">${icon}&nbsp; ${safe(st)}</span></td>
-          <td class="liwo-bill-actions-cell">
-            <button type="button" class="liwo-bill-edit bill-edit" data-id="${id}" aria-label="Edit bill">✎</button>
-            <button type="button" class="liwo-bill-delete bill-delete" data-id="${id}" aria-label="Delete bill">⌫</button>
-          </td>
-        </tr>`;
-      }).join("")
-      :'<tr><td colspan="6" class="liwo-bill-empty">No bills found for this active project.</td></tr>';
+    body.innerHTML=filtered.length?filtered.slice().sort((a,b)=>{
+      const ad=new Date(a.dueDate||0).getTime()||0,bd=new Date(b.dueDate||0).getTime()||0;
+      return ad-bd;
+    }).map(x=>{
+      const st=effectiveStatus(x);
+      const cls=st==="Paid"?"liwo-bill-status paid":(st==="Overdue"?"liwo-bill-status overdue":"liwo-bill-status ongoing");
+      const icon=st==="Paid"?"✓":(st==="Overdue"?"!":"•");
+      const due=String(x.dueDate||"").slice(0,10)||"—";
+      const note=x.notes?`<small>${safe(x.notes)}</small>`:"";
+      return `<tr>
+        <td class="liwo-bill-name"><div><span class="liwo-bill-row-icon">${st==="Paid"?"✓":(st==="Overdue"?"!":"•")}</span><strong>${safe(x.name||"Bill")}</strong>${note}</div></td>
+        <td><span class="liwo-bill-category">${safe(x.category||"Other")}</span></td>
+        <td class="liwo-bill-due">${safe(due)}<small>${st==="Paid"?"Paid":(st==="Overdue"?"Overdue":"")}</small></td>
+        <td class="liwo-bill-amount">${money(x.amount)}</td>
+        <td><span class="${cls}">${icon}&nbsp; ${safe(st)}</span></td>
+        <td class="liwo-bill-actions-cell"><button type="button" class="liwo-bill-edit bill-edit" data-id="${safe(x.id??x.billId??"")}" aria-label="Edit bill">✎</button><button type="button" class="liwo-bill-delete bill-delete" data-id="${safe(x.id??x.billId??"")}" aria-label="Delete bill">⌫</button></td>
+      </tr>`;
+    }).join(""):'<tr><td colspan="6" class="liwo-bill-empty">No bills found.</td></tr>';
   }
-
   async function load(){
     if(!window.session?.token){bills=[];render();return;}
-    const projectId=currentProjectId();
-    if(!projectId){
-      bills=[];
-      render();
-      return;
-    }
     try{
+      // Bills are project-scoped. Always load only the currently selected project.
+      const projectId=String(window.selectedClientId||selectedClientId||"").trim();
+      if(!projectId){
+        bills=[];
+        render();
+        return;
+      }
+      // Bills are strictly project-scoped by ClientID.
+      // BillID is only the unique record ID used for edit/delete.
       const o=await api("listBills",{token:session.token,clientId:projectId});
-      // The backend already performs project matching, including legacy ClientID values.
-      // Do not discard valid legacy rows on the client.
-      bills=Array.isArray(o?.bills)?o.bills:[];
+      bills=(Array.isArray(o.bills)?o.bills:[]).filter(b=>{
+        const billClientId=String(b.clientId??b.clientID??"").trim();
+        return billClientId===projectId;
+      });
       render();
     }catch(e){
-      bills=[];
       render();
-      toast(e.message||String(e));
+      if(typeof toast==="function")toast(e.message||String(e));
     }
   }
-
-  async function saveBill(e){
-    e.preventDefault();
-    const f=q("billForm");if(!f)return;
-
-    const name=f.elements.name.value.trim();
-    const amount=Number(f.elements.amount.value);
-    const id=String(f.elements.id.value||"").trim();
-    const projectId=currentProjectId();
-
-    if(!name)return toast("Enter a bill or payee.");
-    if(!Number.isFinite(amount)||amount<0)return toast("Enter a valid amount.");
-    if(!window.session?.token)return toast("Please sign in first.");
-    if(!projectId)return toast("Select an Active Project before recording a bill.");
-
-    const payload={
-      token:session.token,
-      id,
-      name,
-      category:f.elements.category.value,
-      dueDate:f.elements.dueDate.value,
-      amount,
-      status:f.elements.status.value,
-      notes:f.elements.notes.value.trim(),
-      clientId:projectId
-    };
-
-    const btn=q("billSaveBtn");if(btn)btn.disabled=true;
-    try{
-      const action=id?"updateBill":"addBill";
-      const result=await api(action,payload);
-
-      // Immediately update the visible tracker from the API response.
-      const returned=result?.bill||result||{};
-      const savedId=String(returned.id??returned.billId??result?.id??id??"").trim();
-      const localRecord={
-        id:savedId,
-        billId:savedId,
-        clientId:String(returned.clientId??projectId),
-        clientName:returned.clientName||"",
-        name,
-        category:payload.category,
-        dueDate:payload.dueDate,
-        amount,
-        status:payload.status,
-        notes:payload.notes,
-        enteredBy:returned.enteredBy||session.user?.name||"",
-        username:returned.username||session.user?.username||"",
-        timestamp:returned.timestamp||new Date().toISOString(),
-        updatedAt:returned.updatedAt||new Date().toISOString()
-      };
-
-      if(savedId){
-        bills=bills.filter(b=>String(b.id??b.billId??"")!==savedId);
-        bills.push(localRecord);
-        render();
-      }
-
-      reset();
-
-      // Re-read the persistent Bills sheet. If the read is briefly stale,
-      // keep the successful local record visible instead of erasing it.
-      try{
-        const before=bills.slice();
-        await load();
-        if(savedId && !bills.some(b=>String(b.id??b.billId??"")===savedId)){
-          bills=before;
-          render();
-        }
-      }catch(_){}
-
-      toast(id?"Bill updated successfully and recorded in Activity Log.":"Bill saved successfully and recorded in Activity Log.");
-    }catch(err){
-      toast(err.message||String(err));
-    }finally{
-      if(btn)btn.disabled=false;
-    }
-  }
-
   function init(){
-    const f=q("billForm");
-    if(!f||f.dataset.bound)return;
-    f.dataset.bound="1";
-    if(f.elements.dueDate)f.elements.dueDate.value=today();
-    f.addEventListener("submit",saveBill);
-    q("billCancelBtn")?.addEventListener("click",reset);
-    q("billFilter")?.addEventListener("change",render);
-
-    q("billsBody")?.addEventListener("click",async e=>{
-      const editBtn=e.target.closest(".bill-edit");
-      const delBtn=e.target.closest(".bill-delete");
-
-      if(editBtn){edit(editBtn.dataset.id);return;}
-
-      if(delBtn){
-        const id=String(delBtn.dataset.id||"").trim();
-        if(!id)return toast("Bill ID is missing.");
-        if(!confirm("Delete this bill? This action cannot be undone."))return;
-
-        const projectId=currentProjectId();
-        if(!projectId)return toast("Select an Active Project first.");
-
-        try{
-          await api("deleteBill",{token:session.token,id,billId:id,clientId:projectId});
-          bills=bills.filter(b=>String(b.id??b.billId??"")!==id);
+    const f=q("billForm");if(!f||f.dataset.bound)return;f.dataset.bound="1";
+    f.elements.dueDate.value=today();
+    f.addEventListener("submit",async e=>{
+      e.preventDefault();
+      const name=f.elements.name.value.trim(), amount=Number(f.elements.amount.value), id=f.elements.id.value||"";
+      if(!name)return typeof toast==="function"?toast("Enter a bill or payee."):alert("Enter a bill or payee.");
+      if(!Number.isFinite(amount)||amount<0)return typeof toast==="function"?toast("Enter a valid amount."):alert("Enter a valid amount.");
+      if(typeof session==="undefined"||!session||!session.token)return typeof toast==="function"?toast("Please sign in first."):alert("Please sign in first.");
+      const projectId=String(window.selectedClientId||selectedClientId||"").trim();
+      if(!projectId)return typeof toast==="function"?toast("Select an Active Project before recording a bill."):alert("Select an Active Project before recording a bill.");
+      const payload={token:session.token,id,name,category:f.elements.category.value,dueDate:f.elements.dueDate.value,amount,status:f.elements.status.value,notes:f.elements.notes.value.trim(),clientId:projectId};
+      const btn=q("billSaveBtn");if(btn)btn.disabled=true;
+      try{
+        const result=await api(id?"updateBill":"addBill",payload);
+        // The backend returns the generated Bill ID. Build the saved record
+        // locally as well, then re-read the persistent Bills sheet. This keeps
+        // the Bill Tracker in sync even when the web app response is minimal.
+        const savedId=String(result?.id??result?.bill?.id??result?.billId??id??"");
+        if(savedId){
+          const saved={id:savedId,clientId:projectId,name,category:payload.category,dueDate:payload.dueDate,amount,status:payload.status,notes:payload.notes,enteredBy:session.user?.name||"",username:session.user?.username||"",timestamp:new Date().toISOString(),updatedAt:new Date().toISOString()};
+          bills=bills.filter(b=>String(b.id??b.billId??"")!==savedId);
+          bills.push(saved);
           render();
-          toast("Bill deleted successfully and recorded in Activity Log.");
-          await load();
-        }catch(err){
-          toast(err.message||String(err));
         }
+        reset();
+        // Re-read the actual Bills ledger. Retry briefly because Apps Script
+        // can take a moment to expose a just-written spreadsheet row.
+        let loaded=false;
+        for(let attempt=0;attempt<3&&!loaded;attempt++){
+          await load();
+          loaded=bills.some(b=>String(b.id??b.billId??"")===savedId);
+          if(!loaded&&attempt<2)await new Promise(r=>setTimeout(r,350));
+        }
+        if(typeof toast==="function")toast(id?"Bill updated and recorded in Activity Log.":"Bill saved and recorded in Activity Log.");
+      }catch(err){if(typeof toast==="function")toast(err.message||String(err));else alert(err.message||String(err));}
+      finally{if(btn)btn.disabled=false;}
+    });
+    q("billCancelBtn").addEventListener("click",reset);
+    q("billFilter").addEventListener("change",render);
+    q("billsBody").addEventListener("click",async e=>{
+      const editBtn=e.target.closest(".bill-edit"), delBtn=e.target.closest(".bill-delete");
+      if(editBtn){edit(editBtn.dataset.id);return;}
+      if(delBtn){
+        const id=delBtn.dataset.id;if(!confirm("Delete this bill? This action cannot be undone."))return;
+        try{
+          const projectId=String(window.selectedClientId||selectedClientId||"").trim();if(!projectId)throw Error("Select an Active Project first.");await api("deleteBill",{token:session.token,id,clientId:projectId});
+          await load();if(typeof toast==="function")toast("Bill deleted and recorded in Activity Log.");
+        }catch(err){if(typeof toast==="function")toast(err.message||String(err));else alert(err.message||String(err));}
       }
     });
     render();
   }
-
   window.loadLIWOBills=()=>{init();load();};
   document.addEventListener("DOMContentLoaded",()=>{init();if(window.session?.token)load();});
 })();
