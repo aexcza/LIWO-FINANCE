@@ -2153,6 +2153,83 @@ tbody:empty{display:none!important;}
   }
 }
 </style>
+
+<style id="liwo-construction-tools-reference">
+/* Construction Tools — scoped visual refresh based on the supplied mobile reference. */
+#toolsPage{padding-bottom:18px!important;}
+#toolsPage .tools-page-heading{display:flex;align-items:center;gap:12px;margin:0 0 12px;padding:0 2px;}
+#toolsPage .tools-heading-icon{width:46px;height:46px;border-radius:13px;display:grid;place-items:center;background:#edf5ff;color:#2878ff;border:1px solid #e1ecff;flex:0 0 auto;}
+#toolsPage .tools-heading-icon svg{width:25px;height:25px;}
+#toolsPage .tools-page-heading h2{margin:0 0 3px;font-size:19px;line-height:1.15;color:#102d49;}
+#toolsPage .tools-page-heading .muted{font-size:10px;line-height:1.4;}
+#toolsPage .tools-panel{background:#fff;border:1px solid #e5ebf1;border-radius:12px;box-shadow:0 3px 12px rgba(21,48,73,.06);overflow:hidden;margin-bottom:10px;}
+#toolsPage .tools-panel-title{display:flex;align-items:center;gap:8px;}
+#toolsPage .tools-panel-title h3{margin:0;font-size:13px;color:#173552;}
+#toolsPage .tools-mini-icon{width:27px;height:27px;border-radius:8px;background:#f0f5ff;color:#337cf6;display:grid;place-items:center;font-size:15px;font-weight:800;}
+#toolsPage .tools-panel>.tools-panel-title{padding:13px 14px 0;}
+#toolsPage .tools-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px;padding:11px 14px 14px;}
+#toolsPage .tools-field{min-width:0;}
+#toolsPage .tools-field label{display:block;font-size:8px;font-weight:800;letter-spacing:.035em;color:#6c7d8d;margin:0 0 5px;}
+#toolsPage .tools-input-wrap{height:35px;display:flex;align-items:center;border:1px solid #dfe7ee;border-radius:8px;background:#fff;overflow:hidden;transition:border-color .15s,box-shadow .15s;}
+#toolsPage .tools-input-wrap:focus-within{border-color:#9bc5ff;box-shadow:0 0 0 3px rgba(50,126,255,.08);}
+#toolsPage .tools-input-icon{width:31px;flex:0 0 31px;text-align:center;color:#6f8191;font-size:13px;}
+#toolsPage .tools-input-wrap input,#toolsPage .tools-input-wrap select{width:100%;height:100%;border:0!important;outline:0!important;background:transparent!important;box-shadow:none!important;padding:0 9px 0 0!important;font-size:10px;color:#405365;min-width:0;}
+#toolsPage .tools-input-wrap input::placeholder{color:#a1adb8;}
+#toolsPage .tools-input-wrap select{appearance:auto;padding-right:5px!important;}
+#toolsPage .tools-wide{grid-column:1/-1;}
+#toolsPage .tools-actions{display:flex;gap:8px;margin-top:-1px;}
+#toolsPage .tools-actions button{height:34px;border-radius:7px;font-size:9px;font-weight:700;}
+#toolsPage .tools-save-btn{flex:0 0 176px;}
+#toolsPage .tools-clear-btn{flex:0 0 88px;}
+#toolsPage .tools-info-banner{min-height:43px;background:#eef6ff;border:1px solid #e1edfb;border-radius:10px;margin:0 0 10px;padding:7px 10px;display:flex;align-items:center;gap:9px;color:#28455f;}
+#toolsPage .tools-info-icon{width:19px;height:19px;border-radius:50%;display:grid;place-items:center;background:#4385f4;color:#fff;font-size:11px;font-weight:800;flex:0 0 auto;}
+#toolsPage .tools-info-banner strong,#toolsPage .tools-info-banner span{display:block;font-size:8.5px;line-height:1.35;}
+#toolsPage .tools-info-banner span{color:#657789;}
+#toolsPage .tools-banner-illustration{margin-left:auto;display:flex;align-items:center;gap:0;font-size:22px;filter:saturate(.9);white-space:nowrap;}
+#toolsPage .tools-log-panel{margin-bottom:0;}
+#toolsPage .tools-log-head{display:flex;align-items:center;justify-content:space-between;padding:11px 12px 9px;border-bottom:1px solid #edf1f5;}
+#toolsPage .tools-log-head .tools-panel-title{padding:0!important;}
+#toolsPage .tools-log-icon{background:#f3f0ff;color:#675be8;}
+#toolsPage .tools-refresh-btn{height:28px;padding:0 9px;font-size:9px;border-radius:7px;}
+#toolsPage .tools-stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;padding:9px 10px 10px;}
+#toolsPage .tools-stat{position:relative;min-height:48px;border:1px solid #edf0f4;border-radius:9px;background:#fbfcfd;padding:7px 8px;}
+#toolsPage .tools-stat span{display:block;color:#778797;font-size:6.5px;font-weight:800;line-height:1.25;letter-spacing:.025em;padding-right:19px;}
+#toolsPage .tools-stat strong{display:block;color:#243b52;font-size:14px;line-height:1.15;margin-top:4px;}
+#toolsPage .tools-stat i{position:absolute;right:7px;bottom:7px;width:17px;height:17px;border-radius:5px;background:#edf4ff;color:#327cff;font-style:normal;font-size:9px;display:grid;place-items:center;}
+#toolsPage .tools-table-wrap{overflow-x:auto;border-top:1px solid #edf1f5;}
+#toolsPage .tools-table{width:100%;min-width:720px;border-collapse:collapse;table-layout:fixed;}
+#toolsPage .tools-table th{background:#fff;color:#7b8996;font-size:6px;letter-spacing:.025em;font-weight:800;text-align:left;padding:8px 6px;border-bottom:1px solid #e8edf2;line-height:1.2;}
+#toolsPage .tools-table td{padding:7px 6px;border-bottom:1px solid #edf1f5;color:#45596b;font-size:7px;line-height:1.3;vertical-align:middle;}
+#toolsPage .tools-table tbody tr:last-child td{border-bottom:0;}
+#toolsPage .tools-table th:nth-child(1){width:16%}#toolsPage .tools-table th:nth-child(2){width:10%}#toolsPage .tools-table th:nth-child(3){width:12%}#toolsPage .tools-table th:nth-child(4){width:15%}#toolsPage .tools-table th:nth-child(5){width:9%}#toolsPage .tools-table th:nth-child(6){width:10%}#toolsPage .tools-table th:nth-child(7){width:8%}#toolsPage .tools-table th:nth-child(8){width:10%}#toolsPage .tools-table th:nth-child(9){width:10%}
+#toolsPage .tools-table td:first-child{font-weight:700;color:#27415b;}
+#toolsPage .tools-status-pill{display:inline-flex;align-items:center;justify-content:center;min-width:35px;padding:3px 5px;border-radius:999px;font-size:6px;font-weight:800;line-height:1;background:#fff1cf;color:#b57600;}
+#toolsPage .tools-status-pill.returned{background:#e6f8e9;color:#31923c;}
+#toolsPage .tools-status-pill.overdue{background:#ffe7e7;color:#d64545;}
+#toolsPage .tools-status-pill.borrowed{background:#fff1cf;color:#b57600;}
+#toolsPage .tools-return-btn{height:22px;padding:0 6px;border-radius:6px!important;font-size:6px!important;white-space:nowrap;}
+#toolsPage .tools-empty{text-align:center!important;padding:18px!important;color:#8a98a6!important;font-size:8px!important;}
+@media(max-width:560px){
+  #toolsPage .tools-form{grid-template-columns:1fr 1fr;gap:9px 8px;padding:10px 10px 12px;}
+  #toolsPage .tools-panel>.tools-panel-title{padding:11px 10px 0;}
+  #toolsPage .tools-page-heading{margin-bottom:9px;}
+  #toolsPage .tools-page-heading h2{font-size:17px;}
+  #toolsPage .tools-heading-icon{width:42px;height:42px;border-radius:12px;}
+  #toolsPage .tools-stat-grid{gap:5px;padding:8px;}
+  #toolsPage .tools-stat{padding:6px;min-height:46px;}
+  #toolsPage .tools-stat strong{font-size:13px;}
+  #toolsPage .tools-info-banner{padding:7px 8px;}
+  #toolsPage .tools-banner-illustration{font-size:19px;}
+}
+@media(max-width:390px){
+  #toolsPage .tools-save-btn{flex:1;}
+  #toolsPage .tools-clear-btn{flex:0 0 78px;}
+  #toolsPage .tools-stat span{font-size:6px;}
+  #toolsPage .tools-stat strong{font-size:12px;}
+  #toolsPage .tools-banner-illustration{display:none;}
+}
+</style>
+
 </head>
 <body>
 <div id="liwoLoadingOverlay" aria-hidden="true">
@@ -2715,62 +2792,103 @@ tbody:empty{display:none!important;}
 
 
 <section class="page hidden" id="toolsPage" data-page-section="tools">
-  <div class="page-heading">
+  <div class="tools-page-heading">
+    <div class="tools-heading-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 12h18"/><path d="M10 12v2h4v-2"/>
+      </svg>
+    </div>
     <div>
       <h2>Construction Tools</h2>
       <div class="muted">Track construction tools, borrowers, projects, and return dates.</div>
     </div>
   </div>
 
-  <div class="panel">
-    <div class="panel-head"><h3>Record Tool Borrowing</h3></div>
-    <form id="toolForm" class="grid" style="padding:15px">
-      <div>
-        <label>Tool / Equipment</label>
-        <input name="tool" id="toolName" placeholder="e.g. Rotary Hammer" required>
+  <div class="tools-panel">
+    <div class="tools-panel-title"><span class="tools-mini-icon">▧</span><h3>Record Tool Borrowing</h3></div>
+    <form id="toolForm" class="tools-form">
+      <div class="tools-field">
+        <label>TOOL / EQUIPMENT</label>
+        <div class="tools-input-wrap"><span class="tools-input-icon">⚒</span><input name="tool" id="toolName" placeholder="e.g. Rotary Hammer" required></div>
       </div>
-      <div>
-        <label>Tool ID / Serial No.</label>
-        <input name="toolId" id="toolId" placeholder="Optional">
+      <div class="tools-field">
+        <label>TOOL ID / SERIAL NO.</label>
+        <div class="tools-input-wrap"><span class="tools-input-icon">◇</span><input name="toolId" id="toolId" placeholder="Optional"></div>
       </div>
-      <div>
-        <label>Borrowed By</label>
-        <input name="borrower" id="toolBorrower" placeholder="Name of worker/person" required>
+      <div class="tools-field">
+        <label>BORROWED BY</label>
+        <div class="tools-input-wrap"><span class="tools-input-icon">♙</span><input name="borrower" id="toolBorrower" placeholder="Name of worker/person" required></div>
       </div>
-      <div>
-        <label>Project</label>
-        <input name="project" id="toolProject" placeholder="Project / client">
+      <div class="tools-field">
+        <label>PROJECT</label>
+        <div class="tools-input-wrap tools-select-wrap"><span class="tools-input-icon">▣</span><select name="project" id="toolProject"><option value="">Select project</option></select></div>
       </div>
-      <div>
-        <label>Date Borrowed</label>
-        <input name="borrowed" id="toolBorrowedDate" type="date" required>
+      <div class="tools-field">
+        <label>DATE BORROWED</label>
+        <div class="tools-input-wrap"><span class="tools-input-icon">▣</span><input name="borrowed" id="toolBorrowedDate" type="date" required></div>
       </div>
-      <div>
-        <label>Expected Return</label>
-        <input name="expectedReturn" id="toolReturnDate" type="date">
+      <div class="tools-field">
+        <label>EXPECTED RETURN</label>
+        <div class="tools-input-wrap"><span class="tools-input-icon">▣</span><input name="expectedReturn" id="toolReturnDate" type="date"></div>
       </div>
-      <div class="wide">
-        <label>Notes</label>
-        <input name="notes" id="toolNotes" placeholder="Condition, accessories, remarks, etc.">
+      <div class="tools-field tools-wide">
+        <label>NOTES</label>
+        <div class="tools-input-wrap"><span class="tools-input-icon">▤</span><input name="notes" id="toolNotes" placeholder="Condition, accessories, remarks, etc."></div>
       </div>
-      <div class="wide" style="display:flex;gap:8px">
-        <button class="primary" type="submit">Save Borrowing Record</button>
-        <button class="secondary" type="button" id="toolClearBtn">Clear</button>
+      <div class="tools-actions tools-wide">
+        <button class="primary tools-save-btn" type="submit">▣ &nbsp; Save Borrowing Record</button>
+        <button class="secondary tools-clear-btn" type="button" id="toolClearBtn">× &nbsp; Clear</button>
       </div>
     </form>
   </div>
 
-  <div class="panel">
-    <div class="panel-head"><h3>Tool Borrowing Log</h3><button class="secondary" type="button" id="refreshToolsBtn">Refresh</button></div>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Tool</th><th>ID</th><th>Borrowed By</th><th>Project</th><th>Borrowed</th><th>Expected Return</th><th>Status</th><th>Entered By</th></tr></thead>
-        <tbody id="toolsBody"><tr><td colspan="9" style="text-align:center;padding:20px">No tool records yet.</td></tr></tbody>
+  <div class="tools-info-banner">
+    <div class="tools-info-icon">i</div>
+    <div><strong>Make sure tools are returned in good condition.</strong><span>Update the return date once the tool is returned.</span></div>
+    <div class="tools-banner-illustration" aria-hidden="true"><span>🔨</span><span>🧰</span></div>
+  </div>
+
+  <div class="tools-panel tools-log-panel">
+    <div class="tools-log-head">
+      <div class="tools-panel-title"><span class="tools-mini-icon tools-log-icon">☷</span><h3>Tool Borrowing Log</h3></div>
+      <button class="secondary tools-refresh-btn" type="button" id="refreshToolsBtn">⟳ &nbsp; Refresh</button>
+    </div>
+    <div class="tools-stat-grid">
+      <div class="tools-stat"><span>TOTAL TOOLS<br>RECORDED</span><strong id="toolsTotalCount">0</strong><i>▣</i></div>
+      <div class="tools-stat"><span>CURRENTLY OUT</span><strong id="toolsOutCount">0</strong><i>↗</i></div>
+      <div class="tools-stat"><span>RETURNED</span><strong id="toolsReturnedCount">0</strong><i>✓</i></div>
+      <div class="tools-stat"><span>OVERDUE</span><strong id="toolsOverdueCount">0</strong><i>⚠</i></div>
+    </div>
+    <div class="tools-table-wrap">
+      <table class="tools-table">
+        <thead><tr><th>TOOL / EQUIPMENT</th><th>ID / SERIAL<br>NO.</th><th>BORROWED BY</th><th>PROJECT</th><th>DATE<br>BORROWED</th><th>EXPECTED<br>RETURN</th><th>STATUS</th><th>ENTERED BY</th><th>ACTION</th></tr></thead>
+        <tbody id="toolsBody"><tr><td colspan="9" class="tools-empty">No tool records yet.</td></tr></tbody>
       </table>
     </div>
   </div>
 </section>
 
+<style id="liwo-cash-project-history">
+.cash-project-banner{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 16px;padding:12px 15px;border:1px solid #dfe8ee;border-radius:12px;background:#f7fafc;color:#607487}
+.cash-project-banner span{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.cash-project-banner strong{color:#173d59;font-size:13px;text-align:right}
+.cash-history-panel{margin-top:16px}
+.cash-history-wrap{width:100%;overflow-x:auto}
+.cash-history-table{width:100%;border-collapse:collapse;min-width:820px}
+.cash-history-table th,.cash-history-table td{padding:10px 11px;border-bottom:1px solid #e8eef2;text-align:left;font-size:11px;vertical-align:top}
+.cash-history-table th{font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:#62778a;background:#f8fafb}
+.cash-history-table td{color:#29465c}
+.cash-history-status{display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;font-size:9px;font-weight:800}
+.cash-history-status.matched{background:#e7f7ee;color:#197044}
+.cash-history-status.variance{background:#fff0e8;color:#a94718}
+.cash-history-variance-positive{font-weight:800}
+.cash-history-variance-zero{font-weight:800;color:#197044}
+@media(max-width:900px){
+  .cash-project-banner{padding:10px 12px}
+  .cash-project-banner strong{max-width:62%;font-size:11px}
+  .cash-history-table{min-width:760px}
+}
+</style>
 <section class="page hidden" id="cashPage" data-page-section="cash">
   <div class="liwo-cash-header">
     <div class="liwo-cash-header-icon">▥</div>
@@ -2778,6 +2896,10 @@ tbody:empty{display:none!important;}
       <h1>Cash Position</h1>
       <p>Track the actual money currently held in the bank and on hand.</p>
     </div>
+  </div>
+  <div class="cash-project-banner">
+    <span>Active Project</span>
+    <strong id="cashProjectName">Select a client / project</strong>
   </div>
 
   <div class="liwo-cash-summary">
@@ -2831,6 +2953,33 @@ tbody:empty{display:none!important;}
       <label class="wide">Notes<textarea id="reconcileNotes" placeholder="Explain any variance."></textarea></label>
       <div class="wide reconciliation-result" id="reconciliationResult">No reconciliation performed yet.</div>
       <div class="wide"><button class="btn" type="button" id="reconcileCashBtn">Reconcile Cash</button></div>
+    </div>
+  </div>
+  <div class="panel cash-history-panel" id="cashReconciliationHistoryPanel">
+    <div class="panel-head">
+      <div>
+        <h3>Cash Reconciliation History</h3>
+        <span class="muted">Saved reconciliation records for the active project only.</span>
+      </div>
+      <button class="secondary" type="button" id="refreshCashHistoryBtn">↻ Refresh History</button>
+    </div>
+    <div class="cash-history-wrap">
+      <table class="cash-history-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Recorded Cash</th>
+            <th>Actual Cash</th>
+            <th>Variance</th>
+            <th>Status</th>
+            <th>Notes</th>
+            <th>Reconciled By</th>
+          </tr>
+        </thead>
+        <tbody id="cashHistoryBody">
+          <tr><td colspan="7" class="empty">No reconciliation records for this project.</td></tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </section>
@@ -3172,7 +3321,9 @@ async function refresh(){
         return;
       }
       selectedClientId=String(clients[0].id||"");
+      window.selectedClientId=selectedClientId;
     }
+    window.selectedClientId=String(selectedClientId||"").trim();
     if(!selectedClientId)throw Error("No active client/project is available.");
     data=await api("dashboard",{token:session.token,clientId:selectedClientId});
     render();
@@ -3192,12 +3343,15 @@ function fillClients(){
    dashboardClient.innerHTML=opts;
    if(selectedClientId && clients.some(c=>String(c.id)===String(selectedClientId))){
      dashboardClient.value=String(selectedClientId);
+     window.selectedClientId=selectedClientId;
    }else if(clients.length){
      selectedClientId=String(clients[0].id);
+     window.selectedClientId=selectedClientId;
      dashboardClient.value=selectedClientId;
    }else{
      dashboardClient.value="";
      selectedClientId="";
+     window.selectedClientId="";
    }
  }
 
@@ -3423,6 +3577,16 @@ function printReport(){
 <div class="liwo-report-records-footer" id="liwoReportRecordsFooter">GENERATED FROM LIWO FINANCE</div>
 </div>
 
+<script id="liwo-bills-project-sync">
+(function(){
+  function sync(){
+    if(typeof selectedClientId!=="undefined" && selectedClientId) window.selectedClientId=selectedClientId;
+    const s=document.getElementById("dashboardClient");
+    if(s&&s.value) window.selectedClientId=s.value;
+  }
+  document.addEventListener("DOMContentLoaded",sync);
+})();
+</script>
 </body>
 
 </html>`);
@@ -3480,7 +3644,7 @@ async function __liwoOriginalLoadUsers(){try{let o=await api("listUsers",{token:
 document.addEventListener("DOMContentLoaded",()=>{
 $("loginTab").onclick=()=>tabs(false);$("registerTab").onclick=()=>tabs(true);$("loginForm").onsubmit=login;$("registerForm").onsubmit=register;$("logoutBtn").onclick=logout;$("menuLogoutBtn").onclick=logout;$("refreshBtn").onclick=refresh;$("printReportBtn").onclick=printReport;$("saveReportBtn").onclick=printReport;$("exportReportBtn").onclick=exportReportCSV;$("reportPeriod").onchange=renderReport;$("notificationBtn").onclick=toggleNotificationMenu;$("userMenuBtn").onclick=toggleUserMenu;$("markNotificationsRead").onclick=markNotificationsRead;$("profileMenuBtn").onclick=openProfile;$("profileCloseBtn").onclick=closeProfile;$("profileDoneBtn").onclick=closeProfile;$("profilePhotoInput").onchange=e=>saveProfilePhoto(e.target.files[0]);$("removeProfilePhotoBtn").onclick=removeProfilePhoto;$("profileUsernameSaveBtn").onclick=saveProfileUsername;$("profileModal").onclick=e=>{if(e.target.id==="profileModal")closeProfile()};document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeHeaderMenus();closeProfile()}});document.addEventListener("click",e=>{if(!e.target.closest(".top-user"))closeHeaderMenus()});
 document.querySelectorAll(".nav button,.mobile-nav button").forEach(b=>b.onclick=()=>switchPage(b.dataset.page));
-$("dashboardClient").onchange=async()=>{selectedClientId=$("dashboardClient").value;await refresh();if(typeof window.loadLIWOBills==="function")window.loadLIWOBills()};document.querySelectorAll("[data-project-nav]").forEach(b=>b.addEventListener("click",()=>switchPage(b.dataset.projectNav)));
+$("dashboardClient").onchange=async()=>{selectedClientId=$("dashboardClient").value;window.selectedClientId=selectedClientId;await refresh();if(typeof window.loadLIWOBills==="function")window.loadLIWOBills()};document.querySelectorAll("[data-project-nav]").forEach(b=>b.addEventListener("click",()=>switchPage(b.dataset.projectNav)));
 
 
 $("clientBaseBudget")?.addEventListener("input",updateClientTotal);$("additionalDesignFee")?.addEventListener("input",updateClientTotal);$("clientCancelEdit")?.addEventListener("click",resetClientForm);$("clientsBody")?.addEventListener("click",e=>{const b=e.target.closest(".edit-client-btn");if(b)editClient(b.dataset.clientId)});$("paymentForm").onsubmit=e=>{e.preventDefault();save("addPayment",e.target)};$("expenseForm").onsubmit=e=>{e.preventDefault();save("addExpense",e.target)};$("receiptInput").onchange=e=>{let f=e.target.files[0];if($("receiptFileName"))$("receiptFileName").textContent=f?`${f.name} selected`:`Optional — you can take a photo or upload a receipt. No receipt is also allowed.`};$("userForm").onsubmit=e=>{e.preventDefault();save("upsertUser",e.target)};
@@ -3508,27 +3672,54 @@ $("reopenBtn").onclick=async()=>{try{await api("reopenRegistration",{token:sessi
 document.querySelectorAll('[name="date"]').forEach(x=>x.value=today());if($("toolBorrowedDate"))$("toolBorrowedDate").value=today();
 let old=sessionStorage.getItem("cf_session");if(old){try{session=JSON.parse(old);showApp();switchPage("dashboard");refresh().catch(err=>{console.error("Restored dashboard initialization failed:",err);toast(err.message||"Dashboard data could not be loaded.")})}catch{sessionStorage.removeItem("cf_session");session=null;}}});
 
+function syncToolProjectOptions(){
+  const sel=$("toolProject"), src=$("dashboardClient");
+  if(!sel||!src)return;
+  const current=String(sel.value||"");
+  const options=[...src.options].filter(o=>String(o.value||"").trim());
+  sel.innerHTML=options.length
+    ? options.map(o=>`<option value="${esc(o.textContent||o.value)}" data-client-id="${esc(o.value)}">${esc(o.textContent||o.value)}</option>`).join("")
+    : '<option value="">Select project</option>';
+  if(current && options.some(o=>String(o.textContent||o.value)===current)) sel.value=current;
+  else if(options.length) sel.value=options.find(o=>String(o.value)===String(selectedClientId||""))?.textContent||options[0].textContent;
+}
+
 async function loadTools(){
   const body=$("toolsBody");
   if(!body||!session?.token)return;
+  syncToolProjectOptions();
   try{
     const o=await api("listTools",{token:session.token,clientId:selectedClientId||""});
     const tools=Array.isArray(o?.tools)?o.tools:[];
+    const total=tools.length;
+    const returned=tools.filter(x=>String(x.status||"").toLowerCase()==="returned").length;
+    const overdue=tools.filter(x=>String(x.status||"").toLowerCase()==="overdue").length;
+    const out=tools.filter(x=>!['returned'].includes(String(x.status||"").toLowerCase())).length;
+    if($("toolsTotalCount"))$("toolsTotalCount").textContent=total;
+    if($("toolsOutCount"))$("toolsOutCount").textContent=out;
+    if($("toolsReturnedCount"))$("toolsReturnedCount").textContent=returned;
+    if($("toolsOverdueCount"))$("toolsOverdueCount").textContent=overdue;
     body.innerHTML=tools.map(x=>{
       const st=String(x.status||"Borrowed");
+      const lower=st.toLowerCase();
+      const cls=lower==='returned'?'returned':lower==='overdue'?'overdue':'borrowed';
       const action=(st==="Borrowed"||st==="Overdue")&&x.row!=null
-        ? `<button type="button" class="secondary return-tool-btn" data-row="${esc(x.row)}">Mark Returned</button>` : "—";
-      return `<tr><td>${esc(x.tool||"—")}</td><td>${esc(x.toolId||"—")}</td><td>${esc(x.borrower||"—")}</td><td>${esc(x.project||"—")}</td><td>${esc(x.borrowed||"—")}</td><td>${esc(x.expectedReturn||"—")}</td><td>${esc(st)}</td><td>${esc(x.enteredBy||"—")}</td><td>${action}</td></tr>`;
-    }).join("")||'<tr><td colspan="9" style="text-align:center;padding:20px">No tool records yet.</td></tr>';
+        ? `<button type="button" class="secondary tools-return-btn return-tool-btn" data-row="${esc(x.row)}">Return</button>` : "—";
+      return `<tr><td>${esc(x.tool||"—")}</td><td>${esc(x.toolId||"—")}</td><td>${esc(x.borrower||"—")}</td><td>${esc(x.project||"—")}</td><td>${esc(x.borrowed||"—")}</td><td>${esc(x.expectedReturn||"—")}</td><td><span class="tools-status-pill ${cls}">${esc(st)}</span></td><td>${esc(x.enteredBy||"—")}</td><td>${action}</td></tr>`;
+    }).join("")||'<tr><td colspan="9" class="tools-empty">No tool records yet.</td></tr>';
   }catch(x){
     const msg=String(x?.message||x||"");
-    body.innerHTML=`<tr><td colspan="9" style="text-align:center;padding:20px;color:#718395">${/unknown action|not found/i.test(msg)?"Tool records are not available from the connected server yet.":"Unable to load tool records. Please refresh."}</td></tr>`;
+    if($("toolsTotalCount"))$("toolsTotalCount").textContent="0";
+    if($("toolsOutCount"))$("toolsOutCount").textContent="0";
+    if($("toolsReturnedCount"))$("toolsReturnedCount").textContent="0";
+    if($("toolsOverdueCount"))$("toolsOverdueCount").textContent="0";
+    body.innerHTML=`<tr><td colspan="9" class="tools-empty">${/unknown action|not found/i.test(msg)?"Tool records are not available from the connected server yet.":"Unable to load tool records. Please refresh."}</td></tr>`;
   }
 }
 
 async function loadCash(){
   try{
-    let o=await api("cashBalances",{token:session.token});
+    let o=await api("cashBalances",{token:session.token,clientId:selectedClientId||""});
     $("cashBankValue").textContent=peso(o.bankBalance);
     $("cashOnHandValue").textContent=peso(o.cashOnHand);
     $("cashTotalValue").textContent=peso(o.totalCash);
@@ -3968,21 +4159,126 @@ document.addEventListener("DOMContentLoaded",()=>{
 
 <script id="liwo-simple-cash-position">
 (function(){
-  function render(o){
-    if(!o)return;
-    const money=v=>new Intl.NumberFormat("en-PH",{style:"currency",currency:"PHP"}).format(Number(v||0));
-    const bank=Number(o.bankBalance||0),onHand=Number(o.cashOnHand||0);
-    document.getElementById("cashBankValue").textContent=money(bank);
-    document.getElementById("cashOnHandValue").textContent=money(onHand);
-    document.getElementById("cashTotalValue").textContent=money(Number(o.totalCash??bank+onHand));
-    document.getElementById("cashBankInput").value=bank||"";
-    document.getElementById("cashOnHandInput").value=onHand||"";
+  const q=id=>document.getElementById(id);
+  const money=v=>new Intl.NumberFormat("en-PH",{style:"currency",currency:"PHP"}).format(Number(v||0));
+  const escHtml=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+  const activeProjectId=()=>String(window.selectedClientId||selectedClientId||q("dashboardClient")?.value||"").trim();
+
+  function render(d){
+    if(!d)return;
+    const bank=Number(d.bankBalance||0),onHand=Number(d.cashOnHand||0);
+    q("cashBankValue").textContent=money(bank);
+    q("cashOnHandValue").textContent=money(onHand);
+    q("cashTotalValue").textContent=money(Number(d.totalCash??bank+onHand));
+    if(q("cashBankInput"))q("cashBankInput").value=bank;
+    if(q("cashOnHandInput"))q("cashOnHandInput").value=onHand;
+    if(q("cashProjectName"))q("cashProjectName").textContent=d.projectName||"Select a client / project";
   }
-  async function load(){if(!window.session?.token)return;try{render(await api("cashBalances",{token:session.token}));}catch(e){toast(e.message||String(e));}}
+
+  function renderHistory(list){
+    const body=q("cashHistoryBody");
+    if(!body)return;
+    if(!Array.isArray(list)||!list.length){
+      body.innerHTML='<tr><td colspan="7" class="empty">No reconciliation records for this project.</td></tr>';
+      return;
+    }
+    body.innerHTML=list.map(x=>{
+      const variance=Number(x.variance||0);
+      const matched=Math.abs(variance)<0.005;
+      const stamp=x.timestamp?new Date(x.timestamp).toLocaleString("en-PH",{dateStyle:"medium",timeStyle:"short"}):"—";
+      return `<tr>
+        <td>${escHtml(stamp)}</td>
+        <td>${money(x.expectedTotal)}</td>
+        <td>${money(x.actualTotal)}</td>
+        <td class="${matched?"cash-history-variance-zero":"cash-history-variance-positive"}">${variance>0?"+":""}${money(variance)}</td>
+        <td><span class="cash-history-status ${matched?"matched":"variance"}">${matched?"Matched":"Variance"}</span></td>
+        <td>${escHtml(x.notes||"—")}</td>
+        <td>${escHtml(x.reconciledBy||"—")}</td>
+      </tr>`;
+    }).join("");
+  }
+
+  async function load(){
+    if(!window.session?.token)return;
+    const clientId=activeProjectId();
+    if(!clientId){
+      if(q("cashProjectName"))q("cashProjectName").textContent="Select a client / project";
+      if(q("cashHistoryBody"))q("cashHistoryBody").innerHTML='<tr><td colspan="7" class="empty">Select an active project to view cash records.</td></tr>';
+      return;
+    }
+    try{
+      const d=await api("cashBalances",{token:session.token,clientId});
+      render(d);
+      await loadHistory(clientId);
+    }catch(e){toast(e.message||String(e))}
+  }
+
+  async function loadHistory(clientId=activeProjectId()){
+    if(!window.session?.token||!clientId)return;
+    try{
+      const d=await api("listCashReconciliations",{token:session.token,clientId});
+      renderHistory(d.reconciliations||[]);
+    }catch(e){
+      const body=q("cashHistoryBody");
+      if(body)body.innerHTML='<tr><td colspan="7" class="empty">Unable to load reconciliation history.</td></tr>';
+      console.error(e);
+    }
+  }
+
   document.addEventListener("DOMContentLoaded",()=>{
-    const old=document.getElementById("saveCashBalanceBtn"),button=old.cloneNode(true);old.replaceWith(button);
-    button.addEventListener("click",async()=>{try{const bank=Number(document.getElementById("cashBankInput").value),onHand=Number(document.getElementById("cashOnHandInput").value);if(!Number.isFinite(bank)||bank<0||!Number.isFinite(onHand)||onHand<0)throw Error("Enter valid amounts for both Bank and Cash On Hand.");button.disabled=true;render(await api("updateCashBalances",{token:session.token,bankBalance:bank,cashOnHand:onHand}));toast("Bank and cash-on-hand balances updated.");}catch(e){toast(e.message||String(e));}finally{button.disabled=false;}});
-    window.loadCash=load;window.loadLIWOCash=load;
+    const old=q("saveCashBalanceBtn");
+    if(old){
+      const button=old.cloneNode(true);
+      old.replaceWith(button);
+      button.addEventListener("click",async()=>{
+        try{
+          const clientId=activeProjectId();
+          if(!clientId)throw Error("Select an Active Project before updating cash position.");
+          const bank=Number(q("cashBankInput").value),onHand=Number(q("cashOnHandInput").value);
+          if(!Number.isFinite(bank)||bank<0||!Number.isFinite(onHand)||onHand<0)
+            throw Error("Enter valid amounts for both Bank and Cash On Hand.");
+          button.disabled=true;
+          render(await api("updateCashBalances",{token:session.token,clientId,bankBalance:bank,cashOnHand:onHand}));
+          toast("Cash position updated for the selected project.");
+        }catch(e){toast(e.message||String(e))}
+        finally{button.disabled=false}
+      });
+    }
+
+    q("reconcileCashBtn")?.addEventListener("click",async()=>{
+      const btn=q("reconcileCashBtn");
+      try{
+        const clientId=activeProjectId();
+        if(!clientId)throw Error("Select an Active Project before reconciling cash.");
+        const actualBank=Number(q("reconcileBank").value);
+        const actualCashOnHand=Number(q("reconcileCash").value);
+        if(!Number.isFinite(actualBank)||actualBank<0||!Number.isFinite(actualCashOnHand)||actualCashOnHand<0)
+          throw Error("Enter valid actual bank and cash-on-hand balances.");
+        btn.disabled=true;
+        const d=await api("reconcileCash",{token:session.token,clientId,actualBank,actualCashOnHand,notes:q("reconcileNotes").value});
+        const matched=Math.abs(Number(d.variance||0))<0.005;
+        q("reconciliationResult").innerHTML=
+          `<strong>${matched?"Reconciled — No Variance":"Reconciled — Variance Detected"}</strong>
+           <span>Recorded: ${money(d.expectedTotal)} · Actual: ${money(d.actualTotal)} · Variance: ${money(d.variance)}</span>`;
+        q("reconcileBank").value="";
+        q("reconcileCash").value="";
+        q("reconcileNotes").value="";
+        await loadHistory(clientId);
+        toast(matched?"Cash reconciled with no variance.":"Cash reconciliation saved with a variance.");
+      }catch(e){toast(e.message||String(e))}
+      finally{btn.disabled=false}
+    });
+
+    q("refreshCashHistoryBtn")?.addEventListener("click",()=>loadHistory());
+    window.loadCash=load;
+    window.loadLIWOCash=load;
+  });
+
+  // Reload immediately when the active project changes.
+  document.addEventListener("change",e=>{
+    if(e.target?.id==="dashboardClient" && document.getElementById("cashPage")?.classList.contains("active")){
+      setTimeout(load,0);
+    }
   });
 })();
 </script>
@@ -4130,129 +4426,240 @@ document.addEventListener("DOMContentLoaded",()=>{
   const money=n=>`₱${Number(n||0).toLocaleString("en-PH",{minimumFractionDigits:2,maximumFractionDigits:2})}`;
   const safe=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
   let bills=[];
-  function effectiveStatus(x){
-    if(String(x.status)==="Paid")return "Paid";
-    if(x.dueDate && String(x.dueDate).slice(0,10)<today())return "Overdue";
-    return x.status||"Pending";
+
+  function currentProjectId(){
+    const select=q("dashboardClient");
+    const dropdownId=String(select?.value||"").trim();
+    const stateId=String((typeof selectedClientId!=="undefined"?selectedClientId:"")||"").trim();
+    const windowId=String(window.selectedClientId||"").trim();
+
+    // The project selector is the source of truth. This prevents a stale
+    // window.selectedClientId from causing bills from another project to
+    // disappear or be mixed into the active project.
+    const id=dropdownId||stateId||windowId;
+    if(id) window.selectedClientId=id;
+    return id;
   }
+
+  function effectiveStatus(x){
+    if(String(x?.status||"")==="Paid")return "Paid";
+    if(x?.dueDate && String(x.dueDate).slice(0,10)<today())return "Overdue";
+    return x?.status||"Pending";
+  }
+
   function reset(){
     const f=q("billForm");if(!f)return;
-    f.reset();f.elements.id.value="";q("billSaveBtn").textContent="Save Bill";q("billCancelBtn").classList.add("hidden");
-    f.elements.dueDate.value=today();f.elements.status.value="Ongoing";
+    f.reset();
+    if(f.elements.id)f.elements.id.value="";
+    if(q("billSaveBtn"))q("billSaveBtn").textContent="Save Bill";
+    q("billCancelBtn")?.classList.add("hidden");
+    if(f.elements.dueDate)f.elements.dueDate.value=today();
+    if(f.elements.status)f.elements.status.value="Ongoing";
   }
+
   function edit(id){
-    const x=bills.find(b=>String(b.id??b.billId)===String(id));if(!x)return;
-    const f=q("billForm");
-    f.elements.id.value=x.id;f.elements.name.value=x.name||"";f.elements.category.value=x.category||"Other";
-    f.elements.dueDate.value=String(x.dueDate||"").slice(0,10)||today();f.elements.amount.value=x.amount??"";f.elements.status.value=x.status||"Ongoing";f.elements.notes.value=x.notes||"";
-    q("billSaveBtn").textContent="Update Bill";q("billCancelBtn").classList.remove("hidden");f.scrollIntoView({behavior:"smooth",block:"start"});
+    const x=bills.find(b=>String(b.id??b.billId)===String(id));
+    if(!x){toast("Bill record not found.");return;}
+    const f=q("billForm");if(!f)return;
+    f.elements.id.value=x.id??x.billId??"";
+    f.elements.name.value=x.name||"";
+    f.elements.category.value=x.category||"Other";
+    f.elements.dueDate.value=String(x.dueDate||"").slice(0,10)||today();
+    f.elements.amount.value=x.amount??"";
+    f.elements.status.value=x.status||"Ongoing";
+    f.elements.notes.value=x.notes||"";
+    q("billSaveBtn").textContent="Update Bill";
+    q("billCancelBtn").classList.remove("hidden");
+    f.scrollIntoView({behavior:"smooth",block:"start"});
   }
+
   function render(){
-    const filter=q("billFilter")?.value||"All", body=q("billsBody");if(!body)return;
+    const filter=q("billFilter")?.value||"All", body=q("billsBody");
+    if(!body)return;
+
     const filtered=bills.filter(x=>filter==="All"||effectiveStatus(x)===filter);
     const paid=bills.filter(x=>String(x.status)==="Paid").reduce((s,x)=>s+Number(x.amount||0),0);
     const outstanding=bills.filter(x=>String(x.status)!=="Paid").reduce((s,x)=>s+Number(x.amount||0),0);
     const overdue=bills.filter(x=>effectiveStatus(x)==="Overdue").reduce((s,x)=>s+Number(x.amount||0),0);
-    q("billCount").textContent=bills.length;
-    q("billOutstanding").textContent=money(outstanding);
-    q("billPaidTotal").textContent=money(paid);
+
+    if(q("billCount"))q("billCount").textContent=bills.length;
+    if(q("billOutstanding"))q("billOutstanding").textContent=money(outstanding);
+    if(q("billPaidTotal"))q("billPaidTotal").textContent=money(paid);
     if(q("billOverdueTotal"))q("billOverdueTotal").textContent=money(overdue);
 
-    body.innerHTML=filtered.length?filtered.slice().sort((a,b)=>{
-      const ad=new Date(a.dueDate||0).getTime()||0,bd=new Date(b.dueDate||0).getTime()||0;
-      return ad-bd;
-    }).map(x=>{
-      const st=effectiveStatus(x);
-      const cls=st==="Paid"?"liwo-bill-status paid":(st==="Overdue"?"liwo-bill-status overdue":"liwo-bill-status ongoing");
-      const icon=st==="Paid"?"✓":(st==="Overdue"?"!":"•");
-      const due=String(x.dueDate||"").slice(0,10)||"—";
-      const note=x.notes?`<small>${safe(x.notes)}</small>`:"";
-      return `<tr>
-        <td class="liwo-bill-name"><div><span class="liwo-bill-row-icon">${st==="Paid"?"✓":(st==="Overdue"?"!":"•")}</span><strong>${safe(x.name||"Bill")}</strong>${note}</div></td>
-        <td><span class="liwo-bill-category">${safe(x.category||"Other")}</span></td>
-        <td class="liwo-bill-due">${safe(due)}<small>${st==="Paid"?"Paid":(st==="Overdue"?"Overdue":"")}</small></td>
-        <td class="liwo-bill-amount">${money(x.amount)}</td>
-        <td><span class="${cls}">${icon}&nbsp; ${safe(st)}</span></td>
-        <td class="liwo-bill-actions-cell"><button type="button" class="liwo-bill-edit bill-edit" data-id="${safe(x.id??x.billId??"")}" aria-label="Edit bill">✎</button><button type="button" class="liwo-bill-delete bill-delete" data-id="${safe(x.id??x.billId??"")}" aria-label="Delete bill">⌫</button></td>
-      </tr>`;
-    }).join(""):'<tr><td colspan="6" class="liwo-bill-empty">No bills found.</td></tr>';
+    body.innerHTML=filtered.length
+      ?filtered.slice().sort((a,b)=>{
+        const at=new Date(a.updatedAt||a.timestamp||a.dueDate||0).getTime()||0;
+        const bt=new Date(b.updatedAt||b.timestamp||b.dueDate||0).getTime()||0;
+        return bt-at;
+      }).map(x=>{
+        const st=effectiveStatus(x);
+        const cls=st==="Paid"?"liwo-bill-status paid":(st==="Overdue"?"liwo-bill-status overdue":"liwo-bill-status ongoing");
+        const icon=st==="Paid"?"✓":(st==="Overdue"?"!":"•");
+        const due=String(x.dueDate||"").slice(0,10)||"—";
+        const note=x.notes?`<small>${safe(x.notes)}</small>`:"";
+        const id=safe(x.id??x.billId??"");
+        return `<tr>
+          <td class="liwo-bill-name"><div><span class="liwo-bill-row-icon">${icon}</span><strong>${safe(x.name||"Bill")}</strong>${note}</div></td>
+          <td><span class="liwo-bill-category">${safe(x.category||"Other")}</span></td>
+          <td class="liwo-bill-due">${safe(due)}<small>${st==="Paid"?"Paid":(st==="Overdue"?"Overdue":"")}</small></td>
+          <td class="liwo-bill-amount">${money(x.amount)}</td>
+          <td><span class="${cls}">${icon}&nbsp; ${safe(st)}</span></td>
+          <td class="liwo-bill-actions-cell">
+            <button type="button" class="liwo-bill-edit bill-edit" data-id="${id}" aria-label="Edit bill">✎</button>
+            <button type="button" class="liwo-bill-delete bill-delete" data-id="${id}" aria-label="Delete bill">⌫</button>
+          </td>
+        </tr>`;
+      }).join("")
+      :'<tr><td colspan="6" class="liwo-bill-empty">No bills found for this active project.</td></tr>';
   }
+
   async function load(){
     if(!window.session?.token){bills=[];render();return;}
+    const projectId=currentProjectId();
+    if(!projectId){
+      bills=[];
+      render();
+      return;
+    }
     try{
-      // Bills are project-scoped. Always load only the currently selected project.
-      const projectId=String(window.selectedClientId||selectedClientId||"").trim();
-      if(!projectId){
-        bills=[];
-        render();
-        return;
-      }
-      // Bills are strictly project-scoped by ClientID.
-      // BillID is only the unique record ID used for edit/delete.
       const o=await api("listBills",{token:session.token,clientId:projectId});
-      bills=(Array.isArray(o.bills)?o.bills:[]).filter(b=>{
-        const billClientId=String(b.clientId??b.clientID??"").trim();
-        return billClientId===projectId;
+
+      // The backend is project-scoped by ClientID. Accept only the response
+      // for the same ClientID requested by this active project.
+      const responseClientId=String(o?.clientId||projectId).trim();
+      if(responseClientId!==projectId){
+        throw new Error("Bills response does not match the active project.");
+      }
+
+      bills=(Array.isArray(o?.bills)?o.bills:[]).filter(b=>{
+        const billClientId=String(b?.clientId??b?.clientID??"").trim();
+        return !billClientId || billClientId===projectId;
       });
       render();
     }catch(e){
+      bills=[];
       render();
-      if(typeof toast==="function")toast(e.message||String(e));
+      console.error("Bills Tracker load failed:",e);
+      toast("Bills Tracker: "+(e.message||String(e)));
     }
   }
-  function init(){
-    const f=q("billForm");if(!f||f.dataset.bound)return;f.dataset.bound="1";
-    f.elements.dueDate.value=today();
-    f.addEventListener("submit",async e=>{
-      e.preventDefault();
-      const name=f.elements.name.value.trim(), amount=Number(f.elements.amount.value), id=f.elements.id.value||"";
-      if(!name)return typeof toast==="function"?toast("Enter a bill or payee."):alert("Enter a bill or payee.");
-      if(!Number.isFinite(amount)||amount<0)return typeof toast==="function"?toast("Enter a valid amount."):alert("Enter a valid amount.");
-      if(typeof session==="undefined"||!session||!session.token)return typeof toast==="function"?toast("Please sign in first."):alert("Please sign in first.");
-      const projectId=String(window.selectedClientId||selectedClientId||"").trim();
-      if(!projectId)return typeof toast==="function"?toast("Select an Active Project before recording a bill."):alert("Select an Active Project before recording a bill.");
-      const payload={token:session.token,id,name,category:f.elements.category.value,dueDate:f.elements.dueDate.value,amount,status:f.elements.status.value,notes:f.elements.notes.value.trim(),clientId:projectId};
-      const btn=q("billSaveBtn");if(btn)btn.disabled=true;
+
+  async function saveBill(e){
+    e.preventDefault();
+    const f=q("billForm");if(!f)return;
+
+    const name=f.elements.name.value.trim();
+    const amount=Number(f.elements.amount.value);
+    const id=String(f.elements.id.value||"").trim();
+    const projectId=currentProjectId();
+
+    if(!name)return toast("Enter a bill or payee.");
+    if(!Number.isFinite(amount)||amount<0)return toast("Enter a valid amount.");
+    if(!window.session?.token)return toast("Please sign in first.");
+    if(!projectId)return toast("Select an Active Project before recording a bill.");
+
+    const payload={
+      token:session.token,
+      id,
+      name,
+      category:f.elements.category.value,
+      dueDate:f.elements.dueDate.value,
+      amount,
+      status:f.elements.status.value,
+      notes:f.elements.notes.value.trim(),
+      clientId:projectId
+    };
+
+    const btn=q("billSaveBtn");if(btn)btn.disabled=true;
+    try{
+      const action=id?"updateBill":"addBill";
+      const result=await api(action,payload);
+
+      // Immediately update the visible tracker from the API response.
+      const returned=result?.bill||result||{};
+      const savedId=String(returned.id??returned.billId??result?.id??id??"").trim();
+      const localRecord={
+        id:savedId,
+        billId:savedId,
+        clientId:String(returned.clientId??projectId),
+        clientName:returned.clientName||"",
+        name,
+        category:payload.category,
+        dueDate:payload.dueDate,
+        amount,
+        status:payload.status,
+        notes:payload.notes,
+        enteredBy:returned.enteredBy||session.user?.name||"",
+        username:returned.username||session.user?.username||"",
+        timestamp:returned.timestamp||new Date().toISOString(),
+        updatedAt:returned.updatedAt||new Date().toISOString()
+      };
+
+      if(savedId){
+        bills=bills.filter(b=>String(b.id??b.billId??"")!==savedId);
+        bills.push(localRecord);
+        render();
+      }
+
+      reset();
+
+      // Re-read the persistent Bills sheet. If the read is briefly stale,
+      // keep the successful local record visible instead of erasing it.
       try{
-        const result=await api(id?"updateBill":"addBill",payload);
-        // The backend returns the generated Bill ID. Build the saved record
-        // locally as well, then re-read the persistent Bills sheet. This keeps
-        // the Bill Tracker in sync even when the web app response is minimal.
-        const savedId=String(result?.id??result?.bill?.id??result?.billId??id??"");
-        if(savedId){
-          const saved={id:savedId,clientId:projectId,name,category:payload.category,dueDate:payload.dueDate,amount,status:payload.status,notes:payload.notes,enteredBy:session.user?.name||"",username:session.user?.username||"",timestamp:new Date().toISOString(),updatedAt:new Date().toISOString()};
-          bills=bills.filter(b=>String(b.id??b.billId??"")!==savedId);
-          bills.push(saved);
+        const before=bills.slice();
+        await load();
+        if(savedId && !bills.some(b=>String(b.id??b.billId??"")===savedId)){
+          bills=before;
           render();
         }
-        reset();
-        // Re-read the actual Bills ledger. Retry briefly because Apps Script
-        // can take a moment to expose a just-written spreadsheet row.
-        let loaded=false;
-        for(let attempt=0;attempt<3&&!loaded;attempt++){
-          await load();
-          loaded=bills.some(b=>String(b.id??b.billId??"")===savedId);
-          if(!loaded&&attempt<2)await new Promise(r=>setTimeout(r,350));
-        }
-        if(typeof toast==="function")toast(id?"Bill updated and recorded in Activity Log.":"Bill saved and recorded in Activity Log.");
-      }catch(err){if(typeof toast==="function")toast(err.message||String(err));else alert(err.message||String(err));}
-      finally{if(btn)btn.disabled=false;}
-    });
-    q("billCancelBtn").addEventListener("click",reset);
-    q("billFilter").addEventListener("change",render);
-    q("billsBody").addEventListener("click",async e=>{
-      const editBtn=e.target.closest(".bill-edit"), delBtn=e.target.closest(".bill-delete");
+      }catch(_){}
+
+      toast(id?"Bill updated successfully and recorded in Activity Log.":"Bill saved successfully and recorded in Activity Log.");
+    }catch(err){
+      toast(err.message||String(err));
+    }finally{
+      if(btn)btn.disabled=false;
+    }
+  }
+
+  function init(){
+    const f=q("billForm");
+    if(!f||f.dataset.bound)return;
+    f.dataset.bound="1";
+    if(f.elements.dueDate)f.elements.dueDate.value=today();
+    f.addEventListener("submit",saveBill);
+    q("billCancelBtn")?.addEventListener("click",reset);
+    q("billFilter")?.addEventListener("change",render);
+
+    q("billsBody")?.addEventListener("click",async e=>{
+      const editBtn=e.target.closest(".bill-edit");
+      const delBtn=e.target.closest(".bill-delete");
+
       if(editBtn){edit(editBtn.dataset.id);return;}
+
       if(delBtn){
-        const id=delBtn.dataset.id;if(!confirm("Delete this bill? This action cannot be undone."))return;
+        const id=String(delBtn.dataset.id||"").trim();
+        if(!id)return toast("Bill ID is missing.");
+        if(!confirm("Delete this bill? This action cannot be undone."))return;
+
+        const projectId=currentProjectId();
+        if(!projectId)return toast("Select an Active Project first.");
+
         try{
-          const projectId=String(window.selectedClientId||selectedClientId||"").trim();if(!projectId)throw Error("Select an Active Project first.");await api("deleteBill",{token:session.token,id,clientId:projectId});
-          await load();if(typeof toast==="function")toast("Bill deleted and recorded in Activity Log.");
-        }catch(err){if(typeof toast==="function")toast(err.message||String(err));else alert(err.message||String(err));}
+          await api("deleteBill",{token:session.token,id,billId:id,clientId:projectId});
+          bills=bills.filter(b=>String(b.id??b.billId??"")!==id);
+          render();
+          toast("Bill deleted successfully and recorded in Activity Log.");
+          await load();
+        }catch(err){
+          toast(err.message||String(err));
+        }
       }
     });
     render();
   }
+
   window.loadLIWOBills=()=>{init();load();};
   document.addEventListener("DOMContentLoaded",()=>{init();if(window.session?.token)load();});
 })();
