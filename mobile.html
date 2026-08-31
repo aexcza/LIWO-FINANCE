@@ -2523,9 +2523,6 @@ tbody:empty{display:none!important;}
 
 <section id="paymentsPage" class="page hidden">
   <div class="payment-page-heading"><div class="payment-heading-icon">▣</div><div><h1>Client Payments</h1><p>Record and track payments for the selected project.</p></div></div>
-  <div class="payment-project-picker"><span>CLIENT / PROJECT</span><div class="payment-project-value"><b>▥</b><strong id="paymentProjectName">Select a client / project</strong><em>⌄</em></div></div>
-  <div class="payment-refresh-row"><button type="button" id="paymentRefreshBtn">⟳&nbsp; Refresh</button><small>Last updated: <span id="paymentUpdatedAt">just now</span> <i></i></small></div>
-  <div class="payment-active-project"><div class="payment-active-icon">▤</div><div><small>ACTIVE PROJECT</small><p>All project-scoped entries are tied to the selected project.</p></div><div class="payment-active-name"><i></i><strong id="paymentActiveName">Select a project</strong><span id="paymentActiveRef">—</span></div><b class="payment-dots">⠿</b></div>
   <div class="panel payment-form-panel"><div class="panel-head"><h3>Record Client Payment</h3></div><form id="paymentForm" class="grid">
   <input type="hidden" name="clientId" id="paymentClient"><label>Date<input name="date" type="date" required></label><label>Payment Reference<input name="reference" placeholder="e.g. OR No., Check No., Reference No." required></label>
   <label>Description<input name="description" placeholder="e.g. Partial payment for foundation works" required></label><label>Amount Paid<input name="amount" type="number" min="0" step=".01" placeholder="₱ 0.00" required></label>
@@ -3276,7 +3273,17 @@ async function saveProfileUsername(){
 function updateClientTotal(){const b=Number($("clientBaseBudget")?.value||0),a=Number($("additionalDesignFee")?.value||0);if($("clientTotalContract"))$("clientTotalContract").value=(b+a).toFixed(2)}
 function editClient(id){const c=(data.clients||[]).find(x=>String(x.id)===String(id));if(!c)return;const f=$("clientForm");f.elements.id.value=c.id;f.elements.name.value=c.name||"";f.elements.budget.value=c.budget||0;f.elements.additionalDesignFee.value=c.additionalDesignFee||0;f.elements.reference.value=c.reference||"";f.elements.active.value=c.active?"TRUE":"FALSE";f.elements.additionalDesignNotes.value=c.additionalDesignNotes||"";updateClientTotal();$("clientSaveBtn").textContent="Save Client / Project Changes";$("clientCancelEdit").classList.remove("hidden");switchPage("clients");window.scrollTo({top:0,behavior:"smooth"})}
 function resetClientForm(){const f=$("clientForm");f.reset();f.elements.id.value="";f.elements.additionalDesignFee.value="0";updateClientTotal();$("clientSaveBtn").textContent="+ Add Client / Project";$("clientCancelEdit").classList.add("hidden")}
+let refreshRequestId=0;
+function setRefreshLoading(isLoading){
+  const button=$("refreshBtn");
+  if(!button)return;
+  button.disabled=isLoading;
+  button.setAttribute("aria-busy",String(isLoading));
+  button.textContent=isLoading?"↻ Loading project…":"↻ Refresh";
+}
 async function refresh(){
+  const requestId=++refreshRequestId;
+  setRefreshLoading(true);
   try{
     // The dashboard endpoint requires a project ID, so load the user's
     // project list first when the app starts with no active project.
@@ -3291,12 +3298,16 @@ async function refresh(){
       selectedClientId=String(clients[0].id||"");
     }
     if(!selectedClientId)throw Error("No active client/project is available.");
-    data=await api("dashboard",{token:session.token,clientId:selectedClientId});
+    const projectId=selectedClientId;
+    const dashboard=await api("dashboard",{token:session.token,clientId:projectId});
+    // Ignore a slower response if the user selected another project meanwhile.
+    if(requestId!==refreshRequestId||projectId!==selectedClientId)return;
+    data=dashboard;
     render();
   }catch(x){
     toast(x.message||String(x));
     if(/session|auth|token/i.test(String(x.message||x)))logout();
-  }
+  }finally{if(requestId===refreshRequestId)setRefreshLoading(false);}
 }
 function fillClients(){
  const clients=data.clients||[];
