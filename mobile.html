@@ -1981,11 +1981,25 @@ function renderNotifications(){const list=$("notificationList"),badge=$("notific
 async function loadServerNotifications(){
   if(!session?.token)return;
   try{
-    let o=await api("notifications",{token:session.token,limit:100});
+    // Pull the complete audited activity feed used by the finance system.
+    const o=await api("notifications",{token:session.token,limit:500});
     data=data||{};
-    data.activity=o.notifications||[];
+    const serverNotes=Array.isArray(o?.notifications)?o.notifications:[];
+
+    // Keep the newest notification for every unique activity.
+    const seen=new Set();
+    data.activity=serverNotes.filter(x=>{
+      const id=notificationId(x);
+      if(seen.has(id))return false;
+      seen.add(id);
+      return true;
+    }).sort((a,b)=>new Date(b.time||0)-new Date(a.time||0));
+
     renderNotifications();
-  }catch(e){console.error(e)}
+    if(typeof window.renderMobileNotifications==="function")window.renderMobileNotifications();
+  }catch(e){
+    console.error("Notification sync failed:",e);
+  }
 }
 function markNotificationsRead(){const ids=(data?.activity||[]).map((x,i)=>notificationId(x));saveReadNotificationIds(ids);renderNotifications();toast('Notifications marked as read.')}
 function profileStorageKey(){return session?.user?.username?`cf_profile_photo_${session.user.username}`:"cf_profile_photo"}
@@ -2576,7 +2590,28 @@ document.addEventListener("DOMContentLoaded",()=>{
 });
 </script>
 
-<script>setInterval(()=>{if(session?.token)loadServerNotifications()},30000);</script>
+<script id="liwo-mobile-notification-live-sync">
+(function(){
+  let lastNotificationSignature="";
+  async function sync(){
+    if(!window.session?.token || typeof window.loadServerNotifications!=="function")return;
+    try{
+      await window.loadServerNotifications();
+      const notes=Array.isArray(window.data?.activity)?window.data.activity:[];
+      const signature=notes.slice(0,20).map(notificationId).join("||");
+      if(signature!==lastNotificationSignature){
+        lastNotificationSignature=signature;
+        if(typeof window.renderMobileNotifications==="function")window.renderMobileNotifications();
+      }
+    }catch(e){console.debug("Mobile notification sync:",e)}
+  }
+  window.syncLIWOMobileNotifications=sync;
+  // Refresh frequently enough that new transactions/updates appear promptly.
+  setInterval(sync,10000);
+  document.addEventListener("visibilitychange",()=>{if(!document.hidden)sync()});
+  window.addEventListener("focus",sync);
+})();
+</script>
 
 <script id="liwo-user-load-hook">
 (function(){
@@ -2861,9 +2896,69 @@ document.addEventListener("DOMContentLoaded",()=>{
   const getNotes=()=>Array.isArray(window.data?.activity)?window.data.activity:[];
   const isRead=x=>typeof getReadNotificationIds==="function"&&getReadNotificationIds().includes(notificationId(x));
   function syncBadge(){const unread=getNotes().filter(x=>!isRead(x)).length;const badge=q("mobileNotificationBadge");if(badge){badge.textContent=unread;badge.style.display=unread?"grid":"none";}}
-  function renderCenter(){const list=q("mobileNotificationList");if(!list)return;const notes=getNotes().slice().reverse();list.innerHTML=notes.length?notes.map(x=>`<button type="button" class="mobile-note-row ${isRead(x)?"read":""}"><i class="mobile-note-dot"></i><span><strong>${safe(x.action||"Finance activity")}</strong><span>${safe(x.details||"A finance update was recorded.")}</span><span>${safe(x.name||x.username||"")}${x.time?" • "+safe(formatNotificationTime(x.time)):""}</span></span></button>`).join(""):'<div class="mobile-note-empty">No finance activity yet.</div>';syncBadge();}
-  function close(){q("mobileNotificationCenter")?.classList.remove("open");}
-  async function open(){try{if(typeof loadServerNotifications==="function")await loadServerNotifications();renderCenter();q("mobileNotificationCenter")?.classList.add("open");}catch(e){if(typeof toast==="function")toast(e.message||String(e));}}
+  function renderCenter(){
+    const list=q("mobileNotificationList");
+    if(!list)return;
+    const notes=getNotes().slice().sort((a,b)=>new Date(b.time||0)-new Date(a.time||0));
+    list.innerHTML=notes.length
+      ?notes.map(x=>`<button type="button" class="mobile-note-row ${isRead(x)?"read":""}" data-note-id="${safe(notificationId(x))}">
+          <i class="mobile-note-dot"></i>
+          <span>
+            <strong>${safe(notificationLabel(x))}</strong>
+            <span>${safe(notificationDetails(x))}</span>
+            <span>${safe(x.name||x.username||"LIWO Finance")}${x.time?" • "+safe(formatNotificationTime(x.time)):""}</span>
+          </span>
+        </button>`).join("")
+      :'<div class="mobile-note-empty">No finance activity yet.</div>';
+    syncBadge();
+  }
+  window.renderMobileNotifications=renderCenter;
+
+  // Normalize report-related activity so administrator report tests and
+  // scheduled weekly/monthly reports are clearly surfaced in mobile notifications.
+  // Existing server notifications are never removed or replaced.
+  const originalGetNotes=getNotes;
+  const reportActivityKeywords=[
+    "report","weekly report","monthly report","test report",
+    "scheduled report","automated report","financial report"
+  ];
+  function isReportActivity(x){
+    const haystack=[
+      x?.action,x?.details,x?.type,x?.category,x?.reportType,
+      x?.period,x?.frequency
+    ].map(v=>String(v??"").toLowerCase()).join(" ");
+    return reportActivityKeywords.some(k=>haystack.includes(k));
+  }
+  function notificationLabel(x){
+    if(!isReportActivity(x))return x?.action||"Finance activity";
+    const haystack=[
+      x?.action,x?.details,x?.type,x?.category,x?.reportType,
+      x?.period,x?.frequency
+    ].map(v=>String(v??"").toLowerCase()).join(" ");
+    if(haystack.includes("test report"))return "Administrator report test";
+    if(haystack.includes("monthly"))return "Monthly financial report";
+    if(haystack.includes("weekly"))return "Weekly financial report";
+    return "Financial report update";
+  }
+  function notificationDetails(x){
+    if(x?.details)return x.details;
+    if(!isReportActivity(x))return "A finance update was recorded.";
+    return "A financial report was generated or sent.";
+  }
+  function close(){
+    q("mobileNotificationCenter")?.classList.remove("open");
+    q("mobileNotificationCenter")?.setAttribute("aria-hidden","true");
+  }
+  async function open(){
+    try{
+      if(typeof loadServerNotifications==="function")await loadServerNotifications();
+      renderCenter();
+      q("mobileNotificationCenter")?.classList.add("open");
+      q("mobileNotificationCenter")?.setAttribute("aria-hidden","false");
+    }catch(e){
+      if(typeof toast==="function")toast(e.message||String(e));
+    }
+  }
   const originalRender=window.renderNotifications;
   if(typeof originalRender==="function")window.renderNotifications=function(){const result=originalRender.apply(this,arguments);renderCenter();return result;};
   document.body.insertAdjacentHTML("beforeend",'<div id="mobileNotificationCenter" class="mobile-notification-center" aria-hidden="true"><section class="mobile-notification-sheet" role="dialog" aria-label="Notifications"><div class="mobile-notification-head"><strong>Notifications</strong><div><button id="mobileMarkNotifications" type="button">Mark all read</button><button id="mobileCloseNotifications" type="button">Close</button></div></div><div id="mobileNotificationList" class="mobile-notification-list"></div></section></div>');
