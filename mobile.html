@@ -781,8 +781,24 @@ textarea{min-height:82px;resize:vertical}
 
 <script id="liwo-initial-loader">
 (function(){
-  // Loader is intentionally NOT shown on initial page load.
-  // It is shown only during the successful login/signup -> dashboard transition.
+  function bootLoader(){
+    var el=document.getElementById("liwoLoadingOverlay");
+    if(!el)return;
+    el.classList.add("show");
+    el.setAttribute("aria-hidden","false");
+    var txt=el.querySelector(".lw-loader-text");
+    if(txt)txt.textContent="Preparing LIWO Finance…";
+    window.setTimeout(function(){
+      if(window.sessionStorage && sessionStorage.getItem("cf_session")){
+        /* The restored session will keep the loader visible through the API call. */
+      }else{
+        el.classList.remove("show");
+        el.setAttribute("aria-hidden","true");
+      }
+    },900);
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bootLoader,{once:true});
+  else bootLoader();
 })();
 </script>
 
@@ -1169,50 +1185,6 @@ th{background:#f3f7f9;color:#4e6678;letter-spacing:.045em;text-transform:upperca
 
 
 
-<style id="liwo-dashboard-recent-activity-css">
-.dashboard-recent-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:14px;
-  margin-top:14px;
-}
-.dashboard-recent-panel{
-  min-width:0;
-  overflow:hidden;
-}
-.dashboard-recent-panel .panel-head{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-}
-.dashboard-recent-panel .panel-head h3{margin:0 0 3px}
-.dashboard-recent-panel .panel-head .muted{display:block}
-.dashboard-count{
-  min-width:28px;
-  height:28px;
-  padding:0 8px;
-  display:grid;
-  place-items:center;
-  border-radius:999px;
-  background:#eaf4fa;
-  color:#123a5c;
-  font-size:11px;
-  font-weight:800;
-}
-@media(max-width:900px){
-  .dashboard-recent-grid{
-    grid-template-columns:1fr;
-    gap:12px;
-    margin-top:12px;
-  }
-  .dashboard-recent-panel .table-wrap{
-    max-height:360px;
-    overflow:auto!important;
-    -webkit-overflow-scrolling:touch;
-  }
-}
-</style>
 <style id="liwo-mobile-final-stabilization">
 /* mobile.html is the dedicated mobile application shell at every viewport width. */
 html,body{width:100%;min-width:0;max-width:100%;overflow-x:hidden}
@@ -1381,37 +1353,6 @@ body.lw-admin #executivePage .exec-report-admin-only{display:block!important}
 #cashPage tbody,#receiptsPage tbody,#toolsPage tbody{height:auto!important;min-height:0!important;}
 tbody:empty{display:none!important;}
 </style>
-
-<style id="liwo-calculator-section">
-.calculator-hero{display:flex;justify-content:space-between;align-items:center;gap:24px;padding:22px 24px;margin-bottom:14px;border:1px solid var(--line,#dce5eb);border-radius:16px;background:linear-gradient(135deg,#fff,#f4f9fb);box-shadow:0 10px 26px rgba(11,34,57,.06)}
-.calculator-hero-copy{display:flex;align-items:center;gap:16px}
-.calculator-hero-copy h3{margin:0 0 5px;color:var(--ink,#132e46);font-size:20px}
-.calculator-hero-copy p{margin:0;color:var(--muted,#6e7f8f);max-width:620px}
-.calculator-hero-icon{width:58px;height:58px;border-radius:15px;display:grid;place-items:center;font-size:28px;background:#eaf4fa;color:#1d6d9e;border:1px solid #d5e7f0}
-.calculator-categories{display:flex;border:1px solid var(--line,#dce5eb);border-radius:12px;overflow:hidden;background:#fff}
-.calculator-categories span{min-width:90px;padding:12px 14px;text-align:center;border-right:1px solid var(--line,#dce5eb);font-size:11px;color:var(--muted,#6e7f8f)}
-.calculator-categories span:last-child{border-right:0}.calculator-categories b{display:block;font-size:14px;color:var(--ink,#132e46);margin-bottom:3px}
-.calculator-layout{display:grid;grid-template-columns:minmax(430px,1.1fr) minmax(430px,1fr);gap:14px}
-.calculator-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:2px}
-.calculator-tool-card{min-height:125px;padding:16px;text-align:left;border:1px solid var(--line,#dce5eb);border-radius:13px;background:#fff;cursor:pointer;transition:.16s;display:flex;flex-direction:column;align-items:flex-start;gap:7px}
-.calculator-tool-card:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(11,34,57,.07)}
-.calculator-tool-card.active{border-color:#76b8dd;box-shadow:inset 0 0 0 1px #76b8dd;background:#f6fbfe}
-.calc-icon{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;background:#eaf4fa;color:#1d6d9e;font-size:18px}
-.calculator-tool-card strong{font-size:14px;color:var(--ink,#132e46)}.calculator-tool-card small{font-size:11px;color:var(--muted,#6e7f8f)}
-.calculator-workspace{min-width:0}.calculator-chip{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;padding:6px 9px;border-radius:999px;background:#eef8f2;color:#16835b}
-.calc-fields{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:4px 0 14px}.calc-fields label,.converter-grid label{font-size:11px;font-weight:700;color:var(--ink,#132e46)}
-.calc-fields input,.converter-grid input{width:100%;margin-top:6px;box-sizing:border-box}
-.calc-result{display:grid;grid-template-columns:1fr 1fr;border-radius:13px;background:#eff8f3;border:1px solid #dceee4;overflow:hidden}
-.calc-result div{padding:20px;border-right:1px solid #dceee4}.calc-result div:last-child{border-right:0}
-.calc-result span{display:block;font-size:11px;color:var(--muted,#6e7f8f);margin-bottom:8px}.calc-result strong{font-size:25px;color:#16835b}
-.calculator-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
-.calculator-bottom-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:14px;margin-top:14px}
-.converter-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.converter-grid label{padding:12px;border:1px solid var(--line,#dce5eb);border-radius:11px;background:#fff}.converter-grid strong{display:block;margin-top:8px;color:#16835b;font-size:13px}
-.reference-list{display:grid;gap:10px}.reference-list div{display:grid;grid-template-columns:32px 1fr;column-gap:9px;align-items:center;padding:9px;border-bottom:1px solid #edf1f4}.reference-list span{grid-row:span 2;width:30px;height:30px;display:grid;place-items:center;border-radius:8px;background:#eaf4fa;color:#1d6d9e}.reference-list strong{font-size:12px}.reference-list small{font-size:10px;color:var(--muted,#6e7f8f)}
-@media(max-width:900px){.calculator-hero{display:block;padding:18px}.calculator-categories{margin-top:14px;display:grid;grid-template-columns:repeat(2,1fr)}.calculator-categories span{border-right:1px solid var(--line,#dce5eb);border-bottom:1px solid var(--line,#dce5eb)}.calculator-layout,.calculator-bottom-grid{grid-template-columns:1fr}.calculator-grid{grid-template-columns:1fr 1fr}.calc-fields,.converter-grid{grid-template-columns:1fr}.calc-result strong{font-size:21px}}
-@media(max-width:520px){.calculator-grid{grid-template-columns:1fr}.calculator-hero-copy{align-items:flex-start}.calculator-hero-icon{flex:0 0 48px;width:48px;height:48px}.calc-result{grid-template-columns:1fr}.calc-result div{border-right:0;border-bottom:1px solid #dceee4}.calc-result div:last-child{border-bottom:0}}
-</style>
-
 </head>
 <body>
 <div id="liwoLoadingOverlay" aria-hidden="true">
@@ -1539,7 +1480,6 @@ tbody:empty{display:none!important;}
       <button data-mobile-page="activity"><i>▤</i><span>Activity Log</span></button>
       <button data-mobile-page="clients"><i>♙</i><span>Clients / Projects</span></button>
       <button data-mobile-page="tools"><i>⚒</i><span>Construction Tools</span></button>
-      <button data-mobile-page="calculator"><i>▦</i><span>Calculator</span></button>
       <button data-mobile-page="cash"><i>▰</i><span>Cash Position</span></button>
       <button data-mobile-page="receipts"><i>▤</i><span>Receipts</span></button>
       <button data-mobile-page="reports"><i>▥</i><span>Reports / Export</span></button>
@@ -1558,7 +1498,7 @@ tbody:empty{display:none!important;}
 <button data-page="budget">Budget vs Actual</button>
 <button data-page="activity">Activity Log</button>
 <button data-page="clients" id="clientsNav">Clients / Projects</button>
-<button data-page="tools"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m14.7 6.3 3-3a5 5 0 0 0 0 7.1l-8.4 8.4a2.1 2.1 0 1 1-3-3l8.4-8.4a5 5 0 0 0 7.1 0l-3 3"/><path d="m5 5 4 4"/><path d="m4 4 1 1"/></svg></span><span>Construction Tools</span></button><button data-page="calculator"><span class="nav-icon" aria-hidden="true">▦</span><span>Calculator</span></button>
+<button data-page="tools"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m14.7 6.3 3-3a5 5 0 0 0 0 7.1l-8.4 8.4a2.1 2.1 0 1 1-3-3l8.4-8.4a5 5 0 0 0 7.1 0l-3 3"/><path d="m5 5 4 4"/><path d="m4 4 1 1"/></svg></span><span>Construction Tools</span></button>
 <button type="button" data-page="cash">💰 <span>Cash Position</span></button>
 <button type="button" data-page="receipts" id="receiptsNav"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Z"/><path d="M9 7h6M9 11h6M9 15h4"/></svg></span><span>Receipts</span></button>
 <button data-page="reports" id="reportsNav">Reports / Export</button>
@@ -1589,7 +1529,7 @@ tbody:empty{display:none!important;}
 <div class="top"><div><h2 id="pageTitle">Dashboard</h2><div id="projectLabel" class="muted"></div></div><div class="top-actions"><label class="client-picker">Client / Project<select id="dashboardClient"></select></label><button id="refreshBtn" class="secondary">↻ Refresh</button></div></div>
 <div class="global-project-scope" id="globalProjectScope"><div><div class="scope-title">Active Project</div><div class="scope-note">All project-scoped entries are tied to the selected project.</div></div><div class="scope-badge" id="globalProjectScopeName">Select a client / project</div></div>
 
-<section id="projectDashboardPage" class="page project-dashboard-page hidden" style="display:none">
+<section id="projectDashboardPage" class="page project-dashboard-page hidden">
   <div class="project-context-card">
     <div class="project-context-top">
       <div><h2 class="project-context-title" id="projectDashName">Project Financial Dashboard</h2><div class="project-context-sub" id="projectDashRef">Select a project to view its complete financial record.</div></div>
@@ -1625,7 +1565,7 @@ tbody:empty{display:none!important;}
   </div>
   <div class="project-health-card"><div class="project-card-head"><h3>Recent Project Activity</h3></div><div class="project-table-wrap"><table class="project-table"><thead><tr><th>Date</th><th>Type</th><th>Description</th><th>Amount</th><th>Entered By</th></tr></thead><tbody id="pdRecentBody"></tbody></table></div></div>
 </section>
-<section id="dashboardPage" class="page active" style="display:block"><div id="mobileAlertCenter" class="mobile-alert-center hidden"></div>
+<section id="dashboardPage" class="page active"><div id="mobileAlertCenter" class="mobile-alert-center hidden"></div>
 <div class="cards">
 <div class="card"><span>Contract Budget</span><strong id="mContract">₱0.00</strong></div>
 <div class="card"><span>Total Client Payments</span><strong id="mPayments">₱0.00</strong></div>
@@ -1641,33 +1581,15 @@ tbody:empty{display:none!important;}
 <div class="panel"><div class="panel-head"><div><h3>Client / Project Summary</h3><span class="muted">Financial position</span></div></div><div class="panel-body summary-list">
 <div><span>Contract Budget</span><strong id="sContract">₱0.00</strong></div><div><span>Collected</span><strong id="sCollected">₱0.00</strong></div><div><span>Spent</span><strong id="sSpent">₱0.00</strong></div><div><span>Budget Left</span><strong id="sLeft">₱0.00</strong></div><div><span>Uncollected</span><strong id="sUncollected">₱0.00</strong></div></div></div>
 </div>
-</div>
+<div id="adminDashboard" class="panel hidden">
+<div class="panel-head"><div><h3>Admin Dashboard</h3><span class="muted">System-wide finance overview</span></div></div>
+<div class="admin-strip"><div class="mini"><span>Active Finance Users</span><strong id="adminFinanceCount">0 / 3</strong></div><div class="mini"><span>Registration</span><strong id="adminRegStatus">CLOSED</strong></div><div class="mini"><span>Activity Records</span><strong id="adminActivityCount">0</strong></div></div>
 <div class="panel-head"><h3>Recent Activity</h3></div><div class="table-wrap"><table><thead><tr><th>Time</th><th>Action</th><th>Username</th><th>Name</th><th>Details</th></tr></thead><tbody id="adminActivityBody"></tbody></table></div>
 </div>
-<div class="dashboard-recent-grid">
-<div class="panel dashboard-recent-panel">
-  <div class="panel-head">
-    <div><h3>Recent Transactions</h3><span class="muted">Latest financial activity for the selected project</span></div>
-  </div>
-  <div class="table-wrap"><table>
-    <thead><tr><th>Date</th><th>Type</th><th>Description</th><th>Amount</th><th>Entered By</th></tr></thead>
-    <tbody id="recentBody"></tbody>
-  </table></div>
-</div>
-<div class="panel dashboard-recent-panel">
-  <div class="panel-head">
-    <div><h3>Recent Client Payments</h3><span class="muted">Latest payments received from clients</span></div>
-    <strong id="recentPaymentsCount" class="dashboard-count">0</strong>
-  </div>
-  <div class="table-wrap"><table>
-    <thead><tr><th>Date</th><th>Reference</th><th>Description</th><th>Amount</th><th>Method</th></tr></thead>
-    <tbody id="recentPaymentsBody"></tbody>
-  </table></div>
-</div>
-</div>
+<div class="panel"><div class="panel-head"><h3>Recent Transactions</h3></div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Type</th><th>Description</th><th>Amount</th><th>Entered By</th></tr></thead><tbody id="recentBody"></tbody></table></div></div>
 </section>
 
-<section id="paymentsPage" class="page hidden" style="display:none">
+<section id="paymentsPage" class="page hidden">
 <div class="panel"><div class="panel-head"><h3>Record Client Payment</h3></div><form id="paymentForm" class="grid">
 <input type="hidden" name="clientId" id="paymentClient"><label>Date<input name="date" type="date" required></label><label>Payment Reference<input name="reference"></label>
 <label class="wide">Description / Milestone<input name="description" required></label><label>Due Amount<input name="dueAmount" type="number" min="0" step=".01"></label><label>Amount Paid<input name="amount" type="number" min="0" step=".01" required></label>
@@ -1677,7 +1599,7 @@ tbody:empty{display:none!important;}
 <div class="panel"><div class="panel-head"><h3>Payment History</h3></div><div class="table-wrap"><table><thead><tr><th>Client / Project</th><th>Date</th><th>Reference</th><th>Milestone</th><th>Amount</th><th>Method</th><th>Entered By</th></tr></thead><tbody id="paymentsBody"></tbody></table></div></div>
 <div class="panel milestone-panel" id="milestonesPanel"><div class="panel-head"><div><h3>Payment Milestones</h3><span class="muted">Track upcoming, overdue, and paid client payment milestones.</span></div></div><form id="milestoneForm" class="grid milestone-form"><input type="hidden" id="milestoneClient" name="clientId"><label>Milestone<input name="milestone" placeholder="e.g. Foundation completion" required></label><label>Due Date<input name="dueDate" type="date" required></label><label>Amount<input name="amount" type="number" min="0" step="0.01" required></label><label>Status<select name="status"><option>Upcoming</option><option>Paid</option><option>Cancelled</option></select></label><label>Paid Amount<input name="paidAmount" type="number" min="0" step="0.01" value="0"></label><label class="wide">Notes<textarea name="notes" placeholder="Optional notes"></textarea></label><div class="wide"><button class="primary" type="submit">Add Milestone</button></div></form><div class="table-wrap"><table><thead><tr><th>Milestone</th><th>Due</th><th>Amount</th><th>Paid</th><th>Status</th><th>Notes</th></tr></thead><tbody id="milestonesBody"></tbody></table></div></div></section>
 
-<section id="expensesPage" class="page hidden" style="display:none">
+<section id="expensesPage" class="page hidden">
 <div class="panel"><div class="panel-head"><h3>Record Fund Transaction</h3></div><form id="expenseForm" class="grid">
 <input type="hidden" name="clientId" id="expenseClient"><label>Date<input name="date" type="date" required></label><label>Type<select name="type"><option>Expense</option><option>Refund</option><option>Other Income</option><option>Transfer</option></select></label>
 <label>Category<select name="category"><option>Materials</option><option>Labor</option><option>Equipment</option><option>Transport</option><option>Permits</option><option>Subcontractor</option><option>Utilities</option><option>Meals</option><option>Office</option><option>Other</option></select></label>
@@ -1690,11 +1612,11 @@ tbody:empty{display:none!important;}
 <div class="panel"><div class="panel-head"><h3>Fund Transaction History</h3></div><div class="table-wrap"><table><thead><tr><th>Client / Project</th><th>Date</th><th>Type</th><th>Category</th><th>Payee</th><th>Description</th><th>Amount</th><th>Receipt</th><th>Status</th><th>Entered By</th></tr></thead><tbody id="expensesBody"></tbody></table></div></div>
 </section>
 
-<section id="budgetPage" class="page hidden" style="display:none"><div class="panel"><div class="panel-head"><h3>Budget vs Actual</h3></div><div class="table-wrap"><table><thead><tr><th>Category</th><th>Budget</th><th>Actual</th><th>Variance</th><th>% Used</th><th>Remaining</th></tr></thead><tbody id="budgetBody"></tbody></table></div></div></section>
+<section id="budgetPage" class="page hidden"><div class="panel"><div class="panel-head"><h3>Budget vs Actual</h3></div><div class="table-wrap"><table><thead><tr><th>Category</th><th>Budget</th><th>Actual</th><th>Variance</th><th>% Used</th><th>Remaining</th></tr></thead><tbody id="budgetBody"></tbody></table></div></div></section>
 
-<section id="activityPage" class="page hidden" style="display:none"><div class="panel"><div class="panel-head"><div><h3>Activity Log</h3><span class="muted">Visible to Admin and all LIWO Executives</span></div></div><div class="table-wrap"><table><thead><tr><th>Time</th><th>Action</th><th>Username</th><th>Name</th><th>Details</th></tr></thead><tbody id="activityBody"></tbody></table></div></div></section>
+<section id="activityPage" class="page hidden"><div class="panel"><div class="panel-head"><div><h3>Activity Log</h3><span class="muted">Visible to Admin and all LIWO Executives</span></div></div><div class="table-wrap"><table><thead><tr><th>Time</th><th>Action</th><th>Username</th><th>Name</th><th>Details</th></tr></thead><tbody id="activityBody"></tbody></table></div></div></section>
 
-<section id="clientsPage" class="page hidden" style="display:none">
+<section id="clientsPage" class="page hidden">
 <div class="panel">
   <div class="panel-head">
     <div><h3>Client / Project Management</h3><span class="muted">Add and maintain the clients and construction projects used throughout LIWO Finance.</span></div>
@@ -1717,14 +1639,14 @@ tbody:empty{display:none!important;}
 </div>
 </section>
 
-<section id="executivePage" class="page hidden" style="display:none">
+<section id="executivePage" class="page hidden">
   <div class="page-header"><div><h1>Executive Dashboard</h1><p>Company-wide project profitability, collections, spending, and financial health.</p></div><button class="secondary" id="refreshExecutiveBtn" type="button">↻ Refresh</button></div>
   <div class="exec-summary-grid">
     <div class="card"><span>Total Contract Value</span><strong id="exContract">₱0.00</strong></div><div class="card"><span>Total Client Payments</span><strong id="exPayments">₱0.00</strong></div><div class="card"><span>Total Expenses</span><strong id="exExpenses">₱0.00</strong></div><div class="card"><span>Cash Profit</span><strong id="exProfit">₱0.00</strong></div><div class="card"><span>Uncollected</span><strong id="exOutstanding">₱0.00</strong></div><div class="card"><span>Overall Margin</span><strong id="exMargin">0.0%</strong></div>
   </div>
   <div class="panel"><div class="panel-head"><div><h3>Project-by-Project Profitability</h3><span class="muted">Cash-based management view: client payments + other income/refunds − expenses.</span></div><span id="exHealthSummary" class="muted"></span></div><div class="table-wrap"><table><thead><tr><th>Project</th><th>Reference</th><th>Contract</th><th>Payments</th><th>Expenses</th><th>Cash Profit</th><th>Margin</th><th>Uncollected</th><th>Health</th></tr></thead><tbody id="executiveProjectsBody"></tbody></table></div></div>
 </section>
-<section id="reportsPage" class="page hidden" style="display:none">
+<section id="reportsPage" class="page hidden">
 <div class="panel"><div class="panel-head"><div><h3>Reports / Export</h3><span class="muted">Generate a printable financial summary for the selected client / project.</span></div></div>
 
 <div class="report-print-options">
@@ -1774,7 +1696,7 @@ tbody:empty{display:none!important;}
 <div class="report-section"><h3>Budget vs Actual</h3><div class="table-wrap"><table><thead><tr><th>Category</th><th>Budget</th><th>Actual</th><th>Variance</th><th>% Used</th><th>Remaining</th></tr></thead><tbody id="reportBudgetBody"></tbody></table></div></div>
 <div class="report-footer"><span>Prepared from LIWO Finance records</span><span id="reportPreparedBy"></span></div></div></section>
 
-<section id="usersPage" class="page hidden" style="display:none"><div class="panel"><div class="panel-head"><div><h3>User Management — Admin</h3><span class="muted">Manage accounts and LIWO Executive registration</span></div><strong id="registrationStatus"></strong></div>
+<section id="usersPage" class="page hidden"><div class="panel"><div class="panel-head"><div><h3>User Management — Admin</h3><span class="muted">Manage accounts and LIWO Executive registration</span></div><strong id="registrationStatus"></strong></div>
 <form id="userForm" class="grid"><label>Username<input name="username" required></label><label>Full Name<input name="name" required></label><label>Password<input name="password" type="password" minlength="8" required></label><label>Role<select name="role"><option>Finance</option><option>Admin</option></select></label><label>Active<select name="active"><option value="TRUE">Yes</option><option value="FALSE">No</option></select></label><div><button class="primary">Create / Update User</button></div></form>
 <div class="panel-body" style="border-top:1px solid var(--line)"><strong>LIWO Executive Accounts</strong><p class="muted">Registration closes automatically after 3 active LIWO Executive accounts. Change the invitation code to reopen registration with a new code.</p>
 <form id="inviteForm" style="display:flex;gap:10px;max-width:650px"><input name="inviteCode" type="password" placeholder="New invitation code" minlength="8" required><button class="primary">Change & Reopen</button></form>
@@ -1821,133 +1743,7 @@ tbody:empty{display:none!important;}
 </section>
 
 
-
-<section class="page hidden" id="calculatorPage" data-page-section="calculator" style="display:none">
-  <div class="page-heading">
-    <div>
-      <h2>Calculator</h2>
-      <div class="muted">Practical construction calculators for quick material and quantity estimates.</div>
-    </div>
-  </div>
-
-  <div class="calculator-hero">
-    <div class="calculator-hero-copy">
-      <div class="calculator-hero-icon">▦</div>
-      <div>
-        <h3>Construction Calculators</h3>
-        <p>Calculate quantities quickly while keeping the existing LIWO dashboard layout and navigation intact.</p>
-      </div>
-    </div>
-    <div class="calculator-categories">
-      <span><b>4</b> Calculators</span>
-      <span><b>m³</b> Concrete</span>
-      <span><b>kg</b> Steel</span>
-      <span><b>pcs</b> Blocks</span>
-    </div>
-  </div>
-
-  <div class="calculator-layout">
-    <div class="panel">
-      <div class="panel-head"><h3>All Calculators</h3></div>
-      <div class="calculator-grid">
-        <button type="button" class="calculator-tool-card active" data-calc="concrete">
-          <span class="calc-icon">▣</span><strong>Concrete Calculator</strong>
-          <small>Volume and cement estimate</small>
-        </button>
-        <button type="button" class="calculator-tool-card" data-calc="steel">
-          <span class="calc-icon">↗</span><strong>Steel Calculator</strong>
-          <small>Weight from length and size</small>
-        </button>
-        <button type="button" class="calculator-tool-card" data-calc="block">
-          <span class="calc-icon">▦</span><strong>Block Calculator</strong>
-          <small>Wall blocks and allowance</small>
-        </button>
-        <button type="button" class="calculator-tool-card" data-calc="paint">
-          <span class="calc-icon">▰</span><strong>Paint Calculator</strong>
-          <small>Coverage and litres required</small>
-        </button>
-      </div>
-    </div>
-
-    <div class="panel calculator-workspace">
-      <div class="panel-head"><h3 id="calculatorTitle">Concrete Calculator</h3><span class="calculator-chip">Quick Estimate</span></div>
-
-      <div id="calcConcrete" class="calc-form">
-        <div class="calc-fields">
-          <label>Length (m)<input id="concreteLength" type="number" min="0" step="0.01" value="10"></label>
-          <label>Width (m)<input id="concreteWidth" type="number" min="0" step="0.01" value="5"></label>
-          <label>Thickness (m)<input id="concreteThickness" type="number" min="0" step="0.01" value="0.15"></label>
-        </div>
-        <div class="calc-result">
-          <div><span>Concrete Volume</span><strong id="concreteVolume">7.50 m³</strong></div>
-          <div><span>Estimated Cement (40kg)</span><strong id="concreteCement">38 bags</strong></div>
-        </div>
-      </div>
-
-      <div id="calcSteel" class="calc-form hidden">
-        <div class="calc-fields">
-          <label>Bar Diameter (mm)<input id="steelDiameter" type="number" min="1" step="1" value="12"></label>
-          <label>Total Length (m)<input id="steelLength" type="number" min="0" step="0.1" value="100"></label>
-          <label>Quantity<input id="steelQty" type="number" min="1" step="1" value="1"></label>
-        </div>
-        <div class="calc-result">
-          <div><span>Estimated Weight</span><strong id="steelWeight">88.80 kg</strong></div>
-          <div><span>Formula</span><strong id="steelFormula">d² ÷ 162 × length</strong></div>
-        </div>
-      </div>
-
-      <div id="calcBlock" class="calc-form hidden">
-        <div class="calc-fields">
-          <label>Wall Length (m)<input id="blockLength" type="number" min="0" step="0.1" value="10"></label>
-          <label>Wall Height (m)<input id="blockHeight" type="number" min="0" step="0.1" value="3"></label>
-          <label>Block Face Area (m²)<input id="blockArea" type="number" min="0.001" step="0.001" value="0.08"></label>
-        </div>
-        <div class="calc-result">
-          <div><span>Estimated Blocks</span><strong id="blockCount">413 pcs</strong></div>
-          <div><span>Allowance</span><strong>5% waste included</strong></div>
-        </div>
-      </div>
-
-      <div id="calcPaint" class="calc-form hidden">
-        <div class="calc-fields">
-          <label>Surface Area (m²)<input id="paintArea" type="number" min="0" step="0.1" value="100"></label>
-          <label>Coverage (m²/L)<input id="paintCoverage" type="number" min="0.1" step="0.1" value="10"></label>
-          <label>Coats<input id="paintCoats" type="number" min="1" step="1" value="2"></label>
-        </div>
-        <div class="calc-result">
-          <div><span>Paint Required</span><strong id="paintLitres">20.00 L</strong></div>
-          <div><span>Recommended Purchase</span><strong id="paintPurchase">22.00 L</strong></div>
-        </div>
-      </div>
-
-      <div class="calculator-actions">
-        <button type="button" class="secondary" id="calculatorResetBtn">Reset</button>
-        <button type="button" class="primary" id="calculatorCalculateBtn">Calculate</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="calculator-bottom-grid">
-    <div class="panel">
-      <div class="panel-head"><h3>Unit Converters</h3></div>
-      <div class="converter-grid">
-        <label>Metres → Feet<input id="metersInput" type="number" step="0.01" placeholder="Enter metres"><strong id="feetResult">—</strong></label>
-        <label>m² → ft²<input id="sqmInput" type="number" step="0.01" placeholder="Enter m²"><strong id="sqftResult">—</strong></label>
-        <label>kg → lb<input id="kgInput" type="number" step="0.01" placeholder="Enter kg"><strong id="lbResult">—</strong></label>
-      </div>
-    </div>
-    <div class="panel">
-      <div class="panel-head"><h3>Quick References</h3></div>
-      <div class="reference-list">
-        <div><span>▣</span><strong>Concrete mix</strong><small>Use project-approved mix design.</small></div>
-        <div><span>▦</span><strong>Block allowance</strong><small>5% is included in the quick estimate.</small></div>
-        <div><span>↗</span><strong>Steel formula</strong><small>Weight ≈ d² ÷ 162 × length.</small></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="page hidden" id="toolsPage" data-page-section="tools" style="display:none">
+<section class="page hidden" id="toolsPage" data-page-section="tools">
   <div class="page-heading">
     <div>
       <h2>Construction Tools</h2>
@@ -2004,7 +1800,7 @@ tbody:empty{display:none!important;}
   </div>
 </section>
 
-<section class="page hidden" id="cashPage" data-page-section="cash" style="display:none">
+<section class="page hidden" id="cashPage" data-page-section="cash">
   <div class="page-header">
     <div><h1>Cash Position</h1><p>Track the actual money currently held in the bank and on hand.</p></div>
   </div>
@@ -2033,7 +1829,7 @@ tbody:empty{display:none!important;}
   </div>
 <div class="panel reconciliation-panel" id="cashReconciliationPanel"><div class="panel-head"><div><h3>Cash Reconciliation</h3><span class="muted">Compare recorded cash with actual balances.</span></div></div><div class="grid"><label>Actual Bank Balance<input id="reconcileBank" type="number" min="0" step="0.01" placeholder="0.00"></label><label>Actual Cash On Hand<input id="reconcileCash" type="number" min="0" step="0.01" placeholder="0.00"></label><label class="wide">Notes<textarea id="reconcileNotes" placeholder="Explain any variance."></textarea></label><div class="wide reconciliation-result" id="reconciliationResult">No reconciliation performed yet.</div><div class="wide"><button class="btn" type="button" id="reconcileCashBtn">Reconcile Cash</button></div></div></div></section>
 
-<section class="page hidden" id="receiptsPage" data-page-section="receipts" style="display:none">
+<section class="page hidden" id="receiptsPage" data-page-section="receipts">
   <div class="page-heading">
     <div>
       <h2>Receipts</h2>
@@ -2069,7 +1865,7 @@ tbody:empty{display:none!important;}
   <button data-page="expenses"><span>↕</span><small>Funds</small></button>
   <button data-page="activity"><span>▤</span><small>Activity</small></button>
   <button data-page="clients"><span>♙</span><small>Clients</small></button>
-  <button data-page="tools"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m14.7 6.3 3-3a5 5 0 0 0 0 7.1l-8.4 8.4a2.1 2.1 0 1 1-3-3l8.4-8.4a5 5 0 0 0 7.1 0l-3 3"/><path d="m5 5 4 4"/><path d="m4 4 1 1"/></svg></span><small>Tools</small></button><button data-page="calculator"><span>▦</span><small>Calculator</small></button>
+  <button data-page="tools"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m14.7 6.3 3-3a5 5 0 0 0 0 7.1l-8.4 8.4a2.1 2.1 0 1 1-3-3l8.4-8.4a5 5 0 0 0 7.1 0l-3 3"/><path d="m5 5 4 4"/><path d="m4 4 1 1"/></svg></span><small>Tools</small></button>
 <button data-page="reports"><span>▤</span><small>Reports</small></button>
   <button data-page="users" id="mobileUsersNav" class="hidden"><span>♧</span><small>Users</small></button>
 </div>
@@ -2143,10 +1939,13 @@ function hideLIWOLoader(){
   },wait);
 }
 async function api(action,payload={}){
-  let r=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({...payload,action})});
-  let o=await r.json();
-  if(!o.ok)throw Error(o.error||"Request failed");
-  return o;
+  showLIWOLoader(action==="login"?"Signing you in…":"Updating LIWO Finance…");
+  try{
+    let r=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({...payload,action})});
+    let o=await r.json();
+    if(!o.ok)throw Error(o.error||"Request failed");
+    return o;
+  }finally{hideLIWOLoader()}
 }
 window.api=api;
 
@@ -2158,36 +1957,29 @@ async function login(e){
     const o=await api("login",{username:$("loginUsername").value.trim(),password:$("loginPassword").value});
     session={token:o.token,user:o.user};
     sessionStorage.setItem("cf_session",JSON.stringify(session));
+    showApp();
+    switchPage("dashboard");
 
-    // Show the animated loader ONLY for the successful login -> dashboard transition.
-    showLIWOLoader("Preparing your dashboard…");
+    // Do not let a dashboard/project-data error turn a successful
+    // authentication into a failed sign-in.
     try{
-      showApp();
-      switchPage("dashboard");
+      await refresh();
+    }catch(err){
+      console.error("Dashboard initialization failed:",err);
+      toast(err.message||"Signed in, but dashboard data could not be loaded.");
+    }
 
-      // Do not let a dashboard/project-data error turn a successful
-      // authentication into a failed sign-in.
-      try{
-        await refresh();
-      }catch(err){
-        console.error("Dashboard initialization failed:",err);
-        toast(err.message||"Signed in, but dashboard data could not be loaded.");
-      }
-
-      try{
-        await loadServerNotifications();
-      }catch(err){
-        console.error("Notification initialization failed:",err);
-      }
-    }finally{
-      hideLIWOLoader();
+    try{
+      await loadServerNotifications();
+    }catch(err){
+      console.error("Notification initialization failed:",err);
     }
   }catch(x){
     $("loginError").textContent=x.message||"Unable to sign in.";
   }
 }
 async function register(e){e.preventDefault();$("registerError").textContent="";if($("regPassword").value!==$("regConfirm").value){$("registerError").textContent="Passwords do not match.";return}try{await api("registerFinance",{name:$("regName").value.trim(),username:$("regUsername").value.trim(),password:$("regPassword").value,inviteCode:$("regInvite").value});toast("Account created. You can now sign in.");$("loginUsername").value=$("regUsername").value;tabs(false);$("registerForm").reset()}catch(x){$("registerError").textContent=x.message}}
-function showApp(){document.body.classList.toggle("lw-admin",String(session?.user?.role||"").toLowerCase()==="admin");$("loginView").classList.add("hidden");$("appView").classList.remove("hidden");const name=session.user.name||session.user.username;const role=session.user.role||"Finance";$("currentUser").textContent=name+" • "+session.user.username;$("currentRole").textContent=role;$("topName").textContent=name;$("topRole").textContent=role==="Admin"?"Administrator":"LIWO Executives";$("topAvatar").textContent=initials(name);$("menuUserName").textContent=name;$("menuUserRole").textContent=role==="Admin"?"Administrator":"LIWO Executives";applyProfilePhoto();if(session.user.role==="Admin"){$("usersNav").classList.remove("hidden");$("mobileUsersNav").classList.remove("hidden");/* admin user statistics removed from dashboard */}}
+function showApp(){document.body.classList.toggle("lw-admin",String(session?.user?.role||"").toLowerCase()==="admin");$("loginView").classList.add("hidden");$("appView").classList.remove("hidden");const name=session.user.name||session.user.username;const role=session.user.role||"Finance";$("currentUser").textContent=name+" • "+session.user.username;$("currentRole").textContent=role;$("topName").textContent=name;$("topRole").textContent=role==="Admin"?"Administrator":"LIWO Executives";$("topAvatar").textContent=initials(name);$("menuUserName").textContent=name;$("menuUserRole").textContent=role==="Admin"?"Administrator":"LIWO Executives";applyProfilePhoto();if(session.user.role==="Admin"){$("usersNav").classList.remove("hidden");$("mobileUsersNav").classList.remove("hidden");$("adminDashboard").classList.remove("hidden")}}
 function logout(){closeHeaderMenus();session=null;sessionStorage.removeItem("cf_session");$("appView").classList.add("hidden");$("loginView").classList.remove("hidden")}
 function closeHeaderMenus(){const n=$("notificationDropdown"),u=$("userDropdown");if(n){n.classList.add("hidden");$("notificationBtn")?.setAttribute("aria-expanded","false")}if(u){u.classList.add("hidden");$("userMenuBtn")?.setAttribute("aria-expanded","false")}}
 async function toggleNotificationMenu(){const n=$("notificationDropdown");if(!n)return;const opening=n.classList.contains("hidden");closeHeaderMenus();if(opening){await loadServerNotifications();n.classList.remove("hidden");$("notificationBtn").setAttribute("aria-expanded","true")}}
@@ -2201,25 +1993,11 @@ function renderNotifications(){const list=$("notificationList"),badge=$("notific
 async function loadServerNotifications(){
   if(!session?.token)return;
   try{
-    // Pull the complete audited activity feed used by the finance system.
-    const o=await api("notifications",{token:session.token,limit:500});
+    let o=await api("notifications",{token:session.token,limit:100});
     data=data||{};
-    const serverNotes=Array.isArray(o?.notifications)?o.notifications:[];
-
-    // Keep the newest notification for every unique activity.
-    const seen=new Set();
-    data.activity=serverNotes.filter(x=>{
-      const id=notificationId(x);
-      if(seen.has(id))return false;
-      seen.add(id);
-      return true;
-    }).sort((a,b)=>new Date(b.time||0)-new Date(a.time||0));
-
+    data.activity=o.notifications||[];
     renderNotifications();
-    if(typeof window.renderMobileNotifications==="function")window.renderMobileNotifications();
-  }catch(e){
-    console.error("Notification sync failed:",e);
-  }
+  }catch(e){console.error(e)}
 }
 function markNotificationsRead(){const ids=(data?.activity||[]).map((x,i)=>notificationId(x));saveReadNotificationIds(ids);renderNotifications();toast('Notifications marked as read.')}
 function profileStorageKey(){return session?.user?.username?`cf_profile_photo_${session.user.username}`:"cf_profile_photo"}
@@ -2345,17 +2123,12 @@ function render(){
  let s=data.summary||{};$("mContract").textContent=peso(s.contractAmount);$("mPayments").textContent=peso(s.totalPayments);$("mExpenses").textContent=peso(s.totalExpenses);$("mAvailable").textContent=peso(s.budgetRemaining);$("mBalance").textContent=peso(s.outstandingBalance);$("mNet").textContent=peso(s.cashPosition);$("projectLabel").textContent=s.clientName?s.clientName+" • "+(s.reference||""):"Select a client/project";
  $("sContract").textContent=peso(s.contractAmount);$("sCollected").textContent=peso(s.totalPayments);$("sSpent").textContent=peso(s.totalExpenses);$("sLeft").textContent=peso(s.budgetRemaining);$("sUncollected").textContent=peso(s.outstandingBalance);
  let pct=s.contractAmount?Math.min(100,(s.totalExpenses/s.contractAmount)*100):0;let deg=pct*3.6;$("piePercent").textContent=pct.toFixed(1)+"%";$("pieSpent").textContent=peso(s.totalExpenses);$("pieRemaining").textContent=peso(s.budgetRemaining);$("budgetPie").style.background=`conic-gradient(#24618d 0deg ${deg}deg,#e6edf2 ${deg}deg 360deg)`;
- const recentTransactions=(data.recent||[]).slice().sort((a,b)=>new Date(b.date||0)-new Date(a.date||0)).slice(0,10);
- $("recentBody").innerHTML=recentTransactions.map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.type)}</td><td>${esc(x.description)}</td><td>${peso(x.amount)}</td><td>${esc(x.enteredBy)}</td></tr>`).join("")||'<tr><td colspan="5" class="empty">No transactions yet.</td></tr>';
-
- const recentClientPayments=(data.payments||[]).slice().sort((a,b)=>new Date(b.date||0)-new Date(a.date||0)).slice(0,10);
- $("recentPaymentsBody").innerHTML=recentClientPayments.map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.reference||"—")}</td><td>${esc(x.description||"—")}</td><td>${peso(x.amount)}</td><td>${esc(x.method||"—")}</td></tr>`).join("")||'<tr><td colspan="5" class="empty">No client payments yet.</td></tr>';
- $("recentPaymentsCount").textContent=recentClientPayments.length;
+ $("recentBody").innerHTML=(data.recent||[]).map(x=>`<tr><td>${esc(x.clientName)}</td><td>${esc(x.date)}</td><td>${esc(x.type)}</td><td>${esc(x.description)}</td><td>${peso(x.amount)}</td><td>${esc(x.enteredBy)}</td></tr>`).join("")||'<tr><td colspan="5" class="empty">No transactions yet.</td></tr>';
  $("paymentsBody").innerHTML=(data.payments||[]).map(x=>`<tr><td>${esc(x.clientName)}</td><td>${esc(x.date)}</td><td>${esc(x.reference)}</td><td>${esc(x.description)}</td><td>${peso(x.amount)}</td><td>${esc(x.method)}</td><td>${esc(x.enteredBy)}</td></tr>`).join("")||'<tr><td colspan="7" class="empty">No client payments yet.</td></tr>';
  $("expensesBody").innerHTML=(data.expenses||[]).map(x=>`<tr><td>${esc(x.clientName)}</td><td>${esc(x.date)}</td><td>${esc(x.type)}</td><td>${esc(x.category)}</td><td>${esc(x.payee)}</td><td>${esc(x.description)}</td><td>${peso(x.amount)}</td><td>${x.receiptUrl?`<a class="receipt-link" href="${esc(x.receiptUrl)}" target="_blank" rel="noopener">View</a>`:"—"}</td><td>${esc(x.enteredBy)}</td></tr>`).join("")||'<tr><td colspan="9" class="empty">No fund transactions yet.</td></tr>';
  $("budgetBody").innerHTML=(data.budget||[]).map(x=>`<tr><td>${esc(x.category)}</td><td>${peso(x.budget)}</td><td>${peso(x.actual)}</td><td>${peso(x.variance)}</td><td>${(Number(x.used||0)*100).toFixed(1)}%</td><td>${peso(x.remaining)}</td></tr>`).join("");
  $("activityBody").innerHTML=(data.activity||[]).map(x=>`<tr><td>${esc(x.time)}</td><td>${esc(x.action)}</td><td>${esc(x.username)}</td><td>${esc(x.name)}</td><td>${esc(x.details)}</td></tr>`).join("")||'<tr><td colspan="5" class="empty">No activity yet.</td></tr>';
- if(session.user.role==="Admin"&&data.users){$("usersBody").innerHTML=data.users.map(x=>`<tr><td>${esc(x.username)}</td><td>${esc(x.name)}</td><td>${esc(x.role==="Finance"?"LIWO Executive":x.role)}</td><td>${x.active?"Yes":"No"}</td><td><div class="user-actions">${String(x.username).toLowerCase()===String(session.user.username).toLowerCase()?`<span class="muted">Current account</span>`:x.active?`<button type="button" class="user-action-btn deactivate" data-user-action="deactivate" data-username="${esc(x.username)}">Deactivate</button>`:`<button type="button" class="user-action-btn reactivate" data-user-action="reactivate" data-username="${esc(x.username)}">Reactivate</button>`}<button type="button" class="user-action-btn delete" data-user-action="delete" data-username="${esc(x.username)}">Delete</button></div></td></tr>`).join("");$("registrationStatus").textContent=data.financeRegistrationOpen?`OPEN (${data.financeCount}/3)`:`CLOSED (${data.financeCount}/3)`}
+ if(session.user.role==="Admin"&&data.users){$("usersBody").innerHTML=data.users.map(x=>`<tr><td>${esc(x.username)}</td><td>${esc(x.name)}</td><td>${esc(x.role==="Finance"?"LIWO Executive":x.role)}</td><td>${x.active?"Yes":"No"}</td><td><div class="user-actions">${String(x.username).toLowerCase()===String(session.user.username).toLowerCase()?`<span class="muted">Current account</span>`:x.active?`<button type="button" class="user-action-btn deactivate" data-user-action="deactivate" data-username="${esc(x.username)}">Deactivate</button>`:`<button type="button" class="user-action-btn reactivate" data-user-action="reactivate" data-username="${esc(x.username)}">Reactivate</button>`}<button type="button" class="user-action-btn delete" data-user-action="delete" data-username="${esc(x.username)}">Delete</button></div></td></tr>`).join("");$("registrationStatus").textContent=data.financeRegistrationOpen?`OPEN (${data.financeCount}/3)`:`CLOSED (${data.financeCount}/3)`;$("adminFinanceCount").textContent=`${data.financeCount} / 3`;$("adminRegStatus").textContent=data.financeRegistrationOpen?"OPEN":"CLOSED";$("adminActivityCount").textContent=data.activity.length}
  if(data.clients){$("clientsBody").innerHTML=data.clients.map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.reference||"—")}</td><td>${peso(x.budget)}</td><td>${peso(x.additionalDesignFee||0)}</td><td><strong>${peso(x.totalContract||x.budget||0)}</strong></td><td><span class="${x.active?"status-open":"status-closed"}">${x.active?"Active":"Inactive"}</span></td><td><button type="button" class="secondary edit-client-btn" data-client-id="${esc(x.id)}">Edit</button></td></tr>`).join("")||`<tr><td colspan="7" class="empty">No clients/projects yet. Add the first one above.</td></tr>`}
 }
 async function save(action,form){let btn=form.querySelector("button");btn.disabled=true;try{let payload=action==="addExpense"?await expensePayload(form):formObj(form);if(action==="addPayment"||action==="addExpense")payload.clientId=selectedClientId||payload.clientId;if(action==="addPayment"||action==="addExpense")if(!payload.clientId)throw Error("Select an Active Project before saving.");await api(action,{token:session.token,...payload});if(action==="upsertClient")resetClientForm();else form.reset();let d=form.querySelector('[name="date"]');if(d)d.value=today();if($("receiptFileName"))$("receiptFileName").textContent="Optional — you can take a photo or upload a receipt. No receipt is also allowed.";toast(action==="addExpense"?(payload.receiptData?"Transaction and receipt saved.":"Transaction saved without a receipt."):"Saved successfully");await refresh()}catch(x){toast(x.message)}finally{btn.disabled=false}}
@@ -2518,10 +2291,7 @@ function printReport(){
   </div>
 </div>
 <div class="liwo-report-records-footer" id="liwoReportRecordsFooter">GENERATED FROM LIWO FINANCE</div>
-</div>
-
-
-</body></html>`);
+</div></body></html>`);
   w.document.close();w.focus();setTimeout(()=>w.print(),500);
 }
 
@@ -2571,7 +2341,7 @@ async function loadProjectFinancialDashboard(){
     const rr=await api("listReceipts",{token:session.token,clientId:id,project:id}); const list=rr.receipts||[]; set("pdReceiptCount",list.length); body("pdReceiptsBody",list.slice(0,8).map(x=>`<tr><td>${esc(x.name||"Receipt")}</td><td>${esc(x.createdAt||"—")}</td><td>${esc(x.status||x.verification||"Pending")}</td></tr>`).join("")||'<tr><td colspan="3" class="empty">No receipts for this project.</td></tr>');
   }catch(e){set("pdReceiptCount",0);body("pdReceiptsBody",'<tr><td colspan="3" class="empty">No receipts available.</td></tr>')}
 }
-function switchPage(p){document.querySelectorAll(".page").forEach(x=>{let active=x.id===p+"Page";x.classList.toggle("hidden",!active);x.classList.toggle("active",active);x.style.display=active?"block":"none"});document.querySelectorAll(".nav button,.mobile-nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===p));$("pageTitle").textContent={dashboard:"Dashboard",projectDashboard:"Project Financials",payments:"Client Payments",expenses:"Fund Transactions",budget:"Budget vs Actual",activity:"Activity Log",clients:"Clients / Projects",tools:"Construction Tools",calculator:"Calculator",cash:"Cash Position",receipts:"Receipts",reports:"Reports / Export",users:"User Management",executive:"Executive Dashboard"}[p]||"Dashboard";if(p==="projectDashboard"){fillClients();loadProjectFinancialDashboard();}if(p==="users"){loadUsers();if(session?.user?.role==="Admin")loadReportSettings();}if(p==="reports"){renderReport();window.bindLIWOPrintControls?.();}if(p==="tools")loadTools();if(p==="cash")loadCash();if(p==="receipts")loadReceipts()}
+function switchPage(p){document.querySelectorAll(".page").forEach(x=>{let active=x.id===p+"Page";x.classList.toggle("hidden",!active);x.classList.toggle("active",active)});document.querySelectorAll(".nav button,.mobile-nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===p));$("pageTitle").textContent={dashboard:"Dashboard",projectDashboard:"Project Financials",payments:"Client Payments",expenses:"Fund Transactions",budget:"Budget vs Actual",activity:"Activity Log",clients:"Clients / Projects",tools:"Construction Tools",cash:"Cash Position",receipts:"Receipts",reports:"Reports / Export",users:"User Management",executive:"Executive Dashboard"}[p]||"Dashboard";if(p==="projectDashboard"){fillClients();loadProjectFinancialDashboard();}if(p==="users"){loadUsers();if(session?.user?.role==="Admin")loadReportSettings();}if(p==="reports"){renderReport();window.bindLIWOPrintControls?.();}if(p==="tools")loadTools();if(p==="cash")loadCash();if(p==="receipts")loadReceipts()}
 async function __liwoOriginalLoadUsers(){try{let o=await api("listUsers",{token:session.token});data.users=o.users;data.financeCount=o.financeCount;data.financeRegistrationOpen=o.financeRegistrationOpen;data.clients=o.clients;render()}catch(x){toast(x.message)}}
 document.addEventListener("DOMContentLoaded",()=>{
 $("loginTab").onclick=()=>tabs(false);$("registerTab").onclick=()=>tabs(true);$("loginForm").onsubmit=login;$("registerForm").onsubmit=register;$("logoutBtn").onclick=logout;$("menuLogoutBtn").onclick=logout;$("refreshBtn").onclick=refresh;$("printReportBtn").onclick=printReport;$("saveReportBtn").onclick=printReport;$("exportReportBtn").onclick=exportReportCSV;$("reportPeriod").onchange=renderReport;$("notificationBtn").onclick=toggleNotificationMenu;$("userMenuBtn").onclick=toggleUserMenu;$("markNotificationsRead").onclick=markNotificationsRead;$("profileMenuBtn").onclick=openProfile;$("profileCloseBtn").onclick=closeProfile;$("profileDoneBtn").onclick=closeProfile;$("profilePhotoInput").onchange=e=>saveProfilePhoto(e.target.files[0]);$("removeProfilePhotoBtn").onclick=removeProfilePhoto;$("profileUsernameSaveBtn").onclick=saveProfileUsername;$("profileModal").onclick=e=>{if(e.target.id==="profileModal")closeProfile()};document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeHeaderMenus();closeProfile()}});document.addEventListener("click",e=>{if(!e.target.closest(".top-user"))closeHeaderMenus()});
@@ -2818,28 +2588,7 @@ document.addEventListener("DOMContentLoaded",()=>{
 });
 </script>
 
-<script id="liwo-mobile-notification-live-sync">
-(function(){
-  let lastNotificationSignature="";
-  async function sync(){
-    if(!window.session?.token || typeof window.loadServerNotifications!=="function")return;
-    try{
-      await window.loadServerNotifications();
-      const notes=Array.isArray(window.data?.activity)?window.data.activity:[];
-      const signature=notes.slice(0,20).map(notificationId).join("||");
-      if(signature!==lastNotificationSignature){
-        lastNotificationSignature=signature;
-        if(typeof window.renderMobileNotifications==="function")window.renderMobileNotifications();
-      }
-    }catch(e){console.debug("Mobile notification sync:",e)}
-  }
-  window.syncLIWOMobileNotifications=sync;
-  // Refresh frequently enough that new transactions/updates appear promptly.
-  setInterval(sync,10000);
-  document.addEventListener("visibilitychange",()=>{if(!document.hidden)sync()});
-  window.addEventListener("focus",sync);
-})();
-</script>
+<script>setInterval(()=>{if(session?.token)loadServerNotifications()},30000);</script>
 
 <script id="liwo-user-load-hook">
 (function(){
@@ -3124,69 +2873,9 @@ document.addEventListener("DOMContentLoaded",()=>{
   const getNotes=()=>Array.isArray(window.data?.activity)?window.data.activity:[];
   const isRead=x=>typeof getReadNotificationIds==="function"&&getReadNotificationIds().includes(notificationId(x));
   function syncBadge(){const unread=getNotes().filter(x=>!isRead(x)).length;const badge=q("mobileNotificationBadge");if(badge){badge.textContent=unread;badge.style.display=unread?"grid":"none";}}
-  function renderCenter(){
-    const list=q("mobileNotificationList");
-    if(!list)return;
-    const notes=getNotes().slice().sort((a,b)=>new Date(b.time||0)-new Date(a.time||0));
-    list.innerHTML=notes.length
-      ?notes.map(x=>`<button type="button" class="mobile-note-row ${isRead(x)?"read":""}" data-note-id="${safe(notificationId(x))}">
-          <i class="mobile-note-dot"></i>
-          <span>
-            <strong>${safe(notificationLabel(x))}</strong>
-            <span>${safe(notificationDetails(x))}</span>
-            <span>${safe(x.name||x.username||"LIWO Finance")}${x.time?" • "+safe(formatNotificationTime(x.time)):""}</span>
-          </span>
-        </button>`).join("")
-      :'<div class="mobile-note-empty">No finance activity yet.</div>';
-    syncBadge();
-  }
-  window.renderMobileNotifications=renderCenter;
-
-  // Normalize report-related activity so administrator report tests and
-  // scheduled weekly/monthly reports are clearly surfaced in mobile notifications.
-  // Existing server notifications are never removed or replaced.
-  const originalGetNotes=getNotes;
-  const reportActivityKeywords=[
-    "report","weekly report","monthly report","test report",
-    "scheduled report","automated report","financial report"
-  ];
-  function isReportActivity(x){
-    const haystack=[
-      x?.action,x?.details,x?.type,x?.category,x?.reportType,
-      x?.period,x?.frequency
-    ].map(v=>String(v??"").toLowerCase()).join(" ");
-    return reportActivityKeywords.some(k=>haystack.includes(k));
-  }
-  function notificationLabel(x){
-    if(!isReportActivity(x))return x?.action||"Finance activity";
-    const haystack=[
-      x?.action,x?.details,x?.type,x?.category,x?.reportType,
-      x?.period,x?.frequency
-    ].map(v=>String(v??"").toLowerCase()).join(" ");
-    if(haystack.includes("test report"))return "Administrator report test";
-    if(haystack.includes("monthly"))return "Monthly financial report";
-    if(haystack.includes("weekly"))return "Weekly financial report";
-    return "Financial report update";
-  }
-  function notificationDetails(x){
-    if(x?.details)return x.details;
-    if(!isReportActivity(x))return "A finance update was recorded.";
-    return "A financial report was generated or sent.";
-  }
-  function close(){
-    q("mobileNotificationCenter")?.classList.remove("open");
-    q("mobileNotificationCenter")?.setAttribute("aria-hidden","true");
-  }
-  async function open(){
-    try{
-      if(typeof loadServerNotifications==="function")await loadServerNotifications();
-      renderCenter();
-      q("mobileNotificationCenter")?.classList.add("open");
-      q("mobileNotificationCenter")?.setAttribute("aria-hidden","false");
-    }catch(e){
-      if(typeof toast==="function")toast(e.message||String(e));
-    }
-  }
+  function renderCenter(){const list=q("mobileNotificationList");if(!list)return;const notes=getNotes().slice().reverse();list.innerHTML=notes.length?notes.map(x=>`<button type="button" class="mobile-note-row ${isRead(x)?"read":""}"><i class="mobile-note-dot"></i><span><strong>${safe(x.action||"Finance activity")}</strong><span>${safe(x.details||"A finance update was recorded.")}</span><span>${safe(x.name||x.username||"")}${x.time?" • "+safe(formatNotificationTime(x.time)):""}</span></span></button>`).join(""):'<div class="mobile-note-empty">No finance activity yet.</div>';syncBadge();}
+  function close(){q("mobileNotificationCenter")?.classList.remove("open");}
+  async function open(){try{if(typeof loadServerNotifications==="function")await loadServerNotifications();renderCenter();q("mobileNotificationCenter")?.classList.add("open");}catch(e){if(typeof toast==="function")toast(e.message||String(e));}}
   const originalRender=window.renderNotifications;
   if(typeof originalRender==="function")window.renderNotifications=function(){const result=originalRender.apply(this,arguments);renderCenter();return result;};
   document.body.insertAdjacentHTML("beforeend",'<div id="mobileNotificationCenter" class="mobile-notification-center" aria-hidden="true"><section class="mobile-notification-sheet" role="dialog" aria-label="Notifications"><div class="mobile-notification-head"><strong>Notifications</strong><div><button id="mobileMarkNotifications" type="button">Mark all read</button><button id="mobileCloseNotifications" type="button">Close</button></div></div><div id="mobileNotificationList" class="mobile-notification-list"></div></section></div>');
@@ -3257,63 +2946,6 @@ document.addEventListener("DOMContentLoaded",()=>{
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',window.bindLIWOPrintControls);else window.bindLIWOPrintControls();
 })();
 </script>
-
-
-<!-- LIWO Calculator: isolated from report-print template -->
-<script id="liwo-calculator-script">
-(function(){
-  const $c=id=>document.getElementById(id);
-  const panels={concrete:$c("calcConcrete"),steel:$c("calcSteel"),block:$c("calcBlock"),paint:$c("calcPaint")};
-  const titles={concrete:"Concrete Calculator",steel:"Steel Calculator",block:"Block Calculator",paint:"Paint Calculator"};
-  let current="concrete";
-  function n(id, fallback=0){const v=parseFloat($c(id)?.value);return Number.isFinite(v)?v:fallback}
-  function moneyless(v,dec=2){return Number(v||0).toFixed(dec)}
-  function calculate(){
-    if(current==="concrete"){
-      const volume=n("concreteLength")*n("concreteWidth")*n("concreteThickness");
-      const bags=Math.ceil(volume*5);
-      $c("concreteVolume").textContent=moneyless(volume)+" m³";
-      $c("concreteCement").textContent=bags+" bags";
-    }else if(current==="steel"){
-      const d=n("steelDiameter"), length=n("steelLength"), qty=Math.max(1,n("steelQty",1));
-      const weight=(d*d/162)*length*qty;
-      $c("steelWeight").textContent=moneyless(weight)+" kg";
-      $c("steelFormula").textContent="d² ÷ 162 × length × qty";
-    }else if(current==="block"){
-      const area=n("blockLength")*n("blockHeight"), face=n("blockArea");
-      const count=Math.ceil((area/Math.max(face,.001))*1.05);
-      $c("blockCount").textContent=count.toLocaleString()+" pcs";
-    }else{
-      const area=n("paintArea"), coverage=Math.max(n("paintCoverage"),.1), coats=Math.max(1,n("paintCoats",1));
-      const litres=(area/coverage)*coats;
-      $c("paintLitres").textContent=moneyless(litres)+" L";
-      $c("paintPurchase").textContent=moneyless(litres*1.10)+" L";
-    }
-  }
-  function selectCalc(name){
-    if(!panels[name])return;
-    current=name;
-    Object.keys(panels).forEach(k=>panels[k].classList.toggle("hidden",k!==name));
-    document.querySelectorAll(".calculator-tool-card").forEach(b=>b.classList.toggle("active",b.dataset.calc===name));
-    if($c("calculatorTitle"))$c("calculatorTitle").textContent=titles[name];
-    calculate();
-  }
-  document.querySelectorAll(".calculator-tool-card").forEach(b=>b.addEventListener("click",()=>selectCalc(b.dataset.calc)));
-  $c("calculatorCalculateBtn")?.addEventListener("click",calculate);
-  $c("calculatorResetBtn")?.addEventListener("click",()=>{
-    document.querySelectorAll("#calculatorPage input").forEach(i=>{if(i.id==="concreteLength")i.value=10;if(i.id==="concreteWidth")i.value=5;if(i.id==="concreteThickness")i.value=.15;if(i.id==="steelDiameter")i.value=12;if(i.id==="steelLength")i.value=100;if(i.id==="steelQty")i.value=1;if(i.id==="blockLength")i.value=10;if(i.id==="blockHeight")i.value=3;if(i.id==="blockArea")i.value=.08;if(i.id==="paintArea")i.value=100;if(i.id==="paintCoverage")i.value=10;if(i.id==="paintCoats")i.value=2});
-    calculate();
-  });
-  function converters(){
-    const m=n("metersInput"), s=n("sqmInput"), kg=n("kgInput");
-    $c("feetResult").textContent=$c("metersInput").value!==""?(m*3.28084).toFixed(2)+" ft":"—";
-    $c("sqftResult").textContent=$c("sqmInput").value!==""?(s*10.7639).toFixed(2)+" ft²":"—";
-    $c("lbResult").textContent=$c("kgInput").value!==""?(kg*2.20462).toFixed(2)+" lb":"—";
-  }
-  ["metersInput","sqmInput","kgInput"].forEach(id=>$c(id)?.addEventListener("input",converters));
-  window.addEventListener("load",()=>{calculate();});
-})();
-</script> 
 </body>
 <script id="liwo-admin-report-final-fix">
 (function(){
