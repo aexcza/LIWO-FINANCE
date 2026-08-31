@@ -1097,213 +1097,6 @@ th{background:#f3f7f9;color:#4e6678;letter-spacing:.045em;text-transform:upperca
 @media print{.liwo-report-records-footer{display:block!important;margin-top:8px!important;padding-top:5px!important;font-size:7.5px!important;break-inside:avoid!important;page-break-inside:avoid!important}}
 </style>
 
-<style id="liwo-legacy-operational-space-fix">
-/* Keep operational pages compact. No page should reserve viewport-sized blank space. */
-.page,
-.page.active,
-#toolsPage,
-#cashPage,
-#receiptsPage{
-  height:auto!important;
-  min-height:0!important;
-  max-height:none!important;
-  overflow:visible!important;
-  flex:none!important;
-}
-#toolsPage > *,
-#cashPage > *,
-#receiptsPage > *{
-  height:auto!important;
-  min-height:0!important;
-}
-#toolsPage .panel,
-#cashPage .panel,
-#receiptsPage .panel{
-  height:auto!important;
-  min-height:0!important;
-}
-#toolsPage .table-wrap,
-#cashPage .table-wrap,
-#receiptsPage .table-wrap{
-  height:auto!important;
-  min-height:0!important;
-  max-height:none!important;
-}
-#toolsPage .table-wrap tbody,
-#cashPage .table-wrap tbody,
-#receiptsPage .table-wrap tbody{
-  height:auto!important;
-  min-height:0!important;
-}
-#toolsPage .receipt-grid,
-#receiptsPage .receipt-grid{
-  height:auto!important;
-  min-height:0!important;
-}
-/* Hide every non-active page even if an older script left an inline display value. */
-.page.hidden:not(.active){display:none!important}
-.page.active{display:block!important}
-</style>
-
-
-<style id="liwo-legacy-operational-spacing-admin-guard">
-/* Compact operational pages: remove the oversized vertical gaps on both desktop and mobile. */
-#toolsPage, #cashPage, #receiptsPage{
-  height:auto!important; min-height:0!important; padding-bottom:0!important;
-}
-#toolsPage .page-heading, #receiptsPage .page-heading{margin:4px 0 12px!important;}
-#cashPage .page-header{margin:4px 0 12px!important;}
-#toolsPage .panel, #cashPage .panel, #receiptsPage .panel{margin-bottom:12px!important;}
-#toolsPage .panel-head, #cashPage .panel-head, #receiptsPage .panel-head{padding:13px 16px!important;}
-#toolsPage .grid{padding:14px!important;gap:10px!important;}
-#toolsPage .table-wrap{padding-bottom:0!important;}
-#cashPage .cash-balance-grid{gap:10px!important;margin-bottom:10px!important;}
-#cashPage .cash-balance-card{padding:13px!important;}
-#cashPage .card{padding:14px!important;}
-#cashPage .reconciliation-panel{margin-bottom:12px!important;}
-#receiptsPage .panel[style*="margin-top"]{margin-top:10px!important;}
-#receiptsPage .receipt-toolbar{padding:12px!important;}
-#receiptsPage .receipt-grid{padding:10px!important;gap:10px!important;}
-
-/* User Management must not be visible to Finance / LIWO Executive accounts. */
-body:not(.liwo-admin-session) #usersNav,
-body:not(.liwo-admin-session) #mobileUsersNav,
-body:not(.liwo-admin-session) #usersPage{display:none!important;}
-@media(max-width:900px){
-  #toolsPage .page-heading, #receiptsPage .page-heading{margin:2px 0 10px!important;}
-  #cashPage .page-header{margin:2px 0 10px!important;}
-  #toolsPage .panel, #cashPage .panel, #receiptsPage .panel{margin-bottom:10px!important;}
-  #toolsPage .grid{padding:12px!important;gap:9px!important;}
-  #cashPage .cash-balance-grid{gap:8px!important;margin-bottom:9px!important;}
-  #cashPage .cash-balance-card{padding:11px!important;}
-  #cashPage .card{padding:12px!important;}
-  #receiptsPage .receipt-toolbar{padding:10px!important;}
-  #receiptsPage .receipt-grid{padding:8px!important;gap:8px!important;}
-}
-</style>
-
-<style id="liwo-legacy-tight-operational-pages">
-/* FINAL: eliminate excess vertical whitespace on operational pages. */
-#toolsPage,#cashPage,#receiptsPage{
-  margin:0!important;padding:0!important;height:auto!important;min-height:0!important;
-}
-/* The global topbar reserves extra space below itself. These pages do not need it. */
-main:has(#toolsPage.active) .topbar,
-main:has(#cashPage.active) .topbar,
-main:has(#receiptsPage.active) .topbar{margin-bottom:8px!important;}
-#toolsPage .page-heading,#receiptsPage .page-heading,
-#cashPage .page-header{margin:0 0 8px!important;padding:0!important;}
-#toolsPage .page-heading h2,#receiptsPage .page-heading h2,
-#cashPage .page-header h1{margin:0!important;}
-#toolsPage .panel,#cashPage .card,#cashPage .panel,#receiptsPage .panel{
-  margin-top:0!important;margin-bottom:8px!important;
-}
-#toolsPage .panel-head,#cashPage .panel-head,#receiptsPage .panel-head{
-  padding:10px 14px!important;min-height:0!important;
-}
-#toolsPage .grid{padding:10px!important;gap:8px!important;}
-#toolsPage .table-wrap{padding:0!important;margin:0!important;}
-#toolsPage .table-wrap table{margin:0!important;}
-#cashPage .cash-balance-grid{gap:8px!important;margin:0 0 8px!important;}
-#cashPage .cash-balance-card{padding:10px!important;}
-#cashPage .card{padding:11px!important;}
-#cashPage .card h2{margin:0 0 5px!important;}
-#cashPage .cash-update-copy{margin:0 0 8px!important;}
-#cashPage .cash-balance-actions{gap:8px!important;}
-#cashPage .reconciliation-panel{margin-top:0!important;margin-bottom:8px!important;}
-#cashPage .reconciliation-panel .grid{padding:10px!important;gap:8px!important;}
-#receiptsPage .panel[style*="margin-top"]{margin-top:0!important;}
-#receiptsPage .receipt-toolbar{padding:8px!important;}
-#receiptsPage .receipt-grid{padding:8px!important;gap:8px!important;}
-#receiptsPage .receipt-empty{padding:20px!important;}
-@media(max-width:900px){
-  main:has(#toolsPage.active) .topbar,
-  main:has(#cashPage.active) .topbar,
-  main:has(#receiptsPage.active) .topbar{margin-bottom:6px!important;}
-  #toolsPage .page-heading,#receiptsPage .page-heading,#cashPage .page-header{margin:0 0 6px!important;}
-  #toolsPage .panel,#cashPage .card,#cashPage .panel,#receiptsPage .panel{margin-bottom:6px!important;}
-  #toolsPage .grid{padding:9px!important;gap:7px!important;}
-  #cashPage .cash-balance-grid{gap:7px!important;margin-bottom:7px!important;}
-  #cashPage .cash-balance-card{padding:9px!important;}
-  #cashPage .card{padding:10px!important;}
-  #cashPage .reconciliation-panel .grid{padding:9px!important;gap:7px!important;}
-  #receiptsPage .receipt-toolbar{padding:7px!important;}
-  #receiptsPage .receipt-grid{padding:7px!important;gap:7px!important;}
-}
-</style>
-
-<style id="liwo-legacy-absolute-operational-spacing-fix">
-/* FINAL OPERATIONAL PAGE FIX — compact layout with no reserved blank viewport space */
-#toolsPage.active, #cashPage.active, #receiptsPage.active{
-  display:block!important;
-  position:relative!important;
-  height:auto!important;
-  min-height:0!important;
-  max-height:none!important;
-  margin:0!important;
-  padding:0!important;
-  overflow:visible!important;
-}
-#toolsPage.active > *, #cashPage.active > *, #receiptsPage.active > *{
-  position:relative!important;
-  height:auto!important;
-  min-height:0!important;
-  max-height:none!important;
-}
-#toolsPage.active .page-heading, #receiptsPage.active .page-heading, #cashPage.active .page-header{
-  margin:0 0 8px!important;
-  padding:0!important;
-  height:auto!important;
-  min-height:0!important;
-}
-#toolsPage.active .page-heading h2, #receiptsPage.active .page-heading h2, #cashPage.active .page-header h1{
-  margin:0 0 3px!important;
-}
-#toolsPage.active .panel, #cashPage.active .panel, #cashPage.active .card, #receiptsPage.active .panel{
-  margin-top:0!important;
-  margin-bottom:8px!important;
-  height:auto!important;
-  min-height:0!important;
-}
-#toolsPage.active .panel-head, #cashPage.active .panel-head, #receiptsPage.active .panel-head{
-  padding:10px 14px!important;
-  min-height:0!important;
-}
-#toolsPage.active .grid{padding:10px!important;gap:8px!important}
-#toolsPage.active .table-wrap, #cashPage.active .table-wrap, #receiptsPage.active .table-wrap{
-  height:auto!important;min-height:0!important;max-height:none!important;padding:0!important;margin:0!important;
-}
-#toolsPage.active .table-wrap table{margin:0!important}
-#cashPage.active .cash-balance-grid{
-  display:grid!important;
-  height:auto!important;min-height:0!important;
-  margin:0 0 8px!important;gap:8px!important;
-}
-#cashPage.active .cash-balance-card{height:auto!important;min-height:0!important;padding:10px!important}
-#cashPage.active .cash-balance-value{margin-top:4px!important}
-#cashPage.active .card{padding:11px!important}
-#cashPage.active .card h2{margin:0 0 5px!important}
-#cashPage.active .cash-update-copy{margin:0 0 8px!important}
-#cashPage.active .cash-balance-actions{gap:8px!important}
-#cashPage.active .reconciliation-panel{margin:0 0 8px!important}
-#cashPage.active .reconciliation-panel .grid{padding:10px!important;gap:8px!important}
-#receiptsPage.active .receipt-toolbar{padding:8px!important}
-#receiptsPage.active .receipt-grid{height:auto!important;min-height:0!important;padding:8px!important;gap:8px!important}
-#receiptsPage.active .receipt-empty{padding:20px!important}
-/* The global project scope duplicates the project selector on these operational pages. Hide it here so it cannot create unnecessary vertical space. */
-body.liwO-operational-page #globalProjectScope{display:none!important}
-@media(max-width:900px){
-  #toolsPage.active .panel, #cashPage.active .panel, #cashPage.active .card, #receiptsPage.active .panel{margin-bottom:6px!important}
-  #toolsPage.active .grid{padding:9px!important;gap:7px!important}
-  #cashPage.active .cash-balance-grid{gap:7px!important;margin-bottom:7px!important}
-  #cashPage.active .cash-balance-card{padding:9px!important}
-  #cashPage.active .card{padding:10px!important}
-  #cashPage.active .reconciliation-panel .grid{padding:9px!important;gap:7px!important}
-  #receiptsPage.active .receipt-toolbar{padding:7px!important}
-  #receiptsPage.active .receipt-grid{padding:7px!important;gap:7px!important}
-}
-</style>
-
 <style id="liwo-legacy-responsive-layout">
 /* LIWO final responsive layout correction */
 html,body{margin:0!important;width:100%!important;max-width:100%!important;min-width:0!important;overflow-x:clip!important}
@@ -1364,94 +1157,6 @@ html,body{margin:0!important;width:100%!important;max-width:100%!important;min-w
 
 /* Never reserve a tall blank area for an empty data table. */
 tbody:empty{display:none!important}
-</style>
-
-<style id="liwo-desktop-operational-layout">
-/* AUTHORITATIVE DESKTOP LAYOUT
-   Construction Tools, Cash Position and Receipts use natural content height.
-   This intentionally does not affect the mobile frontend. */
-@media (min-width:901px){
-  #toolsPage.active,
-  #cashPage.active,
-  #receiptsPage.active{
-    display:block!important;
-    height:auto!important;
-    min-height:0!important;
-    max-height:none!important;
-    margin:0!important;
-    padding:0!important;
-    position:relative!important;
-    overflow:visible!important;
-  }
-
-  #toolsPage.active > *,
-  #cashPage.active > *,
-  #receiptsPage.active > *,
-  #toolsPage.active .panel,
-  #cashPage.active .panel,
-  #cashPage.active .card,
-  #receiptsPage.active .panel,
-  #toolsPage.active .table-wrap,
-  #cashPage.active .table-wrap,
-  #receiptsPage.active .table-wrap,
-  #toolsPage.active .receipt-grid,
-  #receiptsPage.active .receipt-grid{
-    height:auto!important;
-    min-height:0!important;
-    max-height:none!important;
-  }
-
-  #toolsPage.active .page-heading,
-  #receiptsPage.active .page-heading,
-  #cashPage.active .page-header{
-    margin:0 0 10px!important;
-    padding:0!important;
-    height:auto!important;
-    min-height:0!important;
-  }
-
-  #toolsPage.active .panel,
-  #cashPage.active .panel,
-  #cashPage.active .card,
-  #receiptsPage.active .panel{
-    margin-top:0!important;
-    margin-bottom:10px!important;
-  }
-
-  #toolsPage.active .panel-head,
-  #cashPage.active .panel-head,
-  #receiptsPage.active .panel-head{
-    min-height:0!important;
-  }
-
-  #toolsPage.active .grid{
-    height:auto!important;
-    min-height:0!important;
-  }
-
-  #toolsPage.active .table-wrap,
-  #cashPage.active .table-wrap,
-  #receiptsPage.active .table-wrap{
-    overflow-x:auto!important;
-    overflow-y:visible!important;
-  }
-
-  #cashPage.active .cash-balance-grid{
-    height:auto!important;
-    min-height:0!important;
-    margin-bottom:10px!important;
-  }
-
-  #cashPage.active .cash-balance-card{
-    height:auto!important;
-    min-height:0!important;
-  }
-
-  #receiptsPage.active .receipt-grid{
-    height:auto!important;
-    min-height:0!important;
-  }
-}
 </style>
 
 
@@ -1966,16 +1671,10 @@ tbody:empty{display:none!important}
       <div class="muted">Track construction tools, borrowers, projects, and return dates.</div>
     </div>
   </div>
-<div class="page-heading">
-    <div>
-      <h2>Construction Tools</h2>
-      <div class="muted">Track construction tools, borrowers, projects, and return dates.</div>
-    </div>
-  </div>
 
   <div class="panel">
     <div class="panel-head"><h3>Record Tool Borrowing</h3></div>
-    <form id="toolForm" class="grid">
+    <form id="toolForm" class="grid" style="padding:15px">
       <div>
         <label>Tool / Equipment</label>
         <input name="tool" id="toolName" placeholder="e.g. Rotary Hammer" required>
@@ -2004,7 +1703,7 @@ tbody:empty{display:none!important}
         <label>Notes</label>
         <input name="notes" id="toolNotes" placeholder="Condition, accessories, remarks, etc.">
       </div>
-      <div class="wide">
+      <div class="wide" style="display:flex;gap:8px">
         <button class="primary" type="submit">Save Borrowing Record</button>
         <button class="secondary" type="button" id="toolClearBtn">Clear</button>
       </div>
@@ -2021,15 +1720,10 @@ tbody:empty{display:none!important}
     </div>
   </div>
 </section>
-
 <section class="page hidden" id="cashPage" data-page-section="cash">
-  <div class="page-heading">
-    <div>
-      <h2>Cash Position</h2>
-      <div class="muted">Track the actual money currently held in the bank and on hand.</div>
-    </div>
+  <div class="page-header">
+    <div><h1>Cash Position</h1><p>Track the actual money currently held in the bank and on hand.</p></div>
   </div>
-</div>
   <div class="cash-balance-grid">
     <div class="cash-balance-card">
       <div class="cash-balance-label">Bank Balance</div>
@@ -2053,11 +1747,9 @@ tbody:empty{display:none!important}
       <button class="btn" type="button" id="saveCashBalanceBtn">Update Cash Position</button>
     </div>
   </div>
-<div class="panel reconciliation-panel" id="cashReconciliationPanel"><div class="panel-head"><div><h3>Cash Reconciliation</h3><span class="muted">Compare recorded cash with actual balances.</span></div></div><div class="grid"><label>Actual Bank Balance<input id="reconcileBank" type="number" min="0" step="0.01" placeholder="0.00"></label><label>Actual Cash On Hand<input id="reconcileCash" type="number" min="0" step="0.01" placeholder="0.00"></label><label class="wide">Notes<textarea id="reconcileNotes" placeholder="Explain any variance."></textarea></label><div class="wide reconciliation-result" id="reconciliationResult">No reconciliation performed yet.</div><div class="wide"><button class="btn" type="button" id="reconcileCashBtn">Reconcile Cash</button></div></div></div>
-</section>
-
+<div class="panel reconciliation-panel" id="cashReconciliationPanel"><div class="panel-head"><div><h3>Cash Reconciliation</h3><span class="muted">Compare recorded cash with actual balances.</span></div></div><div class="grid"><label>Actual Bank Balance<input id="reconcileBank" type="number" min="0" step="0.01" placeholder="0.00"></label><label>Actual Cash On Hand<input id="reconcileCash" type="number" min="0" step="0.01" placeholder="0.00"></label><label class="wide">Notes<textarea id="reconcileNotes" placeholder="Explain any variance."></textarea></label><div class="wide reconciliation-result" id="reconciliationResult">No reconciliation performed yet.</div><div class="wide"><button class="btn" type="button" id="reconcileCashBtn">Reconcile Cash</button></div></div></div></section>
 <section class="page hidden" id="receiptsPage" data-page-section="receipts">
-<div class="page-heading">
+  <div class="page-heading">
     <div>
       <h2>Receipts</h2>
       <div class="muted">View attached receipts by project or browse the complete receipt library.</div>
@@ -2065,7 +1757,7 @@ tbody:empty{display:none!important}
   </div>
 
   <div class="panel">
-    <div class="receipt-toolbar">
+    <div class="receipt-toolbar" style="padding:15px">
       <div>
         <label>Project / Receipt Folder</label>
         <div class="receipt-enhanced-controls"><input id="receiptSearchInput" type="search" placeholder="Search receipt name, project…"><select id="receiptStatusFilter"><option value="">All Statuses</option><option>Pending</option><option>Verified</option><option>Rejected</option></select></div><select id="receiptProjectFilter">
@@ -2076,7 +1768,7 @@ tbody:empty{display:none!important}
     </div>
   </div>
 
-  <div class="panel">
+  <div class="panel" style="margin-top:12px">
     <div class="panel-head">
       <div><h3 id="receiptCount">Receipts</h3><span id="receiptStats" class="muted"></span></div>
     </div>
@@ -2085,7 +1777,6 @@ tbody:empty{display:none!important}
     </div>
   </div>
 </section>
-
 </main>
 <div class="mobile-nav">
   <button data-page="dashboard" class="active"><span>⌂</span><small>Home</small></button>
@@ -2499,35 +2190,6 @@ function printReport(){
   const printClass=(period==='week'?'weekly-print ':'')+(period==='week'?(printOrientation==='portrait'?'weekly-portrait':'weekly-landscape'):(period==='month'?'monthly-print':'full-print'));
   const printWrap=period==='week'?'weekly-one-page':(period==='month'?'monthly-one-page':'full-one-page');
   w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>LIWO Financial Report</title><style>${styles}\n${css}</style>
-<style id="liwo-clean-operational-desktop-fix">
-@media (min-width:901px){
-  /* Keep the three operational pages compact on desktop. */
-  #toolsPage.active, #cashPage.active, #receiptsPage.active{
-    display:block!important; position:relative!important;
-    height:auto!important; min-height:0!important; max-height:none!important;
-    margin:0!important; padding:0!important; overflow:visible!important;
-  }
-  #toolsPage.active > *, #cashPage.active > *, #receiptsPage.active > *{
-    height:auto!important; min-height:0!important; max-height:none!important;
-  }
-  #toolsPage.active .page-heading, #receiptsPage.active .page-heading, #cashPage.active .page-header{
-    margin:0 0 10px!important; padding:0!important; height:auto!important; min-height:0!important;
-  }
-  #toolsPage.active .panel, #cashPage.active .panel, #cashPage.active .card, #receiptsPage.active .panel{
-    height:auto!important; min-height:0!important; margin-top:0!important; margin-bottom:10px!important;
-  }
-  #toolsPage.active .grid{padding:14px!important; gap:12px!important;}
-  #toolsPage.active .table-wrap, #cashPage.active .table-wrap, #receiptsPage.active .table-wrap{
-    height:auto!important; min-height:0!important; max-height:none!important; margin:0!important;
-  }
-  #cashPage.active .cash-balance-grid{height:auto!important; min-height:0!important; margin:0 0 10px!important; gap:10px!important;}
-  #cashPage.active .cash-balance-card{height:auto!important; min-height:0!important;}
-  #receiptsPage.active .receipt-toolbar{padding:10px!important;}
-  #receiptsPage.active .receipt-grid{height:auto!important; min-height:0!important; padding:10px!important; gap:10px!important;}
-  /* The desktop topbar keeps its normal height, but these pages start immediately after it. */
-  main:has(#toolsPage.active) .topbar, main:has(#cashPage.active) .topbar, main:has(#receiptsPage.active) .topbar{margin-bottom:14px!important;}
-}
-</style>
 </head><body class="${printClass}"><div class="${printWrap}">${source.outerHTML}
 <div class="report-signature-section" id="reportSignatureSection">
   <h3>Reviewed and Approved by:</h3>
@@ -3152,35 +2814,6 @@ document.addEventListener("DOMContentLoaded",()=>{
     const st=document.createElement('style');st.id='liwoDynamicPrintStyle';st.textContent='@page{size:'+s.size+' '+s.orientation+';margin:8mm}';document.head.appendChild(st);
   };
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',window.bindLIWOPrintControls);else window.bindLIWOPrintControls();
-})();
-</script>
-<script id="liwo-operational-page-guard">
-(function(){
-  function sync(){
-    var active=document.querySelector('.page.active');
-    var operational=!!active && /^(toolsPage|cashPage|receiptsPage)$/.test(active.id);
-    document.body.classList.toggle('liwO-operational-page',operational);
-    ['toolsPage','cashPage','receiptsPage'].forEach(function(id){
-      var el=document.getElementById(id);
-      if(!el)return;
-      if(el.classList.contains('active')){
-        el.style.display='block';
-        el.style.height='auto';
-        el.style.minHeight='0';
-        el.style.margin='0';
-        el.style.padding='0';
-      }else{
-        el.style.display='none';
-      }
-    });
-  }
-  document.addEventListener('DOMContentLoaded',function(){
-    sync();
-    document.querySelectorAll('.nav button,.mobile-nav button').forEach(function(btn){
-      btn.addEventListener('click',function(){setTimeout(sync,20);setTimeout(sync,150);});
-    });
-  });
-  window.addEventListener('load',sync);
 })();
 </script>
 </body>
