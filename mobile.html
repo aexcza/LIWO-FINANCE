@@ -2192,7 +2192,7 @@ function renderNotifications(){
   const activities=Array.isArray(data?.activity)?data.activity:[];
   const serverMode=activities.some(x=>Object.prototype.hasOwnProperty.call(x,"unread"));
   const readIds=new Set(getReadNotificationIds());
-  const notifications=activities.map(x=>({x,id:notificationId(x),unread:serverMode?!!x.unread:!readIds.has(notificationId(x))}));
+  const notifications=activities.map(x=>({x,id:notificationId(x),unread:serverMode?!!x.unread:!readIds.has(notificationId(x))})).sort((a,b)=>{const ta=new Date(a.x?.timestamp||a.x?.createdAt||a.x?.updatedAt||0).getTime()||0;const tb=new Date(b.x?.timestamp||b.x?.createdAt||b.x?.updatedAt||0).getTime()||0;return tb-ta;});
   const unread=serverMode&&Number.isFinite(Number(data.serverUnreadCount))
     ?Number(data.serverUnreadCount)
     :notifications.filter(n=>n.unread).length;
