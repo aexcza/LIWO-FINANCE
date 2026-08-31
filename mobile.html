@@ -1381,6 +1381,37 @@ body.lw-admin #executivePage .exec-report-admin-only{display:block!important}
 #cashPage tbody,#receiptsPage tbody,#toolsPage tbody{height:auto!important;min-height:0!important;}
 tbody:empty{display:none!important;}
 </style>
+
+<style id="liwo-calculator-section">
+.calculator-hero{display:flex;justify-content:space-between;align-items:center;gap:24px;padding:22px 24px;margin-bottom:14px;border:1px solid var(--line,#dce5eb);border-radius:16px;background:linear-gradient(135deg,#fff,#f4f9fb);box-shadow:0 10px 26px rgba(11,34,57,.06)}
+.calculator-hero-copy{display:flex;align-items:center;gap:16px}
+.calculator-hero-copy h3{margin:0 0 5px;color:var(--ink,#132e46);font-size:20px}
+.calculator-hero-copy p{margin:0;color:var(--muted,#6e7f8f);max-width:620px}
+.calculator-hero-icon{width:58px;height:58px;border-radius:15px;display:grid;place-items:center;font-size:28px;background:#eaf4fa;color:#1d6d9e;border:1px solid #d5e7f0}
+.calculator-categories{display:flex;border:1px solid var(--line,#dce5eb);border-radius:12px;overflow:hidden;background:#fff}
+.calculator-categories span{min-width:90px;padding:12px 14px;text-align:center;border-right:1px solid var(--line,#dce5eb);font-size:11px;color:var(--muted,#6e7f8f)}
+.calculator-categories span:last-child{border-right:0}.calculator-categories b{display:block;font-size:14px;color:var(--ink,#132e46);margin-bottom:3px}
+.calculator-layout{display:grid;grid-template-columns:minmax(430px,1.1fr) minmax(430px,1fr);gap:14px}
+.calculator-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:2px}
+.calculator-tool-card{min-height:125px;padding:16px;text-align:left;border:1px solid var(--line,#dce5eb);border-radius:13px;background:#fff;cursor:pointer;transition:.16s;display:flex;flex-direction:column;align-items:flex-start;gap:7px}
+.calculator-tool-card:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(11,34,57,.07)}
+.calculator-tool-card.active{border-color:#76b8dd;box-shadow:inset 0 0 0 1px #76b8dd;background:#f6fbfe}
+.calc-icon{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;background:#eaf4fa;color:#1d6d9e;font-size:18px}
+.calculator-tool-card strong{font-size:14px;color:var(--ink,#132e46)}.calculator-tool-card small{font-size:11px;color:var(--muted,#6e7f8f)}
+.calculator-workspace{min-width:0}.calculator-chip{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;padding:6px 9px;border-radius:999px;background:#eef8f2;color:#16835b}
+.calc-fields{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:4px 0 14px}.calc-fields label,.converter-grid label{font-size:11px;font-weight:700;color:var(--ink,#132e46)}
+.calc-fields input,.converter-grid input{width:100%;margin-top:6px;box-sizing:border-box}
+.calc-result{display:grid;grid-template-columns:1fr 1fr;border-radius:13px;background:#eff8f3;border:1px solid #dceee4;overflow:hidden}
+.calc-result div{padding:20px;border-right:1px solid #dceee4}.calc-result div:last-child{border-right:0}
+.calc-result span{display:block;font-size:11px;color:var(--muted,#6e7f8f);margin-bottom:8px}.calc-result strong{font-size:25px;color:#16835b}
+.calculator-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
+.calculator-bottom-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:14px;margin-top:14px}
+.converter-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.converter-grid label{padding:12px;border:1px solid var(--line,#dce5eb);border-radius:11px;background:#fff}.converter-grid strong{display:block;margin-top:8px;color:#16835b;font-size:13px}
+.reference-list{display:grid;gap:10px}.reference-list div{display:grid;grid-template-columns:32px 1fr;column-gap:9px;align-items:center;padding:9px;border-bottom:1px solid #edf1f4}.reference-list span{grid-row:span 2;width:30px;height:30px;display:grid;place-items:center;border-radius:8px;background:#eaf4fa;color:#1d6d9e}.reference-list strong{font-size:12px}.reference-list small{font-size:10px;color:var(--muted,#6e7f8f)}
+@media(max-width:900px){.calculator-hero{display:block;padding:18px}.calculator-categories{margin-top:14px;display:grid;grid-template-columns:repeat(2,1fr)}.calculator-categories span{border-right:1px solid var(--line,#dce5eb);border-bottom:1px solid var(--line,#dce5eb)}.calculator-layout,.calculator-bottom-grid{grid-template-columns:1fr}.calculator-grid{grid-template-columns:1fr 1fr}.calc-fields,.converter-grid{grid-template-columns:1fr}.calc-result strong{font-size:21px}}
+@media(max-width:520px){.calculator-grid{grid-template-columns:1fr}.calculator-hero-copy{align-items:flex-start}.calculator-hero-icon{flex:0 0 48px;width:48px;height:48px}.calc-result{grid-template-columns:1fr}.calc-result div{border-right:0;border-bottom:1px solid #dceee4}.calc-result div:last-child{border-bottom:0}}
+</style>
+
 </head>
 <body>
 <div id="liwoLoadingOverlay" aria-hidden="true">
@@ -1526,7 +1557,7 @@ tbody:empty{display:none!important;}
 <button data-page="budget">Budget vs Actual</button>
 <button data-page="activity">Activity Log</button>
 <button data-page="clients" id="clientsNav">Clients / Projects</button>
-<button data-page="tools"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m14.7 6.3 3-3a5 5 0 0 0 0 7.1l-8.4 8.4a2.1 2.1 0 1 1-3-3l8.4-8.4a5 5 0 0 0 7.1 0l-3 3"/><path d="m5 5 4 4"/><path d="m4 4 1 1"/></svg></span><span>Construction Tools</span></button>
+<button data-page="tools"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m14.7 6.3 3-3a5 5 0 0 0 0 7.1l-8.4 8.4a2.1 2.1 0 1 1-3-3l8.4-8.4a5 5 0 0 0 7.1 0l-3 3"/><path d="m5 5 4 4"/><path d="m4 4 1 1"/></svg></span><span>Construction Tools</span></button><button data-page="calculator"><span class="nav-icon" aria-hidden="true">▦</span><span>Calculator</span></button>
 <button type="button" data-page="cash">💰 <span>Cash Position</span></button>
 <button type="button" data-page="receipts" id="receiptsNav"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Z"/><path d="M9 7h6M9 11h6M9 15h4"/></svg></span><span>Receipts</span></button>
 <button data-page="reports" id="reportsNav">Reports / Export</button>
@@ -1790,6 +1821,132 @@ tbody:empty{display:none!important;}
 </section>
 
 
+
+<section class="page hidden" id="calculatorPage" data-page-section="calculator">
+  <div class="page-heading">
+    <div>
+      <h2>Calculator</h2>
+      <div class="muted">Practical construction calculators for quick material and quantity estimates.</div>
+    </div>
+  </div>
+
+  <div class="calculator-hero">
+    <div class="calculator-hero-copy">
+      <div class="calculator-hero-icon">▦</div>
+      <div>
+        <h3>Construction Calculators</h3>
+        <p>Calculate quantities quickly while keeping the existing LIWO dashboard layout and navigation intact.</p>
+      </div>
+    </div>
+    <div class="calculator-categories">
+      <span><b>4</b> Calculators</span>
+      <span><b>m³</b> Concrete</span>
+      <span><b>kg</b> Steel</span>
+      <span><b>pcs</b> Blocks</span>
+    </div>
+  </div>
+
+  <div class="calculator-layout">
+    <div class="panel">
+      <div class="panel-head"><h3>All Calculators</h3></div>
+      <div class="calculator-grid">
+        <button type="button" class="calculator-tool-card active" data-calc="concrete">
+          <span class="calc-icon">▣</span><strong>Concrete Calculator</strong>
+          <small>Volume and cement estimate</small>
+        </button>
+        <button type="button" class="calculator-tool-card" data-calc="steel">
+          <span class="calc-icon">↗</span><strong>Steel Calculator</strong>
+          <small>Weight from length and size</small>
+        </button>
+        <button type="button" class="calculator-tool-card" data-calc="block">
+          <span class="calc-icon">▦</span><strong>Block Calculator</strong>
+          <small>Wall blocks and allowance</small>
+        </button>
+        <button type="button" class="calculator-tool-card" data-calc="paint">
+          <span class="calc-icon">▰</span><strong>Paint Calculator</strong>
+          <small>Coverage and litres required</small>
+        </button>
+      </div>
+    </div>
+
+    <div class="panel calculator-workspace">
+      <div class="panel-head"><h3 id="calculatorTitle">Concrete Calculator</h3><span class="calculator-chip">Quick Estimate</span></div>
+
+      <div id="calcConcrete" class="calc-form">
+        <div class="calc-fields">
+          <label>Length (m)<input id="concreteLength" type="number" min="0" step="0.01" value="10"></label>
+          <label>Width (m)<input id="concreteWidth" type="number" min="0" step="0.01" value="5"></label>
+          <label>Thickness (m)<input id="concreteThickness" type="number" min="0" step="0.01" value="0.15"></label>
+        </div>
+        <div class="calc-result">
+          <div><span>Concrete Volume</span><strong id="concreteVolume">7.50 m³</strong></div>
+          <div><span>Estimated Cement (40kg)</span><strong id="concreteCement">38 bags</strong></div>
+        </div>
+      </div>
+
+      <div id="calcSteel" class="calc-form hidden">
+        <div class="calc-fields">
+          <label>Bar Diameter (mm)<input id="steelDiameter" type="number" min="1" step="1" value="12"></label>
+          <label>Total Length (m)<input id="steelLength" type="number" min="0" step="0.1" value="100"></label>
+          <label>Quantity<input id="steelQty" type="number" min="1" step="1" value="1"></label>
+        </div>
+        <div class="calc-result">
+          <div><span>Estimated Weight</span><strong id="steelWeight">88.80 kg</strong></div>
+          <div><span>Formula</span><strong id="steelFormula">d² ÷ 162 × length</strong></div>
+        </div>
+      </div>
+
+      <div id="calcBlock" class="calc-form hidden">
+        <div class="calc-fields">
+          <label>Wall Length (m)<input id="blockLength" type="number" min="0" step="0.1" value="10"></label>
+          <label>Wall Height (m)<input id="blockHeight" type="number" min="0" step="0.1" value="3"></label>
+          <label>Block Face Area (m²)<input id="blockArea" type="number" min="0.001" step="0.001" value="0.08"></label>
+        </div>
+        <div class="calc-result">
+          <div><span>Estimated Blocks</span><strong id="blockCount">413 pcs</strong></div>
+          <div><span>Allowance</span><strong>5% waste included</strong></div>
+        </div>
+      </div>
+
+      <div id="calcPaint" class="calc-form hidden">
+        <div class="calc-fields">
+          <label>Surface Area (m²)<input id="paintArea" type="number" min="0" step="0.1" value="100"></label>
+          <label>Coverage (m²/L)<input id="paintCoverage" type="number" min="0.1" step="0.1" value="10"></label>
+          <label>Coats<input id="paintCoats" type="number" min="1" step="1" value="2"></label>
+        </div>
+        <div class="calc-result">
+          <div><span>Paint Required</span><strong id="paintLitres">20.00 L</strong></div>
+          <div><span>Recommended Purchase</span><strong id="paintPurchase">22.00 L</strong></div>
+        </div>
+      </div>
+
+      <div class="calculator-actions">
+        <button type="button" class="secondary" id="calculatorResetBtn">Reset</button>
+        <button type="button" class="primary" id="calculatorCalculateBtn">Calculate</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="calculator-bottom-grid">
+    <div class="panel">
+      <div class="panel-head"><h3>Unit Converters</h3></div>
+      <div class="converter-grid">
+        <label>Metres → Feet<input id="metersInput" type="number" step="0.01" placeholder="Enter metres"><strong id="feetResult">—</strong></label>
+        <label>m² → ft²<input id="sqmInput" type="number" step="0.01" placeholder="Enter m²"><strong id="sqftResult">—</strong></label>
+        <label>kg → lb<input id="kgInput" type="number" step="0.01" placeholder="Enter kg"><strong id="lbResult">—</strong></label>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><h3>Quick References</h3></div>
+      <div class="reference-list">
+        <div><span>▣</span><strong>Concrete mix</strong><small>Use project-approved mix design.</small></div>
+        <div><span>▦</span><strong>Block allowance</strong><small>5% is included in the quick estimate.</small></div>
+        <div><span>↗</span><strong>Steel formula</strong><small>Weight ≈ d² ÷ 162 × length.</small></div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="page hidden" id="toolsPage" data-page-section="tools">
   <div class="page-heading">
     <div>
@@ -1912,7 +2069,7 @@ tbody:empty{display:none!important;}
   <button data-page="expenses"><span>↕</span><small>Funds</small></button>
   <button data-page="activity"><span>▤</span><small>Activity</small></button>
   <button data-page="clients"><span>♙</span><small>Clients</small></button>
-  <button data-page="tools"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m14.7 6.3 3-3a5 5 0 0 0 0 7.1l-8.4 8.4a2.1 2.1 0 1 1-3-3l8.4-8.4a5 5 0 0 0 7.1 0l-3 3"/><path d="m5 5 4 4"/><path d="m4 4 1 1"/></svg></span><small>Tools</small></button>
+  <button data-page="tools"><span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m14.7 6.3 3-3a5 5 0 0 0 0 7.1l-8.4 8.4a2.1 2.1 0 1 1-3-3l8.4-8.4a5 5 0 0 0 7.1 0l-3 3"/><path d="m5 5 4 4"/><path d="m4 4 1 1"/></svg></span><small>Tools</small></button><button data-page="calculator"><span>▦</span><small>Calculator</small></button>
 <button data-page="reports"><span>▤</span><small>Reports</small></button>
   <button data-page="users" id="mobileUsersNav" class="hidden"><span>♧</span><small>Users</small></button>
 </div>
@@ -2361,7 +2518,63 @@ function printReport(){
   </div>
 </div>
 <div class="liwo-report-records-footer" id="liwoReportRecordsFooter">GENERATED FROM LIWO FINANCE</div>
-</div></body></html>`);
+</div>
+<script id="liwo-calculator-script">
+(function(){
+  const $c=id=>document.getElementById(id);
+  const panels={concrete:$c("calcConcrete"),steel:$c("calcSteel"),block:$c("calcBlock"),paint:$c("calcPaint")};
+  const titles={concrete:"Concrete Calculator",steel:"Steel Calculator",block:"Block Calculator",paint:"Paint Calculator"};
+  let current="concrete";
+  function n(id, fallback=0){const v=parseFloat($c(id)?.value);return Number.isFinite(v)?v:fallback}
+  function moneyless(v,dec=2){return Number(v||0).toFixed(dec)}
+  function calculate(){
+    if(current==="concrete"){
+      const volume=n("concreteLength")*n("concreteWidth")*n("concreteThickness");
+      const bags=Math.ceil(volume*5);
+      $c("concreteVolume").textContent=moneyless(volume)+" m³";
+      $c("concreteCement").textContent=bags+" bags";
+    }else if(current==="steel"){
+      const d=n("steelDiameter"), length=n("steelLength"), qty=Math.max(1,n("steelQty",1));
+      const weight=(d*d/162)*length*qty;
+      $c("steelWeight").textContent=moneyless(weight)+" kg";
+      $c("steelFormula").textContent="d² ÷ 162 × length × qty";
+    }else if(current==="block"){
+      const area=n("blockLength")*n("blockHeight"), face=n("blockArea");
+      const count=Math.ceil((area/Math.max(face,.001))*1.05);
+      $c("blockCount").textContent=count.toLocaleString()+" pcs";
+    }else{
+      const area=n("paintArea"), coverage=Math.max(n("paintCoverage"),.1), coats=Math.max(1,n("paintCoats",1));
+      const litres=(area/coverage)*coats;
+      $c("paintLitres").textContent=moneyless(litres)+" L";
+      $c("paintPurchase").textContent=moneyless(litres*1.10)+" L";
+    }
+  }
+  function selectCalc(name){
+    if(!panels[name])return;
+    current=name;
+    Object.keys(panels).forEach(k=>panels[k].classList.toggle("hidden",k!==name));
+    document.querySelectorAll(".calculator-tool-card").forEach(b=>b.classList.toggle("active",b.dataset.calc===name));
+    if($c("calculatorTitle"))$c("calculatorTitle").textContent=titles[name];
+    calculate();
+  }
+  document.querySelectorAll(".calculator-tool-card").forEach(b=>b.addEventListener("click",()=>selectCalc(b.dataset.calc)));
+  $c("calculatorCalculateBtn")?.addEventListener("click",calculate);
+  $c("calculatorResetBtn")?.addEventListener("click",()=>{
+    document.querySelectorAll("#calculatorPage input").forEach(i=>{if(i.id==="concreteLength")i.value=10;if(i.id==="concreteWidth")i.value=5;if(i.id==="concreteThickness")i.value=.15;if(i.id==="steelDiameter")i.value=12;if(i.id==="steelLength")i.value=100;if(i.id==="steelQty")i.value=1;if(i.id==="blockLength")i.value=10;if(i.id==="blockHeight")i.value=3;if(i.id==="blockArea")i.value=.08;if(i.id==="paintArea")i.value=100;if(i.id==="paintCoverage")i.value=10;if(i.id==="paintCoats")i.value=2});
+    calculate();
+  });
+  function converters(){
+    const m=n("metersInput"), s=n("sqmInput"), kg=n("kgInput");
+    $c("feetResult").textContent=$c("metersInput").value!==""?(m*3.28084).toFixed(2)+" ft":"—";
+    $c("sqftResult").textContent=$c("sqmInput").value!==""?(s*10.7639).toFixed(2)+" ft²":"—";
+    $c("lbResult").textContent=$c("kgInput").value!==""?(kg*2.20462).toFixed(2)+" lb":"—";
+  }
+  ["metersInput","sqmInput","kgInput"].forEach(id=>$c(id)?.addEventListener("input",converters));
+  window.addEventListener("load",()=>{calculate();});
+})();
+</script>
+
+</body></html>`);
   w.document.close();w.focus();setTimeout(()=>w.print(),500);
 }
 
@@ -2411,7 +2624,7 @@ async function loadProjectFinancialDashboard(){
     const rr=await api("listReceipts",{token:session.token,clientId:id,project:id}); const list=rr.receipts||[]; set("pdReceiptCount",list.length); body("pdReceiptsBody",list.slice(0,8).map(x=>`<tr><td>${esc(x.name||"Receipt")}</td><td>${esc(x.createdAt||"—")}</td><td>${esc(x.status||x.verification||"Pending")}</td></tr>`).join("")||'<tr><td colspan="3" class="empty">No receipts for this project.</td></tr>');
   }catch(e){set("pdReceiptCount",0);body("pdReceiptsBody",'<tr><td colspan="3" class="empty">No receipts available.</td></tr>')}
 }
-function switchPage(p){document.querySelectorAll(".page").forEach(x=>{let active=x.id===p+"Page";x.classList.toggle("hidden",!active);x.classList.toggle("active",active)});document.querySelectorAll(".nav button,.mobile-nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===p));$("pageTitle").textContent={dashboard:"Dashboard",projectDashboard:"Project Financials",payments:"Client Payments",expenses:"Fund Transactions",budget:"Budget vs Actual",activity:"Activity Log",clients:"Clients / Projects",tools:"Construction Tools",cash:"Cash Position",receipts:"Receipts",reports:"Reports / Export",users:"User Management",executive:"Executive Dashboard"}[p]||"Dashboard";if(p==="projectDashboard"){fillClients();loadProjectFinancialDashboard();}if(p==="users"){loadUsers();if(session?.user?.role==="Admin")loadReportSettings();}if(p==="reports"){renderReport();window.bindLIWOPrintControls?.();}if(p==="tools")loadTools();if(p==="cash")loadCash();if(p==="receipts")loadReceipts()}
+function switchPage(p){document.querySelectorAll(".page").forEach(x=>{let active=x.id===p+"Page";x.classList.toggle("hidden",!active);x.classList.toggle("active",active)});document.querySelectorAll(".nav button,.mobile-nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===p));$("pageTitle").textContent={dashboard:"Dashboard",projectDashboard:"Project Financials",payments:"Client Payments",expenses:"Fund Transactions",budget:"Budget vs Actual",activity:"Activity Log",clients:"Clients / Projects",tools:"Construction Tools",calculator:"Calculator",cash:"Cash Position",receipts:"Receipts",reports:"Reports / Export",users:"User Management",executive:"Executive Dashboard"}[p]||"Dashboard";if(p==="projectDashboard"){fillClients();loadProjectFinancialDashboard();}if(p==="users"){loadUsers();if(session?.user?.role==="Admin")loadReportSettings();}if(p==="reports"){renderReport();window.bindLIWOPrintControls?.();}if(p==="tools")loadTools();if(p==="cash")loadCash();if(p==="receipts")loadReceipts()}
 async function __liwoOriginalLoadUsers(){try{let o=await api("listUsers",{token:session.token});data.users=o.users;data.financeCount=o.financeCount;data.financeRegistrationOpen=o.financeRegistrationOpen;data.clients=o.clients;render()}catch(x){toast(x.message)}}
 document.addEventListener("DOMContentLoaded",()=>{
 $("loginTab").onclick=()=>tabs(false);$("registerTab").onclick=()=>tabs(true);$("loginForm").onsubmit=login;$("registerForm").onsubmit=register;$("logoutBtn").onclick=logout;$("menuLogoutBtn").onclick=logout;$("refreshBtn").onclick=refresh;$("printReportBtn").onclick=printReport;$("saveReportBtn").onclick=printReport;$("exportReportBtn").onclick=exportReportCSV;$("reportPeriod").onchange=renderReport;$("notificationBtn").onclick=toggleNotificationMenu;$("userMenuBtn").onclick=toggleUserMenu;$("markNotificationsRead").onclick=markNotificationsRead;$("profileMenuBtn").onclick=openProfile;$("profileCloseBtn").onclick=closeProfile;$("profileDoneBtn").onclick=closeProfile;$("profilePhotoInput").onchange=e=>saveProfilePhoto(e.target.files[0]);$("removeProfilePhotoBtn").onclick=removeProfilePhoto;$("profileUsernameSaveBtn").onclick=saveProfileUsername;$("profileModal").onclick=e=>{if(e.target.id==="profileModal")closeProfile()};document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeHeaderMenus();closeProfile()}});document.addEventListener("click",e=>{if(!e.target.closest(".top-user"))closeHeaderMenus()});

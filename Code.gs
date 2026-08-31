@@ -32,6 +32,7 @@ const SHEETS={
   cash_reconciliation:["Timestamp","BankExpected","CashOnHandExpected","ActualBank","ActualCashOnHand","Variance","Notes","ReconciledBy"],
   project_budgets:["ClientID","Category","Budget","UpdatedAt","UpdatedBy"],
   report_runs:["Timestamp","Period","ReportType","FileId","FileUrl","CreatedBy"],
+  calculator_history:["Timestamp","Calculator","Inputs","Result","ClientID","CreatedBy","Username"],
 
 };
 function setup(){
@@ -730,7 +731,7 @@ case"sendAutomatedReportTestEmail":return json(withAuth(r,sendAutomatedReportTes
 case"generateProjectFinancialReport":return json(withAuth(r,function(rr,uu){return generateProjectFinancialReport_(uu,rr.clientId);}));
 case"generateFinancialReport":return json(withAuth(r,generateFinancialReport));case"installMonthlyReportTrigger":return json(withAuth(r,installMonthlyReportTrigger));case"sendMonthlyFinancialReport":return json(withAuth(r,sendMonthlyFinancialReport));case"projectFinancialDashboard":return json(withAuth(r,projectFinancialDashboard));case"projectDashboard":return json(withAuth(r,projectFinancialDashboard));case"projectWorkspace":return json(withAuth(r,projectFinancialDashboard));
 case"addPayment":return json(withAuth(r,addPayment));case"addExpense":return json(withAuth(r,addExpense));case"listUsers":return json(withAuth(r,listUsers));
-case"upsertUser":return json(withAuth(r,upsertUser));case"listTools":return json(withAuth(r,listTools));case"tools":return json(withAuth(r,listTools));case"constructionTools":return json(withAuth(r,listTools));case"listConstructionTools":return json(withAuth(r,listTools));case"getTools":return json(withAuth(r,listTools));case"addTool":return json(withAuth(r,addTool));case"updateTool":return json(withAuth(r,updateTool));case"cashBalances":return json(withAuth(r,cashBalances));case"cashPosition":return json(withAuth(r,cashBalances));case"getCashPosition":return json(withAuth(r,cashBalances));case"getCashBalances":return json(withAuth(r,cashBalances));case"updateCashBalance":return json(withAuth(r,updateCashBalance));case"updateCashBalances":return json(withAuth(r,updateCashBalances));case"changeInvite":return json(withAuth(r,changeInvite));case"reopenRegistration":return json(withAuth(r,reopenRegistration));case"upsertClient":return json(withAuth(r,upsertClient));case"archiveClient":return json(withAuth(r,archiveClient));case"restoreClient":return json(withAuth(r,restoreClient));case"deleteClient":return json(withAuth(r,deleteClient));case"notifications":return json(withAuth(r,notifications));case"markNotificationsRead":return json(withAuth(r,markNotificationsRead));case"listMilestones":return json(withAuth(r,listMilestones));case"addMilestone":return json(withAuth(r,addMilestone));case"updateMilestone":return json(withAuth(r,updateMilestone));case"verifyReceipt":return json(withAuth(r,verifyReceipt));case"reconcileCash":return json(withAuth(r,reconcileCash));case"getProjectBudget":return json(withAuth(r,getProjectBudget));case"saveProjectBudget":return json(withAuth(r,saveProjectBudget));case"returnTool":return json(withAuth(r,returnTool));case"deletePayment":return json(withAuth(r,deletePayment));case"deleteExpense":return json(withAuth(r,deleteExpense));
+case"upsertUser":return json(withAuth(r,upsertUser));case"listTools":return json(withAuth(r,listTools));case"tools":return json(withAuth(r,listTools));case"constructionTools":return json(withAuth(r,listTools));case"listConstructionTools":return json(withAuth(r,listTools));case"getTools":return json(withAuth(r,listTools));case"addTool":return json(withAuth(r,addTool));case"updateTool":return json(withAuth(r,updateTool));case"cashBalances":return json(withAuth(r,cashBalances));case"cashPosition":return json(withAuth(r,cashBalances));case"getCashPosition":return json(withAuth(r,cashBalances));case"getCashBalances":return json(withAuth(r,cashBalances));case"updateCashBalance":return json(withAuth(r,updateCashBalance));case"updateCashBalances":return json(withAuth(r,updateCashBalances));case"changeInvite":return json(withAuth(r,changeInvite));case"reopenRegistration":return json(withAuth(r,reopenRegistration));case"upsertClient":return json(withAuth(r,upsertClient));case"archiveClient":return json(withAuth(r,archiveClient));case"restoreClient":return json(withAuth(r,restoreClient));case"deleteClient":return json(withAuth(r,deleteClient));case"notifications":return json(withAuth(r,notifications));case"markNotificationsRead":return json(withAuth(r,markNotificationsRead));case"listMilestones":return json(withAuth(r,listMilestones));case"addMilestone":return json(withAuth(r,addMilestone));case"updateMilestone":return json(withAuth(r,updateMilestone));case"verifyReceipt":return json(withAuth(r,verifyReceipt));case"reconcileCash":return json(withAuth(r,reconcileCash));case"getProjectBudget":return json(withAuth(r,getProjectBudget));case"saveProjectBudget":return json(withAuth(r,saveProjectBudget));case"returnTool":return json(withAuth(r,returnTool));case"deletePayment":return json(withAuth(r,deletePayment));case"deleteExpense":return json(withAuth(r,deleteExpense));case"saveCalculation":return json(withAuth(r,saveCalculation));case"listCalculations":return json(withAuth(r,listCalculations));
 case"deleteUser":return json(withAuth(r,deleteUser));case"deactivateUser":return json(withAuth(r,deactivateUser));case"reactivateUser":return json(withAuth(r,reactivateUser));case"setUserActive":return json(withAuth(r,setUserActive));case"listReceipts":return json(withAuth(r,listReceipts));case"listReceipt":return json(withAuth(r,listReceipts));case"getReceipts":return json(withAuth(r,listReceipts));case"getReceiptList":return json(withAuth(r,listReceipts));case"receipts":return json(withAuth(r,listReceipts));case"receiptGallery":return json(withAuth(r,listReceipts));case"getReceiptGallery":return json(withAuth(r,listReceipts));case"loadReceipts":return json(withAuth(r,listReceipts));case"getReceiptLibrary":return json(withAuth(r,listReceipts));case"migrateLegacyToolClientIds":return json(withAuth(r,migrateLegacyToolClientIds_));default:return json({ok:false,error:"Unknown action: "+String(r.action||"")})}}catch(x){return json({ok:false,error:String(x.message||x)})}}
 function json(o){return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON)}
 function ensureHeaders_(sh,headers){if(sh.getLastRow()===0){sh.getRange(1,1,1,headers.length).setValues([headers]);return}let existing=sh.getRange(1,1,1,Math.max(sh.getLastColumn(),1)).getValues()[0].map(String);if(existing.length<headers.length){sh.getRange(1,existing.length+1,1,headers.length-existing.length).setValues([headers.slice(existing.length)]);}}
@@ -1220,6 +1221,62 @@ function projectFinancialDashboard(r,u){
     counts:{payments:payments.length,expenses:expenses.length,approvedExpenses:approved.filter(x=>x.type==="Expense").length,pendingExpenses,receipts:receipts.length,tools:tools.length,borrowedTools:tools.filter(x=>x.status==="Borrowed"||x.status==="Overdue").length,overdueTools,milestones:milestones.length,overdueMilestones},
     payments:payments.slice().reverse(),expenses:expenses.slice().reverse(),budget,milestones,tools,recent,receipts
   };
+}
+
+function saveCalculation(r,u){
+  if(!u || !u.username)throw Error("Authentication required.");
+  const calculator=String(r.calculator||"").trim();
+  if(!calculator)throw Error("Calculator type is required.");
+
+  const allowed=["concrete","steel","block","paint"];
+  if(allowed.indexOf(calculator.toLowerCase())<0)throw Error("Unsupported calculator.");
+
+  let clientId="";
+  if(r.clientId){
+    const c=requireProjectScopedRead_(r);
+    clientId=c.id;
+  }
+
+  const inputs=typeof r.inputs==="string"?r.inputs:JSON.stringify(r.inputs||{});
+  const result=typeof r.result==="string"?r.result:JSON.stringify(r.result||{});
+  const sh=ensureSheet_("calculator_history",SHEETS.calculator_history);
+  sh.appendRow([new Date(),calculator,inputs,result,clientId,u.name,u.username]);
+
+  audit("CALCULATOR_USED",u,
+    (calculator+" calculator"+(clientId?" | Project: "+clientId:"")),
+    "Inputs: "+inputs+" | Result: "+result
+  );
+
+  return{ok:true,calculator:calculator,clientId:clientId};
+}
+
+function listCalculations(r,u){
+  if(!u || !u.username)throw Error("Authentication required.");
+  const sh=ensureSheet_("calculator_history",SHEETS.calculator_history);
+  const values=sh.getDataRange().getValues();
+  if(values.length<2)return{ok:true,calculations:[]};
+
+  const requestedClient=String(r.clientId||"").trim();
+  const limit=Math.min(Math.max(Number(r.limit)||20,1),100);
+
+  let items=values.slice(1).map(function(row){
+    return{
+      timestamp:row[0],
+      calculator:String(row[1]||""),
+      inputs:String(row[2]||""),
+      result:String(row[3]||""),
+      clientId:String(row[4]||""),
+      createdBy:String(row[5]||""),
+      username:String(row[6]||"")
+    };
+  });
+
+  if(requestedClient){
+    items=items.filter(function(x){return x.clientId===requestedClient;});
+  }
+
+  items=items.slice(-limit).reverse();
+  return{ok:true,calculations:items};
 }
 
 function addPayment(r,u){
