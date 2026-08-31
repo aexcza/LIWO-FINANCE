@@ -1169,6 +1169,50 @@ th{background:#f3f7f9;color:#4e6678;letter-spacing:.045em;text-transform:upperca
 
 
 
+<style id="liwo-dashboard-recent-activity-css">
+.dashboard-recent-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+  margin-top:14px;
+}
+.dashboard-recent-panel{
+  min-width:0;
+  overflow:hidden;
+}
+.dashboard-recent-panel .panel-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+.dashboard-recent-panel .panel-head h3{margin:0 0 3px}
+.dashboard-recent-panel .panel-head .muted{display:block}
+.dashboard-count{
+  min-width:28px;
+  height:28px;
+  padding:0 8px;
+  display:grid;
+  place-items:center;
+  border-radius:999px;
+  background:#eaf4fa;
+  color:#123a5c;
+  font-size:11px;
+  font-weight:800;
+}
+@media(max-width:900px){
+  .dashboard-recent-grid{
+    grid-template-columns:1fr;
+    gap:12px;
+    margin-top:12px;
+  }
+  .dashboard-recent-panel .table-wrap{
+    max-height:360px;
+    overflow:auto!important;
+    -webkit-overflow-scrolling:touch;
+  }
+}
+</style>
 <style id="liwo-mobile-final-stabilization">
 /* mobile.html is the dedicated mobile application shell at every viewport width. */
 html,body{width:100%;min-width:0;max-width:100%;overflow-x:hidden}
@@ -1565,12 +1609,31 @@ tbody:empty{display:none!important;}
 <div class="panel"><div class="panel-head"><div><h3>Client / Project Summary</h3><span class="muted">Financial position</span></div></div><div class="panel-body summary-list">
 <div><span>Contract Budget</span><strong id="sContract">₱0.00</strong></div><div><span>Collected</span><strong id="sCollected">₱0.00</strong></div><div><span>Spent</span><strong id="sSpent">₱0.00</strong></div><div><span>Budget Left</span><strong id="sLeft">₱0.00</strong></div><div><span>Uncollected</span><strong id="sUncollected">₱0.00</strong></div></div></div>
 </div>
-<div id="adminDashboard" class="panel hidden">
-<div class="panel-head"><div><h3>Admin Dashboard</h3><span class="muted">System-wide finance overview</span></div></div>
+</div>
 <div class="admin-strip"><div class="mini"><span>Active Finance Users</span><strong id="adminFinanceCount">0 / 3</strong></div><div class="mini"><span>Registration</span><strong id="adminRegStatus">CLOSED</strong></div><div class="mini"><span>Activity Records</span><strong id="adminActivityCount">0</strong></div></div>
 <div class="panel-head"><h3>Recent Activity</h3></div><div class="table-wrap"><table><thead><tr><th>Time</th><th>Action</th><th>Username</th><th>Name</th><th>Details</th></tr></thead><tbody id="adminActivityBody"></tbody></table></div>
 </div>
-<div class="panel"><div class="panel-head"><h3>Recent Transactions</h3></div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Type</th><th>Description</th><th>Amount</th><th>Entered By</th></tr></thead><tbody id="recentBody"></tbody></table></div></div>
+<div class="dashboard-recent-grid">
+<div class="panel dashboard-recent-panel">
+  <div class="panel-head">
+    <div><h3>Recent Transactions</h3><span class="muted">Latest financial activity for the selected project</span></div>
+  </div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Date</th><th>Type</th><th>Description</th><th>Amount</th><th>Entered By</th></tr></thead>
+    <tbody id="recentBody"></tbody>
+  </table></div>
+</div>
+<div class="panel dashboard-recent-panel">
+  <div class="panel-head">
+    <div><h3>Recent Client Payments</h3><span class="muted">Latest payments received from clients</span></div>
+    <strong id="recentPaymentsCount" class="dashboard-count">0</strong>
+  </div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Date</th><th>Reference</th><th>Description</th><th>Amount</th><th>Method</th></tr></thead>
+    <tbody id="recentPaymentsBody"></tbody>
+  </table></div>
+</div>
+</div>
 </section>
 
 <section id="paymentsPage" class="page hidden">
@@ -1967,7 +2030,7 @@ async function login(e){
   }
 }
 async function register(e){e.preventDefault();$("registerError").textContent="";if($("regPassword").value!==$("regConfirm").value){$("registerError").textContent="Passwords do not match.";return}try{await api("registerFinance",{name:$("regName").value.trim(),username:$("regUsername").value.trim(),password:$("regPassword").value,inviteCode:$("regInvite").value});toast("Account created. You can now sign in.");$("loginUsername").value=$("regUsername").value;tabs(false);$("registerForm").reset()}catch(x){$("registerError").textContent=x.message}}
-function showApp(){document.body.classList.toggle("lw-admin",String(session?.user?.role||"").toLowerCase()==="admin");$("loginView").classList.add("hidden");$("appView").classList.remove("hidden");const name=session.user.name||session.user.username;const role=session.user.role||"Finance";$("currentUser").textContent=name+" • "+session.user.username;$("currentRole").textContent=role;$("topName").textContent=name;$("topRole").textContent=role==="Admin"?"Administrator":"LIWO Executives";$("topAvatar").textContent=initials(name);$("menuUserName").textContent=name;$("menuUserRole").textContent=role==="Admin"?"Administrator":"LIWO Executives";applyProfilePhoto();if(session.user.role==="Admin"){$("usersNav").classList.remove("hidden");$("mobileUsersNav").classList.remove("hidden");$("adminDashboard").classList.remove("hidden")}}
+function showApp(){document.body.classList.toggle("lw-admin",String(session?.user?.role||"").toLowerCase()==="admin");$("loginView").classList.add("hidden");$("appView").classList.remove("hidden");const name=session.user.name||session.user.username;const role=session.user.role||"Finance";$("currentUser").textContent=name+" • "+session.user.username;$("currentRole").textContent=role;$("topName").textContent=name;$("topRole").textContent=role==="Admin"?"Administrator":"LIWO Executives";$("topAvatar").textContent=initials(name);$("menuUserName").textContent=name;$("menuUserRole").textContent=role==="Admin"?"Administrator":"LIWO Executives";applyProfilePhoto();if(session.user.role==="Admin"){$("usersNav").classList.remove("hidden");$("mobileUsersNav").classList.remove("hidden");/* admin user statistics removed from dashboard */}}
 function logout(){closeHeaderMenus();session=null;sessionStorage.removeItem("cf_session");$("appView").classList.add("hidden");$("loginView").classList.remove("hidden")}
 function closeHeaderMenus(){const n=$("notificationDropdown"),u=$("userDropdown");if(n){n.classList.add("hidden");$("notificationBtn")?.setAttribute("aria-expanded","false")}if(u){u.classList.add("hidden");$("userMenuBtn")?.setAttribute("aria-expanded","false")}}
 async function toggleNotificationMenu(){const n=$("notificationDropdown");if(!n)return;const opening=n.classList.contains("hidden");closeHeaderMenus();if(opening){await loadServerNotifications();n.classList.remove("hidden");$("notificationBtn").setAttribute("aria-expanded","true")}}
@@ -2125,7 +2188,12 @@ function render(){
  let s=data.summary||{};$("mContract").textContent=peso(s.contractAmount);$("mPayments").textContent=peso(s.totalPayments);$("mExpenses").textContent=peso(s.totalExpenses);$("mAvailable").textContent=peso(s.budgetRemaining);$("mBalance").textContent=peso(s.outstandingBalance);$("mNet").textContent=peso(s.cashPosition);$("projectLabel").textContent=s.clientName?s.clientName+" • "+(s.reference||""):"Select a client/project";
  $("sContract").textContent=peso(s.contractAmount);$("sCollected").textContent=peso(s.totalPayments);$("sSpent").textContent=peso(s.totalExpenses);$("sLeft").textContent=peso(s.budgetRemaining);$("sUncollected").textContent=peso(s.outstandingBalance);
  let pct=s.contractAmount?Math.min(100,(s.totalExpenses/s.contractAmount)*100):0;let deg=pct*3.6;$("piePercent").textContent=pct.toFixed(1)+"%";$("pieSpent").textContent=peso(s.totalExpenses);$("pieRemaining").textContent=peso(s.budgetRemaining);$("budgetPie").style.background=`conic-gradient(#24618d 0deg ${deg}deg,#e6edf2 ${deg}deg 360deg)`;
- $("recentBody").innerHTML=(data.recent||[]).map(x=>`<tr><td>${esc(x.clientName)}</td><td>${esc(x.date)}</td><td>${esc(x.type)}</td><td>${esc(x.description)}</td><td>${peso(x.amount)}</td><td>${esc(x.enteredBy)}</td></tr>`).join("")||'<tr><td colspan="5" class="empty">No transactions yet.</td></tr>';
+ const recentTransactions=(data.recent||[]).slice().sort((a,b)=>new Date(b.date||0)-new Date(a.date||0)).slice(0,10);
+ $("recentBody").innerHTML=recentTransactions.map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.type)}</td><td>${esc(x.description)}</td><td>${peso(x.amount)}</td><td>${esc(x.enteredBy)}</td></tr>`).join("")||'<tr><td colspan="5" class="empty">No transactions yet.</td></tr>';
+
+ const recentClientPayments=(data.payments||[]).slice().sort((a,b)=>new Date(b.date||0)-new Date(a.date||0)).slice(0,10);
+ $("recentPaymentsBody").innerHTML=recentClientPayments.map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.reference||"—")}</td><td>${esc(x.description||"—")}</td><td>${peso(x.amount)}</td><td>${esc(x.method||"—")}</td></tr>`).join("")||'<tr><td colspan="5" class="empty">No client payments yet.</td></tr>';
+ $("recentPaymentsCount").textContent=recentClientPayments.length;
  $("paymentsBody").innerHTML=(data.payments||[]).map(x=>`<tr><td>${esc(x.clientName)}</td><td>${esc(x.date)}</td><td>${esc(x.reference)}</td><td>${esc(x.description)}</td><td>${peso(x.amount)}</td><td>${esc(x.method)}</td><td>${esc(x.enteredBy)}</td></tr>`).join("")||'<tr><td colspan="7" class="empty">No client payments yet.</td></tr>';
  $("expensesBody").innerHTML=(data.expenses||[]).map(x=>`<tr><td>${esc(x.clientName)}</td><td>${esc(x.date)}</td><td>${esc(x.type)}</td><td>${esc(x.category)}</td><td>${esc(x.payee)}</td><td>${esc(x.description)}</td><td>${peso(x.amount)}</td><td>${x.receiptUrl?`<a class="receipt-link" href="${esc(x.receiptUrl)}" target="_blank" rel="noopener">View</a>`:"—"}</td><td>${esc(x.enteredBy)}</td></tr>`).join("")||'<tr><td colspan="9" class="empty">No fund transactions yet.</td></tr>';
  $("budgetBody").innerHTML=(data.budget||[]).map(x=>`<tr><td>${esc(x.category)}</td><td>${peso(x.budget)}</td><td>${peso(x.actual)}</td><td>${peso(x.variance)}</td><td>${(Number(x.used||0)*100).toFixed(1)}%</td><td>${peso(x.remaining)}</td></tr>`).join("");
