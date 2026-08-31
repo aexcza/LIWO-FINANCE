@@ -1574,7 +1574,7 @@ tbody:empty{display:none!important;}
     <div class="project-health-card"><div class="project-card-head"><div><h3>Budget by Category</h3><span class="muted">Budget allocations for this project only.</span></div><button type="button" class="secondary" id="saveProjectBudgetBtn">Save Project Budget</button></div><div class="project-table-wrap project-budget-editor"><table class="project-table"><thead><tr><th>Category</th><th>Project Budget</th><th>Actual</th><th>Used</th></tr></thead><tbody id="pdBudget"></tbody></table></div><div class="project-budget-note">Changing these values affects only the selected project. Actual spending remains based on approved transactions assigned to this project.</div></div>
   </div>
   <div class="project-two-col">
-    <div class="project-health-card"><div class="project-card-head"><h3>Client Payments</h3><span id="pdPaymentCount" class="project-chip">0</span></div><div class="project-table-wrap"><table class="project-table"><thead><tr><th>Date</th><th>Reference</th><th>Description</th><th>Amount</th><th>Edit</th></tr></thead><tbody id="pdPaymentsBody"></tbody></table></div></div>
+    <div class="project-health-card"><div class="project-card-head"><h3>Client Payments</h3><span id="pdPaymentCount" class="project-chip">0</span></div><div class="project-table-wrap"><table class="project-table"><thead><tr><th>Date</th><th>Reference</th><th>Description</th><th>Amount</th><th>Edit</th><th>Delete</th></tr></thead><tbody id="pdPaymentsBody"></tbody></table></div></div>
     <div class="project-health-card"><div class="project-card-head"><h3>Fund Transactions</h3><span id="pdExpenseCount" class="project-chip">0</span></div><div class="project-table-wrap"><table class="project-table"><thead><tr><th>Date</th><th>Type</th><th>Category</th><th>Amount</th><th>Status</th><th>Edit</th></tr></thead><tbody id="pdExpensesBody"></tbody></table></div></div>
   </div>
   <div class="project-two-col">
@@ -1609,7 +1609,7 @@ tbody:empty{display:none!important;}
 <label>Payment Method<select name="method"><option>Cash</option><option>Bank Transfer</option><option>Check</option><option>GCash</option><option>Maya</option><option>Other</option></select></label>
 <label class="wide">Notes<textarea name="notes"></textarea></label><div class="wide"><button class="primary">Save Payment</button></div>
 </form></div>
-<div class="panel"><div class="panel-head"><h3>Payment History</h3></div><div class="table-wrap"><table><thead><tr><th>Client / Project</th><th>Date</th><th>Reference</th><th>Description</th><th>Amount</th><th>Method</th><th>Entered By</th><th>Edit</th></tr></thead><tbody id="paymentsBody"></tbody></table></div></div>
+<div class="panel"><div class="panel-head"><h3>Payment History</h3></div><div class="table-wrap"><table><thead><tr><th>Client / Project</th><th>Date</th><th>Reference</th><th>Description</th><th>Amount</th><th>Method</th><th>Entered By</th><th>Edit</th><th>Delete</th></tr></thead><tbody id="paymentsBody"></tbody></table></div></div>
 <!-- Payment milestones removed: client payments are the single payment record. --></section>
 
 <section id="expensesPage" class="page hidden">
@@ -1622,7 +1622,7 @@ tbody:empty{display:none!important;}
 <label class="wide">Notes<textarea name="notes"></textarea></label>
 <div class="wide"><button class="primary">Save Transaction</button></div>
 </form></div>
-<div class="panel"><div class="panel-head"><h3>Fund Transaction History</h3></div><div class="table-wrap"><table><thead><tr><th>Client / Project</th><th>Date</th><th>Type</th><th>Category</th><th>Payee</th><th>Description</th><th>Amount</th><th>Receipt</th><th>Status</th><th>Entered By</th><th>Edit</th></tr></thead><tbody id="expensesBody"></tbody></table></div></div>
+<div class="panel"><div class="panel-head"><h3>Fund Transaction History</h3></div><div class="table-wrap"><table><thead><tr><th>Client / Project</th><th>Date</th><th>Type</th><th>Category</th><th>Payee</th><th>Description</th><th>Amount</th><th>Receipt</th><th>Status</th><th>Entered By</th><th>Edit</th><th>Delete</th></tr></thead><tbody id="expensesBody"></tbody></table></div></div>
 </section>
 
 <section id="budgetPage" class="page hidden"><div class="panel"><div class="panel-head"><h3>Budget vs Actual</h3></div><div class="table-wrap"><table><thead><tr><th>Category</th><th>Budget</th><th>Actual</th><th>Variance</th><th>% Used</th><th>Remaining</th></tr></thead><tbody id="budgetBody"></tbody></table></div></div></section>
@@ -2346,8 +2346,8 @@ function render(){
  if($("smartAlertCount"))$("smartAlertCount").textContent=alerts.length;
  if($("smartAlerts"))$("smartAlerts").innerHTML=alerts.length?alerts.map(a=>`<div class="smart-alert ${a[0]}"><i class="alert-dot"></i><div><strong>${esc(a[1])}</strong><small>${esc(a[2])}</small></div></div>`).join(""):'<div class="smart-alert-empty">No attention items.</div>';
 
- $("paymentsBody").innerHTML=(data.payments||[]).map((x,i)=>`<tr><td>${esc(x.clientName)}</td><td>${esc(x.date)}</td><td>${esc(x.reference)}</td><td>${esc(x.description)}</td><td>${peso(x.amount)}</td><td>${esc(x.method)}</td><td>${esc(x.enteredBy)}</td><td><button type="button" class="secondary liwo-edit-payment" data-payment-index="${i}">Edit</button></td></tr>`).join("")||'<tr><td colspan="8" class="empty">No client payments yet.</td></tr>';
- $("expensesBody").innerHTML=(data.expenses||[]).map((x,i)=>`<tr><td>${esc(x.clientName)}</td><td>${esc(x.date)}</td><td>${esc(x.type)}</td><td>${esc(x.category)}</td><td>${esc(x.payee)}</td><td>${esc(x.description)}</td><td>${peso(x.amount)}</td><td>${x.receiptUrl?`<a class="receipt-link" href="${esc(x.receiptUrl)}" target="_blank" rel="noopener">View</a>`:"—"}</td><td>${esc(x.status||"Recorded")}</td><td><button type="button" class="secondary liwo-edit-expense" data-expense-index="${i}">Edit</button></td></tr>`).join("")||'<tr><td colspan="10" class="empty">No fund transactions yet.</td></tr>';
+ $("paymentsBody").innerHTML=(data.payments||[]).map((x,i)=>`<tr><td>${esc(x.clientName)}</td><td>${esc(x.date)}</td><td>${esc(x.reference)}</td><td>${esc(x.description)}</td><td>${peso(x.amount)}</td><td>${esc(x.method)}</td><td>${esc(x.enteredBy)}</td><td><button type="button" class="secondary liwo-edit-payment" data-payment-index="${i}">Edit</button></td><td><button type="button" class="secondary liwo-delete-payment" data-payment-index="${i}" style="color:#b42318;border-color:#f0b7b2;">Delete</button></td></tr>`).join("")||'<tr><td colspan="9" class="empty">No client payments yet.</td></tr>';
+ $("expensesBody").innerHTML=(data.expenses||[]).map((x,i)=>`<tr><td>${esc(x.clientName)}</td><td>${esc(x.date)}</td><td>${esc(x.type)}</td><td>${esc(x.category)}</td><td>${esc(x.payee)}</td><td>${esc(x.description)}</td><td>${peso(x.amount)}</td><td>${x.receiptUrl?`<a class="receipt-link" href="${esc(x.receiptUrl)}" target="_blank" rel="noopener">View</a>`:"—"}</td><td>${esc(x.status||"Recorded")}</td><td><button type="button" class="secondary liwo-edit-expense" data-expense-index="${i}">Edit</button></td><td><button type="button" class="secondary liwo-delete-expense" data-expense-index="${i}" style="color:#b42318;border-color:#f0b7b2;">Delete</button></td></tr>`).join("")||'<tr><td colspan="11" class="empty">No fund transactions yet.</td></tr>';
  $("budgetBody").innerHTML=(data.budget||[]).map(x=>`<tr><td>${esc(x.category)}</td><td>${peso(x.budget)}</td><td>${peso(x.actual)}</td><td>${peso(x.variance)}</td><td>${(Number(x.used||0)*100).toFixed(1)}%</td><td>${peso(x.remaining)}</td></tr>`).join("")||'<tr><td colspan="6" class="empty">No budget data for the selected project.</td></tr>';
 $("activityBody").innerHTML=(data.activity||[]).map(x=>`<tr><td>${esc(x.time)}</td><td>${esc(x.action)}</td><td>${esc(x.username)}</td><td>${esc(x.name)}</td><td>${esc(x.details)}</td></tr>`).join("")||'<tr><td colspan="5" class="empty">No activity yet.</td></tr>';
  if(session.user.role==="Admin"&&data.users){
@@ -2568,7 +2568,7 @@ async function loadProjectFinancialDashboard(){
   const healthText=health==="critical"?"Budget exceeded":health==="attention"?"Needs attention":"Healthy";
   set("pdHealthText",healthText);
   const badge=$("pdHealthBadge")||$("projectHealthBadge"); if(badge){badge.textContent=healthText;badge.className="health-badge "+health;}
-  body("pdPaymentsBody",payments.slice().sort((a,b)=>String(b.date||"").localeCompare(String(a.date||""))).slice(0,8).map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.reference||"—")}</td><td>${esc(x.description||"—")}</td><td>${peso(x.amount)}</td><td><button type="button" class="secondary liwo-edit-payment" data-payment-id="${esc(x.id||x.paymentId||x.row||"")}" data-project-id="${esc(id)}">Edit</button></td></tr>`).join("")||'<tr><td colspan="5" class="empty">No client payments for this project.</td></tr>');
+  body("pdPaymentsBody",payments.slice().sort((a,b)=>String(b.date||"").localeCompare(String(a.date||""))).slice(0,8).map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.reference||"—")}</td><td>${esc(x.description||"—")}</td><td>${peso(x.amount)}</td><td><button type="button" class="secondary liwo-edit-payment" data-payment-id="${esc(x.id||x.paymentId||x.row||"")}" data-project-id="${esc(id)}">Edit</button></td><td><button type="button" class="secondary liwo-delete-payment" data-payment-id="${esc(x.id||x.paymentId||x.row||"")}" data-project-id="${esc(id)}" style="color:#b42318;border-color:#f0b7b2;">Delete</button></td></tr>`).join("")||'<tr><td colspan="6" class="empty">No client payments for this project.</td></tr>');
   body("pdExpensesBody",expenses.slice().sort((a,b)=>String(b.date||"").localeCompare(String(a.date||""))).slice(0,8).map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.type||"Expense")}</td><td>${esc(x.category||"—")}</td><td>${peso(x.amount)}</td><td>${esc(x.status||"Recorded")}</td><td><button type="button" class="secondary liwo-edit-expense" data-expense-id="${esc(x.id||x.expenseId||x.row||"")}" data-project-id="${esc(id)}">Edit</button></td></tr>`).join("")||'<tr><td colspan="6" class="empty">No fund transactions for this project.</td></tr>');
   const recent=[...payments.map(x=>({date:x.date,type:"Client Payment",description:x.description||x.reference||"Payment",amount:Number(x.amount||0),enteredBy:x.enteredBy})),...expenses.map(x=>({date:x.date,type:x.type||"Expense",description:x.description||x.category||"Transaction",amount:Number(x.amount||0),enteredBy:x.enteredBy}))].sort((a,b)=>String(b.date||"").localeCompare(String(a.date||""))).slice(0,10);
   body("pdRecentBody",recent.map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.type)}</td><td>${esc(x.description)}</td><td>${peso(x.amount)}</td><td>${esc(x.enteredBy||"—")}</td></tr>`).join("")||'<tr><td colspan="5" class="empty">No recent activity for this project.</td></tr>');
@@ -3298,7 +3298,7 @@ document.addEventListener("DOMContentLoaded",()=>{
     await callEdit("updatePayment","editPayment",payload);
     delete f.dataset.editingPayment; delete f.dataset.editPaymentId;
     f.reset(); if(f.elements.date)f.elements.date.value=today();
-    const b=f.querySelector("button[type=submit>"); if(b)b.textContent="Save Payment";
+    const b=f.querySelector("button[type=submit]"); if(b)b.textContent="Save Payment";
     await refresh(); toast("Client payment updated.");
   }
 
@@ -3316,7 +3316,49 @@ document.addEventListener("DOMContentLoaded",()=>{
     await refresh(); toast("Fund transaction updated.");
   }
 
+  async function deletePaymentRecord(x){
+    if(!x)return;
+    const id=x.id||x.paymentId||x.row||"";
+    if(!id){toast("This payment has no record ID and cannot be deleted.");return;}
+    const label=x.description||x.reference||"this client payment";
+    if(!confirm(`Delete ${label}?\n\nThis action cannot be undone.`))return;
+    try{
+      await callEdit("deletePayment","deleteClientPayment",{clientId:x.clientId||x.clientID||selectedClientId,id,paymentId:id,row:id});
+      await refresh();
+      toast("Client payment deleted.");
+    }catch(err){toast(err.message||String(err));}
+  }
+
+  async function deleteExpenseRecord(x){
+    if(!x)return;
+    const id=x.id||x.expenseId||x.row||"";
+    if(!id){toast("This transaction has no record ID and cannot be deleted.");return;}
+    const label=x.description||x.category||x.type||"this fund transaction";
+    if(!confirm(`Delete ${label}?\n\nThis action cannot be undone.`))return;
+    try{
+      await callEdit("deleteExpense","deleteFundTransaction",{clientId:x.clientId||x.clientID||selectedClientId,id,expenseId:id,row:id});
+      await refresh();
+      toast("Fund transaction deleted.");
+    }catch(err){toast(err.message||String(err));}
+  }
+
   document.addEventListener("click",e=>{
+    const dp=e.target.closest(".liwo-delete-payment");
+    if(dp){
+      const idx=dp.dataset.paymentIndex;
+      const list=Array.isArray(data?.payments)?data.payments:[];
+      const x=idx!=null?list[Number(idx)]:list.find(v=>String(v.id||v.paymentId||v.row)===String(dp.dataset.paymentId));
+      deletePaymentRecord(x);
+      return;
+    }
+    const db=e.target.closest(".liwo-delete-expense");
+    if(db){
+      const idx=db.dataset.expenseIndex;
+      const list=Array.isArray(data?.expenses)?data.expenses:[];
+      const x=idx!=null?list[Number(idx)]:null;
+      deleteExpenseRecord(x);
+      return;
+    }
     const pb=e.target.closest(".liwo-edit-payment");
     if(pb){
       const idx=pb.dataset.paymentIndex;
@@ -3339,30 +3381,48 @@ document.addEventListener("DOMContentLoaded",()=>{
     if(pf)pf.addEventListener("submit",async e=>{
       if(!pf.dataset.editingPayment)return;
       e.preventDefault();
-      const b=pf.querySelector("button[type=submit>"); if(b)b.disabled=true;
+      const b=pf.querySelector("button[type=submit]"); if(b)b.disabled=true;
+      e.stopImmediatePropagation();
       try{await savePaymentEdit(pf);}catch(err){toast(err.message||String(err));}finally{if(b)b.disabled=false;}
     },true);
     if(ef)ef.addEventListener("submit",async e=>{
       if(!ef.dataset.editingExpense)return;
       e.preventDefault();
-      const b=ef.querySelector("button[type=submit>"); if(b)b.disabled=true;
+      const b=ef.querySelector("button[type=submit]"); if(b)b.disabled=true;
+      e.stopImmediatePropagation();
       try{await saveExpenseEdit(ef);}catch(err){toast(err.message||String(err));}finally{if(b)b.disabled=false;}
     },true);
 
     // Budget tab must render current data even if entered directly from the mobile drawer.
     document.querySelectorAll('[data-mobile-page="budget"],[data-page="budget"]').forEach(b=>b.addEventListener("click",()=>setTimeout(()=>refresh().catch(()=>{}),0)));
 
-    // Mobile notification bell opens the mobile notification sheet directly.
+    // Mobile notification bell: fetch the same server notifications used by desktop
+    // and render them directly into the mobile notification sheet.
     const bell=q("mobileNotificationBtn");
     if(bell && !bell.dataset.lwDirectNotification){
       bell.dataset.lwDirectNotification="1";
       bell.addEventListener("click",async e=>{
         e.preventDefault(); e.stopImmediatePropagation();
         try{
-          if(typeof loadServerNotifications==="function")await loadServerNotifications();
+          let o=await api("notifications",{token:session.token,limit:500});
+          data=data||{};
+          data.activity=Array.isArray(o.notifications)?o.notifications:[];
+          data.serverUnreadCount=Number.isFinite(Number(o.unreadCount))?Number(o.unreadCount):data.activity.filter(x=>x&&x.unread).length;
+          const list=q("mobileNotificationList");
+          if(list){
+            const notes=data.activity.slice().reverse();
+            list.innerHTML=notes.length?notes.map(x=>{
+              const title=typeof notificationTitle==="function"?notificationTitle(x):(x.action||"FINANCE UPDATE");
+              const details=typeof notificationDetails==="function"?notificationDetails(x):(x.details||"A new transaction or system update was recorded in LIWO Finance.");
+              const kind=typeof notificationKind==="function"?notificationKind(x):"SYSTEM UPDATE";
+              const read=typeof getReadNotificationIds==="function"&&getReadNotificationIds().includes(notificationId(x));
+              return `<button type="button" class="mobile-note-row ${read?"read":""}"><i class="mobile-note-dot"></i><span><strong>${safe(title)}<em>${safe(kind)}</em></strong><span>${safe(details)}</span><span>${safe(x.name||x.username||"LIWO System")}${x.time?" • "+safe(formatNotificationTime(x.time)):""}</span></span></button>`;
+            }).join(""):"<div class=\"mobile-note-empty\">No messages, updates, or financial notifications yet.</div>";
+          }
+          const badge=q("mobileNotificationBadge"),unread=Number(data.serverUnreadCount||0);
+          if(badge){badge.textContent=unread>99?"99+":String(unread);badge.style.display=unread?"grid":"none";}
           const sheet=q("mobileNotificationCenter");
           if(sheet)sheet.classList.add("open");
-          if(typeof renderNotifications==="function")renderNotifications();
         }catch(err){toast(err.message||String(err));}
       },true);
     }
@@ -3481,5 +3541,47 @@ document.addEventListener("DOMContentLoaded",()=>{
   }
   ["metersInput","sqmInput","kgInput"].forEach(id=>$c(id)?.addEventListener("input",converters));
   window.addEventListener("load",()=>{calculate();});
+})();
+</script>
+
+<script id="liwo-mobile-edit-final-fix">
+(function(){
+  const q=id=>document.getElementById(id);
+  async function updateRecord(action,f,id){
+    const payload=action==="updateExpense"?await expensePayload(f):formObj(f);
+    payload.token=session.token; payload.clientId=selectedClientId||payload.clientId;
+    payload.id=id; payload.row=id;
+    if(action==="updatePayment")payload.paymentId=id;
+    if(action==="updateExpense")payload.expenseId=id;
+    try{return await api(action,payload);}
+    catch(e){
+      if(/unknown action|not found|invalid action/i.test(String(e?.message||e))){
+        const fallback=action==="updatePayment"?"editPayment":"editExpense";
+        return await api(fallback,payload);
+      }
+      throw e;
+    }
+  }
+  document.addEventListener("DOMContentLoaded",function(){
+    const pf=q("paymentForm"),ef=q("expenseForm");
+    if(pf)pf.addEventListener("submit",async function(e){
+      if(!pf.dataset.editingPayment)return;
+      e.preventDefault(); e.stopImmediatePropagation();
+      const id=pf.dataset.editPaymentId; if(!id){toast("Payment record ID is missing. Please reopen the record and try again.");return;}
+      const b=pf.querySelector("button[type=submit]"); if(b)b.disabled=true;
+      try{await updateRecord("updatePayment",pf,id); delete pf.dataset.editingPayment; delete pf.dataset.editPaymentId; pf.reset(); if(pf.elements.date)pf.elements.date.value=today(); if(b)b.textContent="Save Payment"; await refresh(); toast("Client payment updated successfully.");}
+      catch(err){toast(err.message||String(err));}
+      finally{if(b)b.disabled=false;}
+    },true);
+    if(ef)ef.addEventListener("submit",async function(e){
+      if(!ef.dataset.editingExpense)return;
+      e.preventDefault(); e.stopImmediatePropagation();
+      const id=ef.dataset.editExpenseId; if(!id){toast("Transaction record ID is missing. Please reopen the record and try again.");return;}
+      const b=ef.querySelector("button[type=submit]"); if(b)b.disabled=true;
+      try{await updateRecord("updateExpense",ef,id); delete ef.dataset.editingExpense; delete ef.dataset.editExpenseId; ef.reset(); if(ef.elements.date)ef.elements.date.value=today(); if(b)b.textContent="Save Transaction"; if(q("receiptFileName"))q("receiptFileName").textContent="Optional — you can take a photo or upload a receipt. No receipt is also allowed."; await refresh(); toast("Fund transaction updated successfully.");}
+      catch(err){toast(err.message||String(err));}
+      finally{if(b)b.disabled=false;}
+    },true);
+  });
 })();
 </script>

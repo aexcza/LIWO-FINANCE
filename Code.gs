@@ -730,7 +730,7 @@ case"generateMonthlyReport":return json(withAuth(r,generateMonthlyFinancialRepor
 case"sendAutomatedReportTestEmail":return json(withAuth(r,sendAutomatedReportTestEmail));
 case"generateProjectFinancialReport":return json(withAuth(r,function(rr,uu){return generateProjectFinancialReport_(uu,rr.clientId);}));
 case"generateFinancialReport":return json(withAuth(r,generateFinancialReport));case"installMonthlyReportTrigger":return json(withAuth(r,installMonthlyReportTrigger));case"sendMonthlyFinancialReport":return json(withAuth(r,sendMonthlyFinancialReport));case"projectFinancialDashboard":return json(withAuth(r,projectFinancialDashboard));case"projectDashboard":return json(withAuth(r,projectFinancialDashboard));case"projectWorkspace":return json(withAuth(r,projectFinancialDashboard));
-case"addPayment":return json(withAuth(r,addPayment));case"addExpense":return json(withAuth(r,addExpense));case"listUsers":return json(withAuth(r,listUsers));
+case"addPayment":return json(withAuth(r,addPayment));case"updatePayment":return json(withAuth(r,updatePayment));case"editPayment":return json(withAuth(r,editPayment));case"addExpense":return json(withAuth(r,addExpense));case"updateExpense":return json(withAuth(r,updateExpense));case"editExpense":return json(withAuth(r,editExpense));case"listUsers":return json(withAuth(r,listUsers));
 case"upsertUser":return json(withAuth(r,upsertUser));case"listTools":return json(withAuth(r,listTools));case"tools":return json(withAuth(r,listTools));case"constructionTools":return json(withAuth(r,listTools));case"listConstructionTools":return json(withAuth(r,listTools));case"getTools":return json(withAuth(r,listTools));case"addTool":return json(withAuth(r,addTool));case"updateTool":return json(withAuth(r,updateTool));case"cashBalances":return json(withAuth(r,cashBalances));case"cashPosition":return json(withAuth(r,cashBalances));case"getCashPosition":return json(withAuth(r,cashBalances));case"getCashBalances":return json(withAuth(r,cashBalances));case"updateCashBalance":return json(withAuth(r,updateCashBalance));case"updateCashBalances":return json(withAuth(r,updateCashBalances));case"changeInvite":return json(withAuth(r,changeInvite));case"reopenRegistration":return json(withAuth(r,reopenRegistration));case"upsertClient":return json(withAuth(r,upsertClient));case"archiveClient":return json(withAuth(r,archiveClient));case"restoreClient":return json(withAuth(r,restoreClient));case"deleteClient":return json(withAuth(r,deleteClient));case"notifications":return json(withAuth(r,notifications));case"markNotificationsRead":return json(withAuth(r,markNotificationsRead));case"listMilestones":return json(withAuth(r,listMilestones));case"addMilestone":return json(withAuth(r,addMilestone));case"updateMilestone":return json(withAuth(r,updateMilestone));case"verifyReceipt":return json(withAuth(r,verifyReceipt));case"reconcileCash":return json(withAuth(r,reconcileCash));case"getProjectBudget":return json(withAuth(r,getProjectBudget));case"saveProjectBudget":return json(withAuth(r,saveProjectBudget));case"returnTool":return json(withAuth(r,returnTool));case"deletePayment":return json(withAuth(r,deletePayment));case"deleteExpense":return json(withAuth(r,deleteExpense));case"saveCalculation":return json(withAuth(r,saveCalculation));case"listCalculations":return json(withAuth(r,listCalculations));
 case"deleteUser":return json(withAuth(r,deleteUser));case"deactivateUser":return json(withAuth(r,deactivateUser));case"reactivateUser":return json(withAuth(r,reactivateUser));case"setUserActive":return json(withAuth(r,setUserActive));case"listReceipts":return json(withAuth(r,listReceipts));case"listReceipt":return json(withAuth(r,listReceipts));case"getReceipts":return json(withAuth(r,listReceipts));case"getReceiptList":return json(withAuth(r,listReceipts));case"receipts":return json(withAuth(r,listReceipts));case"receiptGallery":return json(withAuth(r,listReceipts));case"getReceiptGallery":return json(withAuth(r,listReceipts));case"loadReceipts":return json(withAuth(r,listReceipts));case"getReceiptLibrary":return json(withAuth(r,listReceipts));case"migrateLegacyToolClientIds":return json(withAuth(r,migrateLegacyToolClientIds_));default:return json({ok:false,error:"Unknown action: "+String(r.action||"")})}}catch(x){return json({ok:false,error:String(x.message||x)})}}
 function json(o){return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON)}
@@ -1051,11 +1051,11 @@ function dashboard(r,u){
 
   const p=rows("payments")
     .filter(x=>String(x[2]||"").trim()===cid)
-    .map(x=>({date:x[1],clientName:c.name,clientId:cid,reference:x[3],description:x[4],amount:num(x[6]),method:x[7],enteredBy:x[9]}));
+    .map((x,i)=>({row:rows("payments").indexOf(x)+2,date:x[1],clientName:c.name,clientId:cid,reference:x[3],description:x[4],amount:num(x[6]),method:x[7],enteredBy:x[9]}));
 
   const ex=rows("expenses")
     .filter(x=>String(x[2]||"").trim()===cid)
-    .map(x=>({date:x[1],clientName:c.name,clientId:cid,type:x[3],category:x[4],payee:x[5],description:x[6],amount:num(x[7]),method:x[8],reference:x[9],approvedBy:x[10]||"",enteredBy:x[12],username:x[13],receiptUrl:x[14]||"",receiptId:x[15]||"",recordStatus:String(x[16]||"Recorded")}));
+    .map((x,i)=>({row:rows("expenses").indexOf(x)+2,date:x[1],clientName:c.name,clientId:cid,type:x[3],category:x[4],payee:x[5],description:x[6],amount:num(x[7]),method:x[8],reference:x[9],approvedBy:x[10]||"",enteredBy:x[12],username:x[13],receiptUrl:x[14]||"",receiptId:x[15]||"",recordStatus:String(x[16]||"Recorded")}));
 
   const approvedEx=ex;
   const totalPayments=p.reduce((a,x)=>a+x.amount,0);
@@ -1291,6 +1291,28 @@ function addPayment(r,u){
   return{ok:true,clientId:c.id};
 }
 
+/* Added without removing/changing the existing transaction workflow:
+   these handlers update the existing spreadsheet row instead of appending
+   a second transaction, and write an audit entry for every edit. */
+function updatePayment(r,u){
+  adminOrFinance_(u);
+  const clientId=String(r.clientId||"").trim();
+  requireClient_(clientId,true);
+  const checked=requireRowClient_("payments",r.row||r.id||r.paymentId,clientId,3);
+  const sh=checked.sheet, row=checked.row;
+  const old=sh.getRange(row,1,1,sh.getLastColumn()).getValues()[0];
+  if(num(r.amount)<=0)throw Error("Amount paid must be greater than zero.");
+  sh.getRange(row,2,1,8).setValues([[
+    r.date||old[1], clientId, r.reference||"", r.description||"", num(r.dueAmount),
+    num(r.amount), r.method||"", r.notes||""
+  ]]);
+  audit("EDIT_PAYMENT",u,
+    String(old[4]||r.description||"")+" | "+clientId+" | "+num(old[6])+" -> "+num(r.amount)
+  );
+  return{ok:true,clientId:clientId,row:row,message:"Payment updated."};
+}
+function editPayment(r,u){ return updatePayment(r,u); }
+
 function addExpense(r,u){
   adminOrFinance_(u);
   const c=requireProjectScopedRead_(r);
@@ -1307,6 +1329,30 @@ function addExpense(r,u){
   audit("ADD_EXPENSE",u,detail);
   return{ok:true,clientId:c.id,receipt:receipt,recordStatus:"Recorded"};
 }
+
+/* Added without removing/changing the existing transaction workflow:
+   these handlers update the existing spreadsheet row instead of appending
+   a second transaction, and write an audit entry for every edit. */
+function updateExpense(r,u){
+  adminOrFinance_(u);
+  const clientId=String(r.clientId||"").trim();
+  requireClient_(clientId,true);
+  const checked=requireRowClient_("expenses",r.row||r.id||r.expenseId,clientId,3);
+  const sh=checked.sheet, row=checked.row;
+  const old=sh.getRange(row,1,1,sh.getLastColumn()).getValues()[0];
+  if(num(r.amount)<=0)throw Error("Amount must be greater than zero.");
+  const type=String(r.type||old[3]||"Expense");
+  sh.getRange(row,2,1,11).setValues([[
+    r.date||old[1], clientId, type, r.category||old[4]||"Other", r.payee||"",
+    r.description||"", num(r.amount), r.method||"", r.reference||"",
+    old[10]||"", r.notes||""
+  ]]);
+  audit("EDIT_EXPENSE",u,
+    String(old[6]||r.description||"")+" | "+clientId+" | "+num(old[7])+" -> "+num(r.amount)
+  );
+  return{ok:true,clientId:clientId,row:row,message:"Fund transaction updated."};
+}
+function editExpense(r,u){ return updateExpense(r,u); }
 
 function listUsers(r,u){adminOnly(u);let set=settingsMap(),uv=rows("users"),fc=uv.filter(x=>String(x[3])==="Finance"&&String(x[4]).toLowerCase()!=="false").length;return{ok:true,users:uv.map(x=>({username:x[0],name:x[1],role:x[3],active:String(x[4]).toLowerCase()!=="false"})),financeCount:fc,financeRegistrationOpen:String(set.RegistrationOpen).toLowerCase()!=="false",clients:clientObjects(false)}}
 function upsertUser(r,u){adminOnly(u);if(!r.username||!r.name||!r.password)throw Error("Username, name and password are required.");if(String(r.password).length<8)throw Error("Password must be at least 8 characters.");let sh=ss().getSheetByName("users"),v=sh.getDataRange().getValues(),i=v.slice(1).findIndex(x=>String(x[0])===String(r.username)),now=new Date(),active=String(r.active)!=="FALSE";if(i<0)sh.appendRow([r.username,r.name,hash_(r.password),r.role||"Finance",active,now,now]);else sh.getRange(i+2,1,1,7).setValues([[r.username,r.name,hash_(r.password),r.role||"Finance",active,v[i+1][5]||now,now]]);audit("UPSERT_USER",u,String(r.username));return{ok:true}}
