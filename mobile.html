@@ -1539,6 +1539,7 @@ tbody:empty{display:none!important;}
       <button data-mobile-page="activity"><i>▤</i><span>Activity Log</span></button>
       <button data-mobile-page="clients"><i>♙</i><span>Clients / Projects</span></button>
       <button data-mobile-page="tools"><i>⚒</i><span>Construction Tools</span></button>
+      <button data-mobile-page="calculator"><i>▦</i><span>Calculator</span></button>
       <button data-mobile-page="cash"><i>▰</i><span>Cash Position</span></button>
       <button data-mobile-page="receipts"><i>▤</i><span>Receipts</span></button>
       <button data-mobile-page="reports"><i>▥</i><span>Reports / Export</span></button>
@@ -1588,7 +1589,7 @@ tbody:empty{display:none!important;}
 <div class="top"><div><h2 id="pageTitle">Dashboard</h2><div id="projectLabel" class="muted"></div></div><div class="top-actions"><label class="client-picker">Client / Project<select id="dashboardClient"></select></label><button id="refreshBtn" class="secondary">↻ Refresh</button></div></div>
 <div class="global-project-scope" id="globalProjectScope"><div><div class="scope-title">Active Project</div><div class="scope-note">All project-scoped entries are tied to the selected project.</div></div><div class="scope-badge" id="globalProjectScopeName">Select a client / project</div></div>
 
-<section id="projectDashboardPage" class="page project-dashboard-page hidden">
+<section id="projectDashboardPage" class="page project-dashboard-page hidden" style="display:none">
   <div class="project-context-card">
     <div class="project-context-top">
       <div><h2 class="project-context-title" id="projectDashName">Project Financial Dashboard</h2><div class="project-context-sub" id="projectDashRef">Select a project to view its complete financial record.</div></div>
@@ -1624,7 +1625,7 @@ tbody:empty{display:none!important;}
   </div>
   <div class="project-health-card"><div class="project-card-head"><h3>Recent Project Activity</h3></div><div class="project-table-wrap"><table class="project-table"><thead><tr><th>Date</th><th>Type</th><th>Description</th><th>Amount</th><th>Entered By</th></tr></thead><tbody id="pdRecentBody"></tbody></table></div></div>
 </section>
-<section id="dashboardPage" class="page active"><div id="mobileAlertCenter" class="mobile-alert-center hidden"></div>
+<section id="dashboardPage" class="page active" style="display:block"><div id="mobileAlertCenter" class="mobile-alert-center hidden"></div>
 <div class="cards">
 <div class="card"><span>Contract Budget</span><strong id="mContract">₱0.00</strong></div>
 <div class="card"><span>Total Client Payments</span><strong id="mPayments">₱0.00</strong></div>
@@ -1641,7 +1642,6 @@ tbody:empty{display:none!important;}
 <div><span>Contract Budget</span><strong id="sContract">₱0.00</strong></div><div><span>Collected</span><strong id="sCollected">₱0.00</strong></div><div><span>Spent</span><strong id="sSpent">₱0.00</strong></div><div><span>Budget Left</span><strong id="sLeft">₱0.00</strong></div><div><span>Uncollected</span><strong id="sUncollected">₱0.00</strong></div></div></div>
 </div>
 </div>
-<div class="admin-strip"><div class="mini"><span>Active Finance Users</span><strong id="adminFinanceCount">0 / 3</strong></div><div class="mini"><span>Registration</span><strong id="adminRegStatus">CLOSED</strong></div><div class="mini"><span>Activity Records</span><strong id="adminActivityCount">0</strong></div></div>
 <div class="panel-head"><h3>Recent Activity</h3></div><div class="table-wrap"><table><thead><tr><th>Time</th><th>Action</th><th>Username</th><th>Name</th><th>Details</th></tr></thead><tbody id="adminActivityBody"></tbody></table></div>
 </div>
 <div class="dashboard-recent-grid">
@@ -1667,7 +1667,7 @@ tbody:empty{display:none!important;}
 </div>
 </section>
 
-<section id="paymentsPage" class="page hidden">
+<section id="paymentsPage" class="page hidden" style="display:none">
 <div class="panel"><div class="panel-head"><h3>Record Client Payment</h3></div><form id="paymentForm" class="grid">
 <input type="hidden" name="clientId" id="paymentClient"><label>Date<input name="date" type="date" required></label><label>Payment Reference<input name="reference"></label>
 <label class="wide">Description / Milestone<input name="description" required></label><label>Due Amount<input name="dueAmount" type="number" min="0" step=".01"></label><label>Amount Paid<input name="amount" type="number" min="0" step=".01" required></label>
@@ -1677,7 +1677,7 @@ tbody:empty{display:none!important;}
 <div class="panel"><div class="panel-head"><h3>Payment History</h3></div><div class="table-wrap"><table><thead><tr><th>Client / Project</th><th>Date</th><th>Reference</th><th>Milestone</th><th>Amount</th><th>Method</th><th>Entered By</th></tr></thead><tbody id="paymentsBody"></tbody></table></div></div>
 <div class="panel milestone-panel" id="milestonesPanel"><div class="panel-head"><div><h3>Payment Milestones</h3><span class="muted">Track upcoming, overdue, and paid client payment milestones.</span></div></div><form id="milestoneForm" class="grid milestone-form"><input type="hidden" id="milestoneClient" name="clientId"><label>Milestone<input name="milestone" placeholder="e.g. Foundation completion" required></label><label>Due Date<input name="dueDate" type="date" required></label><label>Amount<input name="amount" type="number" min="0" step="0.01" required></label><label>Status<select name="status"><option>Upcoming</option><option>Paid</option><option>Cancelled</option></select></label><label>Paid Amount<input name="paidAmount" type="number" min="0" step="0.01" value="0"></label><label class="wide">Notes<textarea name="notes" placeholder="Optional notes"></textarea></label><div class="wide"><button class="primary" type="submit">Add Milestone</button></div></form><div class="table-wrap"><table><thead><tr><th>Milestone</th><th>Due</th><th>Amount</th><th>Paid</th><th>Status</th><th>Notes</th></tr></thead><tbody id="milestonesBody"></tbody></table></div></div></section>
 
-<section id="expensesPage" class="page hidden">
+<section id="expensesPage" class="page hidden" style="display:none">
 <div class="panel"><div class="panel-head"><h3>Record Fund Transaction</h3></div><form id="expenseForm" class="grid">
 <input type="hidden" name="clientId" id="expenseClient"><label>Date<input name="date" type="date" required></label><label>Type<select name="type"><option>Expense</option><option>Refund</option><option>Other Income</option><option>Transfer</option></select></label>
 <label>Category<select name="category"><option>Materials</option><option>Labor</option><option>Equipment</option><option>Transport</option><option>Permits</option><option>Subcontractor</option><option>Utilities</option><option>Meals</option><option>Office</option><option>Other</option></select></label>
@@ -1690,11 +1690,11 @@ tbody:empty{display:none!important;}
 <div class="panel"><div class="panel-head"><h3>Fund Transaction History</h3></div><div class="table-wrap"><table><thead><tr><th>Client / Project</th><th>Date</th><th>Type</th><th>Category</th><th>Payee</th><th>Description</th><th>Amount</th><th>Receipt</th><th>Status</th><th>Entered By</th></tr></thead><tbody id="expensesBody"></tbody></table></div></div>
 </section>
 
-<section id="budgetPage" class="page hidden"><div class="panel"><div class="panel-head"><h3>Budget vs Actual</h3></div><div class="table-wrap"><table><thead><tr><th>Category</th><th>Budget</th><th>Actual</th><th>Variance</th><th>% Used</th><th>Remaining</th></tr></thead><tbody id="budgetBody"></tbody></table></div></div></section>
+<section id="budgetPage" class="page hidden" style="display:none"><div class="panel"><div class="panel-head"><h3>Budget vs Actual</h3></div><div class="table-wrap"><table><thead><tr><th>Category</th><th>Budget</th><th>Actual</th><th>Variance</th><th>% Used</th><th>Remaining</th></tr></thead><tbody id="budgetBody"></tbody></table></div></div></section>
 
-<section id="activityPage" class="page hidden"><div class="panel"><div class="panel-head"><div><h3>Activity Log</h3><span class="muted">Visible to Admin and all LIWO Executives</span></div></div><div class="table-wrap"><table><thead><tr><th>Time</th><th>Action</th><th>Username</th><th>Name</th><th>Details</th></tr></thead><tbody id="activityBody"></tbody></table></div></div></section>
+<section id="activityPage" class="page hidden" style="display:none"><div class="panel"><div class="panel-head"><div><h3>Activity Log</h3><span class="muted">Visible to Admin and all LIWO Executives</span></div></div><div class="table-wrap"><table><thead><tr><th>Time</th><th>Action</th><th>Username</th><th>Name</th><th>Details</th></tr></thead><tbody id="activityBody"></tbody></table></div></div></section>
 
-<section id="clientsPage" class="page hidden">
+<section id="clientsPage" class="page hidden" style="display:none">
 <div class="panel">
   <div class="panel-head">
     <div><h3>Client / Project Management</h3><span class="muted">Add and maintain the clients and construction projects used throughout LIWO Finance.</span></div>
@@ -1717,14 +1717,14 @@ tbody:empty{display:none!important;}
 </div>
 </section>
 
-<section id="executivePage" class="page hidden">
+<section id="executivePage" class="page hidden" style="display:none">
   <div class="page-header"><div><h1>Executive Dashboard</h1><p>Company-wide project profitability, collections, spending, and financial health.</p></div><button class="secondary" id="refreshExecutiveBtn" type="button">↻ Refresh</button></div>
   <div class="exec-summary-grid">
     <div class="card"><span>Total Contract Value</span><strong id="exContract">₱0.00</strong></div><div class="card"><span>Total Client Payments</span><strong id="exPayments">₱0.00</strong></div><div class="card"><span>Total Expenses</span><strong id="exExpenses">₱0.00</strong></div><div class="card"><span>Cash Profit</span><strong id="exProfit">₱0.00</strong></div><div class="card"><span>Uncollected</span><strong id="exOutstanding">₱0.00</strong></div><div class="card"><span>Overall Margin</span><strong id="exMargin">0.0%</strong></div>
   </div>
   <div class="panel"><div class="panel-head"><div><h3>Project-by-Project Profitability</h3><span class="muted">Cash-based management view: client payments + other income/refunds − expenses.</span></div><span id="exHealthSummary" class="muted"></span></div><div class="table-wrap"><table><thead><tr><th>Project</th><th>Reference</th><th>Contract</th><th>Payments</th><th>Expenses</th><th>Cash Profit</th><th>Margin</th><th>Uncollected</th><th>Health</th></tr></thead><tbody id="executiveProjectsBody"></tbody></table></div></div>
 </section>
-<section id="reportsPage" class="page hidden">
+<section id="reportsPage" class="page hidden" style="display:none">
 <div class="panel"><div class="panel-head"><div><h3>Reports / Export</h3><span class="muted">Generate a printable financial summary for the selected client / project.</span></div></div>
 
 <div class="report-print-options">
@@ -1774,7 +1774,7 @@ tbody:empty{display:none!important;}
 <div class="report-section"><h3>Budget vs Actual</h3><div class="table-wrap"><table><thead><tr><th>Category</th><th>Budget</th><th>Actual</th><th>Variance</th><th>% Used</th><th>Remaining</th></tr></thead><tbody id="reportBudgetBody"></tbody></table></div></div>
 <div class="report-footer"><span>Prepared from LIWO Finance records</span><span id="reportPreparedBy"></span></div></div></section>
 
-<section id="usersPage" class="page hidden"><div class="panel"><div class="panel-head"><div><h3>User Management — Admin</h3><span class="muted">Manage accounts and LIWO Executive registration</span></div><strong id="registrationStatus"></strong></div>
+<section id="usersPage" class="page hidden" style="display:none"><div class="panel"><div class="panel-head"><div><h3>User Management — Admin</h3><span class="muted">Manage accounts and LIWO Executive registration</span></div><strong id="registrationStatus"></strong></div>
 <form id="userForm" class="grid"><label>Username<input name="username" required></label><label>Full Name<input name="name" required></label><label>Password<input name="password" type="password" minlength="8" required></label><label>Role<select name="role"><option>Finance</option><option>Admin</option></select></label><label>Active<select name="active"><option value="TRUE">Yes</option><option value="FALSE">No</option></select></label><div><button class="primary">Create / Update User</button></div></form>
 <div class="panel-body" style="border-top:1px solid var(--line)"><strong>LIWO Executive Accounts</strong><p class="muted">Registration closes automatically after 3 active LIWO Executive accounts. Change the invitation code to reopen registration with a new code.</p>
 <form id="inviteForm" style="display:flex;gap:10px;max-width:650px"><input name="inviteCode" type="password" placeholder="New invitation code" minlength="8" required><button class="primary">Change & Reopen</button></form>
@@ -1822,7 +1822,7 @@ tbody:empty{display:none!important;}
 
 
 
-<section class="page hidden" id="calculatorPage" data-page-section="calculator">
+<section class="page hidden" id="calculatorPage" data-page-section="calculator" style="display:none">
   <div class="page-heading">
     <div>
       <h2>Calculator</h2>
@@ -1947,7 +1947,7 @@ tbody:empty{display:none!important;}
   </div>
 </section>
 
-<section class="page hidden" id="toolsPage" data-page-section="tools">
+<section class="page hidden" id="toolsPage" data-page-section="tools" style="display:none">
   <div class="page-heading">
     <div>
       <h2>Construction Tools</h2>
@@ -2004,7 +2004,7 @@ tbody:empty{display:none!important;}
   </div>
 </section>
 
-<section class="page hidden" id="cashPage" data-page-section="cash">
+<section class="page hidden" id="cashPage" data-page-section="cash" style="display:none">
   <div class="page-header">
     <div><h1>Cash Position</h1><p>Track the actual money currently held in the bank and on hand.</p></div>
   </div>
@@ -2033,7 +2033,7 @@ tbody:empty{display:none!important;}
   </div>
 <div class="panel reconciliation-panel" id="cashReconciliationPanel"><div class="panel-head"><div><h3>Cash Reconciliation</h3><span class="muted">Compare recorded cash with actual balances.</span></div></div><div class="grid"><label>Actual Bank Balance<input id="reconcileBank" type="number" min="0" step="0.01" placeholder="0.00"></label><label>Actual Cash On Hand<input id="reconcileCash" type="number" min="0" step="0.01" placeholder="0.00"></label><label class="wide">Notes<textarea id="reconcileNotes" placeholder="Explain any variance."></textarea></label><div class="wide reconciliation-result" id="reconciliationResult">No reconciliation performed yet.</div><div class="wide"><button class="btn" type="button" id="reconcileCashBtn">Reconcile Cash</button></div></div></div></section>
 
-<section class="page hidden" id="receiptsPage" data-page-section="receipts">
+<section class="page hidden" id="receiptsPage" data-page-section="receipts" style="display:none">
   <div class="page-heading">
     <div>
       <h2>Receipts</h2>
@@ -2355,7 +2355,7 @@ function render(){
  $("expensesBody").innerHTML=(data.expenses||[]).map(x=>`<tr><td>${esc(x.clientName)}</td><td>${esc(x.date)}</td><td>${esc(x.type)}</td><td>${esc(x.category)}</td><td>${esc(x.payee)}</td><td>${esc(x.description)}</td><td>${peso(x.amount)}</td><td>${x.receiptUrl?`<a class="receipt-link" href="${esc(x.receiptUrl)}" target="_blank" rel="noopener">View</a>`:"—"}</td><td>${esc(x.enteredBy)}</td></tr>`).join("")||'<tr><td colspan="9" class="empty">No fund transactions yet.</td></tr>';
  $("budgetBody").innerHTML=(data.budget||[]).map(x=>`<tr><td>${esc(x.category)}</td><td>${peso(x.budget)}</td><td>${peso(x.actual)}</td><td>${peso(x.variance)}</td><td>${(Number(x.used||0)*100).toFixed(1)}%</td><td>${peso(x.remaining)}</td></tr>`).join("");
  $("activityBody").innerHTML=(data.activity||[]).map(x=>`<tr><td>${esc(x.time)}</td><td>${esc(x.action)}</td><td>${esc(x.username)}</td><td>${esc(x.name)}</td><td>${esc(x.details)}</td></tr>`).join("")||'<tr><td colspan="5" class="empty">No activity yet.</td></tr>';
- if(session.user.role==="Admin"&&data.users){$("usersBody").innerHTML=data.users.map(x=>`<tr><td>${esc(x.username)}</td><td>${esc(x.name)}</td><td>${esc(x.role==="Finance"?"LIWO Executive":x.role)}</td><td>${x.active?"Yes":"No"}</td><td><div class="user-actions">${String(x.username).toLowerCase()===String(session.user.username).toLowerCase()?`<span class="muted">Current account</span>`:x.active?`<button type="button" class="user-action-btn deactivate" data-user-action="deactivate" data-username="${esc(x.username)}">Deactivate</button>`:`<button type="button" class="user-action-btn reactivate" data-user-action="reactivate" data-username="${esc(x.username)}">Reactivate</button>`}<button type="button" class="user-action-btn delete" data-user-action="delete" data-username="${esc(x.username)}">Delete</button></div></td></tr>`).join("");$("registrationStatus").textContent=data.financeRegistrationOpen?`OPEN (${data.financeCount}/3)`:`CLOSED (${data.financeCount}/3)`;$("adminFinanceCount").textContent=`${data.financeCount} / 3`;$("adminRegStatus").textContent=data.financeRegistrationOpen?"OPEN":"CLOSED";$("adminActivityCount").textContent=data.activity.length}
+ if(session.user.role==="Admin"&&data.users){$("usersBody").innerHTML=data.users.map(x=>`<tr><td>${esc(x.username)}</td><td>${esc(x.name)}</td><td>${esc(x.role==="Finance"?"LIWO Executive":x.role)}</td><td>${x.active?"Yes":"No"}</td><td><div class="user-actions">${String(x.username).toLowerCase()===String(session.user.username).toLowerCase()?`<span class="muted">Current account</span>`:x.active?`<button type="button" class="user-action-btn deactivate" data-user-action="deactivate" data-username="${esc(x.username)}">Deactivate</button>`:`<button type="button" class="user-action-btn reactivate" data-user-action="reactivate" data-username="${esc(x.username)}">Reactivate</button>`}<button type="button" class="user-action-btn delete" data-user-action="delete" data-username="${esc(x.username)}">Delete</button></div></td></tr>`).join("");$("registrationStatus").textContent=data.financeRegistrationOpen?`OPEN (${data.financeCount}/3)`:`CLOSED (${data.financeCount}/3)`}
  if(data.clients){$("clientsBody").innerHTML=data.clients.map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.reference||"—")}</td><td>${peso(x.budget)}</td><td>${peso(x.additionalDesignFee||0)}</td><td><strong>${peso(x.totalContract||x.budget||0)}</strong></td><td><span class="${x.active?"status-open":"status-closed"}">${x.active?"Active":"Inactive"}</span></td><td><button type="button" class="secondary edit-client-btn" data-client-id="${esc(x.id)}">Edit</button></td></tr>`).join("")||`<tr><td colspan="7" class="empty">No clients/projects yet. Add the first one above.</td></tr>`}
 }
 async function save(action,form){let btn=form.querySelector("button");btn.disabled=true;try{let payload=action==="addExpense"?await expensePayload(form):formObj(form);if(action==="addPayment"||action==="addExpense")payload.clientId=selectedClientId||payload.clientId;if(action==="addPayment"||action==="addExpense")if(!payload.clientId)throw Error("Select an Active Project before saving.");await api(action,{token:session.token,...payload});if(action==="upsertClient")resetClientForm();else form.reset();let d=form.querySelector('[name="date"]');if(d)d.value=today();if($("receiptFileName"))$("receiptFileName").textContent="Optional — you can take a photo or upload a receipt. No receipt is also allowed.";toast(action==="addExpense"?(payload.receiptData?"Transaction and receipt saved.":"Transaction saved without a receipt."):"Saved successfully");await refresh()}catch(x){toast(x.message)}finally{btn.disabled=false}}
@@ -2571,7 +2571,7 @@ async function loadProjectFinancialDashboard(){
     const rr=await api("listReceipts",{token:session.token,clientId:id,project:id}); const list=rr.receipts||[]; set("pdReceiptCount",list.length); body("pdReceiptsBody",list.slice(0,8).map(x=>`<tr><td>${esc(x.name||"Receipt")}</td><td>${esc(x.createdAt||"—")}</td><td>${esc(x.status||x.verification||"Pending")}</td></tr>`).join("")||'<tr><td colspan="3" class="empty">No receipts for this project.</td></tr>');
   }catch(e){set("pdReceiptCount",0);body("pdReceiptsBody",'<tr><td colspan="3" class="empty">No receipts available.</td></tr>')}
 }
-function switchPage(p){document.querySelectorAll(".page").forEach(x=>{let active=x.id===p+"Page";x.classList.toggle("hidden",!active);x.classList.toggle("active",active)});document.querySelectorAll(".nav button,.mobile-nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===p));$("pageTitle").textContent={dashboard:"Dashboard",projectDashboard:"Project Financials",payments:"Client Payments",expenses:"Fund Transactions",budget:"Budget vs Actual",activity:"Activity Log",clients:"Clients / Projects",tools:"Construction Tools",calculator:"Calculator",cash:"Cash Position",receipts:"Receipts",reports:"Reports / Export",users:"User Management",executive:"Executive Dashboard"}[p]||"Dashboard";if(p==="projectDashboard"){fillClients();loadProjectFinancialDashboard();}if(p==="users"){loadUsers();if(session?.user?.role==="Admin")loadReportSettings();}if(p==="reports"){renderReport();window.bindLIWOPrintControls?.();}if(p==="tools")loadTools();if(p==="cash")loadCash();if(p==="receipts")loadReceipts()}
+function switchPage(p){document.querySelectorAll(".page").forEach(x=>{let active=x.id===p+"Page";x.classList.toggle("hidden",!active);x.classList.toggle("active",active);x.style.display=active?"block":"none"});document.querySelectorAll(".nav button,.mobile-nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===p));$("pageTitle").textContent={dashboard:"Dashboard",projectDashboard:"Project Financials",payments:"Client Payments",expenses:"Fund Transactions",budget:"Budget vs Actual",activity:"Activity Log",clients:"Clients / Projects",tools:"Construction Tools",calculator:"Calculator",cash:"Cash Position",receipts:"Receipts",reports:"Reports / Export",users:"User Management",executive:"Executive Dashboard"}[p]||"Dashboard";if(p==="projectDashboard"){fillClients();loadProjectFinancialDashboard();}if(p==="users"){loadUsers();if(session?.user?.role==="Admin")loadReportSettings();}if(p==="reports"){renderReport();window.bindLIWOPrintControls?.();}if(p==="tools")loadTools();if(p==="cash")loadCash();if(p==="receipts")loadReceipts()}
 async function __liwoOriginalLoadUsers(){try{let o=await api("listUsers",{token:session.token});data.users=o.users;data.financeCount=o.financeCount;data.financeRegistrationOpen=o.financeRegistrationOpen;data.clients=o.clients;render()}catch(x){toast(x.message)}}
 document.addEventListener("DOMContentLoaded",()=>{
 $("loginTab").onclick=()=>tabs(false);$("registerTab").onclick=()=>tabs(true);$("loginForm").onsubmit=login;$("registerForm").onsubmit=register;$("logoutBtn").onclick=logout;$("menuLogoutBtn").onclick=logout;$("refreshBtn").onclick=refresh;$("printReportBtn").onclick=printReport;$("saveReportBtn").onclick=printReport;$("exportReportBtn").onclick=exportReportCSV;$("reportPeriod").onchange=renderReport;$("notificationBtn").onclick=toggleNotificationMenu;$("userMenuBtn").onclick=toggleUserMenu;$("markNotificationsRead").onclick=markNotificationsRead;$("profileMenuBtn").onclick=openProfile;$("profileCloseBtn").onclick=closeProfile;$("profileDoneBtn").onclick=closeProfile;$("profilePhotoInput").onchange=e=>saveProfilePhoto(e.target.files[0]);$("removeProfilePhotoBtn").onclick=removeProfilePhoto;$("profileUsernameSaveBtn").onclick=saveProfileUsername;$("profileModal").onclick=e=>{if(e.target.id==="profileModal")closeProfile()};document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeHeaderMenus();closeProfile()}});document.addEventListener("click",e=>{if(!e.target.closest(".top-user"))closeHeaderMenus()});
