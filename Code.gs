@@ -30,6 +30,7 @@ const SHEETS={
   receipt_verification:["ReceiptID","Status","VerifiedBy","VerifiedAt","Notes"],
   notification_reads:["Username","LastReadAt"],
   cash_reconciliation:["Timestamp","BankExpected","CashOnHandExpected","ActualBank","ActualCashOnHand","Variance","Notes","ReconciledBy"],
+  cash_position_history:["Timestamp","RecordType","BankBalance","CashOnHand","TotalCash","Variance","Notes","RecordedBy","Username"],
   project_budgets:["ClientID","Category","Budget","UpdatedAt","UpdatedBy"],
   report_runs:["Timestamp","Period","ReportType","FileId","FileUrl","CreatedBy"],
   calculator_history:["Timestamp","Calculator","Inputs","Result","ClientID","CreatedBy","Username"],
@@ -732,7 +733,7 @@ case"sendAutomatedReportTestEmail":return json(withAuth(r,sendAutomatedReportTes
 case"generateProjectFinancialReport":return json(withAuth(r,function(rr,uu){return generateProjectFinancialReport_(uu,rr.clientId);}));
 case"generateFinancialReport":return json(withAuth(r,generateFinancialReport));case"installMonthlyReportTrigger":return json(withAuth(r,installMonthlyReportTrigger));case"sendMonthlyFinancialReport":return json(withAuth(r,sendMonthlyFinancialReport));case"projectFinancialDashboard":return json(withAuth(r,projectFinancialDashboard));case"projectDashboard":return json(withAuth(r,projectFinancialDashboard));case"projectWorkspace":return json(withAuth(r,projectFinancialDashboard));
 case"addPayment":return json(withAuth(r,addPayment));case"updatePayment":return json(withAuth(r,updatePayment));case"editPayment":return json(withAuth(r,editPayment));case"addExpense":return json(withAuth(r,addExpense));case"updateExpense":return json(withAuth(r,updateExpense));case"editExpense":return json(withAuth(r,editExpense));case"listUsers":return json(withAuth(r,listUsers));
-case"upsertUser":return json(withAuth(r,upsertUser));case"listTools":return json(withAuth(r,listTools));case"tools":return json(withAuth(r,listTools));case"constructionTools":return json(withAuth(r,listTools));case"listConstructionTools":return json(withAuth(r,listTools));case"getTools":return json(withAuth(r,listTools));case"addTool":return json(withAuth(r,addTool));case"updateTool":return json(withAuth(r,updateTool));case"cashBalances":return json(withAuth(r,cashBalances));case"cashPosition":return json(withAuth(r,cashBalances));case"getCashPosition":return json(withAuth(r,cashBalances));case"getCashBalances":return json(withAuth(r,cashBalances));case"updateCashBalance":return json(withAuth(r,updateCashBalance));case"updateCashBalances":return json(withAuth(r,updateCashBalances));case"changeInvite":return json(withAuth(r,changeInvite));case"reopenRegistration":return json(withAuth(r,reopenRegistration));case"upsertClient":return json(withAuth(r,upsertClient));case"archiveClient":return json(withAuth(r,archiveClient));case"restoreClient":return json(withAuth(r,restoreClient));case"deleteClient":return json(withAuth(r,deleteClient));case"notifications":return json(withAuth(r,notifications));case"markNotificationsRead":return json(withAuth(r,markNotificationsRead));case"listMilestones":return json(withAuth(r,listMilestones));case"addMilestone":return json(withAuth(r,addMilestone));case"updateMilestone":return json(withAuth(r,updateMilestone));case"verifyReceipt":return json(withAuth(r,verifyReceipt));case"reconcileCash":return json(withAuth(r,reconcileCash));case"getProjectBudget":return json(withAuth(r,getProjectBudget));case"saveProjectBudget":return json(withAuth(r,saveProjectBudget));case"returnTool":return json(withAuth(r,returnTool));case"deletePayment":return json(withAuth(r,deletePayment));case"deleteExpense":return json(withAuth(r,deleteExpense));case"listBills":return json(withAuth(r,listBills));case"addBill":return json(withAuth(r,addBill));case"updateBill":return json(withAuth(r,updateBill));case"editBill":return json(withAuth(r,editBill));case"deleteBill":return json(withAuth(r,deleteBill));case"saveCalculation":return json(withAuth(r,saveCalculation));case"listCalculations":return json(withAuth(r,listCalculations));
+case"upsertUser":return json(withAuth(r,upsertUser));case"listTools":return json(withAuth(r,listTools));case"tools":return json(withAuth(r,listTools));case"constructionTools":return json(withAuth(r,listTools));case"listConstructionTools":return json(withAuth(r,listTools));case"getTools":return json(withAuth(r,listTools));case"addTool":return json(withAuth(r,addTool));case"updateTool":return json(withAuth(r,updateTool));case"cashBalances":return json(withAuth(r,cashBalances));case"cashPosition":return json(withAuth(r,cashBalances));case"getCashPosition":return json(withAuth(r,cashBalances));case"getCashBalances":return json(withAuth(r,cashBalances));case"listCashHistory":return json(withAuth(r,listCashHistory));case"cashHistory":return json(withAuth(r,listCashHistory));case"updateCashBalance":return json(withAuth(r,updateCashBalance));case"updateCashBalances":return json(withAuth(r,updateCashBalances));case"changeInvite":return json(withAuth(r,changeInvite));case"reopenRegistration":return json(withAuth(r,reopenRegistration));case"upsertClient":return json(withAuth(r,upsertClient));case"archiveClient":return json(withAuth(r,archiveClient));case"restoreClient":return json(withAuth(r,restoreClient));case"deleteClient":return json(withAuth(r,deleteClient));case"notifications":return json(withAuth(r,notifications));case"markNotificationsRead":return json(withAuth(r,markNotificationsRead));case"listMilestones":return json(withAuth(r,listMilestones));case"addMilestone":return json(withAuth(r,addMilestone));case"updateMilestone":return json(withAuth(r,updateMilestone));case"verifyReceipt":return json(withAuth(r,verifyReceipt));case"reconcileCash":return json(withAuth(r,reconcileCash));case"getProjectBudget":return json(withAuth(r,getProjectBudget));case"saveProjectBudget":return json(withAuth(r,saveProjectBudget));case"returnTool":return json(withAuth(r,returnTool));case"deletePayment":return json(withAuth(r,deletePayment));case"deleteExpense":return json(withAuth(r,deleteExpense));case"listBills":return json(withAuth(r,listBills));case"addBill":return json(withAuth(r,addBill));case"updateBill":return json(withAuth(r,updateBill));case"editBill":return json(withAuth(r,editBill));case"deleteBill":return json(withAuth(r,deleteBill));case"saveCalculation":return json(withAuth(r,saveCalculation));case"listCalculations":return json(withAuth(r,listCalculations));
 case"deleteUser":return json(withAuth(r,deleteUser));case"deactivateUser":return json(withAuth(r,deactivateUser));case"reactivateUser":return json(withAuth(r,reactivateUser));case"setUserActive":return json(withAuth(r,setUserActive));case"listReceipts":return json(withAuth(r,listReceipts));case"listReceipt":return json(withAuth(r,listReceipts));case"getReceipts":return json(withAuth(r,listReceipts));case"getReceiptList":return json(withAuth(r,listReceipts));case"receipts":return json(withAuth(r,listReceipts));case"receiptGallery":return json(withAuth(r,listReceipts));case"getReceiptGallery":return json(withAuth(r,listReceipts));case"loadReceipts":return json(withAuth(r,listReceipts));case"getReceiptLibrary":return json(withAuth(r,listReceipts));case"migrateLegacyToolClientIds":return json(withAuth(r,migrateLegacyToolClientIds_));default:return json({ok:false,error:"Unknown action: "+String(r.action||"")})}}catch(x){return json({ok:false,error:String(x.message||x)})}}
 function json(o){return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON)}
 function ensureHeaders_(sh,headers){if(sh.getLastRow()===0){sh.getRange(1,1,1,headers.length).setValues([headers]);return}let existing=sh.getRange(1,1,1,Math.max(sh.getLastColumn(),1)).getValues()[0].map(String);if(existing.length<headers.length){sh.getRange(1,existing.length+1,1,headers.length-existing.length).setValues([headers.slice(existing.length)]);}}
@@ -1945,7 +1946,9 @@ function updateCashBalance(r,u){
   }
 
   audit("UPDATE_CASH_BALANCE",u,display+" | "+balance);
-  return cashBalances(r,u);
+  let current=cashBalances(r,u);
+  appendCashPositionHistory_(u,"position",current.bankBalance,current.cashOnHand,0,notes);
+  return current;
 }
 
 function updateCashBalances(r,u){
@@ -1966,7 +1969,9 @@ function updateCashBalances(r,u){
     save_("onhand","On Hand",onHand);
     audit("UPDATE_CASH_BALANCES",u,"Bank: "+bank+" | On Hand: "+onHand);
     SpreadsheetApp.flush();
-    return cashBalances({},u);
+    let current=cashBalances({},u);
+    appendCashPositionHistory_(u,"position",current.bankBalance,current.cashOnHand,0,String(r.notes||""));
+    return current;
   }finally{lock.releaseLock();}
 }
 
@@ -2051,6 +2056,28 @@ function updateMilestone(r,u){
 
 function verifyReceipt(r,u){adminOrFinance_(u);let id=String(r.receiptId||"");if(!id)throw Error("Receipt ID is required.");let sh=ensureSheet_("receipt_verification",SHEETS.receipt_verification),v=sh.getDataRange().getValues(),i=v.slice(1).findIndex(x=>String(x[0])===id),now=new Date(),status=String(r.status||"Verified");if(!["Pending","Verified","Rejected"].includes(status))throw Error("Invalid receipt status.");let row=[id,status,u.name,now,String(r.notes||"")];if(i<0)sh.appendRow(row);else sh.getRange(i+2,1,1,5).setValues([row]);audit("VERIFY_RECEIPT",u,status+" | "+id);return{ok:true,status};}
 function receiptVerificationMap_(){let m={};rows("receipt_verification").forEach(x=>m[String(x[0])]={status:String(x[1]||"Pending"),verifiedBy:String(x[2]||""),verifiedAt:x[3],notes:String(x[4]||"")});return m;}
+function appendCashPositionHistory_(u,type,bank,cash,variance,notes){
+  const total=num(bank)+num(cash);
+  ensureSheet_("cash_position_history",SHEETS.cash_position_history).appendRow([
+    new Date(),String(type||"position"),num(bank),num(cash),total,num(variance),
+    String(notes||""),String(u.name||""),String(u.username||"")
+  ]);
+}
+
+function listCashHistory(r,u){
+  adminOrFinance_(u);
+  const positions=rows("cash_position_history").map(function(x){
+    return{type:String(x[1]||"position"),at:x[0],bankBalance:num(x[2]),cashOnHand:num(x[3]),totalCash:num(x[4]),variance:num(x[5]),notes:String(x[6]||""),recordedBy:String(x[7]||""),username:String(x[8]||"")};
+  });
+  // Reconciliation records existed before the history sheet; include them so prior audits remain visible.
+  const reconciliations=rows("cash_reconciliation").map(function(x){
+    const bank=num(x[3]),cash=num(x[4]);
+    return{type:"reconciliation",at:x[0],bankBalance:bank,cashOnHand:cash,totalCash:bank+cash,variance:num(x[5]),notes:String(x[6]||""),recordedBy:String(x[7]||""),username:""};
+  });
+  const history=positions.concat(reconciliations).sort(function(a,b){return new Date(b.at).getTime()-new Date(a.at).getTime();}).slice(0,250);
+  return{ok:true,history:history};
+}
+
 function reconcileCash(r,u){adminOrFinance_(u);let expected=cashBalances({},u),ab=Number(r.actualBank),ao=Number(r.actualCashOnHand);if(!Number.isFinite(ab)||ab<0||!Number.isFinite(ao)||ao<0)throw Error("Enter valid actual bank and cash-on-hand balances.");let variance=(ab+ao)-expected.totalCash,sh=ensureSheet_("cash_reconciliation",SHEETS.cash_reconciliation),now=new Date();sh.appendRow([now,expected.bankBalance,expected.cashOnHand,ab,ao,variance,String(r.notes||""),u.name]);audit("RECONCILE_CASH",u,"Variance: "+variance);return{ok:true,expectedBank:expected.bankBalance,expectedCashOnHand:expected.cashOnHand,actualBank:ab,actualCashOnHand:ao,variance};}
 function returnTool(r,u){
   adminOrFinance_(u);
