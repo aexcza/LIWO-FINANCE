@@ -33,6 +33,7 @@ const SHEETS={
   project_budgets:["ClientID","Category","Budget","UpdatedAt","UpdatedBy"],
   report_runs:["Timestamp","Period","ReportType","FileId","FileUrl","CreatedBy"],
   calculator_history:["Timestamp","Calculator","Inputs","Result","ClientID","CreatedBy","Username"],
+  bills:["Timestamp","BillID","ClientID","Bill / Payee","Category","DueDate","Amount","Status","Notes","Entered By","Username","UpdatedAt"],
 
 };
 function setup(){
@@ -731,7 +732,7 @@ case"sendAutomatedReportTestEmail":return json(withAuth(r,sendAutomatedReportTes
 case"generateProjectFinancialReport":return json(withAuth(r,function(rr,uu){return generateProjectFinancialReport_(uu,rr.clientId);}));
 case"generateFinancialReport":return json(withAuth(r,generateFinancialReport));case"installMonthlyReportTrigger":return json(withAuth(r,installMonthlyReportTrigger));case"sendMonthlyFinancialReport":return json(withAuth(r,sendMonthlyFinancialReport));case"projectFinancialDashboard":return json(withAuth(r,projectFinancialDashboard));case"projectDashboard":return json(withAuth(r,projectFinancialDashboard));case"projectWorkspace":return json(withAuth(r,projectFinancialDashboard));
 case"addPayment":return json(withAuth(r,addPayment));case"updatePayment":return json(withAuth(r,updatePayment));case"editPayment":return json(withAuth(r,editPayment));case"addExpense":return json(withAuth(r,addExpense));case"updateExpense":return json(withAuth(r,updateExpense));case"editExpense":return json(withAuth(r,editExpense));case"listUsers":return json(withAuth(r,listUsers));
-case"upsertUser":return json(withAuth(r,upsertUser));case"listTools":return json(withAuth(r,listTools));case"tools":return json(withAuth(r,listTools));case"constructionTools":return json(withAuth(r,listTools));case"listConstructionTools":return json(withAuth(r,listTools));case"getTools":return json(withAuth(r,listTools));case"addTool":return json(withAuth(r,addTool));case"updateTool":return json(withAuth(r,updateTool));case"cashBalances":return json(withAuth(r,cashBalances));case"cashPosition":return json(withAuth(r,cashBalances));case"getCashPosition":return json(withAuth(r,cashBalances));case"getCashBalances":return json(withAuth(r,cashBalances));case"updateCashBalance":return json(withAuth(r,updateCashBalance));case"updateCashBalances":return json(withAuth(r,updateCashBalances));case"changeInvite":return json(withAuth(r,changeInvite));case"reopenRegistration":return json(withAuth(r,reopenRegistration));case"upsertClient":return json(withAuth(r,upsertClient));case"archiveClient":return json(withAuth(r,archiveClient));case"restoreClient":return json(withAuth(r,restoreClient));case"deleteClient":return json(withAuth(r,deleteClient));case"notifications":return json(withAuth(r,notifications));case"markNotificationsRead":return json(withAuth(r,markNotificationsRead));case"listMilestones":return json(withAuth(r,listMilestones));case"addMilestone":return json(withAuth(r,addMilestone));case"updateMilestone":return json(withAuth(r,updateMilestone));case"verifyReceipt":return json(withAuth(r,verifyReceipt));case"reconcileCash":return json(withAuth(r,reconcileCash));case"getProjectBudget":return json(withAuth(r,getProjectBudget));case"saveProjectBudget":return json(withAuth(r,saveProjectBudget));case"returnTool":return json(withAuth(r,returnTool));case"deletePayment":return json(withAuth(r,deletePayment));case"deleteExpense":return json(withAuth(r,deleteExpense));case"saveCalculation":return json(withAuth(r,saveCalculation));case"listCalculations":return json(withAuth(r,listCalculations));
+case"upsertUser":return json(withAuth(r,upsertUser));case"listTools":return json(withAuth(r,listTools));case"tools":return json(withAuth(r,listTools));case"constructionTools":return json(withAuth(r,listTools));case"listConstructionTools":return json(withAuth(r,listTools));case"getTools":return json(withAuth(r,listTools));case"addTool":return json(withAuth(r,addTool));case"updateTool":return json(withAuth(r,updateTool));case"cashBalances":return json(withAuth(r,cashBalances));case"cashPosition":return json(withAuth(r,cashBalances));case"getCashPosition":return json(withAuth(r,cashBalances));case"getCashBalances":return json(withAuth(r,cashBalances));case"updateCashBalance":return json(withAuth(r,updateCashBalance));case"updateCashBalances":return json(withAuth(r,updateCashBalances));case"changeInvite":return json(withAuth(r,changeInvite));case"reopenRegistration":return json(withAuth(r,reopenRegistration));case"upsertClient":return json(withAuth(r,upsertClient));case"archiveClient":return json(withAuth(r,archiveClient));case"restoreClient":return json(withAuth(r,restoreClient));case"deleteClient":return json(withAuth(r,deleteClient));case"notifications":return json(withAuth(r,notifications));case"markNotificationsRead":return json(withAuth(r,markNotificationsRead));case"listMilestones":return json(withAuth(r,listMilestones));case"addMilestone":return json(withAuth(r,addMilestone));case"updateMilestone":return json(withAuth(r,updateMilestone));case"verifyReceipt":return json(withAuth(r,verifyReceipt));case"reconcileCash":return json(withAuth(r,reconcileCash));case"getProjectBudget":return json(withAuth(r,getProjectBudget));case"saveProjectBudget":return json(withAuth(r,saveProjectBudget));case"returnTool":return json(withAuth(r,returnTool));case"deletePayment":return json(withAuth(r,deletePayment));case"deleteExpense":return json(withAuth(r,deleteExpense));case"listBills":return json(withAuth(r,listBills));case"addBill":return json(withAuth(r,addBill));case"updateBill":return json(withAuth(r,updateBill));case"editBill":return json(withAuth(r,editBill));case"deleteBill":return json(withAuth(r,deleteBill));case"saveCalculation":return json(withAuth(r,saveCalculation));case"listCalculations":return json(withAuth(r,listCalculations));
 case"deleteUser":return json(withAuth(r,deleteUser));case"deactivateUser":return json(withAuth(r,deactivateUser));case"reactivateUser":return json(withAuth(r,reactivateUser));case"setUserActive":return json(withAuth(r,setUserActive));case"listReceipts":return json(withAuth(r,listReceipts));case"listReceipt":return json(withAuth(r,listReceipts));case"getReceipts":return json(withAuth(r,listReceipts));case"getReceiptList":return json(withAuth(r,listReceipts));case"receipts":return json(withAuth(r,listReceipts));case"receiptGallery":return json(withAuth(r,listReceipts));case"getReceiptGallery":return json(withAuth(r,listReceipts));case"loadReceipts":return json(withAuth(r,listReceipts));case"getReceiptLibrary":return json(withAuth(r,listReceipts));case"migrateLegacyToolClientIds":return json(withAuth(r,migrateLegacyToolClientIds_));default:return json({ok:false,error:"Unknown action: "+String(r.action||"")})}}catch(x){return json({ok:false,error:String(x.message||x)})}}
 function json(o){return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON)}
 function ensureHeaders_(sh,headers){if(sh.getLastRow()===0){sh.getRange(1,1,1,headers.length).setValues([headers]);return}let existing=sh.getRange(1,1,1,Math.max(sh.getLastColumn(),1)).getValues()[0].map(String);if(existing.length<headers.length){sh.getRange(1,existing.length+1,1,headers.length-existing.length).setValues([headers.slice(existing.length)]);}}
@@ -1294,11 +1295,36 @@ function addPayment(r,u){
 /* Added without removing/changing the existing transaction workflow:
    these handlers update the existing spreadsheet row instead of appending
    a second transaction, and write an audit entry for every edit. */
+function resolvePaymentRow_(r,clientId){
+  const sh=ss().getSheetByName("payments");
+  if(!sh) throw Error("Sheet not found: payments");
+  const last=sh.getLastRow();
+  const requestedRow=Number(r&& (r.row||r.id||r.paymentId));
+  if(Number.isInteger(requestedRow) && requestedRow>=2 && requestedRow<=last){
+    const stored=String(sh.getRange(requestedRow,3).getValue()||"").trim();
+    if(stored===String(clientId||"").trim()) return requestedRow;
+  }
+  const values=last>1?sh.getRange(2,1,last-1,sh.getLastColumn()).getValues():[];
+  const wantDate=String(r&& (r.originalDate||r.date)||"").trim();
+  const wantRef=String(r&& (r.originalReference||r.reference)||"").trim();
+  const wantDesc=String(r&& (r.originalDescription||r.description)||"").trim();
+  const wantAmount=num(r&& (r.originalAmount!=null?r.originalAmount:r.amount));
+  const matches=[];
+  values.forEach(function(x,i){
+    if(String(x[2]||"").trim()!==String(clientId||"").trim()) return;
+    if((!wantDate||String(x[1]||"").trim()===wantDate) && (!wantRef||String(x[3]||"").trim()===wantRef) && (!wantDesc||String(x[4]||"").trim()===wantDesc) && num(x[6])===wantAmount) matches.push(i+2);
+  });
+  if(matches.length===1) return matches[0];
+  if(matches.length>1 && matches.indexOf(requestedRow)>=0) return requestedRow;
+  throw Error("Record not found.");
+}
+
 function updatePayment(r,u){
   adminOrFinance_(u);
   const clientId=String(r.clientId||"").trim();
   requireClient_(clientId,true);
-  const checked=requireRowClient_("payments",r.row||r.id||r.paymentId,clientId,3);
+  const paymentRow=resolvePaymentRow_(r,clientId);
+  const checked=requireRowClient_("payments",paymentRow,clientId,3);
   const sh=checked.sheet, row=checked.row;
   const old=sh.getRange(row,1,1,sh.getLastColumn()).getValues()[0];
   if(num(r.amount)<=0)throw Error("Amount paid must be greater than zero.");
@@ -1354,6 +1380,69 @@ function updateExpense(r,u){
 }
 function editExpense(r,u){ return updateExpense(r,u); }
 
+function listBills(r,u){
+  adminOrFinance_(u);
+  const requested=String(r.clientId||"").trim();
+  const cm=clientNameMap();
+  const items=rows("bills").map(function(x,i){
+    const clientId=String(x[2]||"").trim();
+    return {row:i+2,timestamp:x[0],id:String(x[1]||""),clientId,clientName:(cm[clientId]||{}).name||"",name:String(x[3]||""),category:String(x[4]||"Other"),dueDate:x[5],amount:num(x[6]),status:String(x[7]||"Pending"),notes:String(x[8]||""),enteredBy:String(x[9]||""),username:String(x[10]||""),updatedAt:x[11]||x[0]};
+  });
+  const filtered=requested?items.filter(function(x){return x.clientId===requested;}):items;
+  return {ok:true,bills:filtered.reverse()};
+}
+
+function addBill(r,u){
+  adminOrFinance_(u);
+  const clientId=String(r.clientId||"").trim();
+  if(clientId)requireClient_(clientId,true);
+  const name=String(r.name||"").trim();
+  if(!name)throw Error("Bill / Payee is required.");
+  const amount=num(r.amount);
+  if(amount<0)throw Error("Bill amount cannot be negative.");
+  const status=String(r.status||"Pending");
+  if(["Pending","Ongoing","Paid"].indexOf(status)<0)throw Error("Invalid bill status.");
+  const id=Utilities.getUuid(),now=new Date();
+  ensureSheet_("bills",SHEETS.bills).appendRow([now,id,clientId,name,String(r.category||"Other"),r.dueDate||"",amount,status,String(r.notes||""),u.name,u.username,now]);
+  audit("ADD_BILL",u,(clientId?((clientNameMap()[clientId]||{}).name+" | "):"")+name+" | "+amount+" | "+status);
+  return {ok:true,id,clientId,message:"Bill saved."};
+}
+
+function updateBill(r,u){
+  adminOrFinance_(u);
+  const id=String(r.id||r.billId||"").trim();
+  if(!id)throw Error("Bill ID is required.");
+  const sh=ensureSheet_("bills",SHEETS.bills),v=sh.getDataRange().getValues();
+  const i=v.slice(1).findIndex(function(x){return String(x[1]||"")===id;});
+  if(i<0)throw Error("Bill not found.");
+  const row=i+2,old=v[i+1],clientId=String(r.clientId??old[2]??"").trim();
+  if(clientId)requireClient_(clientId,true);
+  const name=String(r.name??old[3]??"").trim();
+  if(!name)throw Error("Bill / Payee is required.");
+  const amount=num(r.amount??old[6]);
+  if(amount<0)throw Error("Bill amount cannot be negative.");
+  const status=String(r.status??old[7]??"Pending");
+  if(["Pending","Ongoing","Paid"].indexOf(status)<0)throw Error("Invalid bill status.");
+  const now=new Date();
+  sh.getRange(row,2,1,11).setValues([[id,clientId,name,String(r.category??old[4]??"Other"),r.dueDate??old[5]??"",amount,status,String(r.notes??old[8]??""),old[9]||u.name,old[10]||u.username,now]]);
+  audit("EDIT_BILL",u,name+" | "+amount+" | "+status);
+  return {ok:true,id,clientId,message:"Bill updated."};
+}
+function editBill(r,u){return updateBill(r,u);}
+
+function deleteBill(r,u){
+  adminOrFinance_(u);
+  const id=String(r.id||r.billId||"").trim();
+  if(!id)throw Error("Bill ID is required.");
+  const sh=ensureSheet_("bills",SHEETS.bills),v=sh.getDataRange().getValues();
+  const i=v.slice(1).findIndex(function(x){return String(x[1]||"")===id;});
+  if(i<0)throw Error("Bill not found.");
+  const row=i+2,old=v[i+1],clientId=String(old[2]||"");
+  audit("DELETE_BILL",u,(clientId?((clientNameMap()[clientId]||{}).name+" | "):"")+String(old[3]||"")+" | "+num(old[6])+" | "+String(old[7]||""));
+  sh.deleteRow(row);
+  return {ok:true,id,clientId,message:"Bill deleted."};
+}
+
 function listUsers(r,u){adminOnly(u);let set=settingsMap(),uv=rows("users"),fc=uv.filter(x=>String(x[3])==="Finance"&&String(x[4]).toLowerCase()!=="false").length;return{ok:true,users:uv.map(x=>({username:x[0],name:x[1],role:x[3],active:String(x[4]).toLowerCase()!=="false"})),financeCount:fc,financeRegistrationOpen:String(set.RegistrationOpen).toLowerCase()!=="false",clients:clientObjects(false)}}
 function upsertUser(r,u){adminOnly(u);if(!r.username||!r.name||!r.password)throw Error("Username, name and password are required.");if(String(r.password).length<8)throw Error("Password must be at least 8 characters.");let sh=ss().getSheetByName("users"),v=sh.getDataRange().getValues(),i=v.slice(1).findIndex(x=>String(x[0])===String(r.username)),now=new Date(),active=String(r.active)!=="FALSE";if(i<0)sh.appendRow([r.username,r.name,hash_(r.password),r.role||"Finance",active,now,now]);else sh.getRange(i+2,1,1,7).setValues([[r.username,r.name,hash_(r.password),r.role||"Finance",active,v[i+1][5]||now,now]]);audit("UPSERT_USER",u,String(r.username));return{ok:true}}
 function upsertClient(r,u){if(!r.name)throw Error("Client / Project Name is required.");if(num(r.budget)<0)throw Error("Contract budget cannot be negative.");let sh=ss().getSheetByName("clients"),v=sh.getDataRange().getValues(),id=r.id?String(r.id):Utilities.getUuid(),i=v.slice(1).findIndex(x=>String(x[0])===id),now=new Date(),active=String(r.active)!=="FALSE";if(i<0)sh.appendRow([id,r.name,r.reference||"",num(r.budget),active,now,now]);else sh.getRange(i+2,1,1,7).setValues([[id,r.name,r.reference||"",num(r.budget),active,v[i+1][5]||now,now]]);audit("UPSERT_CLIENT",u,String(r.name)+" | "+r.budget);return{ok:true}}
@@ -1394,10 +1483,11 @@ function deleteClient(r,u){
   return{ok:true,message:"Client / project deleted."};
 }
 function deletePayment(r,u){
-  adminOnly(u);
+  adminOrFinance_(u);
   const clientId=String(r.clientId||"").trim();
   requireClient_(clientId,true);
-  const checked=requireRowClient_("payments",r.row,clientId,3);
+  const paymentRow=resolvePaymentRow_(r,clientId);
+  const checked=requireRowClient_("payments",paymentRow,clientId,3);
   const vals=checked.sheet.getRange(checked.row,1,1,checked.sheet.getLastColumn()).getValues()[0];
   audit("DELETE_PAYMENT",u,clientId+" | "+String(vals[4]||"")+" | "+num(vals[6]));
   checked.sheet.deleteRow(checked.row);

@@ -2376,7 +2376,7 @@ function render(){
  if($("smartAlertCount"))$("smartAlertCount").textContent=alerts.length;
  if($("smartAlerts"))$("smartAlerts").innerHTML=alerts.length?alerts.map(a=>`<div class="smart-alert ${a[0]}"><i class="alert-dot"></i><div><strong>${esc(a[1])}</strong><small>${esc(a[2])}</small></div></div>`).join(""):'<div class="smart-alert-empty">No attention items.</div>';
 
- $("paymentsBody").innerHTML=(data.payments||[]).map((x,i)=>`<tr><td>${esc(x.clientName)}</td><td>${esc(x.date)}</td><td>${esc(x.reference)}</td><td>${esc(x.description)}</td><td>${peso(x.amount)}</td><td>${esc(x.method)}</td><td>${esc(x.enteredBy)}</td><td><button type="button" class="secondary liwo-edit-payment" data-payment-index="${i}">Edit</button></td><td><button type="button" class="secondary liwo-delete-payment" data-payment-index="${i}" style="color:#b42318;border-color:#f0b7b2;">Delete</button></td></tr>`).join("")||'<tr><td colspan="9" class="empty">No client payments yet.</td></tr>';
+ $("paymentsBody").innerHTML=(data.payments||[]).map((x,i)=>`<tr><td>${esc(x.clientName)}</td><td>${esc(x.date)}</td><td>${esc(x.reference)}</td><td>${esc(x.description)}</td><td>${peso(x.amount)}</td><td>${esc(x.method)}</td><td>${esc(x.enteredBy)}</td><td><button type="button" class="secondary liwo-edit-payment" data-payment-index="${i}" data-payment-id="${esc(x.id||x.paymentId||x.row||"")}" data-project-id="${esc(x.clientId||selectedClientId||"")}">Edit</button></td><td><button type="button" class="secondary liwo-delete-payment" data-payment-index="${i}" data-payment-id="${esc(x.id||x.paymentId||x.row||"")}" data-project-id="${esc(x.clientId||selectedClientId||"")}" style="color:#b42318;border-color:#f0b7b2;">Delete</button></td></tr>`).join("")||'<tr><td colspan="9" class="empty">No client payments yet.</td></tr>';
  $("expensesBody").innerHTML=(data.expenses||[]).map((x,i)=>`<tr><td>${esc(x.clientName)}</td><td>${esc(x.date)}</td><td>${esc(x.type)}</td><td>${esc(x.category)}</td><td>${esc(x.payee)}</td><td>${esc(x.description)}</td><td>${peso(x.amount)}</td><td>${x.receiptUrl?`<a class="receipt-link" href="${esc(x.receiptUrl)}" target="_blank" rel="noopener">View</a>`:"—"}</td><td>${esc(x.status||"Recorded")}</td><td><button type="button" class="secondary liwo-edit-expense" data-expense-index="${i}">Edit</button></td><td><button type="button" class="secondary liwo-delete-expense" data-expense-index="${i}" style="color:#b42318;border-color:#f0b7b2;">Delete</button></td></tr>`).join("")||'<tr><td colspan="11" class="empty">No fund transactions yet.</td></tr>';
  $("budgetBody").innerHTML=(data.budget||[]).map(x=>`<tr><td>${esc(x.category)}</td><td>${peso(x.budget)}</td><td>${peso(x.actual)}</td><td>${peso(x.variance)}</td><td>${(Number(x.used||0)*100).toFixed(1)}%</td><td>${peso(x.remaining)}</td></tr>`).join("")||'<tr><td colspan="6" class="empty">No budget data for the selected project.</td></tr>';
 $("activityBody").innerHTML=(data.activity||[]).map(x=>`<tr><td>${esc(x.time)}</td><td>${esc(x.action)}</td><td>${esc(x.username)}</td><td>${esc(x.name)}</td><td>${esc(x.details)}</td></tr>`).join("")||'<tr><td colspan="5" class="empty">No activity yet.</td></tr>';
@@ -3279,7 +3279,7 @@ document.addEventListener("DOMContentLoaded",()=>{
       const name=f.elements.name.value.trim(), amount=Number(f.elements.amount.value), id=f.elements.id.value||"";
       if(!name)return typeof toast==="function"?toast("Enter a bill or payee."):alert("Enter a bill or payee.");
       if(!Number.isFinite(amount)||amount<0)return typeof toast==="function"?toast("Enter a valid amount."):alert("Enter a valid amount.");
-      if(!window.session?.token)return typeof toast==="function"?toast("Please sign in first."):alert("Please sign in first.");
+      if(typeof session==="undefined"||!session||!session.token)return typeof toast==="function"?toast("Please sign in first."):alert("Please sign in first.");
       const payload={token:session.token,id,name,category:f.elements.category.value,dueDate:f.elements.dueDate.value,amount,status:f.elements.status.value,notes:f.elements.notes.value.trim(),clientId:selectedClientId||""};
       const btn=q("billSaveBtn");if(btn)btn.disabled=true;
       try{
@@ -3380,6 +3380,7 @@ document.addEventListener("DOMContentLoaded",()=>{
     setVal(f,"description",x.description||""); setVal(f,"amount",x.amount??""); setVal(f,"method",x.method||"Cash"); setVal(f,"notes",x.notes||"");
     f.dataset.editingPayment="1";
     f.dataset.editPaymentId=x.id||x.paymentId||x.row||"";
+    f.dataset.editPaymentDate=x.date||""; f.dataset.editPaymentReference=x.reference||""; f.dataset.editPaymentDescription=x.description||""; f.dataset.editPaymentAmount=String(x.amount??"");
     const b=f.querySelector("button[type=submit]");
     if(b)b.textContent="Save Payment Changes";
     switchPage("payments");
@@ -3406,6 +3407,7 @@ document.addEventListener("DOMContentLoaded",()=>{
     payload.id=f.dataset.editPaymentId;
     payload.paymentId=f.dataset.editPaymentId;
     payload.row=f.dataset.editPaymentId;
+    payload.originalDate=f.dataset.editPaymentDate||payload.date; payload.originalReference=f.dataset.editPaymentReference||payload.reference; payload.originalDescription=f.dataset.editPaymentDescription||payload.description; payload.originalAmount=Number(f.dataset.editPaymentAmount||payload.amount);
     await callEdit("updatePayment","editPayment",payload);
     delete f.dataset.editingPayment; delete f.dataset.editPaymentId;
     f.reset(); if(f.elements.date)f.elements.date.value=today();
@@ -3434,7 +3436,7 @@ document.addEventListener("DOMContentLoaded",()=>{
     const label=x.description||x.reference||"this client payment";
     if(!confirm(`Delete ${label}?\n\nThis action cannot be undone.`))return;
     try{
-      await callEdit("deletePayment","deletePayment",{clientId:x.clientId||x.clientID||selectedClientId,id,paymentId:id,row:id});
+      await callEdit("deletePayment","deletePayment",{clientId:x.clientId||x.clientID||selectedClientId,id,paymentId:id,row:id,date:x.date,reference:x.reference,description:x.description,amount:x.amount});
       await refresh();
       toast("Client payment deleted.");
     }catch(err){toast(err.message||String(err));}
@@ -3458,7 +3460,7 @@ document.addEventListener("DOMContentLoaded",()=>{
     if(dp){
       const idx=dp.dataset.paymentIndex;
       const list=Array.isArray(data?.payments)?data.payments:[];
-      const x=idx!=null?list[Number(idx)]:list.find(v=>String(v.id||v.paymentId||v.row)===String(dp.dataset.paymentId));
+      const x=dp.dataset.paymentId?list.find(v=>String(v.id||v.paymentId||v.row)===String(dp.dataset.paymentId)):list[Number(idx)];
       deletePaymentRecord(x);
       return;
     }
@@ -3474,7 +3476,7 @@ document.addEventListener("DOMContentLoaded",()=>{
     if(pb){
       const idx=pb.dataset.paymentIndex;
       const list=Array.isArray(data?.payments)?data.payments:[];
-      const x=idx!=null?list[Number(idx)]:list.find(v=>String(v.id||v.paymentId||v.row)===String(pb.dataset.paymentId));
+      const x=pb.dataset.paymentId?list.find(v=>String(v.id||v.paymentId||v.row)===String(pb.dataset.paymentId)):list[Number(idx)];
       if(x)openPaymentEdit(x); else toast("Payment record could not be located.");
       return;
     }
