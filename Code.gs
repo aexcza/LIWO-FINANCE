@@ -1284,6 +1284,14 @@ function addPayment(r,u){
   adminOrFinance_(u);
   const c=requireProjectScopedRead_(r);
   if(num(r.amount)<=0)throw Error("Amount paid must be greater than zero.");
+  const paymentRef=String(r.reference||"").trim();
+  if(!paymentRef)throw Error("Payment Reference is required.");
+  if(paymentRef){
+    const duplicate=rows("payments").some(function(x){
+      return String(x[2]||"").trim()===c.id && String(x[3]||"").trim()===paymentRef;
+    });
+    if(duplicate)throw Error("Payment Reference already exists for this project.");
+  }
   ss().getSheetByName("payments").appendRow([
     new Date(),r.date||"",c.id,r.reference||"",r.description||"",num(r.dueAmount),num(r.amount),
     r.method||"",r.notes||"",u.name,u.username
@@ -1299,24 +1307,51 @@ function resolvePaymentRow_(r,clientId){
   const sh=ss().getSheetByName("payments");
   if(!sh) throw Error("Sheet not found: payments");
   const last=sh.getLastRow();
+  if(last<2) throw Error("Record not found.");
+
+  const cid=String(clientId||"").trim();
+  const originalRef=String(r&& (r.originalReference||"") || "").trim();
+  const currentRef=String(r&& (r.reference||"") || "").trim();
+  const ref=originalRef||currentRef;
+
+  // Payment Reference is the primary identifier for edit/delete.
+  if(ref){
+    const values=sh.getRange(2,1,last-1,sh.getLastColumn()).getValues();
+    const matches=[];
+    values.forEach(function(x,i){
+      const storedClient=String(x[2]||"").trim();
+      const storedRef=String(x[3]||"").trim();
+      if(storedClient===cid && storedRef===ref) matches.push(i+2);
+    });
+
+    if(matches.length===1) return matches[0];
+
+    // If references are duplicated, use the original transaction details only
+    // to disambiguate the exact record; the reference remains the primary key.
+    if(matches.length>1){
+      const wantDate=String(r&& (r.originalDate||r.date)||"").trim();
+      const wantDesc=String(r&& (r.originalDescription||r.description)||"").trim();
+      const wantAmount=num(r&& (r.originalAmount!=null?r.originalAmount:r.amount));
+      const narrowed=matches.filter(function(row){
+        const x=sh.getRange(row,1,1,sh.getLastColumn()).getValues()[0];
+        return (!wantDate||String(x[1]||"").trim()===wantDate) &&
+               (!wantDesc||String(x[4]||"").trim()===wantDesc) &&
+               (!wantAmount||num(x[6])===wantAmount);
+      });
+      if(narrowed.length===1) return narrowed[0];
+      throw Error("Payment Reference is not unique for this project.");
+    }
+
+    throw Error("Record not found.");
+  }
+
+  // Legacy fallback for older records that have no Payment Reference.
   const requestedRow=Number(r&& (r.row||r.id||r.paymentId));
   if(Number.isInteger(requestedRow) && requestedRow>=2 && requestedRow<=last){
     const stored=String(sh.getRange(requestedRow,3).getValue()||"").trim();
-    if(stored===String(clientId||"").trim()) return requestedRow;
+    if(stored===cid) return requestedRow;
   }
-  const values=last>1?sh.getRange(2,1,last-1,sh.getLastColumn()).getValues():[];
-  const wantDate=String(r&& (r.originalDate||r.date)||"").trim();
-  const wantRef=String(r&& (r.originalReference||r.reference)||"").trim();
-  const wantDesc=String(r&& (r.originalDescription||r.description)||"").trim();
-  const wantAmount=num(r&& (r.originalAmount!=null?r.originalAmount:r.amount));
-  const matches=[];
-  values.forEach(function(x,i){
-    if(String(x[2]||"").trim()!==String(clientId||"").trim()) return;
-    if((!wantDate||String(x[1]||"").trim()===wantDate) && (!wantRef||String(x[3]||"").trim()===wantRef) && (!wantDesc||String(x[4]||"").trim()===wantDesc) && num(x[6])===wantAmount) matches.push(i+2);
-  });
-  if(matches.length===1) return matches[0];
-  if(matches.length>1 && matches.indexOf(requestedRow)>=0) return requestedRow;
-  throw Error("Record not found.");
+  throw Error("Payment Reference is required to edit or delete this payment.");
 }
 
 function updatePayment(r,u){
@@ -1328,6 +1363,16 @@ function updatePayment(r,u){
   const sh=checked.sheet, row=checked.row;
   const old=sh.getRange(row,1,1,sh.getLastColumn()).getValues()[0];
   if(num(r.amount)<=0)throw Error("Amount paid must be greater than zero.");
+  const newRef=String(r.reference||"").trim();
+  if(newRef){
+    const duplicate=rows("payments").some(function(x,i){
+      const sheetRow=i+2;
+      return sheetRow!==row &&
+        String(x[2]||"").trim()===clientId &&
+        String(x[3]||"").trim()===newRef;
+    });
+    if(duplicate)throw Error("Payment Reference already exists for this project.");
+  }
   sh.getRange(row,2,1,8).setValues([[
     r.date||old[1], clientId, r.reference||"", r.description||"", num(r.dueAmount),
     num(r.amount), r.method||"", r.notes||""

@@ -1606,7 +1606,7 @@ tbody:empty{display:none!important;}
 
 <section id="paymentsPage" class="page hidden">
 <div class="panel"><div class="panel-head"><h3>Record Client Payment</h3></div><form id="paymentForm" class="grid">
-<input type="hidden" name="clientId" id="paymentClient"><label>Date<input name="date" type="date" required></label><label>Payment Reference<input name="reference"></label>
+<input type="hidden" name="clientId" id="paymentClient"><label>Date<input name="date" type="date" required></label><label>Payment Reference<input name="reference" required></label>
 <label class="wide">Description<input name="description" required></label><label>Amount Paid<input name="amount" type="number" min="0" step=".01" required></label>
 <label>Payment Method<select name="method"><option>Cash</option><option>Bank Transfer</option><option>Check</option><option>GCash</option><option>Maya</option><option>Other</option></select></label>
 <label class="wide">Notes<textarea name="notes"></textarea></label><div class="wide"><button class="primary">Save Payment</button></div>
@@ -2192,7 +2192,13 @@ function renderNotifications(){
   const activities=Array.isArray(data?.activity)?data.activity:[];
   const serverMode=activities.some(x=>Object.prototype.hasOwnProperty.call(x,"unread"));
   const readIds=new Set(getReadNotificationIds());
-  const notifications=activities.map(x=>({x,id:notificationId(x),unread:serverMode?!!x.unread:!readIds.has(notificationId(x))}));
+  const notifications=activities.map((x,idx)=>({x,id:notificationId(x),unread:serverMode?!!x.unread:!readIds.has(notificationId(x)),idx})).sort((a,b)=>{
+    const bt=Date.parse(b.x?.time||"");
+    const at=Date.parse(a.x?.time||"");
+    if(Number.isFinite(bt)&&Number.isFinite(at)&&bt!==at)return bt-at;
+    if(Number.isFinite(bt)!==Number.isFinite(at))return Number.isFinite(bt)?-1:1;
+    return b.idx-a.idx;
+  });
   const unread=serverMode&&Number.isFinite(Number(data.serverUnreadCount))
     ?Number(data.serverUnreadCount)
     :notifications.filter(n=>n.unread).length;
@@ -2376,7 +2382,7 @@ function render(){
  if($("smartAlertCount"))$("smartAlertCount").textContent=alerts.length;
  if($("smartAlerts"))$("smartAlerts").innerHTML=alerts.length?alerts.map(a=>`<div class="smart-alert ${a[0]}"><i class="alert-dot"></i><div><strong>${esc(a[1])}</strong><small>${esc(a[2])}</small></div></div>`).join(""):'<div class="smart-alert-empty">No attention items.</div>';
 
- $("paymentsBody").innerHTML=(data.payments||[]).map((x,i)=>`<tr><td>${esc(x.clientName)}</td><td>${esc(x.date)}</td><td>${esc(x.reference)}</td><td>${esc(x.description)}</td><td>${peso(x.amount)}</td><td>${esc(x.method)}</td><td>${esc(x.enteredBy)}</td><td><button type="button" class="secondary liwo-edit-payment" data-payment-index="${i}" data-payment-id="${esc(x.id||x.paymentId||x.row||"")}" data-project-id="${esc(x.clientId||selectedClientId||"")}">Edit</button></td><td><button type="button" class="secondary liwo-delete-payment" data-payment-index="${i}" data-payment-id="${esc(x.id||x.paymentId||x.row||"")}" data-project-id="${esc(x.clientId||selectedClientId||"")}" style="color:#b42318;border-color:#f0b7b2;">Delete</button></td></tr>`).join("")||'<tr><td colspan="9" class="empty">No client payments yet.</td></tr>';
+ $("paymentsBody").innerHTML=(data.payments||[]).map((x,i)=>`<tr><td>${esc(x.clientName)}</td><td>${esc(x.date)}</td><td>${esc(x.reference)}</td><td>${esc(x.description)}</td><td>${peso(x.amount)}</td><td>${esc(x.method)}</td><td>${esc(x.enteredBy)}</td><td><button type="button" class="secondary liwo-edit-payment" data-payment-index="${i}" data-payment-reference="${esc(x.reference||"")}" data-payment-project-id="${esc(x.clientId||selectedClientId||"")}">Edit</button></td><td><button type="button" class="secondary liwo-delete-payment" data-payment-index="${i}" data-payment-reference="${esc(x.reference||"")}" data-payment-project-id="${esc(x.clientId||selectedClientId||"")}" style="color:#b42318;border-color:#f0b7b2;">Delete</button></td></tr>`).join("")||'<tr><td colspan="9" class="empty">No client payments yet.</td></tr>';
  $("expensesBody").innerHTML=(data.expenses||[]).map((x,i)=>`<tr><td>${esc(x.clientName)}</td><td>${esc(x.date)}</td><td>${esc(x.type)}</td><td>${esc(x.category)}</td><td>${esc(x.payee)}</td><td>${esc(x.description)}</td><td>${peso(x.amount)}</td><td>${x.receiptUrl?`<a class="receipt-link" href="${esc(x.receiptUrl)}" target="_blank" rel="noopener">View</a>`:"—"}</td><td>${esc(x.status||"Recorded")}</td><td><button type="button" class="secondary liwo-edit-expense" data-expense-index="${i}">Edit</button></td><td><button type="button" class="secondary liwo-delete-expense" data-expense-index="${i}" style="color:#b42318;border-color:#f0b7b2;">Delete</button></td></tr>`).join("")||'<tr><td colspan="11" class="empty">No fund transactions yet.</td></tr>';
  $("budgetBody").innerHTML=(data.budget||[]).map(x=>`<tr><td>${esc(x.category)}</td><td>${peso(x.budget)}</td><td>${peso(x.actual)}</td><td>${peso(x.variance)}</td><td>${(Number(x.used||0)*100).toFixed(1)}%</td><td>${peso(x.remaining)}</td></tr>`).join("")||'<tr><td colspan="6" class="empty">No budget data for the selected project.</td></tr>';
 $("activityBody").innerHTML=(data.activity||[]).map(x=>`<tr><td>${esc(x.time)}</td><td>${esc(x.action)}</td><td>${esc(x.username)}</td><td>${esc(x.name)}</td><td>${esc(x.details)}</td></tr>`).join("")||'<tr><td colspan="5" class="empty">No activity yet.</td></tr>';
@@ -2598,7 +2604,7 @@ async function loadProjectFinancialDashboard(){
   const healthText=health==="critical"?"Budget exceeded":health==="attention"?"Needs attention":"Healthy";
   set("pdHealthText",healthText);
   const badge=$("pdHealthBadge")||$("projectHealthBadge"); if(badge){badge.textContent=healthText;badge.className="health-badge "+health;}
-  body("pdPaymentsBody",payments.slice().sort((a,b)=>String(b.date||"").localeCompare(String(a.date||""))).slice(0,8).map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.reference||"—")}</td><td>${esc(x.description||"—")}</td><td>${peso(x.amount)}</td><td><button type="button" class="secondary liwo-edit-payment" data-payment-id="${esc(x.id||x.paymentId||x.row||"")}" data-project-id="${esc(id)}">Edit</button></td><td><button type="button" class="secondary liwo-delete-payment" data-payment-id="${esc(x.id||x.paymentId||x.row||"")}" data-project-id="${esc(id)}" style="color:#b42318;border-color:#f0b7b2;">Delete</button></td></tr>`).join("")||'<tr><td colspan="6" class="empty">No client payments for this project.</td></tr>');
+  body("pdPaymentsBody",payments.slice().sort((a,b)=>String(b.date||"").localeCompare(String(a.date||""))).slice(0,8).map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.reference||"—")}</td><td>${esc(x.description||"—")}</td><td>${peso(x.amount)}</td><td><button type="button" class="secondary liwo-edit-payment" data-payment-reference="${esc(x.reference||"")}" data-payment-project-id="${esc(x.clientId||id)}">Edit</button></td><td><button type="button" class="secondary liwo-delete-payment" data-payment-reference="${esc(x.reference||"")}" data-payment-project-id="${esc(x.clientId||id)}" style="color:#b42318;border-color:#f0b7b2;">Delete</button></td></tr>`).join("")||'<tr><td colspan="6" class="empty">No client payments for this project.</td></tr>');
   body("pdExpensesBody",expenses.slice().sort((a,b)=>String(b.date||"").localeCompare(String(a.date||""))).slice(0,8).map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.type||"Expense")}</td><td>${esc(x.category||"—")}</td><td>${peso(x.amount)}</td><td>${esc(x.status||"Recorded")}</td><td><button type="button" class="secondary liwo-edit-expense" data-expense-id="${esc(x.id||x.expenseId||x.row||"")}" data-project-id="${esc(id)}">Edit</button></td></tr>`).join("")||'<tr><td colspan="6" class="empty">No fund transactions for this project.</td></tr>');
   const recent=[...payments.map(x=>({date:x.date,type:"Client Payment",description:x.description||x.reference||"Payment",amount:Number(x.amount||0),enteredBy:x.enteredBy})),...expenses.map(x=>({date:x.date,type:x.type||"Expense",description:x.description||x.category||"Transaction",amount:Number(x.amount||0),enteredBy:x.enteredBy}))].sort((a,b)=>String(b.date||"").localeCompare(String(a.date||""))).slice(0,10);
   body("pdRecentBody",recent.map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.type)}</td><td>${esc(x.description)}</td><td>${peso(x.amount)}</td><td>${esc(x.enteredBy||"—")}</td></tr>`).join("")||'<tr><td colspan="5" class="empty">No recent activity for this project.</td></tr>');
@@ -3143,7 +3149,13 @@ document.addEventListener("DOMContentLoaded",()=>{
   }
   function renderCenter(){
     const list=q("mobileNotificationList");if(!list)return;
-    const notes=getNotes().slice().reverse();
+    const notes=getNotes().slice().map((x,idx)=>({x,idx})).sort((a,b)=>{
+      const bt=Date.parse(b.x?.time||"");
+      const at=Date.parse(a.x?.time||"");
+      if(Number.isFinite(bt)&&Number.isFinite(at)&&bt!==at)return bt-at;
+      if(Number.isFinite(bt)!==Number.isFinite(at))return Number.isFinite(bt)?-1:1;
+      return b.idx-a.idx;
+    }).map(v=>v.x);
     list.innerHTML=notes.length?notes.map(x=>{
       const title=typeof notificationTitle==="function"?notificationTitle(x):(x.action||"FINANCE UPDATE");
       const details=typeof notificationDetails==="function"?notificationDetails(x):(x.details||"A finance update was recorded.");
@@ -3398,8 +3410,7 @@ document.addEventListener("DOMContentLoaded",()=>{
     setVal(f,"date",x.date||""); setVal(f,"reference",x.reference||"");
     setVal(f,"description",x.description||""); setVal(f,"amount",x.amount??""); setVal(f,"method",x.method||"Cash"); setVal(f,"notes",x.notes||"");
     f.dataset.editingPayment="1";
-    f.dataset.editPaymentId=x.id??x.paymentId??x.row??"";
-    f.dataset.editPaymentRow=x.row??"";
+    f.dataset.editPaymentReference=x.reference??"";
     f.dataset.editPaymentProjectId=x.clientId??x.clientID??selectedClientId??"";
     f.dataset.editPaymentDate=x.date||""; f.dataset.editPaymentReference=x.reference||""; f.dataset.editPaymentDescription=x.description||""; f.dataset.editPaymentAmount=String(x.amount??"");
     const b=f.querySelector("button[type=submit]");
@@ -3425,20 +3436,16 @@ document.addEventListener("DOMContentLoaded",()=>{
   async function savePaymentEdit(f){
     const payload=formObj(f);
     const projectId=f.dataset.editPaymentProjectId||payload.clientId||selectedClientId||"";
-    const id=f.dataset.editPaymentId??"";
-    const row=f.dataset.editPaymentRow??"";
+    const reference=f.dataset.editPaymentReference??"";
     payload.clientId=projectId;
     payload.clientID=projectId;
-    payload.id=id;
-    payload.paymentId=id;
-    // Keep the backend row identifier separate from the payment id.
-    if(row!=="")payload.row=row;
+    payload.reference=payload.reference||reference;
+    payload.originalReference=reference;
     payload.originalDate=f.dataset.editPaymentDate||payload.date;
-    payload.originalReference=f.dataset.editPaymentReference||payload.reference;
     payload.originalDescription=f.dataset.editPaymentDescription||payload.description;
     payload.originalAmount=Number(f.dataset.editPaymentAmount||payload.amount);
     await callEdit("updatePayment","editPayment",payload);
-    delete f.dataset.editingPayment; delete f.dataset.editPaymentId; delete f.dataset.editPaymentRow; delete f.dataset.editPaymentProjectId;
+    delete f.dataset.editingPayment; delete f.dataset.editPaymentReference; delete f.dataset.editPaymentProjectId;
     f.reset(); if(f.elements.date)f.elements.date.value=today();
     const b=f.querySelector("button[type=submit]"); if(b)b.textContent="Save Payment";
     await refresh(); toast("Client payment updated.");
@@ -3460,9 +3467,8 @@ document.addEventListener("DOMContentLoaded",()=>{
 
   async function deletePaymentRecord(x){
     if(!x)return;
-    const id=x.id??x.paymentId??x.row??"";
-    const row=x.row??"";
-    if(id===""&&row===""){toast("This payment has no record ID and cannot be deleted.");return;}
+    const reference=String(x.reference??"").trim();
+    if(reference===""){toast("This payment has no Payment Reference and cannot be deleted.");return;}
     const projectId=x.clientId??x.clientID??selectedClientId??"";
     const label=x.description||x.reference||"this client payment";
     if(!confirm(`Delete ${label}?\n\nThis action cannot be undone.`))return;
@@ -3559,7 +3565,13 @@ document.addEventListener("DOMContentLoaded",()=>{
           data.serverUnreadCount=Number.isFinite(Number(o.unreadCount))?Number(o.unreadCount):data.activity.filter(x=>x&&x.unread).length;
           const list=q("mobileNotificationList");
           if(list){
-            const notes=data.activity.slice().reverse();
+            const notes=data.activity.slice().map((x,idx)=>({x,idx})).sort((a,b)=>{
+              const bt=Date.parse(b.x?.time||"");
+              const at=Date.parse(a.x?.time||"");
+              if(Number.isFinite(bt)&&Number.isFinite(at)&&bt!==at)return bt-at;
+              if(Number.isFinite(bt)!==Number.isFinite(at))return Number.isFinite(bt)?-1:1;
+              return b.idx-a.idx;
+            }).map(v=>v.x);
             list.innerHTML=notes.length?notes.map(x=>{
               const title=typeof notificationTitle==="function"?notificationTitle(x):(x.action||"FINANCE UPDATE");
               const details=typeof notificationDetails==="function"?notificationDetails(x):(x.details||"A new transaction or system update was recorded in LIWO Finance.");
