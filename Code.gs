@@ -77,6 +77,55 @@ function readSheet_(sheetName){
   });
 }
 
+// The payments sheet stores data in a fixed layout. Some older spreadsheets
+// have a shifted header row (missing the ClientID label), even though their
+// row values remain in the correct positions. Read payment records by their
+// established columns so reports work with both header layouts.
+function readPaymentRows_(){
+  const sh=ss().getSheetByName("payments");
+  if(!sh || sh.getLastRow()<2)return [];
+  return sh.getDataRange().getValues().slice(1).map(function(row){
+    return {
+      Timestamp:row[0], Date:row[1], ClientID:row[2],
+      "Payment Ref.":row[3], "Payment Ref":row[3],
+      "Description / Milestone":row[4], Description:row[4],
+      "Due Amount":row[5], "Amount Paid":row[6], AmountPaid:row[6], Amount:row[6],
+      "Payment Method":row[7], PaymentMethod:row[7], Notes:row[8],
+      "Entered By":row[9], Username:row[10]
+    };
+  });
+}
+
+// Older payment and expense rows may contain a project name or reference in
+// the ClientID column. Reports may read those legacy rows, while all current
+// write/edit operations continue to require the exact ClientID.
+function reportKey_(value){
+  return String(value==null?"":value).trim().toLowerCase().replace(/\s+/g," ");
+}
+function reportClientIdLookup_(clients){
+  const lookup={};
+  const add=function(value,id){
+    const key=reportKey_(value);
+    if(!key)return;
+    if(!(key in lookup))lookup[key]=id;
+    else if(lookup[key]!==id)lookup[key]=""; // Never guess ambiguous matches.
+  };
+  clients.forEach(function(c){
+    const id=String(c.ClientID||c.id||"").trim();
+    if(!id)return;
+    add(id,id);
+    add(c["Client / Project Name"]||c.ProjectName||c.ClientName||c.name,id);
+    add(c.Reference,id);
+  });
+  return function(value){return lookup[reportKey_(value)]||"";};
+}
+function reportRecordBelongsToClient_(record,client){
+  const value=reportKey_(record&&record.ClientID);
+  return !!value && [client.id,client.name,client.reference].some(function(candidate){
+    return value===reportKey_(candidate);
+  });
+}
+
 function audit_(u,action,entity,details,extra){
   const actor=u||{username:"SYSTEM",name:"SYSTEM"};
   let detail=String(details||"");
@@ -154,9 +203,14 @@ function saveReportConfig_(u, cfg){
 }
 
 function getProjectFinancialSummary_(startDate,endDate){
-  const clients=readSheet_("clients");
-  const payments=readSheet_("payments");
+  // Completed/archived projects are marked inactive and must not be included
+  // in automated weekly, monthly, or full-report packages.
+  const clients=readSheet_("clients").filter(function(client){
+    return String(client.Active).trim().toLowerCase()!=="false";
+  });
+  const payments=readPaymentRows_();
   const expenses=readSheet_("expenses");
+  const resolveClientId=reportClientIdLookup_(clients);
   const tz=Session.getScriptTimeZone()||"Asia/Manila";
   const hasRange=!!(startDate||endDate);
   const startKey=startDate?Utilities.formatDate(new Date(startDate),tz,"yyyy-MM-dd"):null;
@@ -177,9 +231,11 @@ function getProjectFinancialSummary_(startDate,endDate){
     if(!id)return;
     projectMap[id]={
       clientId:id,
-      project:String(c.ProjectName||c.ClientName||"").trim(),
+      // Keep this compatible with the actual LIWO clients sheet header as
+      // well as earlier versions of the tracker.
+      project:String(c["Client / Project Name"]||c.ProjectName||c.ClientName||"").trim(),
       reference:String(c.Reference||"").trim(),
-      contract:Number(c.ContractValue||c.Budget||0)||0,
+      contract:Number(c["Contract Budget"]||c.ContractValue||c.Budget||0)||0,
       payments:0,
       expenses:0,
       otherIncome:0,
@@ -198,9 +254,9 @@ function getProjectFinancialSummary_(startDate,endDate){
   // Lifetime payments are retained only for the true contract balance.
   const lifetimePayments={};
   payments.forEach(function(p){
-    const id=String(p.ClientID||"").trim();
+    const id=resolveClientId(p.ClientID);
     if(!projectMap[id])return;
-    const amount=Number(p.Amount||p.AmountPaid||0)||0;
+    const amount=Number(p["Amount Paid"]||p.AmountPaid||p.Amount||0)||0;
     lifetimePayments[id]=(lifetimePayments[id]||0)+amount;
     if(inRange(p.Date||p.Timestamp)){
       projectMap[id].payments+=amount;
@@ -210,7 +266,7 @@ function getProjectFinancialSummary_(startDate,endDate){
   });
 
   expenses.forEach(function(e){
-    const id=String(e.ClientID||"").trim();
+    const id=resolveClientId(e.ClientID);
     if(!projectMap[id] || !inRange(e.Date||e.Timestamp))return;
     const amount=Number(e.Amount||0)||0;
     const type=String(e.Type||"Expense").trim().toLowerCase();
@@ -421,6 +477,26 @@ function buildAutomatedReportEmailHtml_(type,label){
     +'</div></div></body></html>';
 }
 
+// Every reporting run creates a portfolio PDF plus one self-contained PDF
+// per project.  The project PDFs are attached to the same email, so the
+// recipients receive both the overall view and the separate project views.
+function createFinancialReportPackage_(folder,base,label,rows,reportType){
+  const makePdf=function(name,html){
+    const source=folder.createFile(Utilities.newBlob(html,"text/html",name+".html"));
+    const pdf=folder.createFile(source.getAs(MimeType.PDF).setName(name+".pdf"));
+    try{source.setTrashed(true);}catch(_){}
+    return pdf;
+  };
+  const allProjectsPdf=makePdf(base+" - All Projects",buildFinancialReportHtml_(label,rows,reportType));
+  const projectPdfs=rows.map(function(project){
+    const safe=String(project.project||project.clientId||"Unnamed Project")
+      .replace(/[^\w\-]+/g,"_").replace(/^_+|_+$/g,"").slice(0,70)||"Unnamed_Project";
+    const projectLabel=label+" — Project: "+String(project.project||"Unnamed Project");
+    return makePdf(base+" - "+safe,buildFinancialReportHtml_(projectLabel,[project],reportType));
+  });
+  return {allProjectsPdf:allProjectsPdf,projectPdfs:projectPdfs};
+}
+
 function generateWeeklyFinancialReport_(u){
   adminOnly(u);
   const tz=Session.getScriptTimeZone()||"Asia/Manila";
@@ -434,13 +510,10 @@ function generateWeeklyFinancialReport_(u){
   const end=Utilities.formatDate(endDate,tz,"MMM d, yyyy");
   const label="Weekly Financial Report: "+start+" – "+end;
   const rows=getProjectFinancialSummary_(startDate,endDate);
-  const html=buildFinancialReportHtml_(label,rows);
-
   const folder=getOrCreateReceiptFolder_();
   const base="LIWO Weekly Financial Report "+endKey;
-  const file=folder.createFile(Utilities.newBlob(html,"text/html",base+".html"));
-  const pdfFile=folder.createFile(file.getAs(MimeType.PDF).setName(base+".pdf"));
-  try{file.setTrashed(true)}catch(_){}
+  const reportPackage=createFinancialReportPackage_(folder,base,label,rows,"Weekly");
+  const pdfFile=reportPackage.allProjectsPdf;
 
   const recipients=getReportRecipients_();
   if(recipients.length){
@@ -448,11 +521,11 @@ function generateWeeklyFinancialReport_(u){
       to:recipients.join(","),
       subject:"LIWO Finance — "+label,
       htmlBody:buildAutomatedReportEmailHtml_("Weekly",label),
-      attachments:[pdfFile.getBlob()]
+      attachments:[pdfFile.getBlob()].concat(reportPackage.projectPdfs.map(function(file){return file.getBlob();}))
     });
   }
   audit_(u,"WEEKLY_FINANCIAL_REPORT","SYSTEM",label,JSON.stringify({pdfUrl:pdfFile.getUrl(),recipients:recipients,start:startKey,end:endKey}));
-  return {ok:true,period:label,pdfUrl:pdfFile.getUrl(),recipients:recipients,projects:rows};
+  return {ok:true,period:label,pdfUrl:pdfFile.getUrl(),projectPdfUrls:reportPackage.projectPdfs.map(function(file){return file.getUrl();}),recipients:recipients,projects:rows};
 }
 function generateMonthlyFinancialReport_(u){
   adminOnly(u);
@@ -464,23 +537,21 @@ function generateMonthlyFinancialReport_(u){
   const end=Utilities.formatDate(endDate,tz,"MMMM d, yyyy");
   const label="Monthly Financial Report: "+start+" – "+end;
   const rows=getProjectFinancialSummary_(startDate,endDate);
-  const html=buildFinancialReportHtml_(label,rows,"Monthly");
   const folder=getOrCreateReceiptFolder_();
   const base="LIWO Monthly Financial Report "+Utilities.formatDate(startDate,tz,"yyyy-MM");
-  const file=folder.createFile(Utilities.newBlob(html,"text/html",base+".html"));
-  const pdfFile=folder.createFile(file.getAs(MimeType.PDF).setName(base+".pdf"));
-  try{file.setTrashed(true)}catch(_){}
+  const reportPackage=createFinancialReportPackage_(folder,base,label,rows,"Monthly");
+  const pdfFile=reportPackage.allProjectsPdf;
   const recipients=getReportRecipients_();
   if(recipients.length){
     MailApp.sendEmail({
       to:recipients.join(","),
       subject:"LIWO Finance — "+label,
       htmlBody:buildAutomatedReportEmailHtml_("Monthly",label),
-      attachments:[pdfFile.getBlob()]
+      attachments:[pdfFile.getBlob()].concat(reportPackage.projectPdfs.map(function(file){return file.getBlob();}))
     });
   }
   audit_(u,"MONTHLY_FINANCIAL_REPORT","SYSTEM",label,JSON.stringify({pdfUrl:pdfFile.getUrl(),recipients:recipients,start:Utilities.formatDate(startDate,tz,"yyyy-MM-dd"),end:Utilities.formatDate(endDate,tz,"yyyy-MM-dd")}));
-  return {ok:true,period:label,pdfUrl:pdfFile.getUrl(),recipients:recipients,projects:rows};
+  return {ok:true,period:label,pdfUrl:pdfFile.getUrl(),projectPdfUrls:reportPackage.projectPdfs.map(function(file){return file.getUrl();}),recipients:recipients,projects:rows};
 }
 
 function installWeeklyReportTrigger_(u){
@@ -513,20 +584,18 @@ function runScheduledWeeklyReport(){
   const endKey=Utilities.formatDate(endDate,tz,"yyyy-MM-dd");
   const label="Weekly Financial Report: "+start+" – "+end;
   const rows=getProjectFinancialSummary_(startDate,endDate);
-  const html=buildFinancialReportHtml_(label,rows,"Weekly");
   const folder=getOrCreateReceiptFolder_();
   const base="LIWO Weekly Financial Report "+endKey;
-  const file=folder.createFile(Utilities.newBlob(html,"text/html",base+".html"));
-  const pdfFile=folder.createFile(file.getAs(MimeType.PDF).setName(base+".pdf"));
-  try{file.setTrashed(true)}catch(_){}
+  const reportPackage=createFinancialReportPackage_(folder,base,label,rows,"Weekly");
+  const pdfFile=reportPackage.allProjectsPdf;
   MailApp.sendEmail({
     to:recipients.join(","),
     subject:"LIWO Finance — "+label,
     htmlBody:buildAutomatedReportEmailHtml_("Weekly",label),
-    attachments:[pdfFile.getBlob()]
+    attachments:[pdfFile.getBlob()].concat(reportPackage.projectPdfs.map(function(file){return file.getBlob();}))
   });
   audit_({username:"SYSTEM",name:"SYSTEM",role:"Admin"},"WEEKLY_FINANCIAL_REPORT","SYSTEM",label,JSON.stringify({pdfUrl:pdfFile.getUrl(),recipients:recipients,start:startKey,end:endKey}));
-  return {ok:true,period:label,pdfUrl:pdfFile.getUrl(),recipients:recipients,projects:rows};
+  return {ok:true,period:label,pdfUrl:pdfFile.getUrl(),projectPdfUrls:reportPackage.projectPdfs.map(function(file){return file.getUrl();}),recipients:recipients,projects:rows};
 }
 
 function setupAutomatedReports(){
@@ -647,13 +716,13 @@ function generateProjectFinancialReport_(u, clientId){
   const client=requireClient_(clientId,true);
   const id=client.id;
 
-  const payments=readSheet_("payments").filter(function(p){return String(p.ClientID||"").trim()===id;});
-  const expenses=readSheet_("expenses").filter(function(e){return String(e.ClientID||"").trim()===id;});
+  const payments=readPaymentRows_().filter(function(p){return reportRecordBelongsToClient_(p,client);});
+  const expenses=readSheet_("expenses").filter(function(e){return reportRecordBelongsToClient_(e,client);});
   const milestones=readSheet_("milestones").filter(function(m){return String(m.ClientID||"").trim()===id;});
   const tools=readSheet_("tools").filter(function(t){return String(t.ClientID||"").trim()===id;});
 
-  const contract=Number(client.ContractValue||client.Budget||0)||0;
-  const paid=payments.reduce(function(s,p){return s+(Number(p.Amount||0)||0)},0);
+  const contract=Number(client.budget||client["Contract Budget"]||client.ContractValue||client.Budget||0)||0;
+  const paid=payments.reduce(function(s,p){return s+(Number(p["Amount Paid"]||p.AmountPaid||p.Amount||0)||0)},0);
   const spent=expenses.reduce(function(s,e){return s+(Number(e.Amount||0)||0)},0);
   const profit=paid-spent;
   const margin=paid>0?(profit/paid)*100:0;
@@ -664,7 +733,7 @@ function generateProjectFinancialReport_(u, clientId){
   const esc=function(s){return String(s??"").replace(/[&<>"']/g,function(m){return({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"})[m]});};
 
   const paymentRows=payments.map(function(p){
-    return "<tr><td>"+esc(p.Date||p.Timestamp||"")+"</td><td>"+esc(p.Description||p.Particulars||"Payment")+"</td><td>"+money(p.Amount)+"</td><td>"+esc(p.Method||p.PaymentMethod||"")+"</td></tr>";
+    return "<tr><td>"+esc(p.Date||p.Timestamp||"")+"</td><td>"+esc(p["Description / Milestone"]||p.Description||p.Particulars||"Payment")+"</td><td>"+money(p["Amount Paid"]||p.AmountPaid||p.Amount)+"</td><td>"+esc(p["Payment Method"]||p.Method||p.PaymentMethod||"")+"</td></tr>";
   }).join("") || '<tr><td colspan="4">No payments recorded.</td></tr>';
 
   const expenseRows=expenses.map(function(e){
@@ -680,7 +749,7 @@ function generateProjectFinancialReport_(u, clientId){
   }).join("") || '<tr><td colspan="4">No tool records.</td></tr>';
 
   const now=new Date(), tz=Session.getScriptTimeZone()||"Asia/Manila";
-  const projectName=String(client.ProjectName||client.ClientName||"").trim();
+  const projectName=String(client.name||client["Client / Project Name"]||client.ProjectName||client.ClientName||"").trim();
   const ref=String(client.Reference||"").trim();
 
   const html='<!doctype html><html><head><meta charset="utf-8"><style>'+
@@ -731,7 +800,7 @@ case"generateWeeklyReport":return json(withAuth(r,generateWeeklyFinancialReport_
 case"generateMonthlyReport":return json(withAuth(r,generateMonthlyFinancialReport_));
 case"sendAutomatedReportTestEmail":return json(withAuth(r,sendAutomatedReportTestEmail));
 case"generateProjectFinancialReport":return json(withAuth(r,function(rr,uu){return generateProjectFinancialReport_(uu,rr.clientId);}));
-case"generateFinancialReport":return json(withAuth(r,generateFinancialReport));case"installMonthlyReportTrigger":return json(withAuth(r,installMonthlyReportTrigger));case"sendMonthlyFinancialReport":return json(withAuth(r,sendMonthlyFinancialReport));case"projectFinancialDashboard":return json(withAuth(r,projectFinancialDashboard));case"projectDashboard":return json(withAuth(r,projectFinancialDashboard));case"projectWorkspace":return json(withAuth(r,projectFinancialDashboard));
+case"generateFinancialReport":return json(withAuth(r,generateFinancialReport));case"generateFullFinancialReports":return json(withAuth(r,function(rr,uu){return generateFullFinancialReports_(uu);}));case"installMonthlyReportTrigger":return json(withAuth(r,installMonthlyReportTrigger));case"sendMonthlyFinancialReport":return json(withAuth(r,sendMonthlyFinancialReport));case"projectFinancialDashboard":return json(withAuth(r,projectFinancialDashboard));case"projectDashboard":return json(withAuth(r,projectFinancialDashboard));case"projectWorkspace":return json(withAuth(r,projectFinancialDashboard));
 case"addPayment":return json(withAuth(r,addPayment));case"updatePayment":return json(withAuth(r,updatePayment));case"editPayment":return json(withAuth(r,editPayment));case"addExpense":return json(withAuth(r,addExpense));case"updateExpense":return json(withAuth(r,updateExpense));case"editExpense":return json(withAuth(r,editExpense));case"listUsers":return json(withAuth(r,listUsers));
 case"upsertUser":return json(withAuth(r,upsertUser));case"listTools":return json(withAuth(r,listTools));case"tools":return json(withAuth(r,listTools));case"constructionTools":return json(withAuth(r,listTools));case"listConstructionTools":return json(withAuth(r,listTools));case"getTools":return json(withAuth(r,listTools));case"addTool":return json(withAuth(r,addTool));case"updateTool":return json(withAuth(r,updateTool));case"cashBalances":return json(withAuth(r,cashBalances));case"cashPosition":return json(withAuth(r,cashBalances));case"getCashPosition":return json(withAuth(r,cashBalances));case"getCashBalances":return json(withAuth(r,cashBalances));case"listCashHistory":return json(withAuth(r,listCashHistory));case"cashHistory":return json(withAuth(r,listCashHistory));case"updateCashBalance":return json(withAuth(r,updateCashBalance));case"updateCashBalances":return json(withAuth(r,updateCashBalances));case"changeInvite":return json(withAuth(r,changeInvite));case"reopenRegistration":return json(withAuth(r,reopenRegistration));case"upsertClient":return json(withAuth(r,upsertClient));case"archiveClient":return json(withAuth(r,archiveClient));case"restoreClient":return json(withAuth(r,restoreClient));case"deleteClient":return json(withAuth(r,deleteClient));case"notifications":return json(withAuth(r,notifications));case"markNotificationsRead":return json(withAuth(r,markNotificationsRead));case"listMilestones":return json(withAuth(r,listMilestones));case"addMilestone":return json(withAuth(r,addMilestone));case"updateMilestone":return json(withAuth(r,updateMilestone));case"verifyReceipt":return json(withAuth(r,verifyReceipt));case"reconcileCash":return json(withAuth(r,reconcileCash));case"getProjectBudget":return json(withAuth(r,getProjectBudget));case"saveProjectBudget":return json(withAuth(r,saveProjectBudget));case"returnTool":return json(withAuth(r,returnTool));case"deletePayment":return json(withAuth(r,deletePayment));case"deleteExpense":return json(withAuth(r,deleteExpense));case"listBills":return json(withAuth(r,listBills));case"addBill":return json(withAuth(r,addBill));case"updateBill":return json(withAuth(r,updateBill));case"editBill":return json(withAuth(r,editBill));case"deleteBill":return json(withAuth(r,deleteBill));case"saveCalculation":return json(withAuth(r,saveCalculation));case"listCalculations":return json(withAuth(r,listCalculations));
 case"deleteUser":return json(withAuth(r,deleteUser));case"deactivateUser":return json(withAuth(r,deactivateUser));case"reactivateUser":return json(withAuth(r,reactivateUser));case"setUserActive":return json(withAuth(r,setUserActive));case"listReceipts":return json(withAuth(r,listReceipts));case"listReceipt":return json(withAuth(r,listReceipts));case"getReceipts":return json(withAuth(r,listReceipts));case"getReceiptList":return json(withAuth(r,listReceipts));case"receipts":return json(withAuth(r,listReceipts));case"receiptGallery":return json(withAuth(r,listReceipts));case"getReceiptGallery":return json(withAuth(r,listReceipts));case"loadReceipts":return json(withAuth(r,listReceipts));case"getReceiptLibrary":return json(withAuth(r,listReceipts));case"migrateLegacyToolClientIds":return json(withAuth(r,migrateLegacyToolClientIds_));default:return json({ok:false,error:"Unknown action: "+String(r.action||"")})}}catch(x){return json({ok:false,error:String(x.message||x)})}}
@@ -2135,9 +2204,25 @@ function reportDataForPeriod_(start,end){
   });
   return projects;
 }
+function generateFullFinancialReports_(u){
+  adminOnly(u);
+  const tz=Session.getScriptTimeZone()||"Asia/Manila";
+  const now=new Date();
+  const label="Full Financial Report — All Project Records";
+  const rows=getProjectFinancialSummary_(null,null);
+  const folder=getOrCreateReceiptFolder_();
+  const base="LIWO Full Financial Report "+Utilities.formatDate(now,tz,"yyyy-MM-dd");
+  const reportPackage=createFinancialReportPackage_(folder,base,label,rows,"Full");
+  audit_(u,"FULL_FINANCIAL_REPORT","SYSTEM",label,JSON.stringify({pdfUrl:reportPackage.allProjectsPdf.getUrl(),projectReports:reportPackage.projectPdfs.length}));
+  return {
+    ok:true,period:label,pdfUrl:reportPackage.allProjectsPdf.getUrl(),
+    projectPdfUrls:reportPackage.projectPdfs.map(function(file){return file.getUrl();}),projects:rows
+  };
+}
 function generateFinancialReport(r,u){
   adminOnly(u);
   let period=String(r.period||"month"),now=new Date(),start=null,end=null,label="Complete Financial Report";
+  if(period==="all"||period==="full")return generateFullFinancialReports_(u);
   if(period==="month"){start=new Date(now.getFullYear(),now.getMonth(),1);end=new Date(now.getFullYear(),now.getMonth()+1,1);label=Utilities.formatDate(start,Session.getScriptTimeZone(),"MMMM yyyy")+" Financial Report";}
   if(period==="week"){let d=new Date(now);let day=d.getDay();let diff=day===0?-6:1-day;start=new Date(d);start.setHours(0,0,0,0);start.setDate(d.getDate()+diff);end=new Date(start);end.setDate(start.getDate()+7);label="Weekly Financial Report";}
   let projects=reportDataForPeriod_(start,end),tot=projects.reduce((a,p)=>{a.budget+=p.budget;a.payments+=p.payments;a.expenses+=p.expenses;a.profit+=p.profit;a.outstanding+=p.outstanding;return a},{budget:0,payments:0,expenses:0,profit:0,outstanding:0});
@@ -2158,19 +2243,17 @@ function sendMonthlyFinancialReport(){
   const end=Utilities.formatDate(endDate,tz,"MMMM d, yyyy");
   const label="Monthly Financial Report: "+start+" – "+end;
   const rows=getProjectFinancialSummary_(startDate,endDate);
-  const html=buildFinancialReportHtml_(label,rows,"Monthly");
   const folder=getOrCreateReceiptFolder_();
   const base="LIWO Monthly Financial Report "+Utilities.formatDate(startDate,tz,"yyyy-MM");
-  const file=folder.createFile(Utilities.newBlob(html,"text/html",base+".html"));
-  const pdfFile=folder.createFile(file.getAs(MimeType.PDF).setName(base+".pdf"));
-  try{file.setTrashed(true)}catch(_){}
+  const reportPackage=createFinancialReportPackage_(folder,base,label,rows,"Monthly");
+  const pdfFile=reportPackage.allProjectsPdf;
   MailApp.sendEmail({
     to:recipients.join(","),
     subject:"LIWO Finance — "+label,
     htmlBody:buildAutomatedReportEmailHtml_("Monthly",label),
-    attachments:[pdfFile.getBlob()]
+    attachments:[pdfFile.getBlob()].concat(reportPackage.projectPdfs.map(function(file){return file.getBlob();}))
   });
   audit_({username:"SYSTEM",name:"SYSTEM",role:"Admin"},"MONTHLY_FINANCIAL_REPORT","SYSTEM",label,JSON.stringify({pdfUrl:pdfFile.getUrl(),recipients:recipients}));
-  return {ok:true,period:label,pdfUrl:pdfFile.getUrl(),recipients:recipients,projects:rows};
+  return {ok:true,period:label,pdfUrl:pdfFile.getUrl(),projectPdfUrls:reportPackage.projectPdfs.map(function(file){return file.getUrl();}),recipients:recipients,projects:rows};
 }
 function installMonthlyReportTrigger(r,u){adminOnly(u);ScriptApp.getProjectTriggers().filter(t=>t.getHandlerFunction()==='sendMonthlyFinancialReport').forEach(t=>ScriptApp.deleteTrigger(t));ScriptApp.newTrigger('sendMonthlyFinancialReport').timeBased().onMonthDay(1).atHour(8).create();audit('INSTALL_MONTHLY_REPORT',u,'Monthly automated report trigger installed');return{ok:true};}
