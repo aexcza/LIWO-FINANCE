@@ -3396,7 +3396,8 @@ function reportRecords(){
   const client=(data.clients||[]).find(c=>String(c.id)===id);
   if(!id)return{client:null,payments:[],expenses:[],totalPayments:0,totalExpenses:0,contract:0,available:0,balance:0,net:0,budget:[],periodStart:null,periodEnd:null,cashIn:0,cashOut:0,netMovement:0,refunds:0,otherIncome:0,largestCategory:"—",largestCategoryAmount:0,categoryTotals:{}};
 
-  let payments=(data.payments||[]).filter(x=>String(x.clientId||x.clientID||"")===id);
+  const lifetimePayments=(data.payments||[]).filter(x=>String(x.clientId||x.clientID||"")===id);
+  let payments=lifetimePayments.slice();
   let expenses=(data.expenses||[]).filter(x=>String(x.clientId||x.clientID||"")===id);
 
   const now=new Date();
@@ -3420,11 +3421,13 @@ function reportRecords(){
   const refunds=expenses.filter(x=>String(x.type)==="Refund").reduce((a,x)=>a+Number(x.amount||0),0);
   const otherIncome=expenses.filter(x=>String(x.type)==="Other Income").reduce((a,x)=>a+Number(x.amount||0),0);
   const contract=Number(client?.totalContract??client?.budget??data.summary?.contractAmount??0);
-  const cashIn=totalPayments+refunds+otherIncome;
-  const cashOut=totalExpenses;
+  // Match automated-report accounting: other income is money in and refunds
+  // are money out; collections and outstanding balance remain lifetime values.
+  const cashIn=totalPayments+otherIncome;
+  const cashOut=totalExpenses+refunds;
   const netMovement=cashIn-cashOut;
   const available=cashIn-cashOut;
-  const balance=Math.max(0,contract-totalPayments);
+  const balance=Math.max(0,contract-lifetimePayments.reduce((a,x)=>a+Number(x.amount||0),0));
 
   const budget=(data.budget||[]).filter(x=>String(x.clientId||x.clientID||id)===id||!x.clientId).map(x=>{
     const actual=expenses.filter(y=>String(y.category||"")===String(x.category||"")&&(y.type==="Expense"||!y.type)).reduce((a,y)=>a+Number(y.amount||0),0);
@@ -4714,6 +4717,152 @@ document.addEventListener("DOMContentLoaded",()=>{
 })();
 </script>
 </html>
+<script id="liwo-automated-report-export-layout">
+/* Keep Reports / Export aligned with the premium financial-report layout sent by
+   the automated reporting service.  This override intentionally uses the same
+   section names, figures, and project review order for screen, PDF/print, and CSV. */
+(function(){
+  const byId=id=>document.getElementById(id);
+  const money=value=>'₱'+Number(value||0).toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const percent=value=>Number(value||0).toFixed(1)+'%';
+  const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[char]));
+  const number=value=>Number(value||0);
+
+  function reportModel(){
+    const r=reportRecords();
+    const period=byId('reportPeriod')?.value||'all';
+    const today=new Date();
+    const end=r.periodEnd?new Date(r.periodEnd.getTime()-86400000):null;
+    const dateText=date=>date?date.toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'}):'—';
+    const periodLabel=r.periodStart&&end?dateText(r.periodStart)+' – '+dateText(end):'All available records';
+    const reportType=period==='week'?'Weekly':period==='month'?'Monthly':'Complete';
+    const project=r.client?.name||'No Active Project Selected';
+    const reference=r.client?.reference||'—';
+    const payments=number(r.totalPayments),expenses=number(r.totalExpenses),otherIncome=number(r.otherIncome),refunds=number(r.refunds),contract=number(r.contract);
+    const net=number(r.netMovement), collected=contract?payments/contract*100:0, spent=payments?expenses/payments*100:0, remaining=payments?((payments-expenses)/payments)*100:0;
+    const categories=Object.entries(r.categoryTotals||{}).sort((a,b)=>number(b[1])-number(a[1]));
+    const top=categories[0]||['No expense category recorded',0], second=categories[1]||null;
+    let commentary='During '+periodLabel+', '+project+' recorded '+money(payments)+' in client payments';
+    if(otherIncome)commentary+=', '+money(otherIncome)+' in other income';
+    if(refunds)commentary+=', and '+money(refunds)+' in refunds';
+    commentary+='. Total expenses for the period were '+money(expenses)+', resulting in a net cash movement of '+money(net)+'. ';
+    commentary+='Client payments represent '+percent(collected)+' of the contract value';
+    if(contract)commentary+=', with '+money(r.balance)+' remaining uncollected';
+    commentary+='. ';
+    commentary+=payments?money(expenses)+' or '+percent(spent)+' of the payments received during the period was spent, leaving '+money(payments-expenses)+' or '+percent(remaining)+' of period payments before other income/refund adjustments. ':'No client payment was recorded during this period, so spending as a percentage of period payments is not applicable. ';
+    commentary+=number(top[1])>0?top[0]+' was the largest expense category at '+money(top[1])+' ('+percent(expenses?number(top[1])/expenses*100:0)+' of project expenses).'+(second&&number(second[1])>0?' '+second[0]+' followed at '+money(second[1])+' ('+percent(expenses?number(second[1])/expenses*100:0)+').':''):'No categorized expense movement was recorded during this period.';
+    return {r,periodLabel,reportType,project,reference,generated:today.toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric',hour:'numeric',minute:'2-digit'}),payments,expenses,otherIncome,refunds,contract,net,collected,spent,remaining,categories,commentary};
+  }
+
+  function reportMarkup(m){
+    const categoryRows=m.categories.map(([name,amount])=>'<tr><td>'+escapeHtml(name)+'</td><td>'+money(amount)+'</td><td>'+percent(m.expenses?number(amount)/m.expenses*100:0)+'</td></tr>').join('')||'<tr><td colspan="3" class="empty">No expense categories recorded.</td></tr>';
+    const mini=[['Contract Value',money(m.contract)],['Period Payments',money(m.payments)],['Period Expenses',money(m.expenses)],['Net Movement',money(m.net)],['Contract Collected',percent(m.collected)],['Funds Spent',percent(m.spent)],['Funds Remaining',percent(m.remaining)],['Outstanding Contract',money(m.r.balance)]];
+    return '<div class="liwo-premium-report">'+
+      '<header class="liwo-report-topbar"><div><div class="liwo-brand">LIWO</div><div class="liwo-brand-name">LIWO ENGINEERING CONSULTANCY</div><div class="liwo-brand-sub">Finance &amp; Project Management</div></div><div class="liwo-report-meta"><b>'+escapeHtml(m.reportType.toUpperCase())+' REPORT</b><span>Generated '+escapeHtml(m.generated)+'</span></div></header>'+
+      '<h1>'+escapeHtml(m.reportType)+' Financial Report</h1><p class="liwo-period">'+escapeHtml(m.periodLabel)+'</p>'+
+      '<div class="liwo-intro">This report provides a management-level view of project financial activity for the stated reporting period. It is intended for internal financial review, project monitoring, and record-keeping.</div>'+
+      '<section class="liwo-kpis"><div><span>Contract Value</span><strong>'+money(m.contract)+'</strong></div><div><span>Period Money In</span><strong>'+money(m.payments+m.otherIncome)+'</strong></div><div><span>Period Money Out</span><strong>'+money(m.expenses+m.refunds)+'</strong></div><div class="accent"><span>Net Movement</span><strong>'+money(m.net)+'</strong></div><div><span>Collected</span><strong>'+percent(m.collected)+'</strong></div><div><span>Spent of Payments</span><strong>'+percent(m.spent)+'</strong></div><div><span>Remaining of Payments</span><strong>'+percent(m.remaining)+'</strong></div><div><span>Outstanding</span><strong>'+money(m.r.balance)+'</strong></div></section>'+
+      '<div class="liwo-section-head"><h2>Portfolio Financial Summary</h2><span>1 project included</span></div><div class="table-wrap"><table><thead><tr><th>Project</th><th>Reference</th><th>Contract</th><th>Payments</th><th>Expenses</th><th>Other Income</th><th>Refunds</th><th>Net Movement</th><th>Collected %</th><th>Spent %</th></tr></thead><tbody><tr><td><strong>'+escapeHtml(m.project)+'</strong></td><td>'+escapeHtml(m.reference)+'</td><td>'+money(m.contract)+'</td><td>'+money(m.payments)+'</td><td>'+money(m.expenses)+'</td><td>'+money(m.otherIncome)+'</td><td>'+money(m.refunds)+'</td><td>'+money(m.net)+'</td><td>'+percent(m.collected)+'</td><td>'+percent(m.spent)+'</td></tr></tbody></table></div>'+
+      '<div class="liwo-section-head"><h2>Detailed Financial Review by Project</h2><span>'+escapeHtml(m.reportType)+' reporting period</span></div><section class="liwo-project-card"><div class="liwo-project-heading"><div><small>PROJECT FINANCIAL REVIEW</small><h2>'+escapeHtml(m.project)+'</h2><span>Reference · '+escapeHtml(m.reference)+'</span></div><b>'+(m.expenses>m.payments?'ATTENTION':'IN GOOD STANDING')+'</b></div><div class="liwo-mini-grid">'+mini.map(([label,value])=>'<div><span>'+label+'</span><strong>'+value+'</strong></div>').join('')+'</div><h3>Expense Category Movement</h3><div class="table-wrap"><table><thead><tr><th>Category</th><th>Amount</th><th>% of Project Expenses</th></tr></thead><tbody>'+categoryRows+'</tbody></table></div><div class="liwo-commentary"><b>FINANCIAL COMMENTARY</b><p>'+escapeHtml(m.commentary)+'</p></div></section>'+
+      '<p class="liwo-notes">Reporting figures are restricted to the stated reporting period. Contract collection and outstanding balance are reported from the selected project’s financial records, while money movement and expense analysis use the stated period.</p>'+
+      '<section class="liwo-signatures"><h3>Reviewed and Approved by</h3><div><article><i></i><strong>ENGR. GODWIN TRISTAN VELASCO, SO2</strong><span>Registered Civil Engineer</span></article><article><i></i><strong>ENGR. CHRISTIAN VALEZA, SO2</strong><span>Registered Civil Engineer</span></article><article><i></i><strong>VISMARK NAVARRO</strong><span>Architectural Designer / BIM Modeler</span></article></div></section><footer>LIWO FINANCE · CONFIDENTIAL FINANCIAL REPORT <span>Generated from LIWO Finance</span></footer></div>';
+  }
+
+  window.renderReport=function(){
+    const source=byId('reportPreview'); if(!source)return;
+    source.innerHTML=reportMarkup(reportModel());
+  };
+
+  window.printReport=function(){
+    window.renderReport();
+    const source=byId('reportPreview'); if(!source)return;
+    const setting=window.getLIWOPrintSettings?.()||{size:'A4',orientation:'landscape'};
+    const w=window.open('','_blank','width=1100,height=800');
+    if(!w){toast('Please allow pop-ups to print or save the report as PDF.');return;}
+    const css='@page{size:'+setting.size+' '+setting.orientation+';margin:11mm}*{box-sizing:border-box}body{margin:0;font:10px Arial,sans-serif;color:#18344a}.liwo-premium-report{max-width:100%;margin:0}.liwo-report-topbar{display:flex;justify-content:space-between;border-bottom:3px solid #123451;padding-bottom:18px;margin-bottom:20px}.liwo-brand{letter-spacing:2px;font-weight:bold;color:#123451}.liwo-brand-name{font-size:20px;font-weight:bold;margin-top:5px;color:#123451}.liwo-brand-sub,.liwo-period,.liwo-report-meta span{display:block;color:#718395;margin-top:4px}.liwo-report-meta{text-align:right}.liwo-report-meta b{display:inline-block;background:#123451;color:#fff;padding:6px 8px;font-size:8px;letter-spacing:1px}h1{margin:0;color:#123451;font-size:27px}.liwo-intro,.liwo-commentary{margin:17px 0;padding:12px 14px;background:#f6f8fa;border-left:4px solid #c88722;color:#52697b;line-height:1.55}.liwo-kpis,.liwo-mini-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:15px 0 20px}.liwo-kpis>div,.liwo-mini-grid>div{border:1px solid #dce4ea;padding:9px;background:#fff}.liwo-kpis span,.liwo-mini-grid span{display:block;color:#718395;font-size:7.5px;text-transform:uppercase}.liwo-kpis strong,.liwo-mini-grid strong{display:block;color:#123451;font-size:12px;margin-top:5px}.liwo-kpis .accent{background:#123451}.liwo-kpis .accent span,.liwo-kpis .accent strong{color:#fff}.liwo-section-head{display:flex;justify-content:space-between;border-bottom:1px solid #dce4ea;margin:18px 0 8px}.liwo-section-head h2,.liwo-project-card h2{margin:0;color:#123451;font-size:14px}.liwo-section-head span,.liwo-project-heading span{font-size:8px;color:#718395}table{width:100%;border-collapse:collapse;font-size:8px;margin-bottom:16px}thead{display:table-header-group}tr{break-inside:avoid}th{background:#123451;color:#fff;padding:6px;text-align:left;font-size:7px}td{border:1px solid #dce4ea;padding:6px}.liwo-project-card{border:1px solid #dce4ea;padding:14px;break-inside:avoid}.liwo-project-heading{display:flex;justify-content:space-between;border-bottom:1px solid #e2e8ed;padding-bottom:10px}.liwo-project-heading small,.liwo-commentary b{font-size:7px;letter-spacing:1px;color:#c88722}.liwo-project-heading>b{font-size:7px;color:#52697b}.liwo-project-card h3,.liwo-signatures h3{font-size:9px;text-transform:uppercase;color:#123451}.liwo-commentary p{margin:5px 0 0}.liwo-notes,footer{font-size:8px;color:#718395;border-top:1px solid #dce4ea;padding-top:10px}.liwo-signatures{margin-top:20px;border-top:2px solid #123451;padding-top:10px;break-inside:avoid}.liwo-signatures>div{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}.liwo-signatures article{min-height:58px;display:flex;flex-direction:column;justify-content:end}.liwo-signatures i{border-top:1px solid #273b4a;margin-bottom:6px}.liwo-signatures strong{font-size:8px}.liwo-signatures span{font-size:7px;color:#718395;margin-top:2px}footer{display:flex;justify-content:space-between;margin-top:18px;font-size:7px;font-weight:bold}@media print{.table-wrap{overflow:visible!important}}';
+    w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>LIWO Financial Report</title><style>'+css+'</style></head><body>'+source.innerHTML+'</body></html>');
+    w.document.close();w.focus();setTimeout(()=>w.print(),400);
+  };
+
+  window.exportReportCSV=function(){
+    const m=reportModel(),r=m.r,rows=[],q=value=>'"'+String(value??'').replace(/"/g,'""')+'"';
+    const add=values=>rows.push(values.map(q).join(','));
+    add(['LIWO ENGINEERING CONSULTANCY','Financial Report']); add(['Report Type',m.reportType+' Financial Report']); add(['Reporting Period',m.periodLabel]); add(['Generated',m.generated]); add(['Project',m.project]); add(['Reference',m.reference]); rows.push('');
+    add(['PORTFOLIO FINANCIAL SUMMARY']); add(['Project','Reference','Contract','Payments','Expenses','Other Income','Refunds','Net Movement','Collected %','Spent %']); add([m.project,m.reference,m.contract,m.payments,m.expenses,m.otherIncome,m.refunds,m.net,percent(m.collected),percent(m.spent)]); rows.push('');
+    add(['DETAILED FINANCIAL REVIEW BY PROJECT']); add(['Metric','Value']); [['Contract Value',money(m.contract)],['Period Payments',money(m.payments)],['Period Expenses',money(m.expenses)],['Net Movement',money(m.net)],['Contract Collected',percent(m.collected)],['Funds Spent',percent(m.spent)],['Funds Remaining',percent(m.remaining)],['Outstanding Contract',money(r.balance)]].forEach(add); rows.push('');
+    add(['EXPENSE CATEGORY MOVEMENT']); add(['Category','Amount','% of Project Expenses']); (m.categories.length?m.categories:[['No expense category recorded',0]]).forEach(([name,amount])=>add([name,amount,percent(m.expenses?number(amount)/m.expenses*100:0)])); rows.push('');
+    add(['FINANCIAL COMMENTARY',m.commentary]); rows.push(''); add(['DETAILED TRANSACTION SCHEDULE']); add(['Date','Type','Category','Payee / Reference','Description','Payment Method','Entered By','Money In','Money Out']);
+    r.payments.forEach(x=>add([x.date,'Client Payment','Client Payment',x.reference||'—',x.description||'—',x.method||'—',x.enteredBy||'—',number(x.amount),0])); r.expenses.forEach(x=>{const incoming=x.type==='Other Income'||x.type==='Refund';add([x.date,x.type||'Expense',x.category||'—',x.payee||'—',x.description||'—',x.method||'—',x.enteredBy||'—',incoming?number(x.amount):0,incoming?0:number(x.amount)])});
+    const blob=new Blob(['\ufeff'+rows.join('\n')],{type:'text/csv;charset=utf-8;'}),link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download='LIWO-'+m.reportType+'-Financial-Report-'+m.project.replace(/[^a-z0-9]+/gi,'-')+'.csv';link.click();URL.revokeObjectURL(link.href);toast('Report CSV saved.');
+  };
+
+  /* The base page binds its controls before this compatibility layer is parsed.
+     Rebind them here so every export route always uses the shared report model. */
+  function bindExportControls(){
+    const print=byId('printReportBtn'),save=byId('saveReportBtn'),csv=byId('exportReportBtn'),period=byId('reportPeriod');
+    if(print)print.onclick=window.printReport;
+    if(save)save.onclick=window.printReport;
+    if(csv)csv.onclick=window.exportReportCSV;
+    if(period)period.onchange=window.renderReport;
+  }
+  bindExportControls();
+})();
+</script>
+
+<script id="liwo-calculator-script">
+(function(){
+  const $c=id=>document.getElementById(id);
+  const panels={concrete:$c("calcConcrete"),steel:$c("calcSteel"),block:$c("calcBlock"),paint:$c("calcPaint")};
+  const titles={concrete:"Concrete Calculator",steel:"Steel Calculator",block:"Block Calculator",paint:"Paint Calculator"};
+  let current="concrete";
+  function n(id, fallback=0){const v=parseFloat($c(id)?.value);return Number.isFinite(v)?v:fallback}
+  function moneyless(v,dec=2){return Number(v||0).toFixed(dec)}
+  function calculate(){
+    if(current==="concrete"){
+      const volume=n("concreteLength")*n("concreteWidth")*n("concreteThickness");
+      const bags=Math.ceil(volume*5);
+      $c("concreteVolume").textContent=moneyless(volume)+" m³";
+      $c("concreteCement").textContent=bags+" bags";
+    }else if(current==="steel"){
+      const d=n("steelDiameter"), length=n("steelLength"), qty=Math.max(1,n("steelQty",1));
+      const weight=(d*d/162)*length*qty;
+      $c("steelWeight").textContent=moneyless(weight)+" kg";
+      $c("steelFormula").textContent="d² ÷ 162 × length × qty";
+    }else if(current==="block"){
+      const area=n("blockLength")*n("blockHeight"), face=n("blockArea");
+      const count=Math.ceil((area/Math.max(face,.001))*1.05);
+      $c("blockCount").textContent=count.toLocaleString()+" pcs";
+    }else{
+      const area=n("paintArea"), coverage=Math.max(n("paintCoverage"),.1), coats=Math.max(1,n("paintCoats",1));
+      const litres=(area/coverage)*coats;
+      $c("paintLitres").textContent=moneyless(litres)+" L";
+      $c("paintPurchase").textContent=moneyless(litres*1.10)+" L";
+    }
+  }
+  function selectCalc(name){
+    if(!panels[name])return;
+    current=name;
+    Object.keys(panels).forEach(k=>panels[k].classList.toggle("hidden",k!==name));
+    document.querySelectorAll(".calculator-tool-card").forEach(b=>b.classList.toggle("active",b.dataset.calc===name));
+    if($c("calculatorTitle"))$c("calculatorTitle").textContent=titles[name];
+    calculate();
+  }
+  document.querySelectorAll(".calculator-tool-card").forEach(b=>b.addEventListener("click",()=>selectCalc(b.dataset.calc)));
+  $c("calculatorCalculateBtn")?.addEventListener("click",calculate);
+  $c("calculatorResetBtn")?.addEventListener("click",()=>{
+    document.querySelectorAll("#calculatorPage input").forEach(i=>{if(i.id==="concreteLength")i.value=10;if(i.id==="concreteWidth")i.value=5;if(i.id==="concreteThickness")i.value=.15;if(i.id==="steelDiameter")i.value=12;if(i.id==="steelLength")i.value=100;if(i.id==="steelQty")i.value=1;if(i.id==="blockLength")i.value=10;if(i.id==="blockHeight")i.value=3;if(i.id==="blockArea")i.value=.08;if(i.id==="paintArea")i.value=100;if(i.id==="paintCoverage")i.value=10;if(i.id==="paintCoats")i.value=2});
+    calculate();
+  });
+  function converters(){
+    const m=n("metersInput"), s=n("sqmInput"), kg=n("kgInput");
+    $c("feetResult").textContent=$c("metersInput").value!==""?(m*3.28084).toFixed(2)+" ft":"—";
+    $c("sqftResult").textContent=$c("sqmInput").value!==""?(s*10.7639).toFixed(2)+" ft²":"—";
+    $c("lbResult").textContent=$c("kgInput").value!==""?(kg*2.20462).toFixed(2)+" lb":"—";
+  }
+  ["metersInput","sqmInput","kgInput"].forEach(id=>$c(id)?.addEventListener("input",converters));
+  window.addEventListener("load",()=>{calculate();});
+})();
+</script>
 
 <script id="liwo-calculator-script">
 (function(){
